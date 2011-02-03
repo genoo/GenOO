@@ -39,10 +39,8 @@ sub _init {
 	
 		
 	my $class = ref($self) || $self;
+	$self->set_id($class->_increase_track_counter);
 	$class->_add_to_all($self);
-	my $id = $class->_increase_track_counter;
-	
-	$self->set_id($id);
 	
 	return $self;
 }
@@ -506,11 +504,11 @@ sub overlaps {
 	
 	sub _add_to_all {
 		my ($class,$obj) = @_;
-		$allTracks{$obj->get_name} = $obj;
+		$allTracks{$obj->get_id} = $obj;
 	}
 	sub _delete_from_all {
 		my ($class,$obj) = @_;
-		delete $allTracks{$obj->get_name};
+		delete $allTracks{$obj->get_id};
 	}
 	sub get_all {
 		my ($class) = @_;
@@ -522,8 +520,14 @@ sub overlaps {
 	}
 	sub get_by_name {
 		my ($class,$name) = @_;
-		if (exists $allTracks{$name}) {
-			return $allTracks{$name};
+		my @outtracks = ();
+		foreach my $track (values %allTracks) {
+			if ($name eq $track->get_name) {
+				push @outtracks, $track;
+			}
+		}
+		if (@outtracks > 0) {
+			return @outtracks;
 		}
 		else {
 			return undef;
