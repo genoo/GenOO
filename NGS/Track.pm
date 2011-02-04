@@ -75,6 +75,17 @@ sub get_browser {
 sub get_tags {
 	return $_[0]->{TAGS};
 }
+sub get_all_tags {
+	my @out = ();
+	foreach my $strand (keys %{$_[0]->get_tags})
+	{
+		foreach my $chr (keys %{$_[0]->get_tags->{$strand}})
+		{
+			push @out, @{$_[0]->get_tags->{$strand}->{$chr}};
+		}
+	}
+	return @out;
+}
 sub get_file {
 	return $_[0]->{FILE};
 }
@@ -323,6 +334,7 @@ sub merge_overlaping_tags {
 		}
 		my $tempscore = $newtag->get_score() + $tagobjects[$i]->get_score();
 		$newtag->set_score($tempscore);
+		$newtag->set_name($tempscore);
 	}
 	push (@out,$newtag);
 	return @out;
@@ -479,6 +491,32 @@ sub overlaps {
 							{
 								if ($tag->get_stop < $tag2->get_start){last;}
 								elsif ($tag2->contains($tag)){$tag->set_overlap($track2->get_id,1);}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if ($method eq "TOUCHES"){
+		my $tags_ref = $self->get_tags;
+		my $tags2_ref = $track2->get_tags;
+		my $offset = 0;
+		if (defined $attributes[0]){$offset = $attributes[0];}
+		foreach my $strand (keys %{$tags_ref}) {
+			foreach my $chr (keys %{$$tags_ref{$strand}}) {
+				if (exists $$tags_ref{$strand}{$chr}) {
+					if (exists $$tags2_ref{$strand}{$chr}) {
+						foreach my $tag (@{$$tags_ref{$strand}{$chr}})
+						{
+							foreach my $tag2 (@{$$tags2_ref{$strand}{$chr}})
+							{
+								if ($tag->get_stop < $tag2->get_start){last;}
+								elsif ($tag2->overlaps($tag, $offset))
+								{
+									$tag->set_overlap($track2->get_id,1);
+									$tag2->set_overlap($self->get_id,1);
+								}
 							}
 						}
 					}
