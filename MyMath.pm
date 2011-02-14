@@ -15,8 +15,8 @@ sub mean {
 	my $sum=0;
 
 	unless (defined $array_ref) {
-		print "undefined array reference in sub mean\n";
-		return 0;
+		warn "undefined array reference in sub mean\n";
+		return undef;
 	}
 
 	foreach my $item (@$array_ref) {
@@ -24,7 +24,7 @@ sub mean {
 		$sum += $item;
 		$n++;
 	}
-	if ($n==0) {return 0;}
+	if ($n==0) {return undef;}
 
 	$result = $sum/$n;
 	return $result;
@@ -40,6 +40,52 @@ sub round_digits {
 
 sub sigmoid {
 	return 1/(1+exp(-$_[1]));
+}
+
+sub max {
+# Calculates the max of the values in an array
+	my ($array_ref) = @_;
+	my $max_value;
+	my $max_index;
+	
+	unless (defined $array_ref) {
+		warn "undefined array reference in sub max\n";
+		return (undef,undef);
+	}
+
+	for (my $i=0;$i<@{$array_ref};$i++) {
+		if (defined $$array_ref[$i]) {
+			if ((!defined $max_value) or ($$array_ref[$i] > $max_value)) {
+				$max_value = $$array_ref[$i];
+				$max_index = $i;
+			}
+		}
+	}
+	
+	return ($max_index,$max_value);
+}
+
+sub min {
+# Calculates the min of the values in an array
+	my ($array_ref) = @_;
+	my $min_value;
+	my $min_index;
+	
+	unless (defined $array_ref) {
+		warn "undefined array reference in sub min\n";
+		return (undef,undef);
+	}
+
+	for (my $i=0;$i<@{$array_ref};$i++) {
+		if (defined $$array_ref[$i]) {
+			if ((!defined $min_value) or ($$array_ref[$i] < $min_value)) {
+				$min_value = $$array_ref[$i];
+				$min_index = $i;
+			}
+		}
+	}
+	
+	return ($min_index,$min_value);
 }
 
 1;

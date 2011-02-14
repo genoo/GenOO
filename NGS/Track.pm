@@ -95,7 +95,6 @@ sub get_filetype {
 sub get_extra {
 	return $_[0]->{EXTRA_INFO} ;
 }
-
 sub get_id {
 	return $_[0]->{ID} ;
 }
