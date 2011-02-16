@@ -7,6 +7,8 @@ use strict;
 use Scalar::Util qw/weaken/;
 
 use _Initializable;
+use Transcript::Exon;
+use Transcript::Intron;
 
 our $VERSION = '2.0';
 
@@ -28,6 +30,7 @@ sub _init {
 	$self->set_transcript($$data{TRANSCRIPT});  #Transcript
 	$self->set_splice_starts($$data{SPLICE_STARTS});  # [] reference to array of splice starts
 	$self->set_splice_stops($$data{SPLICE_STOPS});  # [] reference to array of splice stops
+	$self->set_exons($$data{EXONS}); # [] reference to an array of locus objects (exons)
 	$self->set_sequence($$data{SEQUENCE});
 	$self->set_extra($$data{EXTRA_INFO});
 	$self->set_accessibility($$data{ACCESSIBILITY});
@@ -67,6 +70,17 @@ sub get_splice_stops {
 	}
 	elsif (defined $_[0]->{SPLICE_STOPS}) {
 		return $_[0]->{SPLICE_STOPS}; # return the reference to the array with the splice stops
+	}
+	else {
+		[];
+	}
+}
+sub get_exons {
+	if (defined $_[1]) {
+		return ${$_[0]->{EXONS}}[$_[1]];
+	}
+	elsif (defined $_[0]->{EXONS}) {
+		return $_[0]->{EXONS}; # return the reference to the array with the locus objects
 	}
 	else {
 		[];
@@ -121,6 +135,24 @@ sub set_splice_stops {
 		$self->{SPLICE_STOPS} = \@splice_stops;
 	}
 }
+sub set_exons {
+	my ($self,$value) = @_;
+	if (defined $value) {
+		@$value = sort {$a->get_start <=> $b->get_start} @$value;
+		$self->{EXONS} = $value;
+	}
+	elsif ((exists $self->{SPLICE_STARTS}) and (exists $self->{SPLICE_STOPS})) {
+		for (my $i = 0; $i < @{$self->{SPLICE_STARTS}}; $i++) {
+			my $exon = Locus->new({
+				STRAND       => $self->get_transcript->get_strand,
+				CHR          => $self->get_transcript->get_chr,
+				START        => ${$self->{SPLICE_STARTS}}[$i],
+				STOP         => ${$self->{SPLICE_STOPS}}[$i],
+			});
+			$self->push_exon($exon);
+		}
+	}
+}
 sub set_accessibility {
 	my ($self,$accessibilityVar) = @_;
 	
@@ -152,6 +184,10 @@ sub _sequence_length_from_splicing {
 	}
 		
 	return $UTRlength;
+}
+sub push_exon {
+	my ($self, $exon);
+	push @{$self->{EXONS}}, $exon;
 }
 
 #######################################################################
