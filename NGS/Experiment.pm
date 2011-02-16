@@ -21,10 +21,7 @@ our @ISA = qw( _Initializable );
 sub _init {
 	my ($self,$data) = @_;
 	
-	$self->read_info("XML",$$data{XML});
-	
-	my $class = ref($self) || $self;
-	$class->_add_to_all($self);
+	$self->read_info($$data[0]);
 	
 	return $self;
 }
@@ -47,45 +44,9 @@ sub set_info {
 #########################   General Methods   #########################
 #######################################################################
 sub read_info {
-	my ($self,$method,@attributes) = @_;
+	my ($self,$filename) = @_;
 	
-	if ($method eq "XML") {
-		my $filename = $attributes[0];
-		$self->set_info(XMLin($filename));
-	}
-}
-
-#######################################################################
-##########################   Class Methods   ##########################
-#######################################################################
-{
-	my %experiments;
-	
-	sub _add_to_all {
-		my ($class,$obj) = @_;
-		$experiments{$obj->get_name} = $obj;
-	}
-	sub _delete_from_all {
-		my ($class,$obj) = @_;
-		delete $experiments{$obj->get_name};
-	}
-	sub get_all {
-		my ($class) = @_;
-		return %experiments;
-	}
-	sub delete_all {
-		my ($class) = @_;
-		%experiments = ();
-	}
-	sub get_by_name {
-		my ($class,$name) = @_;
-		if (exists $experiments{$name}) {
-			return $experiments{$name};
-		}
-		else {
-			return undef;
-		}
-	}
+	$self->set_info(XMLin($filename));
 }
 
 1;
