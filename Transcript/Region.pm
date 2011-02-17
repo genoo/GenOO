@@ -9,10 +9,11 @@ use Scalar::Util qw/weaken/;
 use _Initializable;
 use Transcript::Exon;
 use Transcript::Intron;
+use Locus;
 
 our $VERSION = '2.0';
 
-our @ISA = qw( _Initializable);
+our @ISA = qw( _Initializable Locus);
 
 # HOW TO CREATE THIS OBJECT
 # my $transcriptRegion = Transcript::Region->new({
@@ -80,11 +81,34 @@ sub get_exons {
 		return ${$_[0]->{EXONS}}[$_[1]];
 	}
 	elsif (defined $_[0]->{EXONS}) {
-		return $_[0]->{EXONS}; # return the reference to the array with the locus objects
+		return $_[0]->{EXONS}; # return the reference to the array with the exon objects
+	}
+	elsif ((defined $_[0]->get_transcript->get_cdna->get_exons()) and (defined $_[0]->get_start) and (defined $_[0]->get_stop)){
+		return $_[0]->get_contained_locuses($_[0]->get_transcript->get_cdna->get_exons());
 	}
 	else {
 		[];
 	}
+}
+sub get_introns {
+	my $self = $_[0];
+	my @introns = ();
+	unless (@{$self->get_exons} > 1) { return \@introns; }
+	my @exons = @{$self->get_exons};
+	for (my $i=0; $i<@exons-1; $i++)
+	{
+		my $prev_exon = $exons[$i];
+		my $next_exon = $exons[$i+1];
+		
+		my $intron = Transcript::Intron->new({
+				STRAND       => $prev_exon->get_strand,
+				CHR          => $prev_exon->get_chr,
+				START        => ($prev_exon->get_stop)+1,
+				STOP         => ($next_exon->get_start)-1,
+			});
+		push @introns, $intron;
+	}
+	return \@introns;
 }
 sub get_length {
 	if    (defined $_[0]->{LENGTH})   {
@@ -143,7 +167,7 @@ sub set_exons {
 	}
 	elsif ((exists $self->{SPLICE_STARTS}) and (exists $self->{SPLICE_STOPS})) {
 		for (my $i = 0; $i < @{$self->{SPLICE_STARTS}}; $i++) {
-			my $exon = Locus->new({
+			my $exon = Transcript::Exon->new({
 				STRAND       => $self->get_transcript->get_strand,
 				CHR          => $self->get_transcript->get_chr,
 				START        => ${$self->{SPLICE_STARTS}}[$i],
@@ -186,7 +210,7 @@ sub _sequence_length_from_splicing {
 	return $UTRlength;
 }
 sub push_exon {
-	my ($self, $exon);
+	my ($self, $exon) = @_;
 	push @{$self->{EXONS}}, $exon;
 }
 

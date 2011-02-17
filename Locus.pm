@@ -125,6 +125,17 @@ sub overlaps {
 	return 0; #no overlap
 }
 
+sub get_overlap_length {
+	my ($self,$loc2) = @_;
+	
+	#will return number of nucleotides of $self that are covered by $loc2
+	unless ($self->overlaps($loc2)){return 0;} #sanity check
+	my $nt_overlap = $loc2->get_length;
+	if ($loc2->get_start < $self->get_start){$nt_overlap -= ($self->get_start - $loc2->get_start);} #left overhang removed
+	if ($loc2->get_stop > $self->get_stop){$nt_overlap -= ($loc2->get_stop - $self->get_stop);} #right overhang removed
+	return $nt_overlap;
+}
+
 sub contains {
 	my ($self,$loc2,$percent) = @_;
 	
@@ -137,6 +148,45 @@ sub contains {
 # 	print $self->get_start." - ".$self->get_stop."\t".$loc2->get_start." - ".$loc2->get_stop."\t".($overhang / $loc2->get_length)."\t".$percent."\n";
 	if (($overhang / $loc2->get_length) <= (1-$percent)){return 1;}
 	return 0;
+}
+
+sub get_contained_locuses {
+# 	$self is a locus
+# 	$array is a reference to an array of locus objects
+#	the sub will return an array of locus objects containing the parts (or whole) objects on the array that fall within $self
+#
+#	          ---------------------------------------------
+#	  ---    ---              ---       ----              ------    -------
+#return
+#	          --              ---       ----              -                
+#
+	my ($self,$array) = @_;
+	my @outarray;
+	
+	if ((defined $self->get_start) and (defined $self->get_stop)){ #sanity check!
+		
+		foreach my $region (@{$array})
+		{
+			if ($region->get_chr ne $self->get_chr){next;} #chromosome check! don't align things in diff chromosome
+			if ($self->contains($region)){push @outarray, $region;} #fully contained in self
+			elsif ($self->overlaps($region))
+			{
+				my $class = ref($region) || $region;
+				my $partLocus = $class->new({
+					SPECIES      => $region->get_species,
+					STRAND       => $region->get_strand,
+					CHR          => $region->get_chr,
+					START        => (MyMath::max( [$region->get_start, $self->get_start] ))[1],
+					STOP         => (MyMath::min( [$region->get_stop, $self->get_stop] ))[1],
+					SEQUENCE     => undef, #not sure what to do with seq!!!
+					EXTRA_INFO   => $region->get_extra,
+				});
+				push @outarray, $partLocus;
+			}
+			else {next;} #no overlap
+		}
+	}
+	return \@outarray;
 }
 
 1;
