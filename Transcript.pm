@@ -333,6 +333,8 @@ sub set_internalGID {
 		while (my $line=<$IN>){
 			chomp($line);
 			if (substr($line,0,1) ne '#') {
+				if ($line eq ""){next;}
+				if ($line =~ /^\s*$/){next;}
 				my ($chr, $genome, $type, $start, $stop, $score, $strand, undef, $nameinfo) = split(/\t/, $line);
 				$nameinfo =~ /gene_id\s+\"(.+)\"\;\s+transcript_id\s+\"(.+)\"/;
 				my $ensgid = $1;
@@ -371,6 +373,10 @@ sub set_internalGID {
 		
 		foreach my $enstid (keys %allexons)
 		{
+			my $chr = ${$allexons{$enstid}}[0]->get_chr;
+			my $strand = ${$allexons{$enstid}}[0]->get_strand;
+			
+		
 			my $ensgid = $ensg{$enstid};
 			# Search if the gene has already been defined. If not create it
 			my $geneObj = Gene->get_by_ensgid($ensgid);
@@ -386,112 +392,51 @@ sub set_internalGID {
 				$transcriptObj = $class->new({
 					ENSTID   => $enstid,
 					GENE     => $geneObj,
+					CHR      => $chr,
+					STRAND   => $strand
 				});
 			}
 						
-			my $non_coding = 0;
-			if ((!exists $coding_start{$enstid}) and (!exists $coding_stop{$enstid})){$non_coding = 1;}
 			foreach my $exon (@{$allexons{$enstid}})
 			{
-				#if (transcript is noncoding){make cdna with exons}
-				if ($non_coding){
-					$transcriptObj->get_cdna->push_exon($exon);
-					$transcriptObj->set_biotype("non coding");
-				}
-				else {
-					$transcriptObj->set_biotype("coding");
-					my $coding_start = $coding_start{$enstid};
-					my $coding_stop = $coding_stop{$enstid};
-					
-					if ($exon->get_strand eq "1") {
-					
-						if ($exon->get_stop < $coding_start){$transcriptObj->get_utr5->push_exon($exon);}
-						elsif ($exon->get_start > $coding_stop){$transcriptObj->get_utr3->push_exon($exon);}
-						elsif (($exon->get_start >= $coding_start) and ($exon->get_stop <= $coding_stop)){$transcriptObj->get_cds->push_exon($exon);}
-						elsif ($exon->get_start < $coding_start) {
-							my $exon1 = Transcript::Exon->new({
-								STRAND       => $exon->get_strand,
-								CHR          => $exon->get_chr,
-								START        => $exon->get_start,
-								STOP         => $coding_start,
-								EXTRA_INFO   => $exon->get_extra,
-								});
-							$transcriptObj->get_utr5->push_exon($exon1);
-							my $exon2 = Transcript::Exon->new({
-								STRAND       => $exon->get_strand,
-								CHR          => $exon->get_chr,
-								START        => $coding_start,
-								STOP         => $exon->get_stop,
-								EXTRA_INFO   => $exon->get_extra,
-								});
-							$transcriptObj->get_cds->push_exon($exon2);
-						}
-						elsif ($exon->get_stop > $coding_stop) {
-							my $exon1 = Transcript::Exon->new({
-								STRAND       => $exon->get_strand,
-								CHR          => $exon->get_chr,
-								START        => $exon->get_start,
-								STOP         => $coding_stop,
-								EXTRA_INFO   => $exon->get_extra,
-								});
-							$transcriptObj->get_cds->push_exon($exon1);
-							my $exon2 = Transcript::Exon->new({
-								STRAND       => $exon->get_strand,
-								CHR          => $exon->get_chr,
-								START        => $coding_stop,
-								STOP         => $exon->get_stop,
-								EXTRA_INFO   => $exon->get_extra,
-								});
-							$transcriptObj->get_utr3->push_exon($exon2);
-						
-						}
-					}
-					elsif ($exon->get_strand eq "-1") {
-					
-						if ($exon->get_stop < $coding_start){$transcriptObj->get_utr3->push_exon($exon);}
-						elsif ($exon->get_start > $coding_stop){$transcriptObj->get_utr5->push_exon($exon);}
-						elsif (($exon->get_start >= $coding_start) and ($exon->get_stop <= $coding_stop)){$transcriptObj->get_cds->push_exon($exon);}
-						elsif ($exon->get_start < $coding_start) {
-							my $exon1 = Transcript::Exon->new({
-								STRAND       => $exon->get_strand,
-								CHR          => $exon->get_chr,
-								START        => $exon->get_start,
-								STOP         => $coding_start,
-								EXTRA_INFO   => $exon->get_extra,
-								});
-							$transcriptObj->get_utr3->push_exon($exon1);
-							my $exon2 = Transcript::Exon->new({
-								STRAND       => $exon->get_strand,
-								CHR          => $exon->get_chr,
-								START        => $coding_start,
-								STOP         => $exon->get_stop,
-								EXTRA_INFO   => $exon->get_extra,
-								});
-							$transcriptObj->get_cds->push_exon($exon2);
-						}
-						elsif ($exon->get_stop > $coding_stop) {
-							my $exon1 = Transcript::Exon->new({
-								STRAND       => $exon->get_strand,
-								CHR          => $exon->get_chr,
-								START        => $exon->get_start,
-								STOP         => $coding_stop,
-								EXTRA_INFO   => $exon->get_extra,
-								});
-							$transcriptObj->get_cds->push_exon($exon1);
-							my $exon2 = Transcript::Exon->new({
-								STRAND       => $exon->get_strand,
-								CHR          => $exon->get_chr,
-								START        => $coding_stop,
-								STOP         => $exon->get_stop,
-								EXTRA_INFO   => $exon->get_extra,
-								});
-							$transcriptObj->get_utr5->push_exon($exon2);
-						
-						}
-					}
-					else {warn "wrong strand:\"".$exon->get_strand."\"\n"; next;}
-				}
+				$exon->set_extra("from_file");
+				$transcriptObj->get_cdna->push_exon($exon);
 			}
+			
+			$transcriptObj->get_cdna->set_chr($transcriptObj->get_chr);
+			$transcriptObj->get_cdna->set_strand($transcriptObj->get_strand);
+			
+			if ((!exists $coding_start{$enstid}) and (!exists $coding_stop{$enstid})){$transcriptObj->set_biotype("non coding");}
+			else 
+			{
+				if ($transcriptObj->get_strand == 1){
+					$transcriptObj->get_utr5->set_start($transcriptObj->get_start);
+					$transcriptObj->get_utr5->set_stop($coding_start{$enstid}-1);
+					$transcriptObj->get_cds->set_start($coding_start{$enstid});
+					$transcriptObj->get_cds->set_stop($coding_stop{$enstid});
+					$transcriptObj->get_utr3->set_start($coding_stop{$enstid}+1);
+					$transcriptObj->get_utr3->set_stop($transcriptObj->get_stop);
+				}
+				elsif ($transcriptObj->get_strand == -1){
+					$transcriptObj->get_utr5->set_start($coding_stop{$enstid}+1);
+					$transcriptObj->get_utr5->set_stop($transcriptObj->get_stop);
+					$transcriptObj->get_cds->set_start($coding_start{$enstid});
+					$transcriptObj->get_cds->set_stop($coding_stop{$enstid});
+					$transcriptObj->get_utr3->set_start($transcriptObj->get_start);
+					$transcriptObj->get_utr3->set_stop($coding_start{$enstid}-1);
+				}
+				
+				$transcriptObj->get_utr5->set_chr($transcriptObj->get_chr);
+				$transcriptObj->get_utr3->set_chr($transcriptObj->get_chr);
+				$transcriptObj->get_cds->set_chr($transcriptObj->get_chr);
+				
+				$transcriptObj->get_utr5->set_strand($transcriptObj->get_strand);
+				$transcriptObj->get_utr3->set_strand($transcriptObj->get_strand);
+				$transcriptObj->get_cds->set_strand($transcriptObj->get_strand);
+				
+				$transcriptObj->set_biotype("coding");
+			}
+			
 		}
 		return %allTranscripts;
 	}
