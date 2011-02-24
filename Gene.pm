@@ -93,12 +93,12 @@ sub set_internalID {
 	$_[0]->{INTERNAL_ID} = $_[1] if defined $_[1];
 }
 sub set_description {$_[0]->{DESCRIPTION} = $_[1] if (defined $_[1] && $_[1] ne '');}
+sub set_common_name {$_[0]->{COMMON_NAME} = $_[1] if (defined $_[1] && $_[1] ne '');}
+
 sub add_refseq {
 	push (@{$_[0]->{REFSEQ}},$_[1]) if (defined $_[1] && $_[1] ne '');
 }
-sub add_common_name {
-	push (@{$_[0]->{COMMON_NAME}},$_[1]) if (defined $_[1] && $_[1] ne '');
-}
+#add_common_name deleted!!!
 
 #######################################################################
 #########################   General Methods   #########################
@@ -190,7 +190,7 @@ sub add_common_name {
 							   ENSGID   => $ensgid,
 							});
 			}
-			$geneObj->add_common_name($commonName);
+			$geneObj->set_common_name($commonName);
 		}
 		close $IN;
 		

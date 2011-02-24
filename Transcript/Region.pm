@@ -28,6 +28,8 @@ our @ISA = qw( _Initializable Locus);
 sub _init {
 	my ($self,$data) = @_;
 	
+	$self->SUPER::_init($data);
+	
 	$self->set_transcript($$data{TRANSCRIPT});  #Transcript
 	$self->set_splice_starts($$data{SPLICE_STARTS});  # [] reference to array of splice starts
 	$self->set_splice_stops($$data{SPLICE_STOPS});  # [] reference to array of splice stops
@@ -110,6 +112,36 @@ sub get_introns {
 	}
 	return \@introns;
 }
+
+sub get_intron_exon_junctions {
+	my $self = $_[0];
+	my @junctions = ();
+	unless (@{$self->get_exons} > 1) { return \@junctions; }
+	
+	if ((!defined $self->get_start) or (!defined $self->get_stop)) {warn "$self !defined start: $self->get_start or stop: $self->get_stop!\n"; return \@junctions; }
+	
+	foreach my $exon (@{$self->get_exons})
+	{		
+		my $jun = Locus->new({
+				STRAND       => $exon->get_strand,
+				CHR          => $exon->get_chr,
+				START        => $exon->get_start-1,
+				STOP         => $exon->get_start-1,
+			});
+		if ($jun->get_start != $self->get_start-1){push @junctions, $jun;}
+		
+		my $jun2 = Locus->new({
+				STRAND       => $exon->get_strand,
+				CHR          => $exon->get_chr,
+				START        => $exon->get_stop,
+				STOP         => $exon->get_stop,
+			});
+		if ($jun2->get_start != $self->get_stop){push @junctions, $jun2;}
+	}
+	return \@junctions;
+}
+
+
 sub get_length {
 	if    (defined $_[0]->{LENGTH})   {
 	}
