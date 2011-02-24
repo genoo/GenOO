@@ -328,6 +328,8 @@ sub set_internalGID {
 		my %allexons;
 		my %coding_start;
 		my %coding_stop;
+		my %t_start;
+		my %t_stop;
 		my %ensg;
 		open (my $IN,"<",$file) or die "Cannot open file $file: $!";
 		while (my $line=<$IN>){
@@ -352,6 +354,9 @@ sub set_internalGID {
 				     WHERE        => undef,
 				     EXTRA_INFO   => $type,
 				});
+				
+				if ((!defined $t_start{$enstid}) or ($start < $t_start{$enstid})){$t_start{$enstid} = $start;}
+				if ((!defined $t_stop{$enstid}) or ($stop > $t_stop{$enstid})){$t_stop{$enstid} = $stop;}
 				
 				if ($type eq "start_codon") {
 					if ($strand eq "+"){$coding_start{$enstid} = $start;}
@@ -393,7 +398,9 @@ sub set_internalGID {
 					ENSTID   => $enstid,
 					GENE     => $geneObj,
 					CHR      => $chr,
-					STRAND   => $strand
+					STRAND   => $strand,
+					START    => $t_start{$enstid},
+					STOP     => $t_stop{$enstid}
 				});
 			}
 						
@@ -405,6 +412,8 @@ sub set_internalGID {
 			
 			$transcriptObj->get_cdna->set_chr($transcriptObj->get_chr);
 			$transcriptObj->get_cdna->set_strand($transcriptObj->get_strand);
+			$transcriptObj->get_cdna->set_start($transcriptObj->get_start);
+			$transcriptObj->get_cdna->set_stop($transcriptObj->get_stop);
 			
 			if ((!exists $coding_start{$enstid}) and (!exists $coding_stop{$enstid})){$transcriptObj->set_biotype("non coding");}
 			else 

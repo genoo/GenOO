@@ -7,6 +7,7 @@ use strict;
 
 use _Initializable;
 use Transcript::Region;
+use Locus;
 
 our $VERSION = '2.0';
 
@@ -37,7 +38,21 @@ sub _init {
 #######################################################################
 #############################   Getters   #############################
 #######################################################################
-
+sub get_cds_start_locus {
+#this will return the coding start nucleotide not the "start"/ ie it will be strand specific!
+	my $self = $_[0];
+	my $start;
+	if ($self->get_strand == 1){$start = $self->get_start;}
+	elsif ($self->get_strand == -1){$start = $self->get_stop;}
+	else {return undef;}
+	my $cdsstart = Locus->new({
+				STRAND       => $self->get_strand,
+				CHR          => $self->get_chr,
+				START        => $start,
+				STOP         => $start,
+	});
+	
+}
 #######################################################################
 #############################   Setters   #############################
 #######################################################################

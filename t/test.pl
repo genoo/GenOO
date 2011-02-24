@@ -23,6 +23,9 @@ foreach my $transcript (values %transcripts)
 		unless (defined $region){next;}
 		my $regclass = ref($region) || $region;
 		$regclass =~ s/Transcript:://g;
+		
+		if ($regclass eq "CDNA"){$regclass = "full_length"; if ($transcript->get_biotype eq "coding"){next;}}
+		
 		foreach my $block (@{$region->get_introns}, @{$region->get_exons})
 		{
 			if ((!defined $block->get_start) or (!defined $block->get_stop))
@@ -39,14 +42,15 @@ foreach my $transcript (values %transcripts)
 			
 			my $blockclass = ref($block) || $block;
 			$blockclass =~ s/Transcript:://g;
-						
+			
+			my $position = "chr".$block->get_chr.":".$block->get_start."-".$block->get_stop;
 			foreach my $id (keys %tracks)
 			{	
 	# 				print "intron: ".$intron."\n";
 				my $tag_count = count_overlapping_tags($block,$id, $longest_tag);
 				my $xcoverage = count_coverage_by_tags($block,$id, $longest_tag);
 				
-				if($tag_count){print $tracks{$id}->get_name."\t".$transcript->get_enstid."\t".$transcript->get_biotype."\t".$regclass."\t".$blockclass."\t".$tag_count."\t".$block->get_length."\t".MyMath::round_digits(($xcoverage),4)."\n";}
+				if($tag_count){print $tracks{$id}->get_name."\t".$transcript->get_enstid."\t".$transcript->get_biotype."\t".$regclass."\t".$blockclass."\t".$tag_count."\t".$block->get_length."\t".MyMath::round_digits(($xcoverage),4)."\t".$position."\n";}
 			}
 		}
 	}
