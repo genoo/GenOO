@@ -48,5 +48,12 @@ sub read_info {
 	
 	$self->set_info(XMLin($filename));
 }
+sub write_info {
+	my ($self,$filename) = @_;
+	
+	open(my $OUT,">",$filename) or die "Cannot write to file $filename $!";
+	print $OUT XMLout($self->get_info);
+	close $OUT;
+}
 
 1;

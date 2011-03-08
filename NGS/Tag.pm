@@ -127,29 +127,33 @@ sub set_overlap {
 }
 
 #######################################################################
-##########################   Class Methods   ##########################
+#########################   General Methods   #########################
 #######################################################################
 sub output_tag {
-	my ($class,$method,@attributes) = @_;
+	my ($self,$method,@attributes) = @_;
+	$self->to_string($method,@attributes);
+}
+sub to_string {
+	my ($self,$method,@attributes) = @_;
 		
 	my $print_tag;
 	if ($method eq "BED") {
 		my $strand;
-		if ($class->get_strand == 1){$strand = "+";}
-		elsif ($class->get_strand == -1){$strand = "-";}
+		if    ($self->get_strand == 1){$strand = "+";}
+		elsif ($self->get_strand == -1){$strand = "-";}
 		else {$strand = ".";}
 		
-		my $name = defined $class->get_name ? $class->get_name : ".";
-		my $score = defined $class->get_score ? $class->get_score : 0;
+		my $name = defined $self->get_name ? $self->get_name : ".";
+		my $score = defined $self->get_score ? $self->get_score : 0;
 		
-		$print_tag = "chr".$class->get_chr."\t".$class->get_start."\t".($class->get_stop+1)."\t".$name."\t".$class->get_score."\t".$strand;
+		$print_tag = "chr".$self->get_chr."\t".$self->get_start."\t".($self->get_stop+1)."\t".$name."\t".$self->get_score."\t".$strand;
 		
-		$print_tag .= defined $class->get_thick_start ? "\t".$class->get_thick_start : "\t";
-		$print_tag .= defined $class->get_thick_stop ? "\t".$class->get_thick_stop : "\t";
-		$print_tag .= defined $class->get_rgb ? "\t".$class->get_rgb : "\t";
-		$print_tag .= defined $class->get_block_count ? "\t".$class->get_block_count : "\t";
-		$print_tag .= defined $class->get_block_sizes ? "\t".$class->get_block_sizes : "\t";
-		$print_tag .= defined $class->get_block_starts ? "\t".$class->get_block_starts : "\t";
+		$print_tag .= defined $self->get_thick_start ? "\t".$self->get_thick_start : "\t";
+		$print_tag .= defined $self->get_thick_stop ? "\t".$self->get_thick_stop : "\t";
+		$print_tag .= defined $self->get_rgb ? "\t".$self->get_rgb : "\t";
+		$print_tag .= defined $self->get_block_count ? "\t".$self->get_block_count : "\t";
+		$print_tag .= defined $self->get_block_sizes ? "\t".$self->get_block_sizes : "\t";
+		$print_tag .= defined $self->get_block_starts ? "\t".$self->get_block_starts : "\t";
 	}
 	$print_tag =~ s/\t+$//g;
 	return $print_tag;

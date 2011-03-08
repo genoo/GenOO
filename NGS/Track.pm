@@ -1,3 +1,27 @@
+=begin nd
+
+Class: NGS::Track
+A class that manages a collection of objects that inherit from the class Locus
+The idea was to design a class that would simulate the tracks used in UCSC genome browser
+
+Initialize:
+> my $track = NGS::Track->new({
+>	NAME            => undef,
+>	DESCRIPTION     => undef,
+>	VISIBILITY      => undef,
+>	COLOR           => undef,
+>	RGB_FLAG        => undef,
+>	COLOR_BY_STRAND => undef,
+>	USE_SCORE       => undef,
+>	BROWSER         => undef,
+>	TAGS            => undef,
+>	FILE            => undef,
+>	FILETYPE        => undef,
+>	EXTRA_INFO      => undef,
+>});
+
+=cut
+
 package NGS::Track;
 
 use warnings;
@@ -6,25 +30,16 @@ use strict;
 use FileHandle;
 use _Initializable;
 use NGS::Tag;
+use MySub;
 
 our @ISA = qw( _Initializable );
-
-# HOW TO INITIALIZE THIS OBJECT
-# my $tagObj = Misc::Peak->new({
-# 		     CHR           => undef,
-# 		     CHR_START     => undef,
-# 		     CHR_STOP      => undef,
-# 		     NAME          => undef,
-# 		     TAGS          => undef,
-# 		     STRAND        => undef,
-# 		     EXTRA_INFO    => undef,
-# 		     });
 
 sub _init {
 	
 	my ($self,$data) = @_;
 	
 	$self->set_name($$data{NAME});
+	$self->set_species($$data{SPECIES});
 	$self->set_description($$data{DESCRIPTION});
 	$self->set_visibility($$data{VISIBILITY});
 	$self->set_color($$data{COLOR});
@@ -37,7 +52,6 @@ sub _init {
 	$self->set_filetype($$data{FILETYPE});
 	$self->set_extra($$data{EXTRA_INFO});
 	
-		
 	my $class = ref($self) || $self;
 	$self->set_id($class->_increase_track_counter);
 	$class->_add_to_all($self);
@@ -50,6 +64,9 @@ sub _init {
 #######################################################################
 sub get_name {
 	return $_[0]->{NAME};
+}
+sub get_species {
+	return $_[0]->{SPECIES};
 }
 sub get_description {
 	return $_[0]->{DESCRIPTION};
@@ -103,6 +120,9 @@ sub get_id {
 #######################################################################
 sub set_name {
 	$_[0]->{NAME}=$_[1] if defined $_[1];
+}
+sub set_species {
+	$_[0]->{SPECIES}=$_[1] if defined $_[1];
 }
 sub set_description {
 	$_[0]->{DESCRIPTION}=$_[1] if defined $_[1];
@@ -175,8 +195,19 @@ sub print_track_line {
 	}
 }
 
+=head2 print_all_tags
+
+  Arg [1]    : string $method
+               A descriptor of the desired output method (BED, FASTA).
+  Example    : $track->print_all_tags("BED");
+  Description: Prints the tags for a track object.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Stable
+
+=cut
 sub print_all_tags {
-	my ($self, $method) = @_;
+	my ($self, $method, @attributes) = @_;
 	
 	if ($method eq "BED"){
 		my $tags_ref = $self->get_tags;
@@ -191,7 +222,41 @@ sub print_all_tags {
 			}
 		}
 	}
-
+	elsif ($method eq "FASTA") {
+		my $OUT;
+		if ((!defined $attributes[0]) or ($attributes[0] eq "STDOUT")) {
+			open ($OUT,">&=",STDOUT);
+		}
+		else {
+			open($OUT,">",$attributes[0]);
+		}
+		my $chr_folder = defined $attributes[1] ? $attributes[1] : die "method FASTA was requested but no chromosome sequences provided";
+		my $tags_ref = $self->get_tags;
+		foreach my $strand (keys %{$tags_ref}) {
+			foreach my $chr (keys %{$$tags_ref{$strand}}) {
+				my $chr_file = $chr_folder."/chr$chr.fa";
+				my $chr_seq = MySub::read_fasta($chr_file,"chr$chr");
+				if (exists $$tags_ref{$strand}{$chr}) {
+					foreach my $tag (@{$$tags_ref{$strand}{$chr}})
+					{
+						my $tag_seq = substr($chr_seq,$tag->get_start,$tag->get_length);
+						if ($strand == -1) {
+							$tag_seq = reverse($tag_seq);
+							if ($tag_seq =~ /U/i) {
+								$tag_seq =~ tr/ATGCUatgcu/UACGAuacga/;
+							}
+							else {
+								$tag_seq =~ tr/ATGCUatgcu/TACGAtacga/;
+							}
+						}
+						my $header = $tag->output_tag("BED");
+						$header =~ s/\t/|/g;
+						print $OUT ">$header\n$tag_seq\n";
+					}
+				}
+			}
+		}
+	}
 }
 sub sort_tags {
 	my ($self) = @_;
