@@ -1,35 +1,34 @@
-package Transcript;
+package MyBio::Transcript;
 
 # This object describes a gene transcript.
 
 use warnings;
 use strict;
-
 use Switch;
 use Scalar::Util qw/weaken/;
 
-use _Initializable;
-use DBconnector;
-use Gene;
-use Transcript::UTR5;
-use Transcript::CDS;
-use Transcript::UTR3;
-use Transcript::Exon;
-use Transcript::CDNA;
+use MyBio::_Initializable;
+use MyBio::DBconnector;
+use MyBio::Gene;
+use MyBio::Transcript::UTR5;
+use MyBio::Transcript::CDS;
+use MyBio::Transcript::UTR3;
+use MyBio::Transcript::Exon;
+use MyBio::Transcript::CDNA;
 
 our $VERSION = '2.0';
 
-our @ISA = qw( _Initializable);
+our @ISA = qw(MyBio::_Initializable);
 
 # HOW TO INITIALIZE THIS OBJECT
-# my $transcript = Transcript->new({
+# my $transcript = MyBio::Transcript->new({
 # 		     ENSTID         => undef,
 # 		     STRAND         => undef,
 # 		     CHR            => undef,
-# 		     GENE           => undef, # Gene
-# 		     UTR5           => undef, # Transcript::UTR5
-# 		     CDS            => undef, # Transcript::CDS
-# 		     UTR3           => undef, # Transcript::UTR3
+# 		     GENE           => undef, # MyBio::Gene
+# 		     UTR5           => undef, # MyBio::Transcript::UTR5
+# 		     CDS            => undef, # MyBio::Transcript::CDS
+# 		     UTR3           => undef, # MyBio::Transcript::UTR3
 # 		     EXTRA_INFO     => undef,
 # 		     });
 
@@ -39,11 +38,11 @@ sub _init {
 	$self->set_enstid($$data{ENSTID});
 	$self->set_strand($$data{STRAND});
 	$self->set_chr($$data{CHR});
-	$self->set_gene($$data{GENE}); # Gene
-	$self->set_utr5($$data{UTR5}); # Transcript::UTR5
-	$self->set_cds($$data{CDS});   # Transcript::CDS
-	$self->set_utr3($$data{UTR3}); # Transcript::UTR3
-	$self->set_cdna($$data{CDNA}); # Transcript::CDNA
+	$self->set_gene($$data{GENE}); # MyBio::Gene
+	$self->set_utr5($$data{UTR5}); # MyBio::Transcript::UTR5
+	$self->set_cds($$data{CDS});   # MyBio::Transcript::CDS
+	$self->set_utr3($$data{UTR3}); # MyBio::Transcript::UTR3
+	$self->set_cdna($$data{CDNA}); # MyBio::Transcript::CDNA
 	$self->set_internalID($$data{INTERNAL_ID});
 	$self->set_species($$data{SPECIES});
 	$self->set_biotype($$data{BIOTYPE});
@@ -77,7 +76,7 @@ sub get_utr5 {
 	my ($self) = @_;
 	
 	unless (defined $self->{UTR5}) {
-		$self->set_utr5(Transcript::UTR5->create_new_UTR5_from_database($self));
+		$self->set_utr5(MyBio::Transcript::UTR5->create_new_UTR5_from_database($self));
 	}
 	return $self->{UTR5};
 }
@@ -85,7 +84,7 @@ sub get_cds {
 	my ($self) = @_;
 	
 	unless (defined $self->{CDS}) {
-		$self->set_cds(Transcript::CDS->create_new_CDS_from_database($self));
+		$self->set_cds(MyBio::Transcript::CDS->create_new_CDS_from_database($self));
 	}
 	return $self->{CDS};
 }
@@ -97,7 +96,7 @@ sub get_utr3 {
 	my ($self) = @_;
 	
 	unless (defined $self->{UTR3}) {
-		$self->set_utr3(Transcript::UTR3->create_new_UTR3_from_database($self));
+		$self->set_utr3(MyBio::Transcript::UTR3->create_new_UTR3_from_database($self));
 	}
 	return $self->{UTR3};
 }
@@ -161,7 +160,7 @@ sub set_utr5 {
 		$self->{UTR5} = $value;
 	}
 	else {
-		$self->{UTR5} = Transcript::UTR5->new( {TRANSCRIPT => $self} );
+		$self->{UTR5} = MyBio::Transcript::UTR5->new( {TRANSCRIPT => $self} );
 	}
 }
 sub set_cds {
@@ -170,7 +169,7 @@ sub set_cds {
 		$self->{CDS} = $value;
 	}
 	else {
-		$self->{CDS} = Transcript::CDS->new( {TRANSCRIPT => $self} );
+		$self->{CDS} = MyBio::Transcript::CDS->new( {TRANSCRIPT => $self} );
 	}
 }
 sub set_cdna {
@@ -179,7 +178,7 @@ sub set_cdna {
 		$self->{CDNA} = $value;
 	}
 	else {
-		$self->{CDNA} = Transcript::CDNA->new( {TRANSCRIPT => $self} );
+		$self->{CDNA} = MyBio::Transcript::CDNA->new( {TRANSCRIPT => $self} );
 	}
 }
 sub set_utr3 {
@@ -188,7 +187,7 @@ sub set_utr3 {
 		$self->{UTR3} = $value;
 	}
 	else {
-		$self->{UTR3} = Transcript::UTR3->new( {TRANSCRIPT => $self} );
+		$self->{UTR3} = MyBio::Transcript::UTR3->new( {TRANSCRIPT => $self} );
 	}
 }
 sub set_start {
@@ -278,9 +277,9 @@ sub set_internalGID {
 				my ($ensgid,$enstid,$chr,$strand,$start,$stop,$biotype) = split(/\t/,$line);
 				
 				# Search if the gene has already been defined. If not create it
-				my $geneObj = Gene->get_by_ensgid($ensgid);
+				my $geneObj = MyBio::Gene->get_by_ensgid($ensgid);
 				unless ($geneObj) {
-					$geneObj = Gene->new({
+					$geneObj = MyBio::Gene->new({
 								ENSGID   => $ensgid,
 								});
 				}
@@ -322,7 +321,7 @@ sub set_internalGID {
 	sub _read_gtf_with_transcripts {
 		my ($class,$file)=@_;
 		
-		Gene->deny_database_access;
+		MyBio::Gene->deny_database_access();
 		$class->deny_database_access;
 		
 		my %allexons;
@@ -344,7 +343,7 @@ sub set_internalGID {
 				
 				$ensg{$enstid} = $ensgid; 
 				
-				my $exon = Transcript::Exon->new({
+				my $exon = MyBio::Transcript::Exon->new({
 				     SPECIES      => undef,
 				     STRAND       => $strand,
 				     CHR          => $chr,
@@ -384,9 +383,9 @@ sub set_internalGID {
 		
 			my $ensgid = $ensg{$enstid};
 			# Search if the gene has already been defined. If not create it
-			my $geneObj = Gene->get_by_ensgid($ensgid);
+			my $geneObj = MyBio::Gene->get_by_ensgid($ensgid);
 			unless ($geneObj) {
-				$geneObj = Gene->new({
+				$geneObj = MyBio::Gene->new({
 					ENSGID   => $ensgid,
 				});
 			}
@@ -471,9 +470,9 @@ sub set_internalGID {
 				my ($enstid,$strand,$chr,$ensgid,$species) = split(/\|/,$line);
 				
 				# Search if the gene has already been defined. If not create it
-				my $geneObj = Gene->get_by_ensgid($ensgid);
+				my $geneObj = MyBio::Gene->get_by_ensgid($ensgid);
 				unless ($geneObj) {
-					$geneObj = Gene->new({
+					$geneObj = MyBio::Gene->new({
 								ENSGID   => $ensgid,
 								});
 				}
@@ -497,7 +496,7 @@ sub set_internalGID {
 			}
 			elsif (substr($line,0,4) eq 'UTR5') {
 				my ($what,$splice_starts,$splice_stops,$sequence,$accessibility) = split(/\t/,$line);
-				my $utr5Obj = Transcript::UTR5->new({
+				my $utr5Obj = MyBio::Transcript::UTR5->new({
 									TRANSCRIPT       => $transcript,
 									SPLICE_STARTS    => $splice_starts,
 									SPLICE_STOPS     => $splice_stops,
@@ -508,7 +507,7 @@ sub set_internalGID {
 			}
 			elsif (substr($line,0,3) eq 'CDS') {
 				my ($what,$splice_starts,$splice_stops,$sequence,$accessibility) = split(/\t/,$line);
-				my $cdsObj = Transcript::CDS->new({
+				my $cdsObj = MyBio::Transcript::CDS->new({
 									TRANSCRIPT       => $transcript,
 									SPLICE_STARTS    => $splice_starts,
 									SPLICE_STOPS     => $splice_stops,
@@ -519,7 +518,7 @@ sub set_internalGID {
 			}
 			elsif (substr($line,0,4) eq 'UTR3') {
 				my ($what,$splice_starts,$splice_stops,$sequence,$accessibility) = split(/\t/,$line);
-				my $utr3Obj = Transcript::UTR3->new({
+				my $utr3Obj = MyBio::Transcript::UTR3->new({
 									TRANSCRIPT       => $transcript,
 									SPLICE_STARTS    => $splice_starts,
 									SPLICE_STOPS     => $splice_stops,
@@ -625,12 +624,12 @@ sub set_internalGID {
 				}
 			}
 			if ($allowDatabaseAccess) {
-				if (DBconnector->exists("core")) {
-					$DBconnector = DBconnector->get_dbconnector("core");
+				if (MyBio::DBconnector->exists("core")) {
+					$DBconnector = MyBio::DBconnector->get_dbconnector("core");
 				}
 				else {
 					print STDERR "\nRequesting database connector with name \"transcript\"\n";
-					$DBconnector = DBconnector->get_dbconnector("transcript");
+					$DBconnector = MyBio::DBconnector->get_dbconnector("transcript");
 				}
 			}
 		}

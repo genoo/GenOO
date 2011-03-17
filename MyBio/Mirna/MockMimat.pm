@@ -6,12 +6,10 @@ use strict;
 use MyBio::Mirna::Mimat;
 use MyBio::_Initializable;
 
-our $VERSION = '1.0';
-
-our @ISA = qw( _Initializable Mirna::Mimat);
+our @ISA = qw(MyBio::Mirna::Mimat);
 
 # HOW TO INITIALIZE THIS OBJECT
-# my $mimatObj = Mirna::Mimat->new({
+# my $mimatObj = MyBio::Mirna::MockMimat->new({
 # 		     NAME         => undef,
 # 		     MIMAT        => undef,
 # 		     SEQUENCE     => undef,

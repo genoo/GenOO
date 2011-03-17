@@ -1,4 +1,4 @@
-package MyMath;
+package MyBio::MyMath;
 
 # Contains useful mathematical functions
 

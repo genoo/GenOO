@@ -7,12 +7,10 @@ use Switch;
 use MyBio::DBconnector;
 use MyBio::_Initializable;
 
-our $VERSION = '1.0';
-
-our @ISA = qw( _Initializable );
+our @ISA = qw( MyBio::_Initializable );
 
 # HOW TO INITIALIZE THIS OBJECT
-# my $mimatObj = Mirna::Mimat->new({
+# my $mimatObj = MyBio::Mirna::Mimat->new({
 # 		     NAME         => undef,
 # 		     MIMAT        => undef,
 # 		     INTERNAL_ID  => undef,
@@ -303,12 +301,12 @@ sub set_chr_stop {
 				}
 			}
 			if ($allowDatabaseAccess) {
-				if (DBconnector->exists("core")) {
-					$DBconnector = DBconnector->get_dbconnector("core");
+				if (MyBio::DBconnector->exists("core")) {
+					$DBconnector = MyBio::DBconnector->get_dbconnector("core");
 				}
 				else {
 					print STDERR "\nRequesting database connector with name \"mimat\"\n";
-					$DBconnector = DBconnector->get_dbconnector("mimat");
+					$DBconnector = MyBio::DBconnector->get_dbconnector("mimat");
 				}
 			}
 		}

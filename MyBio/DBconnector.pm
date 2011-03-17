@@ -1,33 +1,29 @@
 =begin nd
 
-Class: DBconnector
+Class: MyBio::DBconnector
 A class that manages a connection to the database
 
 Initialize:
-> my $interaction = Target::MirnaTranscriptInteraction->new({
-> 		     TRANSCRIPT     => undef, #Transcript
-> 		     MIRNA          => undef, #Mirna::Mimat
-> 		     MRES           => [],
-> 		     SCORE          => undef,
-> 		     SNR            => undef,
-> 		     PRECISION      => undef,
-> 		     EXTRA_INFO     => undef,
+> my $dbconn = MyBio::DBconnector->new({
+> 		     NAME        => undef,
+> 		     HOST        => undef,
+> 		     DATABASE    => undef,
+> 		     USER        => undef,
+> 		     PASSWORD    => undef,
 > 		     });
 
 =cut
 
-package DBconnector;
+package MyBio::DBconnector;
 
 use warnings;
 use strict;
 use Switch;
-
 use DBI;
-use _Initializable;
 
-our $VERSION = '1.0';
+use MyBio::_Initializable;
 
-our @ISA = qw( _Initializable );
+our @ISA = qw( MyBio::_Initializable );
 
 sub _init {
 	my ($self,$data) = @_;

@@ -1,17 +1,14 @@
-package Interaction::MirnaUTR5;
+package MyBio::Interaction::MirnaUTR5;
 
 # Corresponds to a miRNA binding site on the 5'UTR of a gene transcript.
 
 use warnings;
 use strict;
 
-use _Initializable;
-use Interaction::MRE;
-use MyMath;
+use MyBio::Interaction::MRE;
+use MyBio::MyMath;
 
-our $VERSION = '1.0';
-
-our @ISA = qw( _Initializable Interaction::MRE );
+our @ISA = qw(MyBio::Interaction::MRE);
 
 # HOW TO CREATE THIS OBJECT
 # my $utr5Obj = Transcript::UTR5->new({
@@ -28,7 +25,7 @@ sub _init {
 	my ($self,$data) = @_;
 	
 	$self->{WHERE} = 'UTR5';
-	$self->Interaction::MRE::_init($data);
+	$self->SUPER::_init($data);
 	
 	return $self;
 }

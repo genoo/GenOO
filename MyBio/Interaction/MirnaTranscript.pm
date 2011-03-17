@@ -1,4 +1,4 @@
-package Interaction::MirnaTranscript;
+package MyBio::Interaction::MirnaTranscript;
 
 # Corresponds to the interaction between a miRNA and a transcript.
 # Each such object contains multiple binding sites (MREs) that correspond to the available transcript regions (5'UTR, CDS or 3'UTR)
@@ -7,19 +7,17 @@ use warnings;
 use strict;
 use PerlIO::gzip;
 
-use DBconnector;
-use _Initializable;
-use Transcript;
-use MyMath;
+use MyBio::DBconnector;
+use MyBio::_Initializable;
+use MyBio::Transcript;
+use MyBio::MyMath;
 
-use Mirna::Mimat;
-use Interaction::MirnaUTR5;
-use Interaction::MirnaCDS;
-use Interaction::MirnaUTR3;
+use MyBio::Mirna::Mimat;
+use MyBio::Interaction::MirnaUTR5;
+use MyBio::Interaction::MirnaCDS;
+use MyBio::Interaction::MirnaUTR3;
 
-our $VERSION = '2.0';
-
-our @ISA = qw( _Initializable );
+our @ISA = qw(MyBio::_Initializable);
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $interaction = Target::MirnaTranscriptInteraction->new({
@@ -35,8 +33,8 @@ our @ISA = qw( _Initializable );
 sub _init {
 	my ($self,$data) = @_;
 	
-	$self->{TRANSCRIPT}   = $$data{TRANSCRIPT};  #Transcript
-	$self->{MIRNA}        = $$data{MIRNA}; #Mirna::Mimat
+	$self->{TRANSCRIPT}   = $$data{TRANSCRIPT}; #MyBio::Transcript
+	$self->{MIRNA}        = $$data{MIRNA}; #MyBio::Mirna::Mimat
 	$self->{MRES}         = $$data{MRES};  #[]
 	$self->{SCORE}        = $$data{SCORE};
 	$self->{SNR}          = $$data{SNR};
@@ -120,7 +118,7 @@ sub calculate_score_for_version_5_0 {
 	}
 	else {
 		my $totalScore = $weight1*$CDSscore + $weight2*$UTR3score + $weight3*$CDSscore*$UTR3score + $intercept;
-		return MyMath->sigmoid($totalScore);
+		return MyBio::MyMath->sigmoid($totalScore);
 	}
 }
 
@@ -157,8 +155,8 @@ sub calculate_score_for_version_5_0 {
 				my ($mirnaName,$enstid,$score,@extra)=split(/\|/,$line);
 				
 				# check if the corresponding Transcript and Mirna objects exist
-				my $mirna = Mirna::Mimat->get_by_name($mirnaName);
-				my $transcript = Transcript->get_by_enstid($enstid);
+				my $mirna = MyBio::Mirna::Mimat->get_by_name($mirnaName);
+				my $transcript = MyBio::Transcript->get_by_enstid($enstid);
 				
 				$interaction = $class->new({
 							TRANSCRIPT     => $transcript,
@@ -189,13 +187,13 @@ sub calculate_score_for_version_5_0 {
 				
 				my $mreObj;
 				if ($where eq 'CDS') {
-					my $mreObj = Interaction::MirnaCDS->new(\%data);
+					my $mreObj = MyBio::Interaction::MirnaCDS->new(\%data);
 				}
 				elsif ($where eq 'UTR3') {
-					my $mreObj = Interaction::MirnaUTR3->new(\%data);
+					my $mreObj = MyBio::Interaction::MirnaUTR3->new(\%data);
 				}
 				elsif ($where eq 'UTR5') {
-					my $mreObj = Interaction::MirnaUTR5->new(\%data);
+					my $mreObj = MyBio::Interaction::MirnaUTR5->new(\%data);
 				}
 			}
 		}
@@ -209,7 +207,7 @@ sub calculate_score_for_version_5_0 {
 # 		
 # 		my $predictionsFile = $workFolder."/".$predictionsFilename;
 # 		my $miRNAfile       = $workFolder."/miRNA.dat";
-# 		my $mirnaObj = Mirna::Mimat->read_Mimat_from_file($miRNAfile);
+# 		my $mirnaObj = MyBio::Mirna::Mimat->read_Mimat_from_file($miRNAfile);
 # 		$class->read_fasta_file_to_hash_of_interaction_objects($predictionsFile,$mirnaObj);
 # 			
 # 		return %allInteractions;

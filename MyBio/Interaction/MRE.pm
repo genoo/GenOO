@@ -1,4 +1,4 @@
-package Interaction::MRE;
+package MyBio::Interaction::MRE;
 
 # Corresponds to a miRNA binding site on a gene transcript.
 # The class is designed to be used either directly or through the classes Interaction::MirnaUTR5, Interaction::MirnaCDS, Interaction::MirnaUTR3 which are its descendants. 
@@ -7,13 +7,11 @@ use warnings;
 use strict;
 use Scalar::Util qw/weaken/;
 
-use _Initializable;
-use Transcript;
-use Mirna::Mimat;
+use MyBio::_Initializable;
+use MyBio::Transcript;
+use MyBio::Mirna::Mimat;
 
-our $VERSION = '2.0';
-
-our @ISA = qw( _Initializable );
+our @ISA = qw(MyBio::_Initializable);
 
 # HOW TO INITIALIZE THIS OBJECT
 # $mreObj->_init({

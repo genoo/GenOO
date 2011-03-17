@@ -1,11 +1,11 @@
 =begin nd
 
-Class: NGS::Track
+Class: MyBio::NGS::Track
 A class that manages a collection of objects that inherit from the class Locus
 The idea was to design a class that would simulate the tracks used in UCSC genome browser
 
 Initialize:
-> my $track = NGS::Track->new({
+> my $track = MyBio::NGS::Track->new({
 >	NAME            => undef,
 >	DESCRIPTION     => undef,
 >	VISIBILITY      => undef,
@@ -22,17 +22,17 @@ Initialize:
 
 =cut
 
-package NGS::Track;
+package MyBio::NGS::Track;
 
 use warnings;
 use strict;
-
 use FileHandle;
-use _Initializable;
-use NGS::Tag;
-use MySub;
 
-our @ISA = qw( _Initializable );
+use MyBio::_Initializable;
+use MyBio::NGS::Tag;
+use MyBio::MySub;
+
+our @ISA = qw( MyBio::_Initializable );
 
 sub _init {
 	
@@ -235,7 +235,7 @@ sub print_all_tags {
 		foreach my $strand (keys %{$tags_ref}) {
 			foreach my $chr (keys %{$$tags_ref{$strand}}) {
 				my $chr_file = $chr_folder."/chr$chr.fa";
-				my $chr_seq = MySub::read_fasta($chr_file,"chr$chr");
+				my $chr_seq = MyBio::MySub::read_fasta($chr_file,"chr$chr");
 				if (exists $$tags_ref{$strand}{$chr}) {
 					foreach my $tag (@{$$tags_ref{$strand}{$chr}})
 					{
@@ -310,7 +310,7 @@ sub collapse_tags {
 				foreach my $pos (keys %count)
 				{
 					my ($start, $stop) = split(/\|/,$pos);
-					my $tagObj = NGS::Tag->new({
+					my $tagObj = MyBio::NGS::Tag->new({
 						CHR           => $chr,
 						START         => $start,
 						STOP          => $stop,
@@ -461,7 +461,7 @@ sub divide_tags_by_score {
 	}
 	
 	if ($newobj1_start <= $newobj1_stop) {
-		my $tagObj = NGS::Tag->new({
+		my $tagObj = MyBio::NGS::Tag->new({
 			CHR           => $chr,
 			START         => $newobj1_start,
 			STOP          => $newobj1_stop,
@@ -472,7 +472,7 @@ sub divide_tags_by_score {
 		push (@out, $tagObj);
 	}
 	if ($newobj2_start <= $newobj2_stop) {
-		my $tagObj = NGS::Tag->new({
+		my $tagObj = MyBio::NGS::Tag->new({
 			CHR           => $chr,
 			START         => $newobj2_start,
 			STOP          => $newobj2_stop,
@@ -483,7 +483,7 @@ sub divide_tags_by_score {
 		push (@out,$tagObj);
 	}
 	if ($newobj3_start <= $newobj3_stop) {
-		my $tagObj = NGS::Tag->new({
+		my $tagObj = MyBio::NGS::Tag->new({
 			CHR           => $chr,
 			START         => $newobj3_start,
 			STOP          => $newobj3_stop,
@@ -700,7 +700,7 @@ sub overlaps {
 				
 				my ($chr,$start,$stop,$name,$score,$strand,@others) = split(/\t/,$line);
 				
-				my $tag = NGS::Tag->new({
+				my $tag = MyBio::NGS::Tag->new({
 					STRAND        => $strand,
 					CHR           => $chr,
 					START         => $start,

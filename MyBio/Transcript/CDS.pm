@@ -1,17 +1,17 @@
-package Transcript::CDS;
+package MyBio::Transcript::CDS;
 
 # Corresponds to the CDS of a gene transcript. It inherits all the attributes and methods of the class Transcript::Region.
 
 use warnings;
 use strict;
 
-use _Initializable;
-use Transcript::Region;
-use Locus;
+use MyBio::_Initializable;
+use MyBio::Transcript::Region;
+use MyBio::Locus;
 
 our $VERSION = '2.0';
 
-our @ISA = qw( _Initializable Transcript::Region );
+our @ISA = qw(MyBio::Transcript::Region);
 
 # HOW TO CREATE THIS OBJECT
 # my $cdsObj = Transcript::CDS->new({
@@ -28,8 +28,7 @@ our @ISA = qw( _Initializable Transcript::Region );
 sub _init {
 	my ($self,$data) = @_;
 	
-	$self->Transcript::Region::_init($data);
-	
+	$self->SUPER::_init($data);
 	$self->set_conservation($$data{CONSERVATION});
 	
 	return $self;
@@ -45,7 +44,7 @@ sub get_cds_start_locus {
 	if ($self->get_strand == 1){$start = $self->get_start;}
 	elsif ($self->get_strand == -1){$start = $self->get_stop;}
 	else {return undef;}
-	my $cdsstart = Locus->new({
+	my $cdsstart = MyBio::Locus->new({
 				STRAND       => $self->get_strand,
 				CHR          => $self->get_chr,
 				START        => $start,

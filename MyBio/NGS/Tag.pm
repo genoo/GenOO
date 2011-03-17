@@ -1,12 +1,12 @@
-package NGS::Tag;
+package MyBio::NGS::Tag;
 
 use warnings;
 use strict;
-
-use Locus;
 use Clone;
 
-our @ISA = qw( Locus Clone );
+use MyBio::Locus;
+
+our @ISA = qw( MyBio::Locus Clone );
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $Locus = Tag->new({

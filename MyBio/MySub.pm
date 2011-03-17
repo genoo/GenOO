@@ -1,4 +1,4 @@
-package MySub;
+package MyBio::MySub;
 
 # Contains useful functions
 
