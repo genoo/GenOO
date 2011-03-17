@@ -1,11 +1,11 @@
-package Mirna::Hairpin;
+package MyBio::Mirna::Hairpin;
 
 use warnings;
 use strict;
 use Switch;
 
 use _Initializable;
-use Mirna::Mimat;
+use MyBio::Mirna::Mimat;
 
 our $VERSION = '2.0';
 
