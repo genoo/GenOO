@@ -1,20 +1,17 @@
-package Interaction::MirnaCDS;
+package MyBio::Interaction::MirnaCDS;
 
 # Corresponds to a miRNA binding site on the 5'UTR of a gene transcript.
 
 use warnings;
 use strict;
 
-use _Initializable;
-use Interaction::MRE;
-use MyMath;
+use MyBio::Interaction::MRE;
+use MyBio::MyMath;
 
-our $VERSION = '1.0';
-
-our @ISA = qw( _Initializable Interaction::MRE );
+our @ISA = qw(MyBio::Interaction::MRE);
 
 # HOW TO CREATE THIS OBJECT
-# my $utr5Obj = Transcript::UTR5->new({
+# my $utr5Obj = MyBio::Transcript::UTR5->new({
 # 		   SPLICE_STARTS  => undef, 
 # 		   SPLICE_STOPS   => undef, 
 # 		   LENGTH      => undef, 
@@ -28,7 +25,7 @@ sub _init {
 	my ($self, $data) = @_;
 	
 	$self->{WHERE} = 'CDS';
-	$self->Interaction::MRE::_init($data);
+	$self->SUPER::_init($data);
 	
 	return $self;
 }
@@ -157,9 +154,9 @@ sub _calculate_mre_score_for_version_5_0 {
 		$score3 += $features[$i] * $fit[2][$i];
 # 		print "feature = $features[$i]\n";
 	}
-	$score1 = MyMath->sigmoid($score1);
-	$score2 = MyMath->sigmoid($score2);
-	$score3 = MyMath->sigmoid($score3);
+	$score1 = MyBio::MyMath->sigmoid($score1);
+	$score2 = MyBio::MyMath->sigmoid($score2);
+	$score3 = MyBio::MyMath->sigmoid($score3);
 # 	print "scores after = $score1\t$score2\t$score3\n";
 	
 	return ($score1 + $score2 + $score3)/3;

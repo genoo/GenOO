@@ -4,15 +4,13 @@ use warnings;
 use strict;
 use Switch;
 
-use _Initializable;
+use MyBio::_Initializable;
 use MyBio::Mirna::Mimat;
 
-our $VERSION = '2.0';
-
-our @ISA = qw(_Initializable);
+our @ISA = qw(MyBio::_Initializable);
 
 # HOW TO INITIALIZE THIS OBJECT
-# my $hairpinObj = Mirna::Hairpin->new({
+# my $hairpinObj = MyBio::Mirna::Hairpin->new({
 # 		     SPECIES     => undef,
 # 		     CHR         => undef,
 # 		     START       => undef,
@@ -368,12 +366,12 @@ sub push_mature {
 				}
 			}
 			if ($allowDatabaseAccess) {
-				if (DBconnector->exists("core")) {
-					$DBconnector = DBconnector->get_dbconnector("core");
+				if (MyBio::DBconnector->exists("core")) {
+					$DBconnector = MyBio::DBconnector->get_dbconnector("core");
 				}
 				else {
 					print STDERR "\nRequesting database connector with name \"hairpin\"\n";
-					$DBconnector = DBconnector->get_dbconnector("hairpin");
+					$DBconnector = MyBio::DBconnector->get_dbconnector("hairpin");
 				}
 			}
 		}

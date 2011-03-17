@@ -4,16 +4,15 @@ package Pathway::KEGG;
 
 use warnings;
 use strict;
-
 use Switch;
 use Scalar::Util qw/weaken/;
 
-use _Initializable;
-use DBconnector;
+use MyBio::_Initializable;
+use MyBio::DBconnector;
 
 our $VERSION = '1.0';
 
-our @ISA = qw( _Initializable);
+our @ISA = qw( MyBio::_Initializable);
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $kegg_pathway = Pathway::KEGG->new({
@@ -194,12 +193,12 @@ sub set_extra {
 				}
 			}
 			if ($allowDatabaseAccess) {
-				if (DBconnector->exists("core")) {
-					$DBconnector = DBconnector->get_dbconnector("core");
+				if (MyBio::DBconnector->exists("core")) {
+					$DBconnector = MyBio::DBconnector->get_dbconnector("core");
 				}
 				else {
 					print STDERR "\nRequesting database connector with name \"kegg\"\n";
-					$DBconnector = DBconnector->get_dbconnector("kegg");
+					$DBconnector = MyBio::DBconnector->get_dbconnector("kegg");
 				}
 			}
 		}

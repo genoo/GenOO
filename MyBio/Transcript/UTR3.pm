@@ -1,16 +1,16 @@
-package Transcript::UTR3;
+package MyBio::Transcript::UTR3;
 
-# Corresponds to the 3'UTR of a gene transcript. It inherits all the attributes and methods of the class Transcript::Region.
+# Corresponds to the 3'UTR of a gene transcript. It inherits all the attributes and methods of the class MyBio::Transcript::Region.
 
 use warnings;
 use strict;
 
-use _Initializable;
-use Transcript::Region;
+use MyBio::_Initializable;
+use MyBio::Transcript::Region;
 
 our $VERSION = '2.0';
 
-our @ISA = qw( _Initializable Transcript::Region );
+our @ISA = qw(MyBio::Transcript::Region);
 
 # HOW TO CREATE THIS OBJECT
 # my $utr3Obj = Transcript::UTR3->new({
@@ -27,8 +27,7 @@ our @ISA = qw( _Initializable Transcript::Region );
 sub _init {
 	my ($self,$data) = @_;
 	
-	$self->Transcript::Region::_init($data);
-	
+	$self->SUPER::_init($data);
 	$self->set_conservation($$data{CONSERVATION});
 	
 	return $self;
@@ -69,7 +68,7 @@ sub set_conservation {
 		while (my $line=<PROFILE>) {
 			chomp $line;
 			my ($enstid,$cons_profile) = split(/\t/,$line);
-			my $transcript = Transcript->get_by_enstid($enstid);
+			my $transcript = MyBio::Transcript->get_by_enstid($enstid);
 			if (defined $transcript) {
 				$transcript->get_utr3->set_conservation($cons_profile);
 			}
@@ -95,7 +94,7 @@ sub set_conservation {
 			my $fetch_hash_ref = $select_region_info_from_transcripts_where_internal_tid->fetchrow_hashref;
 			$select_region_info_from_transcripts_where_internal_tid->finish(); # there should be only one result so I have to indicate that fetching is over
 			
-			my $utr3Obj = Transcript::UTR3->new({
+			my $utr3Obj = MyBio::Transcript::UTR3->new({
 								TRANSCRIPT       => $transcript,
 								SPLICE_STARTS    => $$fetch_hash_ref{UTR3_start},
 								SPLICE_STOPS     => $$fetch_hash_ref{UTR3_stop},

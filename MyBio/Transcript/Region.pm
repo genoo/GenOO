@@ -1,4 +1,4 @@
-package Transcript::Region;
+package MyBio::Transcript::Region;
 
 # Corresponds to a genomic location of a gene transcript. Such locations might be the 5'UTR, CDS and 3'UTR.
 
@@ -6,14 +6,14 @@ use warnings;
 use strict;
 use Scalar::Util qw/weaken/;
 
-use _Initializable;
-use Transcript::Exon;
-use Transcript::Intron;
-use Locus;
+use MyBio::_Initializable;
+use MyBio::Transcript::Exon;
+use MyBio::Transcript::Intron;
+use MyBio::Locus;
 
 our $VERSION = '2.0';
 
-our @ISA = qw( _Initializable Locus);
+our @ISA = qw(MyBio::Locus);
 
 # HOW TO CREATE THIS OBJECT
 # my $transcriptRegion = Transcript::Region->new({
@@ -29,7 +29,6 @@ sub _init {
 	my ($self,$data) = @_;
 	
 	$self->SUPER::_init($data);
-	
 	$self->set_transcript($$data{TRANSCRIPT});  #Transcript
 	$self->set_splice_starts($$data{SPLICE_STARTS});  # [] reference to array of splice starts
 	$self->set_splice_stops($$data{SPLICE_STOPS});  # [] reference to array of splice stops
@@ -102,7 +101,7 @@ sub get_introns {
 		my $prev_exon = $exons[$i];
 		my $next_exon = $exons[$i+1];
 		
-		my $intron = Transcript::Intron->new({
+		my $intron = MyBio::Transcript::Intron->new({
 				STRAND       => $prev_exon->get_strand,
 				CHR          => $prev_exon->get_chr,
 				START        => ($prev_exon->get_stop)+1,
@@ -122,7 +121,7 @@ sub get_intron_exon_junctions {
 	
 	foreach my $exon (@{$self->get_exons})
 	{		
-		my $jun = Locus->new({
+		my $jun = MyBio::Locus->new({
 				STRAND       => $exon->get_strand,
 				CHR          => $exon->get_chr,
 				START        => $exon->get_start-1,
@@ -130,7 +129,7 @@ sub get_intron_exon_junctions {
 			});
 		if ($jun->get_start != $self->get_start-1){push @junctions, $jun;}
 		
-		my $jun2 = Locus->new({
+		my $jun2 = MyBio::Locus->new({
 				STRAND       => $exon->get_strand,
 				CHR          => $exon->get_chr,
 				START        => $exon->get_stop,
@@ -199,7 +198,7 @@ sub set_exons {
 	}
 	elsif ((exists $self->{SPLICE_STARTS}) and (exists $self->{SPLICE_STOPS})) {
 		for (my $i = 0; $i < @{$self->{SPLICE_STARTS}}; $i++) {
-			my $exon = Transcript::Exon->new({
+			my $exon = MyBio::Transcript::Exon->new({
 				STRAND       => $self->get_transcript->get_strand,
 				CHR          => $self->get_transcript->get_chr,
 				START        => ${$self->{SPLICE_STARTS}}[$i],
@@ -259,7 +258,7 @@ sub push_exon {
 		$class = ref($class) || $class;
 		
 		if (!defined $DBconnector) {
-			$DBconnector = Transcript->get_global_DBconnector();
+			$DBconnector = MyBio::Transcript->get_global_DBconnector();
 		}
 		return $DBconnector;
 	}

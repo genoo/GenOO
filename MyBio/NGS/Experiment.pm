@@ -1,22 +1,20 @@
 =begin nd
 
-Class: NGS::Experiment
+Class: MyBio::NGS::Experiment
 A class that describes a next generation sequencing experiment
 
 =cut
 
-package NGS::Experiment;
+package MyBio::NGS::Experiment;
 
 use warnings;
 use strict;
 use Switch;
 use XML::Simple;
 
-use _Initializable;
+use MyBio::_Initializable;
 
-our $VERSION = '1.0';
-
-our @ISA = qw( _Initializable );
+our @ISA = qw( MyBio::_Initializable );
 
 sub _init {
 	my ($self,$data) = @_;

@@ -2,20 +2,22 @@ package Gene;
 
 use warnings;
 use strict;
-
 use Switch;
-use _Initializable;
+
+use MyBio::_Initializable;
 
 our $VERSION = '2.0';
 
-our @ISA = qw( _Initializable );
+our @ISA = qw( MyBio::_Initializable );
 
 # HOW TO INITIALIZE THIS OBJECT
-# my $geneObj = Gene->new({
+# my $geneObj = MyBio::Gene->new({
+# 		     INTERNAL_ID      => undef,
 # 		     ENSGID           => undef,
 # 		     COMMON_NAME      => undef,
 # 		     REFSEQ           => undef,
 # 		     TRANSCRIPTS      => undef, # [] reference to array of gene objects
+# 		     DESCRIPTION      => undef,
 # 		     EXTRA_INFO       => undef,
 # 		     });
 
@@ -257,12 +259,12 @@ sub add_refseq {
 				}
 			}
 			if ($allowDatabaseAccess) {
-				if (DBconnector->exists("core")) {
-					$DBconnector = DBconnector->get_dbconnector("core");
+				if (MyBio::DBconnector->exists("core")) {
+					$DBconnector = MyBio::DBconnector->get_dbconnector("core");
 				}
 				else {
 					print STDERR "\nRequesting database connector with name \"gene\"\n";
-					$DBconnector = DBconnector->get_dbconnector("gene");
+					$DBconnector = MyBio::DBconnector->get_dbconnector("gene");
 				}
 			}
 		}

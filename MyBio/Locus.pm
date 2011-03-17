@@ -1,16 +1,16 @@
-package Locus;
+package MyBio::Locus;
 
 use warnings;
 use strict;
 
-use _Initializable;
+use MyBio::_Initializable;
 
 our $VERSION = '1.0';
 
-our @ISA = qw( _Initializable );
+our @ISA = qw( MyBio::_Initializable );
 
 # HOW TO INITIALIZE THIS OBJECT
-# my $Locus = Locus->new({
+# my $Locus = MyBio::Locus->new({
 # 		     SPECIES      => undef,
 # 		     STRAND       => undef,
 # 		     CHR          => undef,
@@ -176,8 +176,8 @@ sub get_contained_locuses {
 					SPECIES      => $region->get_species,
 					STRAND       => $region->get_strand,
 					CHR          => $region->get_chr,
-					START        => (MyMath::max( [$region->get_start, $self->get_start] ))[1],
-					STOP         => (MyMath::min( [$region->get_stop, $self->get_stop] ))[1],
+					START        => (MyBio::MyMath::max( [$region->get_start, $self->get_start] ))[1],
+					STOP         => (MyBio::MyMath::min( [$region->get_stop, $self->get_stop] ))[1],
 					SEQUENCE     => undef, #not sure what to do with seq!!!
 					EXTRA_INFO   => $region->get_extra,
 				});

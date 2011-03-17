@@ -1,16 +1,16 @@
-package Transcript::CDNA;
+package MyBio::Transcript::CDNA;
 
 # Corresponds to the whole region of a gene transcript. It inherits all the attributes and methods of the class Transcript::Region.
 
 use warnings;
 use strict;
 
-use _Initializable;
-use Transcript::Region;
+use MyBio::_Initializable;
+use MyBio::Transcript::Region;
 
 our $VERSION = '2.0';
 
-our @ISA = qw( _Initializable Transcript::Region );
+our @ISA = qw(MyBio::Transcript::Region);
 
 # HOW TO CREATE THIS OBJECT
 # my $cdnaObj = Transcript::CDNA->new({
@@ -27,8 +27,7 @@ our @ISA = qw( _Initializable Transcript::Region );
 sub _init {
 	my ($self,$data) = @_;
 	
-	$self->Transcript::Region::_init($data);
-	
+	$self->SUPER::_init($data);
 	$self->set_conservation($$data{CONSERVATION});
 	
 	return $self;
@@ -67,7 +66,7 @@ sub set_conservation {
 			my $fetch_hash_ref = $select_region_info_from_transcripts_where_internal_tid->fetchrow_hashref;
 			$select_region_info_from_transcripts_where_internal_tid->finish(); # there should be only one result so I have to indicate that fetching is over
 			
-			my $cdnaObj = Transcript::CDNA->new({
+			my $cdnaObj = MyBio::Transcript::CDNA->new({
 								TRANSCRIPT       => $transcript,
 								SPLICE_STARTS    => $$fetch_hash_ref{CDNA_start},
 								SPLICE_STOPS     => $$fetch_hash_ref{CDNA_stop},

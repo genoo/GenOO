@@ -1,4 +1,4 @@
-package _Initializable;
+package MyBio::_Initializable;
 
 use warnings;
 use strict;

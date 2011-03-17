@@ -1,11 +1,11 @@
-package Transcript::Intron;
+package MyBio::Transcript::Intron;
 
 use warnings;
 use strict;
 
-use Locus;
+use MyBio::Locus;
 
-our @ISA = qw( Locus );
+our @ISA = qw(MyBio::Locus);
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $Intron = Transcript::Intron->new({
@@ -25,7 +25,6 @@ sub _init {
 	my ($self,$data) = @_;
 	
 	$self->SUPER::_init($data);
-
 	$self->set_where($$data{WHERE});
 	$self->set_extra($$data{EXTRA_INFO});
 	
