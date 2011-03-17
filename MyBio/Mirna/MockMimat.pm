@@ -1,10 +1,10 @@
-package Mirna::MockMimat;
+package MyBio::Mirna::MockMimat;
 
 use warnings;
 use strict;
 
-use Mirna::Mimat;
-use _Initializable;
+use MyBio::Mirna::Mimat;
+use MyBio::_Initializable;
 
 our $VERSION = '1.0';
 

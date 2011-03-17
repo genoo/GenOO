@@ -1,11 +1,11 @@
-package Mirna::Mimat;
+package MyBio::Mirna::Mimat;
 
 use warnings;
 use strict;
 
 use Switch;
-use DBconnector;
-use _Initializable;
+use MyBio::DBconnector;
+use MyBio::_Initializable;
 
 our $VERSION = '1.0';
 
