@@ -189,4 +189,29 @@ sub get_contained_locuses {
 	return \@outarray;
 }
 
+sub get_touching_locuses {
+# 	$self is a locus
+# 	$array is a reference to an array of locus objects
+#	the sub will return an array of locus objects overlaping with $self within $offset
+#
+#	          ---------------------------------------------
+#	  ---    ---              ---       ----              ------    -------
+#return
+#	         ---              ---       ----              ------                
+#
+	my ($self,$array,$offset) = @_;
+	my @outarray;
+	
+	if ((defined $self->get_start) and (defined $self->get_stop)){ #sanity check!
+		
+		foreach my $region (@{$array})
+		{
+			if ($region->get_chr ne $self->get_chr){next;} #chromosome check! don't align things in diff chromosome
+			if ($self->overlaps($region,$offset)){push @outarray, $region;} #overlaps with self
+			else {next;} #no overlap
+		}
+	}
+	return \@outarray;
+}
+
 1;

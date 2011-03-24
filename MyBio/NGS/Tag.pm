@@ -9,7 +9,7 @@ use MyBio::Locus;
 our @ISA = qw( MyBio::Locus Clone );
 
 # HOW TO INITIALIZE THIS OBJECT
-# my $Locus = Tag->new({
+# my $Locus = MyBio::NGS::Tag->new({
 # 		     SPECIES      => undef,
 # 		     STRAND       => undef,
 # 		     CHR          => undef,
