@@ -208,15 +208,21 @@ sub print_track_line {
 =cut
 sub print_all_tags {
 	my ($self, $method, @attributes) = @_;
-	
 	if ($method eq "BED"){
+		my $OUT;
+		if ((!defined $attributes[0]) or ($attributes[0] eq "STDOUT")) {
+			open ($OUT,">&=",STDOUT);
+		}
+		else {
+			open($OUT,">",$attributes[0]);
+		}
 		my $tags_ref = $self->get_tags;
 		foreach my $strand (keys %{$tags_ref}) {
 			foreach my $chr (keys %{$$tags_ref{$strand}}) {
 				if (exists $$tags_ref{$strand}{$chr}) {
 					foreach my $tag (@{$$tags_ref{$strand}{$chr}})
 					{
-						print $tag->output_tag("BED")."\n";
+						print $OUT $tag->output_tag("BED")."\n";
 					}
 				}
 			}
@@ -587,8 +593,7 @@ sub overlaps {
 				}
 			}
 		}
-	}
-	
+	}	
 }
 
 
