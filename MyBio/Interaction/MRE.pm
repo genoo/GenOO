@@ -3,7 +3,6 @@ package MyBio::Interaction::MRE;
 # Corresponds to a miRNA binding site on a gene transcript.
 # The class is designed to be used either directly or through the classes Interaction::MirnaUTR5, Interaction::MirnaCDS, Interaction::MirnaUTR3 which are its descendants. 
 
-use warnings;
 use strict;
 use Scalar::Util qw/weaken/;
 

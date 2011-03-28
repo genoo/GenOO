@@ -1,13 +1,55 @@
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+MyBio::Transcript - Transcript object, with features
+
+=head1 SYNOPSIS
+
+# This is the main transcript object
+# It represents a transcript of a gene
+
+# To initialize 
+my $transcript = MyBio::Transcript->new({
+	ENSTID         => undef,
+	SPECIES        => undef,
+	STRAND         => undef,
+	CHR            => undef,
+	GENE           => undef, # MyBio::Gene
+	UTR5           => undef, # MyBio::Transcript::UTR5
+	CDS            => undef, # MyBio::Transcript::CDS
+	UTR3           => undef, # MyBio::Transcript::UTR3
+	CDNA           => undef, # MyBio::Transcript::CDNA
+	BIOTYPE        => undef,
+	INTERNAL_ID    => undef,
+	INTERNAL_GID   => undef,
+	START          => undef,
+	STOP           => undef,
+	EXTRA_INFO     => undef,
+});
+
+=head1 DESCRIPTION
+
+Not provide yet
+
+=head2 Examples
+
+my %transcripts = MyBio::Transcript->read_region_info_for_transcripts('FILE',"$database/Ensembl_release_54/CDS_and_3UTR_sequences_CLEAN.txt");
+
+=head1 AUTHOR - Manolis Maragkakis, Panagiotis Alexiou
+
+Email maragkakis@fleming.gr
+Email pan.alexiou@fleming.gr
+
+=cut
+
+# Let the code begin...
+
 package MyBio::Transcript;
 
-# This object describes a gene transcript.
-
-use warnings;
 use strict;
-use Switch;
 use Scalar::Util qw/weaken/;
 
-use MyBio::_Initializable;
 use MyBio::DBconnector;
 use MyBio::Gene;
 use MyBio::Transcript::UTR5;
@@ -16,40 +58,22 @@ use MyBio::Transcript::UTR3;
 use MyBio::Transcript::Exon;
 use MyBio::Transcript::CDNA;
 
-our $VERSION = '2.0';
-
-our @ISA = qw(MyBio::_Initializable);
-
-# HOW TO INITIALIZE THIS OBJECT
-# my $transcript = MyBio::Transcript->new({
-# 		     ENSTID         => undef,
-# 		     STRAND         => undef,
-# 		     CHR            => undef,
-# 		     GENE           => undef, # MyBio::Gene
-# 		     UTR5           => undef, # MyBio::Transcript::UTR5
-# 		     CDS            => undef, # MyBio::Transcript::CDS
-# 		     UTR3           => undef, # MyBio::Transcript::UTR3
-# 		     EXTRA_INFO     => undef,
-# 		     });
+our @ISA = qw(MyBio::Locus);
 
 sub _init {
 	my ($self,$data) = @_;
 	
+	$self->SUPER::_init($data);
 	$self->set_enstid($$data{ENSTID});
-	$self->set_strand($$data{STRAND});
-	$self->set_chr($$data{CHR});
 	$self->set_gene($$data{GENE}); # MyBio::Gene
 	$self->set_utr5($$data{UTR5}); # MyBio::Transcript::UTR5
 	$self->set_cds($$data{CDS});   # MyBio::Transcript::CDS
 	$self->set_utr3($$data{UTR3}); # MyBio::Transcript::UTR3
 	$self->set_cdna($$data{CDNA}); # MyBio::Transcript::CDNA
 	$self->set_internalID($$data{INTERNAL_ID});
-	$self->set_species($$data{SPECIES});
 	$self->set_biotype($$data{BIOTYPE});
 	$self->set_internalGID($$data{INTERNAL_GID});
 	$self->set_extra($$data{EXTRA_INFO});
-	$self->set_start($$data{START});
-	$self->set_stop($$data{STOP});
 	
 	my $class = ref($self) || $self;
 	$class->_add_to_all($self);
@@ -62,12 +86,6 @@ sub _init {
 #######################################################################
 sub get_enstid {
 	return $_[0]->{ENSTID};
-}
-sub get_strand {
-	return $_[0]->{STRAND};
-}
-sub get_chr {
-	return $_[0]->{CHR};
 }
 sub get_gene {
 	return $_[0]->{GENE};
@@ -100,20 +118,11 @@ sub get_utr3 {
 	}
 	return $self->{UTR3};
 }
-sub get_start {
-	return $_[0]->{START};
-}
-sub get_stop {
-	return $_[0]->{STOP};
-}
 sub get_extra {
 	return $_[0]->{EXTRA_INFO};
 }
 sub get_internalID {
 	return $_[0]->{INTERNAL_ID};
-}
-sub get_species {
-	return $_[0]->{SPECIES};
 }
 sub get_biotype {
 	return $_[0]->{BIOTYPE};
@@ -130,21 +139,6 @@ sub set_enstid {
 	if (defined $value) {
 		$value =~ s/>//;
 		$self->{ENSTID} = $value;
-	}
-}
-sub set_strand {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$value =~ s/^\+$/1/;
-		$value =~ s/^\-$/-1/;
-		$self->{STRAND} = $value;
-	}
-}
-sub set_chr {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$value =~ s/>*chr//;
-		$self->{CHR} = $value;
 	}
 }
 sub set_gene {
@@ -190,20 +184,11 @@ sub set_utr3 {
 		$self->{UTR3} = MyBio::Transcript::UTR3->new( {TRANSCRIPT => $self} );
 	}
 }
-sub set_start {
-	$_[0]->{START} = $_[1] if defined $_[1];
-}
-sub set_stop {
-	$_[0]->{STOP} = $_[1] if defined $_[1];
-}
 sub set_extra {
 	$_[0]->{EXTRA_INFO} = $_[1] if defined $_[1];
 }
 sub set_internalID {
 	$_[0]->{INTERNAL_ID} = $_[1] if defined $_[1];
-}
-sub set_species {
-	$_[0]->{SPECIES} = uc($_[1]) if defined $_[1];
 }
 sub set_biotype {
 	$_[0]->{BIOTYPE} = $_[1] if defined $_[1];
@@ -241,14 +226,30 @@ sub set_internalGID {
 		my ($class) = @_;
 		%allTranscripts = ();
 	}
-	
+
+=head2 get_by_enstid
+
+  Arg [1]    : string $enstid
+               The primary id of the transcript.
+  Example    : MyBio::Transcript->get_by_enstid;
+  Description: Class method that returns the object which corresponds to the provided primary transcript id.
+               If no object is found, then depending on the database access policy the method either attempts
+               to create a new object or returns NULL
+  Returntype : MyBio::Transcript / NULL
+  Caller     : ?
+  Status     : Stable
+
+=cut
 	sub get_by_enstid {
 		my ($class,$enstid) = @_;
 		if (exists $allTranscripts{$enstid}) {
 			return $allTranscripts{$enstid};
 		}
-		else {
+		elsif ($class->database_access eq 'ALLOW') {
 			return $class->create_new_transcript_from_database($enstid);
+		}
+		else {
+			return;
 		}
 	}
 	
@@ -595,41 +596,55 @@ sub set_internalGID {
 	
 	########################################## database ##########################################
 	my $DBconnector;
-	my $allowDatabaseAccess;
+	my $accessPolicy = MyBio::DBconnector->global_access();
 	my $select_all_from_transcripts_where_enstid;
 	my $select_all_from_transcripts_where_enstid_Query = qq/SELECT * FROM diana_transcripts WHERE diana_transcripts.enstid=?/;
 	
 	sub allow_database_access {
-		$allowDatabaseAccess = 1;
+		$accessPolicy = 'ALLOW';
 	}
 	
 	sub deny_database_access {
-		$allowDatabaseAccess = 0;
+		$accessPolicy = 'DENY';
 	}
 	
-	sub get_global_DBconnector {
+	sub database_access {
+		my ($class) = @_;
+		
+		while (!defined $accessPolicy) {
+			print STDERR "Would you like to enable database access to retrieve data for class $class? (y/n) [n]";
+			my $userChoice = <>;
+			chomp ($userChoice);
+			if    ($userChoice eq '')  {$class->deny_database_access;}
+			elsif ($userChoice eq 'y') {$class->allow_database_access;}
+			elsif ($userChoice eq 'n') {$class->deny_database_access;}
+			else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
+		}
+		
+		return $accessPolicy;
+	}
+	
+	sub get_db_connector {
 		my ($class) = @_;
 		$class = ref($class) || $class;
 		
 		if (!defined $DBconnector) {
-			while (!defined $allowDatabaseAccess) {
-				print STDERR 'Would you like to enable database access to retrieve Transcript data? (y/n) [y]';
+			while (!defined $accessPolicy) {
+				print STDERR "Would you like to enable database access to retrieve data for class $class? (y/n) [n]";
 				my $userChoice = <>;
 				chomp ($userChoice);
-				switch ($userChoice) {
-					case ''     {$allowDatabaseAccess = 1;}
-					case 'y'    {$allowDatabaseAccess = 1;}
-					case 'n'    {$allowDatabaseAccess = 0;}
-					else        {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
-				}
+				if    ($userChoice eq '')  {$class->deny_database_access;}
+				elsif ($userChoice eq 'y') {$class->allow_database_access;}
+				elsif ($userChoice eq 'n') {$class->deny_database_access;}
+				else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
 			}
-			if ($allowDatabaseAccess) {
+			if ($accessPolicy eq 'ALLOW') {
 				if (MyBio::DBconnector->exists("core")) {
 					$DBconnector = MyBio::DBconnector->get_dbconnector("core");
 				}
 				else {
-					print STDERR "\nRequesting database connector with name \"transcript\"\n";
-					$DBconnector = MyBio::DBconnector->get_dbconnector("transcript");
+					print STDERR "\nRequesting database connector for class $class\n";
+					$DBconnector = MyBio::DBconnector->get_dbconnector($class);
 				}
 			}
 		}
@@ -639,7 +654,7 @@ sub set_internalGID {
 	sub create_new_transcript_from_database {
 		my ($class,$enstid) = @_;
 		
-		my $DBconnector = $class->get_global_DBconnector();
+		my $DBconnector = $class->get_db_connector();
 		if (defined $DBconnector) {
 			my $dbh = $DBconnector->get_handle();
 			unless (defined $select_all_from_transcripts_where_enstid) {

@@ -2,7 +2,6 @@ package MyBio::Transcript::CDS;
 
 # Corresponds to the CDS of a gene transcript. It inherits all the attributes and methods of the class Transcript::Region.
 
-use warnings;
 use strict;
 
 use MyBio::_Initializable;

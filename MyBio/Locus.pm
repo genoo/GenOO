@@ -1,11 +1,8 @@
 package MyBio::Locus;
 
-use warnings;
 use strict;
 
 use MyBio::_Initializable;
-
-our $VERSION = '1.0';
 
 our @ISA = qw( MyBio::_Initializable );
 

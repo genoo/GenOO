@@ -7,9 +7,7 @@ A class that describes a next generation sequencing experiment
 
 package MyBio::NGS::Experiment;
 
-use warnings;
 use strict;
-use Switch;
 use XML::Simple;
 
 use MyBio::_Initializable;

@@ -2,7 +2,6 @@ package MyBio::Interaction::MirnaUTR3;
 
 # Corresponds to a miRNA binding site on the 5'UTR of a gene transcript.
 
-use warnings;
 use strict;
 
 use MyBio::Interaction::MRE;

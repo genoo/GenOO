@@ -1,12 +1,8 @@
-package Gene;
+package MyBio::Gene;
 
-use warnings;
 use strict;
-use Switch;
 
 use MyBio::_Initializable;
-
-our $VERSION = '2.0';
 
 our @ISA = qw( MyBio::_Initializable );
 
@@ -132,13 +128,29 @@ sub add_refseq {
 		%allGenes = ();
 	}
 	
+=head2 get_by_ensgid
+
+  Arg [1]    : string $ensgid
+               The primary id of the gene.
+  Example    : MyBio::Gene->get_by_ensgid;
+  Description: Class method that returns the object which corresponds to the provided primary gene id.
+               If no object is found, then depending on the database access policy the method either attempts
+               to create a new object or returns NULL
+  Returntype : MyBio::Gene / NULL
+  Caller     : ?
+  Status     : Stable
+
+=cut
 	sub get_by_ensgid {
 		my ($class,$ensgid) = @_;
 		if (exists $allGenes{$ensgid}) {
 			return $allGenes{$ensgid};
 		}
-		else {
+		elsif ($class->database_access eq 'ALLOW') {
 			return $class->create_new_gene_from_database($ensgid);
+		}
+		else {
+			return;
 		}
 	}
 	sub read_refseqs {
@@ -230,41 +242,55 @@ sub add_refseq {
 	
 	########################################## database ##########################################
 	my $DBconnector;
-	my $allowDatabaseAccess;
+	my $accessPolicy = MyBio::DBconnector->global_access();
 	my $select_all_from_genes_where_ensgid;
 	my $select_all_from_genes_where_ensgid_Query = qq/SELECT * FROM diana_protein_genes WHERE diana_protein_genes.ensgid=?/;
 	
 	sub allow_database_access {
-		$allowDatabaseAccess = 1;
+		$accessPolicy = 'ALLOW';
 	}
 	
 	sub deny_database_access {
-		$allowDatabaseAccess = 0;
+		$accessPolicy = 'DENY';
 	}
 	
-	sub get_global_DBconnector {
+	sub database_access {
+		my ($class) = @_;
+		
+		while (!defined $accessPolicy) {
+			print STDERR "Would you like to enable database access to retrieve data for class $class? (y/n) [n]";
+			my $userChoice = <>;
+			chomp ($userChoice);
+			if    ($userChoice eq '')  {$class->deny_database_access;}
+			elsif ($userChoice eq 'y') {$class->allow_database_access;}
+			elsif ($userChoice eq 'n') {$class->deny_database_access;}
+			else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
+		}
+		
+		return $accessPolicy;
+	}
+	
+	sub get_db_connector {
 		my ($class) = @_;
 		$class = ref($class) || $class;
 		
 		if (!defined $DBconnector) {
-			while (!defined $allowDatabaseAccess) {
-				print STDERR 'Would you like to enable database access to retrieve Gene data? (y/n) [y]';
+			while (!defined $accessPolicy) {
+				print STDERR "Would you like to enable database access to retrieve data for class $class? (y/n) [n]";
 				my $userChoice = <>;
 				chomp ($userChoice);
-				switch ($userChoice) {
-					case ''     {$allowDatabaseAccess = 1;}
-					case 'y'    {$allowDatabaseAccess = 1;}
-					case 'n'    {$allowDatabaseAccess = 0;}
-					else        {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
-				}
+				if    ($userChoice eq '')  {$class->deny_database_access;}
+				elsif ($userChoice eq 'y') {$class->allow_database_access;}
+				elsif ($userChoice eq 'n') {$class->deny_database_access;}
+				else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
 			}
-			if ($allowDatabaseAccess) {
+			if ($accessPolicy eq 'ALLOW') {
 				if (MyBio::DBconnector->exists("core")) {
 					$DBconnector = MyBio::DBconnector->get_dbconnector("core");
 				}
 				else {
-					print STDERR "\nRequesting database connector with name \"gene\"\n";
-					$DBconnector = MyBio::DBconnector->get_dbconnector("gene");
+					print STDERR "\nRequesting database connector for class $class\n";
+					$DBconnector = MyBio::DBconnector->get_dbconnector($class);
 				}
 			}
 		}
@@ -274,7 +300,7 @@ sub add_refseq {
 	sub create_new_gene_from_database {
 		my ($class,$ensgid) = @_;
 		
-		my $DBconnector = $class->get_global_DBconnector();
+		my $DBconnector = $class->get_db_connector();
 		if (defined $DBconnector) {
 			my $dbh = $DBconnector->get_handle();
 			unless (defined $select_all_from_genes_where_ensgid) {

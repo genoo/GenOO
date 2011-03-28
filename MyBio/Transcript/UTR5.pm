@@ -2,7 +2,6 @@ package MyBio::Transcript::UTR5;
 
 # Corresponds to the 5'UTR of a gene transcript. It inherits all the attributes and methods of the class MyBio::Transcript::Region.
 
-use warnings;
 use strict;
 
 use MyBio::_Initializable;

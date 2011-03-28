@@ -1,8 +1,6 @@
 package MyBio::Mirna::Hairpin;
 
-use warnings;
 use strict;
-use Switch;
 
 use MyBio::_Initializable;
 use MyBio::Mirna::Mimat;
@@ -190,14 +188,30 @@ sub push_mature {
 		my ($class) = @_;
 		%allHairpins = ();
 	}
-	
+
+=head2 get_by_name
+
+  Arg [1]    : string $name
+               The name of the miRNA hairpin.
+  Example    : MyBio::Mirna::Hairpin->get_by_name;
+  Description: Class method that returns the object which corresponds to the provided miRNA hairpin name.
+               If no object is found, then depending on the database access policy the method either attempts
+               to create a new object or returns NULL
+  Returntype : MyBio::Mirna::Hairpin / NULL
+  Caller     : ?
+  Status     : Stable
+
+=cut
 	sub get_by_name {
 		my ($class,$name) = @_;
 		if (exists $allHairpins{NAME}{$name}) {
 			return $allHairpins{NAME}{$name};
 		}
-		else {
+		elsif ($class->database_access eq 'ALLOW') {
 			return $class->create_new_hairpin_from_database($name);
+		}
+		else {
+			return;
 		}
 	}
 	
@@ -337,41 +351,55 @@ sub push_mature {
 	
 	########################################## database ##########################################
 	my $DBconnector;
-	my $allowDatabaseAccess;
+	my $accessPolicy = MyBio::DBconnector->global_access();
 	my $select_all_from_hairpins_where_name;
 	my $select_all_from_hairpins_where_name_Query = qq/SELECT * FROM diana_hairpin_mirnas WHERE diana_hairpin_mirnas.name=?/;
 	
 	sub allow_database_access {
-		$allowDatabaseAccess = 1;
+		$accessPolicy = 'ALLOW';
 	}
 	
 	sub deny_database_access {
-		$allowDatabaseAccess = 0;
+		$accessPolicy = 'DENY';
 	}
 	
-	sub get_global_DBconnector {
+	sub database_access {
+		my ($class) = @_;
+		
+		while (!defined $accessPolicy) {
+			print STDERR "Would you like to enable database access to retrieve data for class $class? (y/n) [n]";
+			my $userChoice = <>;
+			chomp ($userChoice);
+			if    ($userChoice eq '')  {$class->deny_database_access;}
+			elsif ($userChoice eq 'y') {$class->allow_database_access;}
+			elsif ($userChoice eq 'n') {$class->deny_database_access;}
+			else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
+		}
+		
+		return $accessPolicy;
+	}
+	
+	sub get_db_connector {
 		my ($class) = @_;
 		$class = ref($class) || $class;
 		
 		if (!defined $DBconnector) {
-			while (!defined $allowDatabaseAccess) {
-				print STDERR 'Would you like to enable database access to retrieve mirna hairpin data? (y/n) [y]';
+			while (!defined $accessPolicy) {
+				print STDERR "Would you like to enable database access to retrieve data for class $class? (y/n) [n]";
 				my $userChoice = <>;
 				chomp ($userChoice);
-				switch ($userChoice) {
-					case ''     {$allowDatabaseAccess = 1;}
-					case 'y'    {$allowDatabaseAccess = 1;}
-					case 'n'    {$allowDatabaseAccess = 0;}
-					else        {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
-				}
+				if    ($userChoice eq '')  {$class->deny_database_access;}
+				elsif ($userChoice eq 'y') {$class->allow_database_access;}
+				elsif ($userChoice eq 'n') {$class->deny_database_access;}
+				else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
 			}
-			if ($allowDatabaseAccess) {
+			if ($accessPolicy eq 'ALLOW') {
 				if (MyBio::DBconnector->exists("core")) {
 					$DBconnector = MyBio::DBconnector->get_dbconnector("core");
 				}
 				else {
-					print STDERR "\nRequesting database connector with name \"hairpin\"\n";
-					$DBconnector = MyBio::DBconnector->get_dbconnector("hairpin");
+					print STDERR "\nRequesting database connector for class $class\n";
+					$DBconnector = MyBio::DBconnector->get_dbconnector($class);
 				}
 			}
 		}
@@ -381,7 +409,7 @@ sub push_mature {
 	sub create_new_hairpin_from_database {
 		my ($class,$name) = @_;
 		
-		my $DBconnector = $class->get_global_DBconnector();
+		my $DBconnector = $class->get_db_connector();
 		if (defined $DBconnector) {
 			my $dbh = $DBconnector->get_handle();
 			unless (defined $select_all_from_hairpins_where_name) {

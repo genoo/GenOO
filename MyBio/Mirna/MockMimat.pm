@@ -1,6 +1,5 @@
 package MyBio::Mirna::MockMimat;
 
-use warnings;
 use strict;
 
 use MyBio::Mirna::Mimat;
