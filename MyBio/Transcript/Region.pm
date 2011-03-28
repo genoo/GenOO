@@ -2,7 +2,6 @@ package MyBio::Transcript::Region;
 
 # Corresponds to a genomic location of a gene transcript. Such locations might be the 5'UTR, CDS and 3'UTR.
 
-use warnings;
 use strict;
 use Scalar::Util qw/weaken/;
 

@@ -1,6 +1,5 @@
 package MyBio::_Initializable;
 
-use warnings;
 use strict;
 
 our $VERSION = '1.0';

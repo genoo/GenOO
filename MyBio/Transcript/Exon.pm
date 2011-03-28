@@ -1,6 +1,5 @@
 package MyBio::Transcript::Exon;
 
-use warnings;
 use strict;
 
 use MyBio::Locus;

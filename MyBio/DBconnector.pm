@@ -1,24 +1,43 @@
-=begin nd
+# POD documentation - main docs before the code
 
-Class: MyBio::DBconnector
-A class that manages a connection to the database
+=head1 NAME
 
-Initialize:
-> my $dbconn = MyBio::DBconnector->new({
-> 		     NAME        => undef,
-> 		     HOST        => undef,
-> 		     DATABASE    => undef,
-> 		     USER        => undef,
-> 		     PASSWORD    => undef,
-> 		     });
+MyBio::DBconnector - Connector to database object, with features
+
+=head1 SYNOPSIS
+
+# This is an object that manages a connection to the database
+# Currently it is designed only for MySQL databases
+
+# To initialize 
+my $dbconn = MyBio::DBconnector->new({
+	NAME        => undef,
+	HOST        => undef,
+	DATABASE    => undef,
+	USER        => undef,
+	PASSWORD    => undef,
+});
+
+=head1 DESCRIPTION
+
+Not provide yet
+
+=head2 Examples
+
+my $dbConn = DBconnector->new(["core","localhost","database","user","pass"]);
+my $dbh = DBconnector->get_handle_for_dbconnector("core");
+
+=head1 AUTHOR - Manolis Maragkakis
+
+Email maragkakis@fleming.gr
 
 =cut
 
+# Let the code begin...
+
 package MyBio::DBconnector;
 
-use warnings;
 use strict;
-use Switch;
 use DBI;
 
 use MyBio::_Initializable;
@@ -158,24 +177,39 @@ sub request_username_password {
 #######################################################################
 {
 	my %dbConnectors;
-	my $allowDatabaseAccess;
+	my $globalAccessPolicy = 'DENY';
 	
-	sub automatic_access {
+=head2 global_access
+
+  Example    : my $accessPolicy = MyBio::DBconnector->global_access();
+  Description: Class method that returns whether access to the database is allowed or not
+  Returntype : ALLOW / DENY
+  Caller     : ?
+  Status     : Under development
+
+=cut
+	sub global_access {
 		my ($class) = @_;
 		
-		while (!defined $allowDatabaseAccess) {
-			print STDERR 'Would you like to enable automatic database access to retrieve data? (y/n) [y]';
+		while (!defined $globalAccessPolicy) {
+			print STDERR 'Would you like to enable automatic database access to retrieve data? (y/n) [n]';
 			my $userChoice = <>;
 			chomp ($userChoice);
-			switch ($userChoice) {
-				case ''     {$allowDatabaseAccess = 1;}
-				case 'y'    {$allowDatabaseAccess = 1;}
-				case 'n'    {$allowDatabaseAccess = 0;}
-				else        {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
-			}
+			if    ($userChoice eq '')  {$class->deny_global_access;}
+			elsif ($userChoice eq 'y') {$class->allow_global_access;}
+			elsif ($userChoice eq 'n') {$class->deny_global_access;}
+			else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
 		}
 		
-		return $allowDatabaseAccess;
+		return $globalAccessPolicy;
+	}
+	
+	sub allow_global_access {
+		$globalAccessPolicy = 'ALLOW';
+	}
+	
+	sub deny_global_access {
+		$globalAccessPolicy = 'DENY';
 	}
 	
 	sub _add_to_all {
@@ -227,12 +261,10 @@ sub request_username_password {
 		print STDERR "\nThe requested dbConnector \"$connectorName\" could not be found.\nWould you like to create it now? (y/n) [y]";
 		my $userChoice = <>;
 		chomp ($userChoice);
-		switch ($userChoice) {
-			case ''     {$dbConnector = $class->new([$connectorName]);}
-			case 'y'    {$dbConnector = $class->new([$connectorName]);}
-			case 'n'    {}
-			else        {}
-		}
+		if    ($userChoice eq '')  {$dbConnector = $class->new([$connectorName]);}
+		elsif ($userChoice eq 'y') {$dbConnector = $class->new([$connectorName]);}
+		elsif ($userChoice eq 'n') {}
+		else {}
 		
 		return $dbConnector;
 	}

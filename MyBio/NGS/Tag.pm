@@ -1,6 +1,5 @@
 package MyBio::NGS::Tag;
 
-use warnings;
 use strict;
 use Clone;
 

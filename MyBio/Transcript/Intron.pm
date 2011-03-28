@@ -1,6 +1,5 @@
 package MyBio::Transcript::Intron;
 
-use warnings;
 use strict;
 
 use MyBio::Locus;

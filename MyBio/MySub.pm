@@ -2,7 +2,6 @@ package MyBio::MySub;
 
 # Contains useful functions
 
-use warnings;
 use strict;
 
 our $VERSION = '1.0';

@@ -1,9 +1,7 @@
 package MyBio::Mirna::Mimat;
 
-use warnings;
 use strict;
 
-use Switch;
 use MyBio::DBconnector;
 use MyBio::_Initializable;
 
@@ -170,14 +168,30 @@ sub set_chr_stop {
 		my ($class) = @_;
 		return %allMimats;
 	}
-	
+
+=head2 get_by_name
+
+  Arg [1]    : string $name
+               The name of the mirna.
+  Example    : MyBio::Mirna::Mimat->get_by_name;
+  Description: Class method that returns the object which corresponds to the provided miRNA name.
+               If no object is found, then depending on the database access policy the method either attempts
+               to create a new object or returns NULL
+  Returntype : MyBio::Mirna::Mimat / NULL
+  Caller     : ?
+  Status     : Stable
+
+=cut
 	sub get_by_name {
 		my ($class,$name) = @_;
 		if (exists $allMimats{$name}) {
 			return $allMimats{$name};
 		}
-		else {
+		elsif ($class->database_access eq 'ALLOW') {
 			return $class->create_new_mirna_from_database($name);
+		}
+		else {
+			return;
 		}
 	}
 	
@@ -272,41 +286,55 @@ sub set_chr_stop {
 	
 	########################################## database ##########################################
 	my $DBconnector;
-	my $allowDatabaseAccess;
+	my $accessPolicy = MyBio::DBconnector->global_access();
 	my $select_all_from_marure_mirnas_where_name;
 	my $select_all_from_marure_mirnas_where_name_Query = qq/SELECT * FROM diana_mature_mirnas WHERE diana_mature_mirnas.name=?/;
 	
 	sub allow_database_access {
-		$allowDatabaseAccess = 1;
+		$accessPolicy = 'ALLOW';
 	}
 	
 	sub deny_database_access {
-		$allowDatabaseAccess = 0;
+		$accessPolicy = 'DENY';
 	}
 	
-	sub get_global_DBconnector {
+	sub database_access {
+		my ($class) = @_;
+		
+		while (!defined $accessPolicy) {
+			print STDERR "Would you like to enable database access to retrieve data for class $class? (y/n) [n]";
+			my $userChoice = <>;
+			chomp ($userChoice);
+			if    ($userChoice eq '')  {$class->deny_database_access;}
+			elsif ($userChoice eq 'y') {$class->allow_database_access;}
+			elsif ($userChoice eq 'n') {$class->deny_database_access;}
+			else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
+		}
+		
+		return $accessPolicy;
+	}
+	
+	sub get_db_connector {
 		my ($class) = @_;
 		$class = ref($class) || $class;
 		
 		if (!defined $DBconnector) {
-			while (!defined $allowDatabaseAccess) {
-				print STDERR 'Would you like to enable database access to retrieve mature miRNA data? (y/n) [y]';
+			while (!defined $accessPolicy) {
+				print STDERR "Would you like to enable database access to retrieve data for class $class? (y/n) [n]";
 				my $userChoice = <>;
 				chomp ($userChoice);
-				switch ($userChoice) {
-					case ''     {$allowDatabaseAccess = 1;}
-					case 'y'    {$allowDatabaseAccess = 1;}
-					case 'n'    {$allowDatabaseAccess = 0;}
-					else        {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
-				}
+				if    ($userChoice eq '')  {$class->deny_database_access;}
+				elsif ($userChoice eq 'y') {$class->allow_database_access;}
+				elsif ($userChoice eq 'n') {$class->deny_database_access;}
+				else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
 			}
-			if ($allowDatabaseAccess) {
+			if ($accessPolicy eq 'ALLOW') {
 				if (MyBio::DBconnector->exists("core")) {
 					$DBconnector = MyBio::DBconnector->get_dbconnector("core");
 				}
 				else {
-					print STDERR "\nRequesting database connector with name \"mimat\"\n";
-					$DBconnector = MyBio::DBconnector->get_dbconnector("mimat");
+					print STDERR "\nRequesting database connector for class $class\n";
+					$DBconnector = MyBio::DBconnector->get_dbconnector($class);
 				}
 			}
 		}
@@ -316,7 +344,7 @@ sub set_chr_stop {
 	sub create_new_mirna_from_database {
 		my ($class,$name) = @_;
 		
-		$class->get_global_DBconnector();
+		$class->get_db_connector();
 		if (defined $DBconnector) {
 			my $dbh = $DBconnector->get_handle();
 			unless (defined $select_all_from_marure_mirnas_where_name) {

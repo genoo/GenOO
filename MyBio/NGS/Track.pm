@@ -24,7 +24,6 @@ Initialize:
 
 package MyBio::NGS::Track;
 
-use warnings;
 use strict;
 use FileHandle;
 

@@ -2,7 +2,6 @@ package MyBio::MyMath;
 
 # Contains useful mathematical functions
 
-use warnings;
 use strict;
 
 our $VERSION = '1.0';

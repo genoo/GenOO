@@ -2,15 +2,11 @@ package Pathway::KEGG;
 
 # This object describes a KEGG pathway.
 
-use warnings;
 use strict;
-use Switch;
 use Scalar::Util qw/weaken/;
 
 use MyBio::_Initializable;
 use MyBio::DBconnector;
-
-our $VERSION = '1.0';
 
 our @ISA = qw( MyBio::_Initializable);
 
@@ -172,33 +168,55 @@ sub set_extra {
 	
 	########################################## database ##########################################
 	my $DBconnector;
-	my $allowDatabaseAccess;
+	my $accessPolicy = MyBio::DBconnector->global_access();
 	my $select_all_from_kegg_pathways_where_keggid;
 	my $select_all_from_kegg_pathways_where_keggid_Query = qq/SELECT * FROM diana_keggs WHERE diana_keggs.kegg_id=?/;
 	
-	sub get_global_DBconnector {
+	sub allow_database_access {
+		$accessPolicy = 'ALLOW';
+	}
+	
+	sub deny_database_access {
+		$accessPolicy = 'DENY';
+	}
+	
+	sub database_access {
+		my ($class) = @_;
+		
+		while (!defined $accessPolicy) {
+			print STDERR "Would you like to enable database access to retrieve data for class $class? (y/n) [n]";
+			my $userChoice = <>;
+			chomp ($userChoice);
+			if    ($userChoice eq '')  {$class->deny_database_access;}
+			elsif ($userChoice eq 'y') {$class->allow_database_access;}
+			elsif ($userChoice eq 'n') {$class->deny_database_access;}
+			else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
+		}
+		
+		return $accessPolicy;
+	}
+	
+	sub get_db_connector {
 		my ($class) = @_;
 		$class = ref($class) || $class;
 		
 		if (!defined $DBconnector) {
-			while (!defined $allowDatabaseAccess) {
-				print STDERR 'Would you like to enable database access to retrieve KEGG data? (y/n) [y]';
+			while (!defined $accessPolicy) {
+				print STDERR "Would you like to enable database access to retrieve data for class $class? (y/n) [n]";
 				my $userChoice = <>;
 				chomp ($userChoice);
-				switch ($userChoice) {
-					case ''     {$allowDatabaseAccess = 1;}
-					case 'y'    {$allowDatabaseAccess = 1;}
-					case 'n'    {$allowDatabaseAccess = 0;}
-					else        {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
-				}
+				if    ($userChoice eq '')  {$class->deny_database_access;}
+				elsif ($userChoice eq 'y') {$class->allow_database_access;}
+				elsif ($userChoice eq 'n') {$class->deny_database_access;}
+				else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
 			}
-			if ($allowDatabaseAccess) {
+			if ($accessPolicy eq 'ALLOW') {
 				if (MyBio::DBconnector->exists("core")) {
 					$DBconnector = MyBio::DBconnector->get_dbconnector("core");
 				}
 				else {
-					print STDERR "\nRequesting database connector with name \"kegg\"\n";
-					$DBconnector = MyBio::DBconnector->get_dbconnector("kegg");
+					print STDERR "\nRequesting database connector for class $class\n";
+					$DBconnector = MyBio::DBconnector->get_dbconnector($class);
 				}
 			}
 		}
@@ -208,7 +226,7 @@ sub set_extra {
 	sub create_new_kegg_pathway_from_database {
 		my ($class,$keggid) = @_;
 		
-		my $DBconnector = $class->get_global_DBconnector();
+		my $DBconnector = $class->get_db_connector();
 		if (defined $DBconnector) {
 			my $dbh = $DBconnector->get_handle();
 			unless (defined $select_all_from_kegg_pathways_where_keggid) {

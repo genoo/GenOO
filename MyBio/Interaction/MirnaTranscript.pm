@@ -3,7 +3,6 @@ package MyBio::Interaction::MirnaTranscript;
 # Corresponds to the interaction between a miRNA and a transcript.
 # Each such object contains multiple binding sites (MREs) that correspond to the available transcript regions (5'UTR, CDS or 3'UTR)
 
-use warnings;
 use strict;
 use PerlIO::gzip;
 
