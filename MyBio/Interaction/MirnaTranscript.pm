@@ -155,7 +155,13 @@ sub calculate_score_for_version_5_0 {
 				
 				# check if the corresponding Transcript and Mirna objects exist
 				my $mirna = MyBio::Mirna::Mimat->get_by_name($mirnaName);
+				unless (defined $mirna) {
+					$mirna = MyBio::Mirna::Mimat->new({NAME => $mirnaName});
+				}
 				my $transcript = MyBio::Transcript->get_by_enstid($enstid);
+				unless (defined $transcript) {
+					$transcript = MyBio::Transcript->new({ENSTID => $enstid});
+				}
 				
 				$interaction = $class->new({
 							TRANSCRIPT     => $transcript,
