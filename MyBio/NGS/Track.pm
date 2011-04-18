@@ -198,7 +198,7 @@ sub push_to_browser {
 }
 
 sub output_track_line {
-	my ($self, $method) = @_;
+	my ($self, $method, @attributes) = @_;
 	if ($method eq "BED")
 	{
 		my $trackline = "track name=".$self->get_name;
@@ -210,20 +210,37 @@ sub output_track_line {
 		if (defined $self->get_use_score){$trackline .= " useScore=".$self->get_use_score;}
 		return $trackline;
 	}
+	if ($method eq "WIG")
+	{
+		my $extrainfo = $attributes[0]; #will be appended to name
+		my $name = $self->get_name;
+		$name =~ s/\"//g;		
+		my $trackline = "track type=wiggle_0 name=\"$name $extrainfo\"";
+		if (defined $self->get_description){$trackline .= " description=".$self->get_description;}
+		if (defined $self->get_visibility){$trackline .= " visibility=".$self->get_visibility;}
+		if (defined $self->get_color){$trackline .= " color=".$self->get_color;}
+		$trackline .= " autoScale=off alwaysZero=on";
+		return $trackline;
+	}
 }
 
 sub print_track_line {
-	my ($self, $method) = @_;
+	my ($self, $method, @attributes) = @_;
 	if ($method eq "BED"){
-		print $self->output_track_line("BED")."\n";
+		print $self->output_track_line("BED", @attributes)."\n";
+	}
+	if ($method eq "WIG"){
+		print $self->output_track_line("WIG", @attributes)."\n";
 	}
 }
 
 =head2 print_all_tags
 
   Arg [1]    : string $method
-               A descriptor of the desired output method (BED, FASTA).
-  Example    : $track->print_all_tags("BED");
+               A descriptor of the desired output method (BED, FASTA, WIG)
+  Example    : print_all_tags("BED", "STDOUT"/$filename)
+               print_all_tags("FASTA", "STDOUT"/$filename, $chr_folder) #$chr_folder must have chromosomes in the form $chr_folder/chr$chr.fa
+               print_all_tags("WIG", "STDOUT"/$filename, window, step, method) #method can be "RPKM", "SUM". Sum adds the scores of all tags in the window, RPKM divides this by the length of the window in kb.
   Description: Prints the tags for a track object.
   Returntype : NULL
   Caller     : ?
@@ -232,14 +249,13 @@ sub print_track_line {
 =cut
 sub print_all_tags {
 	my ($self, $method, @attributes) = @_;
+	
+	my $OUT;
+	if ((!defined $attributes[0]) or ($attributes[0] eq "STDOUT")) {open ($OUT,">&=",STDOUT);}
+	else {open($OUT,">",$attributes[0]);}
+		
 	if ($method eq "BED"){
-		my $OUT;
-		if ((!defined $attributes[0]) or ($attributes[0] eq "STDOUT")) {
-			open ($OUT,">&=",STDOUT);
-		}
-		else {
-			open($OUT,">",$attributes[0]);
-		}
+		
 		my $tags_ref = $self->get_tags;
 		foreach my $strand (keys %{$tags_ref}) {
 			foreach my $chr (keys %{$$tags_ref{$strand}}) {
@@ -253,13 +269,6 @@ sub print_all_tags {
 		}
 	}
 	elsif ($method eq "FASTA") {
-		my $OUT;
-		if ((!defined $attributes[0]) or ($attributes[0] eq "STDOUT")) {
-			open ($OUT,">&=",STDOUT);
-		}
-		else {
-			open($OUT,">",$attributes[0]);
-		}
 		my $chr_folder = defined $attributes[1] ? $attributes[1] : die "method FASTA was requested but no chromosome sequences provided";
 		my $tags_ref = $self->get_tags;
 		foreach my $strand (keys %{$tags_ref}) {
@@ -287,6 +296,51 @@ sub print_all_tags {
 			}
 		}
 	}
+	elsif ($method eq "WIG") {
+		my $window = defined $attributes[1] ? $attributes[1] : 1000;
+		my $step = defined $attributes[2] ? $attributes[2] : 100;
+		my $method = defined $attributes[3] ? $attributes[3] : "RPKM";
+		my $tags_ref = $self->get_tags;
+		$self->sort_tags();
+		
+		foreach my $strand (keys %{$tags_ref}) {
+			$self->print_track_line("WIG", "strand($strand)");
+			foreach my $chr (keys %{$$tags_ref{$strand}}) {
+				if (exists $$tags_ref{$strand}{$chr}) {
+					my $lastend = (sort {$a->get_stop() <=> $b->get_stop()} @{$$tags_ref{$strand}{$chr}})[-1]->get_stop();
+					my $last_positive_tag_index = 0;
+					print "variableStep chrom=chr$chr span=$step\n";
+					for (my $start = $window; $start < $lastend; $start += $step)
+					{
+						my $wiglocus = MyBio::Locus->new({
+							STRAND       => $strand,
+							CHR          => $chr,
+							START        => $start,
+							STOP         => ($start+$window-1)
+						});
+						my $score = 0;
+						for (my $i = $last_positive_tag_index; $i< $#{$$tags_ref{$strand}{$chr}}; $i++)
+						{
+							my $tag = ${$$tags_ref{$strand}{$chr}}[$i];
+							
+							if ($wiglocus->overlaps($tag))
+							{
+								if ($method eq "SUM"){$score += $tag->get_score;}
+								elsif ($method eq "RPKM"){$score += (1000 * $tag->get_score) / $wiglocus->get_length;}
+								$last_positive_tag_index = $i;
+							}
+							elsif ($wiglocus->get_stop < $tag->get_start)
+							{
+								last;
+							}
+						}
+						if ($score > 0){print $wiglocus->get_start."\t".$score."\n";}
+					}
+				}
+			}
+		}
+	}
+	else {warn "Track Print Method $method not recognized. Try (BED|WIG|FASTA)\n";}
 }
 sub sort_tags {
 	my ($self) = @_;
