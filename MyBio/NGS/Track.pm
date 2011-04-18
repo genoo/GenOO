@@ -1,24 +1,49 @@
-=begin nd
+# POD documentation - main docs before the code
 
-Class: MyBio::NGS::Track
-A class that manages a collection of objects that inherit from the class Locus
-The idea was to design a class that would simulate the tracks used in UCSC genome browser
+=head1 NAME
 
-Initialize:
-> my $track = MyBio::NGS::Track->new({
->	NAME            => undef,
->	DESCRIPTION     => undef,
->	VISIBILITY      => undef,
->	COLOR           => undef,
->	RGB_FLAG        => undef,
->	COLOR_BY_STRAND => undef,
->	USE_SCORE       => undef,
->	BROWSER         => undef,
->	TAGS            => undef,
->	FILE            => undef,
->	FILETYPE        => undef,
->	EXTRA_INFO      => undef,
->});
+MyBio::NGS::Track - Object for a collection of MyBio::Locus objects, with features
+
+=head1 SYNOPSIS
+
+# Object that manages a collection of MyBio::Locus objects. 
+# It simulates tracks used in UCSC genome browser
+
+# To initialize 
+my $track = MyBio::NGS::Track-new({
+	NAME            = undef,
+	SPECIES         = undef,
+	DESCRIPTION     = undef,
+	VISIBILITY      = undef,
+	COLOR           = undef,
+	RGB_FLAG        = undef,
+	COLOR_BY_STRAND = undef,
+	USE_SCORE       = undef,
+	BROWSER         = undef,
+	TAGS            = undef,
+	FILE            = undef,
+	FILETYPE        = undef,
+	EXTRA_INFO      = undef,
+});
+
+
+=head1 DESCRIPTION
+
+The primary data structure of this object is 2D hash whose primary key is the strand 
+and its secondary key is the chromosome name. Each such pair of keys correspond to an
+array reference which stores objects of the class MyBio::Locus sorted by start position.
+
+=head2 Examples
+
+# Read tracks from a file in BED format
+my %tracks = MyBio::NGS::Track->read_tracks("BED",$filename);
+foreach my $track (values %tracks) {
+	$track->print_all_tags("FASTA",'STDOUT',"/data1/data/UCSC/$species_id/chromosomes/");
+}
+
+=head1 AUTHOR - Panagiotis Alexiou, Manolis Maragkakis
+
+Email pan.alexiou@fleming.gr, maragkakis@fleming.gr
 
 =cut
 
