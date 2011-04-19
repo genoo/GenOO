@@ -4,12 +4,9 @@ package MyBio::Transcript::UTR5;
 
 use strict;
 
-use MyBio::_Initializable;
-use MyBio::Transcript::Region;
-
 our $VERSION = '2.0';
 
-our @ISA = qw(MyBio::Transcript::Region);
+use base qw(MyBio::Transcript::Region);
 
 # HOW TO CREATE THIS OBJECT
 # my $utr5Obj = Transcript::UTR5->new({

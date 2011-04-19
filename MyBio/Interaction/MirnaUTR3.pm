@@ -4,10 +4,9 @@ package MyBio::Interaction::MirnaUTR3;
 
 use strict;
 
-use MyBio::Interaction::MRE;
 use MyBio::MyMath;
 
-our @ISA = qw(MyBio::Interaction::MRE);
+use base qw(MyBio::Interaction::MRE);
 
 # HOW TO CREATE THIS OBJECT
 # my $utr5Obj = Transcript::UTR5->new({

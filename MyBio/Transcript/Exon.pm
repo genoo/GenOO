@@ -1,10 +1,7 @@
 package MyBio::Transcript::Exon;
-
 use strict;
 
-use MyBio::Locus;
-
-our @ISA = qw(MyBio::Locus);
+use base qw(MyBio::Locus);
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $Exon = Transcript::Exon->new({
