@@ -257,7 +257,9 @@ sub set_chr_stop {
 			chomp($line);
 			my ($internalID,$mimatname) = split(/\|/,$line);
 			my $mimat = $class->get_by_name($mimatname);
-			$mimat->set_internalID($internalID);
+			if (defined $mimat) {
+				$mimat->set_internalID($internalID);
+			}
 		}
 		close ($IDS);
 	}
