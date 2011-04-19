@@ -5,14 +5,12 @@ package MyBio::Transcript::Region;
 use strict;
 use Scalar::Util qw/weaken/;
 
-use MyBio::_Initializable;
 use MyBio::Transcript::Exon;
 use MyBio::Transcript::Intron;
-use MyBio::Locus;
 
 our $VERSION = '2.0';
 
-our @ISA = qw(MyBio::Locus);
+use base qw(MyBio::Locus);
 
 # HOW TO CREATE THIS OBJECT
 # my $transcriptRegion = Transcript::Region->new({

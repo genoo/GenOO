@@ -1,10 +1,9 @@
 package MyBio::Gene;
-
 use strict;
 
-use MyBio::_Initializable;
+use MyBio::DBconnector;
 
-our @ISA = qw( MyBio::_Initializable );
+use base qw( MyBio::_Initializable );
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $geneObj = MyBio::Gene->new({

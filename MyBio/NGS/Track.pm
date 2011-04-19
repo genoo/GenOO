@@ -6,40 +6,42 @@ MyBio::NGS::Track - Object for a collection of MyBio::Locus objects, with featur
 
 =head1 SYNOPSIS
 
-# Object that manages a collection of MyBio::Locus objects. 
-# It simulates tracks used in UCSC genome browser
+    # Object that manages a collection of L<MyBio::Locus> objects. 
+    # It simulates tracks used in UCSC genome browser
 
-# To initialize 
-my $track = MyBio::NGS::Track-new({
-	NAME            = undef,
-	SPECIES         = undef,
-	DESCRIPTION     = undef,
-	VISIBILITY      = undef,
-	COLOR           = undef,
-	RGB_FLAG        = undef,
-	COLOR_BY_STRAND = undef,
-	USE_SCORE       = undef,
-	BROWSER         = undef,
-	TAGS            = undef,
-	FILE            = undef,
-	FILETYPE        = undef,
-	EXTRA_INFO      = undef,
-});
+    # To initialize 
+    my $track = MyBio::NGS::Track-new({
+        NAME            = undef,
+        SPECIES         = undef,
+        DESCRIPTION     = undef,
+        VISIBILITY      = undef,
+        COLOR           = undef,
+        RGB_FLAG        = undef,
+        COLOR_BY_STRAND = undef,
+        USE_SCORE       = undef,
+        BROWSER         = undef,
+        TAGS            = undef,
+        FILE            = undef,
+        FILETYPE        = undef,
+        EXTRA_INFO      = undef,
+    });
 
 
 =head1 DESCRIPTION
 
-The primary data structure of this object is 2D hash whose primary key is the strand 
-and its secondary key is the chromosome name. Each such pair of keys correspond to an
-array reference which stores objects of the class MyBio::Locus sorted by start position.
+    The primary data structure of this object is a 2D hash whose primary key is the strand 
+    and its secondary key is the chromosome name. Each such pair of keys correspond to an
+    array reference which stores objects of the class L<MyBio::Locus> sorted by start position.
 
-=head2 Examples
+=head1 EXAMPLES
 
-# Read tracks from a file in BED format
-my %tracks = MyBio::NGS::Track->read_tracks("BED",$filename);
-foreach my $track (values %tracks) {
-	$track->print_all_tags("FASTA",'STDOUT',"/data1/data/UCSC/$species_id/chromosomes/");
-}
+    # Read tracks from a file in BED format
+    my %tracks = MyBio::NGS::Track->read_tracks("BED",$filename);
+    
+    # Parse the above read hash and print tags for each track in FASTA format
+    foreach my $track (values %tracks) {
+        $track->print_all_tags("FASTA",'STDOUT',"/data1/data/UCSC/hg19/chromosomes/");
+    }
 
 =head1 AUTHOR - Panagiotis Alexiou, Manolis Maragkakis
 
@@ -47,16 +49,15 @@ Email pan.alexiou@fleming.gr, maragkakis@fleming.gr
 
 =cut
 
-package MyBio::NGS::Track;
+# Let the code begin...
 
+package MyBio::NGS::Track;
 use strict;
 use FileHandle;
-
-use MyBio::_Initializable;
 use MyBio::NGS::Tag;
 use MyBio::MySub;
 
-our @ISA = qw( MyBio::_Initializable );
+use base qw(MyBio::_Initializable);
 
 sub _init {
 	
@@ -255,7 +256,6 @@ sub print_all_tags {
 	else {open($OUT,">",$attributes[0]);}
 		
 	if ($method eq "BED"){
-		
 		my $tags_ref = $self->get_tags;
 		foreach my $strand (keys %{$tags_ref}) {
 			foreach my $chr (keys %{$$tags_ref{$strand}}) {
@@ -271,13 +271,20 @@ sub print_all_tags {
 	elsif ($method eq "FASTA") {
 		my $chr_folder = defined $attributes[1] ? $attributes[1] : die "method FASTA was requested but no chromosome sequences provided";
 		my $tags_ref = $self->get_tags;
+		my %available_chrs;
 		foreach my $strand (keys %{$tags_ref}) {
 			foreach my $chr (keys %{$$tags_ref{$strand}}) {
-				my $chr_file = $chr_folder."/chr$chr.fa";
-				my $chr_seq = MyBio::MySub::read_fasta($chr_file,"chr$chr");
+				$available_chrs{$chr} = 1;
+			}
+		}
+		foreach my $chr (keys %available_chrs) {
+			my $chr_file = $chr_folder."/chr$chr.fa";
+			my $time = time;
+			my $chr_seq = MyBio::MySub::read_fasta($chr_file,"chr$chr");
+			foreach my $strand (keys %{$tags_ref}) {
 				if (exists $$tags_ref{$strand}{$chr}) {
-					foreach my $tag (@{$$tags_ref{$strand}{$chr}})
-					{
+					my $tags_array_ref = $$tags_ref{$strand}{$chr};
+					foreach my $tag (@$tags_array_ref) {
 						my $tag_seq = substr($chr_seq,$tag->get_start,$tag->get_length);
 						if ($strand == -1) {
 							$tag_seq = reverse($tag_seq);

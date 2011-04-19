@@ -4,13 +4,9 @@ package MyBio::Transcript::CDS;
 
 use strict;
 
-use MyBio::_Initializable;
-use MyBio::Transcript::Region;
-use MyBio::Locus;
-
 our $VERSION = '2.0';
 
-our @ISA = qw(MyBio::Transcript::Region);
+use base qw(MyBio::Transcript::Region);
 
 # HOW TO CREATE THIS OBJECT
 # my $cdsObj = Transcript::CDS->new({

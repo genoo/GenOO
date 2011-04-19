@@ -1,10 +1,7 @@
 package MyBio::Locus;
-
 use strict;
 
-use MyBio::_Initializable;
-
-our @ISA = qw( MyBio::_Initializable );
+use base qw( MyBio::_Initializable );
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $Locus = MyBio::Locus->new({

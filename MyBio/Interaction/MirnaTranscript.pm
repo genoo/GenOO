@@ -7,16 +7,14 @@ use strict;
 use PerlIO::gzip;
 
 use MyBio::DBconnector;
-use MyBio::_Initializable;
 use MyBio::Transcript;
 use MyBio::MyMath;
-
 use MyBio::Mirna::Mimat;
 use MyBio::Interaction::MirnaUTR5;
 use MyBio::Interaction::MirnaCDS;
 use MyBio::Interaction::MirnaUTR3;
 
-our @ISA = qw(MyBio::_Initializable);
+use base qw(MyBio::_Initializable);
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $interaction = Target::MirnaTranscriptInteraction->new({

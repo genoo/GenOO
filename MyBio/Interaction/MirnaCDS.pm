@@ -4,10 +4,9 @@ package MyBio::Interaction::MirnaCDS;
 
 use strict;
 
-use MyBio::Interaction::MRE;
 use MyBio::MyMath;
 
-our @ISA = qw(MyBio::Interaction::MRE);
+use base qw(MyBio::Interaction::MRE);
 
 # HOW TO CREATE THIS OBJECT
 # my $utr5Obj = MyBio::Transcript::UTR5->new({

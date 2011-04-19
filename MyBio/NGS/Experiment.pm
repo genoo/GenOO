@@ -6,13 +6,10 @@ A class that describes a next generation sequencing experiment
 =cut
 
 package MyBio::NGS::Experiment;
-
 use strict;
 use XML::Simple;
 
-use MyBio::_Initializable;
-
-our @ISA = qw( MyBio::_Initializable );
+use base qw( MyBio::_Initializable );
 
 sub _init {
 	my ($self,$data) = @_;
