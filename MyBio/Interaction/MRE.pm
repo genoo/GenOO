@@ -6,11 +6,10 @@ package MyBio::Interaction::MRE;
 use strict;
 use Scalar::Util qw/weaken/;
 
-use MyBio::_Initializable;
 use MyBio::Transcript;
 use MyBio::Mirna::Mimat;
 
-our @ISA = qw(MyBio::_Initializable);
+use base qw(MyBio::_Initializable);
 
 # HOW TO INITIALIZE THIS OBJECT
 # $mreObj->_init({

@@ -1,37 +1,63 @@
-=begin nd
+# POD documentation - main docs before the code
 
-Class: MyBio::NGS::Track
-A class that manages a collection of objects that inherit from the class Locus
-The idea was to design a class that would simulate the tracks used in UCSC genome browser
+=head1 NAME
 
-Initialize:
-> my $track = MyBio::NGS::Track->new({
->	NAME            => undef,
->	DESCRIPTION     => undef,
->	VISIBILITY      => undef,
->	COLOR           => undef,
->	RGB_FLAG        => undef,
->	COLOR_BY_STRAND => undef,
->	USE_SCORE       => undef,
->	BROWSER         => undef,
->	TAGS            => undef,
->	FILE            => undef,
->	FILETYPE        => undef,
->	EXTRA_INFO      => undef,
->});
+MyBio::NGS::Track - Object for a collection of MyBio::Locus objects, with features
+
+=head1 SYNOPSIS
+
+    # Object that manages a collection of L<MyBio::Locus> objects. 
+    # It simulates tracks used in UCSC genome browser
+
+    # To initialize 
+    my $track = MyBio::NGS::Track-new({
+        NAME            = undef,
+        SPECIES         = undef,
+        DESCRIPTION     = undef,
+        VISIBILITY      = undef,
+        COLOR           = undef,
+        RGB_FLAG        = undef,
+        COLOR_BY_STRAND = undef,
+        USE_SCORE       = undef,
+        BROWSER         = undef,
+        TAGS            = undef,
+        FILE            = undef,
+        FILETYPE        = undef,
+        EXTRA_INFO      = undef,
+    });
+
+
+=head1 DESCRIPTION
+
+    The primary data structure of this object is a 2D hash whose primary key is the strand 
+    and its secondary key is the chromosome name. Each such pair of keys correspond to an
+    array reference which stores objects of the class L<MyBio::Locus> sorted by start position.
+
+=head1 EXAMPLES
+
+    # Read tracks from a file in BED format
+    my %tracks = MyBio::NGS::Track->read_tracks("BED",$filename);
+    
+    # Parse the above read hash and print tags for each track in FASTA format
+    foreach my $track (values %tracks) {
+        $track->print_all_tags("FASTA",'STDOUT',"/data1/data/UCSC/hg19/chromosomes/");
+    }
+
+=head1 AUTHOR - Panagiotis Alexiou, Manolis Maragkakis
+
+Email pan.alexiou@fleming.gr, maragkakis@fleming.gr
 
 =cut
 
-package MyBio::NGS::Track;
+# Let the code begin...
 
+package MyBio::NGS::Track;
 use strict;
 use FileHandle;
-
-use MyBio::_Initializable;
 use MyBio::NGS::Tag;
 use MyBio::MySub;
 
-our @ISA = qw( MyBio::_Initializable );
+use base qw(MyBio::_Initializable);
 
 sub _init {
 	
@@ -173,7 +199,7 @@ sub push_to_browser {
 }
 
 sub output_track_line {
-	my ($self, $method) = @_;
+	my ($self, $method, @attributes) = @_;
 	if ($method eq "BED")
 	{
 		my $trackline = "track name=".$self->get_name;
@@ -185,20 +211,37 @@ sub output_track_line {
 		if (defined $self->get_use_score){$trackline .= " useScore=".$self->get_use_score;}
 		return $trackline;
 	}
+	if ($method eq "WIG")
+	{
+		my $extrainfo = $attributes[0]; #will be appended to name
+		my $name = $self->get_name;
+		$name =~ s/\"//g;		
+		my $trackline = "track type=wiggle_0 name=\"$name $extrainfo\"";
+		if (defined $self->get_description){$trackline .= " description=".$self->get_description;}
+		if (defined $self->get_visibility){$trackline .= " visibility=".$self->get_visibility;}
+		if (defined $self->get_color){$trackline .= " color=".$self->get_color;}
+		$trackline .= " autoScale=off alwaysZero=on";
+		return $trackline;
+	}
 }
 
 sub print_track_line {
-	my ($self, $method) = @_;
+	my ($self, $method, @attributes) = @_;
 	if ($method eq "BED"){
-		print $self->output_track_line("BED")."\n";
+		print $self->output_track_line("BED", @attributes)."\n";
+	}
+	if ($method eq "WIG"){
+		print $self->output_track_line("WIG", @attributes)."\n";
 	}
 }
 
 =head2 print_all_tags
 
   Arg [1]    : string $method
-               A descriptor of the desired output method (BED, FASTA).
-  Example    : $track->print_all_tags("BED");
+               A descriptor of the desired output method (BED, FASTA, WIG)
+  Example    : print_all_tags("BED", "STDOUT"/$filename)
+               print_all_tags("FASTA", "STDOUT"/$filename, $chr_folder) #$chr_folder must have chromosomes in the form $chr_folder/chr$chr.fa
+               print_all_tags("WIG", "STDOUT"/$filename, window, step, method) #method can be "RPKM", "SUM". Sum adds the scores of all tags in the window, RPKM divides this by the length of the window in kb.
   Description: Prints the tags for a track object.
   Returntype : NULL
   Caller     : ?
@@ -207,14 +250,12 @@ sub print_track_line {
 =cut
 sub print_all_tags {
 	my ($self, $method, @attributes) = @_;
+	
+	my $OUT;
+	if ((!defined $attributes[0]) or ($attributes[0] eq "STDOUT")) {open ($OUT,">&=",STDOUT);}
+	else {open($OUT,">",$attributes[0]);}
+		
 	if ($method eq "BED"){
-		my $OUT;
-		if ((!defined $attributes[0]) or ($attributes[0] eq "STDOUT")) {
-			open ($OUT,">&=",STDOUT);
-		}
-		else {
-			open($OUT,">",$attributes[0]);
-		}
 		my $tags_ref = $self->get_tags;
 		foreach my $strand (keys %{$tags_ref}) {
 			foreach my $chr (keys %{$$tags_ref{$strand}}) {
@@ -228,22 +269,22 @@ sub print_all_tags {
 		}
 	}
 	elsif ($method eq "FASTA") {
-		my $OUT;
-		if ((!defined $attributes[0]) or ($attributes[0] eq "STDOUT")) {
-			open ($OUT,">&=",STDOUT);
-		}
-		else {
-			open($OUT,">",$attributes[0]);
-		}
 		my $chr_folder = defined $attributes[1] ? $attributes[1] : die "method FASTA was requested but no chromosome sequences provided";
 		my $tags_ref = $self->get_tags;
+		my %available_chrs;
 		foreach my $strand (keys %{$tags_ref}) {
 			foreach my $chr (keys %{$$tags_ref{$strand}}) {
-				my $chr_file = $chr_folder."/chr$chr.fa";
-				my $chr_seq = MyBio::MySub::read_fasta($chr_file,"chr$chr");
+				$available_chrs{$chr} = 1;
+			}
+		}
+		foreach my $chr (keys %available_chrs) {
+			my $chr_file = $chr_folder."/chr$chr.fa";
+			my $time = time;
+			my $chr_seq = MyBio::MySub::read_fasta($chr_file,"chr$chr");
+			foreach my $strand (keys %{$tags_ref}) {
 				if (exists $$tags_ref{$strand}{$chr}) {
-					foreach my $tag (@{$$tags_ref{$strand}{$chr}})
-					{
+					my $tags_array_ref = $$tags_ref{$strand}{$chr};
+					foreach my $tag (@$tags_array_ref) {
 						my $tag_seq = substr($chr_seq,$tag->get_start,$tag->get_length);
 						if ($strand == -1) {
 							$tag_seq = reverse($tag_seq);
@@ -262,6 +303,51 @@ sub print_all_tags {
 			}
 		}
 	}
+	elsif ($method eq "WIG") {
+		my $window = defined $attributes[1] ? $attributes[1] : 1000;
+		my $step = defined $attributes[2] ? $attributes[2] : 100;
+		my $method = defined $attributes[3] ? $attributes[3] : "RPKM";
+		my $tags_ref = $self->get_tags;
+		$self->sort_tags();
+		
+		foreach my $strand (keys %{$tags_ref}) {
+			$self->print_track_line("WIG", "strand($strand)");
+			foreach my $chr (keys %{$$tags_ref{$strand}}) {
+				if (exists $$tags_ref{$strand}{$chr}) {
+					my $lastend = (sort {$a->get_stop() <=> $b->get_stop()} @{$$tags_ref{$strand}{$chr}})[-1]->get_stop();
+					my $last_positive_tag_index = 0;
+					print "variableStep chrom=chr$chr span=$step\n";
+					for (my $start = $window; $start < $lastend; $start += $step)
+					{
+						my $wiglocus = MyBio::Locus->new({
+							STRAND       => $strand,
+							CHR          => $chr,
+							START        => $start,
+							STOP         => ($start+$window-1)
+						});
+						my $score = 0;
+						for (my $i = $last_positive_tag_index; $i< $#{$$tags_ref{$strand}{$chr}}; $i++)
+						{
+							my $tag = ${$$tags_ref{$strand}{$chr}}[$i];
+							
+							if ($wiglocus->overlaps($tag))
+							{
+								if ($method eq "SUM"){$score += $tag->get_score;}
+								elsif ($method eq "RPKM"){$score += (1000 * $tag->get_score) / $wiglocus->get_length;}
+								$last_positive_tag_index = $i;
+							}
+							elsif ($wiglocus->get_stop < $tag->get_start)
+							{
+								last;
+							}
+						}
+						if ($score > 0){print $wiglocus->get_start."\t".$score."\n";}
+					}
+				}
+			}
+		}
+	}
+	else {warn "Track Print Method $method not recognized. Try (BED|WIG|FASTA)\n";}
 }
 sub sort_tags {
 	my ($self) = @_;

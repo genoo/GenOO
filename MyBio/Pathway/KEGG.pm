@@ -5,10 +5,9 @@ package Pathway::KEGG;
 use strict;
 use Scalar::Util qw/weaken/;
 
-use MyBio::_Initializable;
 use MyBio::DBconnector;
 
-our @ISA = qw( MyBio::_Initializable);
+use base qw( MyBio::_Initializable);
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $kegg_pathway = Pathway::KEGG->new({
