@@ -4,12 +4,9 @@ package MyBio::Transcript::CDNA;
 
 use strict;
 
-use MyBio::_Initializable;
-use MyBio::Transcript::Region;
-
 our $VERSION = '2.0';
 
-our @ISA = qw(MyBio::Transcript::Region);
+use base qw(MyBio::Transcript::Region);
 
 # HOW TO CREATE THIS OBJECT
 # my $cdnaObj = Transcript::CDNA->new({

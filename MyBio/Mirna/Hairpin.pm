@@ -1,11 +1,9 @@
 package MyBio::Mirna::Hairpin;
-
 use strict;
 
-use MyBio::_Initializable;
 use MyBio::Mirna::Mimat;
 
-our @ISA = qw(MyBio::_Initializable);
+use base qw(MyBio::_Initializable);
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $hairpinObj = MyBio::Mirna::Hairpin->new({

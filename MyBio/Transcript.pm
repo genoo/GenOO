@@ -6,50 +6,48 @@ MyBio::Transcript - Transcript object, with features
 
 =head1 SYNOPSIS
 
-# This is the main transcript object
-# It represents a transcript of a gene
-
-# To initialize 
-my $transcript = MyBio::Transcript->new({
-	ENSTID         => undef,
-	SPECIES        => undef,
-	STRAND         => undef,
-	CHR            => undef,
-	GENE           => undef, # MyBio::Gene
-	UTR5           => undef, # MyBio::Transcript::UTR5
-	CDS            => undef, # MyBio::Transcript::CDS
-	UTR3           => undef, # MyBio::Transcript::UTR3
-	CDNA           => undef, # MyBio::Transcript::CDNA
-	BIOTYPE        => undef,
-	INTERNAL_ID    => undef,
-	INTERNAL_GID   => undef,
-	START          => undef,
-	STOP           => undef,
-	EXTRA_INFO     => undef,
-});
+    # This is the main transcript object
+    # It represents a transcript of a gene
+    
+    # To initialize 
+    my $transcript = MyBio::Transcript->new({
+        ENSTID         => undef,
+        SPECIES        => undef,
+        STRAND         => undef,
+        CHR            => undef,
+        GENE           => undef, # MyBio::Gene
+        UTR5           => undef, # MyBio::Transcript::UTR5
+        CDS            => undef, # MyBio::Transcript::CDS
+        UTR3           => undef, # MyBio::Transcript::UTR3
+        CDNA           => undef, # MyBio::Transcript::CDNA
+        BIOTYPE        => undef,
+        INTERNAL_ID    => undef,
+        INTERNAL_GID   => undef,
+        START          => undef,
+        STOP           => undef,
+        EXTRA_INFO     => undef,
+    });
 
 =head1 DESCRIPTION
 
-Not provide yet
+    Not provided yet
 
-=head2 Examples
+=head1 EXAMPLES
 
-my %transcripts = MyBio::Transcript->read_region_info_for_transcripts('FILE',"$database/Ensembl_release_54/CDS_and_3UTR_sequences_CLEAN.txt");
+    my %transcripts = MyBio::Transcript->read_region_info_for_transcripts('FILE',"$database/Ensembl_release_54/CDS_and_3UTR_sequences_CLEAN.txt");
 
 =head1 AUTHOR - Manolis Maragkakis, Panagiotis Alexiou
 
-Email maragkakis@fleming.gr
-Email pan.alexiou@fleming.gr
+Email maragkakis@fleming.gr, pan.alexiou@fleming.gr
 
 =cut
 
 # Let the code begin...
 
 package MyBio::Transcript;
-
 use strict;
-use Scalar::Util qw/weaken/;
 
+use Scalar::Util qw/weaken/;
 use MyBio::DBconnector;
 use MyBio::Gene;
 use MyBio::Transcript::UTR5;
@@ -58,7 +56,7 @@ use MyBio::Transcript::UTR3;
 use MyBio::Transcript::Exon;
 use MyBio::Transcript::CDNA;
 
-our @ISA = qw(MyBio::Locus);
+use base qw(MyBio::Locus);
 
 sub _init {
 	my ($self,$data) = @_;

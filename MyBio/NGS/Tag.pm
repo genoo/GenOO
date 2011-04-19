@@ -1,11 +1,7 @@
 package MyBio::NGS::Tag;
-
 use strict;
-use Clone;
 
-use MyBio::Locus;
-
-our @ISA = qw( MyBio::Locus Clone );
+use base qw(MyBio::Locus Clone);
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $Locus = MyBio::NGS::Tag->new({

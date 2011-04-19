@@ -6,26 +6,26 @@ MyBio::DBconnector - Connector to database object, with features
 
 =head1 SYNOPSIS
 
-# This is an object that manages a connection to the database
-# Currently it is designed only for MySQL databases
-
-# To initialize 
-my $dbconn = MyBio::DBconnector->new({
-	NAME        => undef,
-	HOST        => undef,
-	DATABASE    => undef,
-	USER        => undef,
-	PASSWORD    => undef,
-});
+    # This is an object that manages a connection to the database
+    # Currently it is designed only for MySQL databases
+    
+    # To initialize 
+    my $dbconn = MyBio::DBconnector->new({
+        NAME        => undef,
+        HOST        => undef,
+        DATABASE    => undef,
+        USER        => undef,
+        PASSWORD    => undef,
+    });
 
 =head1 DESCRIPTION
 
-Not provide yet
+    Not provided yet
 
-=head2 Examples
+=head1 EXAMPLES
 
-my $dbConn = DBconnector->new(["core","localhost","database","user","pass"]);
-my $dbh = DBconnector->get_handle_for_dbconnector("core");
+    my $dbConn = DBconnector->new(["core","localhost","database","user","pass"]);
+    my $dbh = DBconnector->get_handle_for_dbconnector("core");
 
 =head1 AUTHOR - Manolis Maragkakis
 
@@ -36,13 +36,11 @@ Email maragkakis@fleming.gr
 # Let the code begin...
 
 package MyBio::DBconnector;
-
 use strict;
+
 use DBI;
 
-use MyBio::_Initializable;
-
-our @ISA = qw( MyBio::_Initializable );
+use base qw( MyBio::_Initializable );
 
 sub _init {
 	my ($self,$data) = @_;
