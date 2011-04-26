@@ -239,9 +239,9 @@ sub print_track_line {
 
   Arg [1]    : string $method
                A descriptor of the desired output method (BED, FASTA, WIG)
-  Example    : print_all_tags("BED", "STDOUT"/$filename)
-               print_all_tags("FASTA", "STDOUT"/$filename, $chr_folder) #$chr_folder must have chromosomes in the form $chr_folder/chr$chr.fa
-               print_all_tags("WIG", "STDOUT"/$filename, window, step, method) #method can be "RPKM", "SUM". Sum adds the scores of all tags in the window, RPKM divides this by the length of the window in kb.
+  Example    : print_all_tags("BED", "STDOUT" or $file)
+               print_all_tags("FASTA", "STDOUT" or $file, $chr_folder) #$chr_folder must have chromosomes in the form $chr_folder/chr$chr.fa
+               print_all_tags("WIG", "STDOUT" or $file, window, step, method) #method can be "RPKM", "SUM". Sum adds the scores of all tags in the window, RPKM divides this by the length of the window in kb.
   Description: Prints the tags for a track object.
   Returntype : NULL
   Caller     : ?
@@ -262,7 +262,7 @@ sub print_all_tags {
 				if (exists $$tags_ref{$strand}{$chr}) {
 					foreach my $tag (@{$$tags_ref{$strand}{$chr}})
 					{
-						print $OUT $tag->output_tag("BED")."\n";
+						print $OUT $tag->to_string("BED")."\n";
 					}
 				}
 			}
@@ -362,6 +362,23 @@ sub sort_tags {
 	}
 }
 
+=head2 merge_tags
+
+  Arg [1]    : string $method
+               A descriptor of the desired output method (MERGE, SPLITSCORE)
+               MERGE: scores of overlapping or whithin a distance tags are summed
+               SPLITSCORE: overlapping tags are divided into parts and the score of each part is the sum of the
+                           corresponding overlapping tags
+  Arg [2..]  : array @attributes
+               Additional attributes for the defined output method
+  Example    : merge_tags("MERGE", 0) 
+               merge_tags("SPLITSCORE", 10)
+  Description: Merges loci which overlap or are closer than a given distance with each other (tags are replaced by merged ones)
+  Returntype : NULL
+  Caller     : ?
+  Status     : Experimental / Unstable
+
+=cut
 sub merge_tags {
 	my ($self,$method,@attributes) = @_;
 	

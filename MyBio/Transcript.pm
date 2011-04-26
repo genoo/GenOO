@@ -320,9 +320,6 @@ sub set_internalGID {
 	sub _read_gtf_with_transcripts {
 		my ($class,$file)=@_;
 		
-		MyBio::Gene->deny_database_access();
-		$class->deny_database_access;
-		
 		my %allexons;
 		my %coding_start;
 		my %coding_stop;
