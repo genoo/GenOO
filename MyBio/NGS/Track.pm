@@ -10,20 +10,20 @@ MyBio::NGS::Track - Object for a collection of MyBio::Locus objects, with featur
     # It simulates tracks used in UCSC genome browser
 
     # To initialize 
-    my $track = MyBio::NGS::Track-new({
-        NAME            = undef,
-        SPECIES         = undef,
-        DESCRIPTION     = undef,
-        VISIBILITY      = undef,
-        COLOR           = undef,
-        RGB_FLAG        = undef,
-        COLOR_BY_STRAND = undef,
-        USE_SCORE       = undef,
-        BROWSER         = undef,
-        TAGS            = undef,
-        FILE            = undef,
-        FILETYPE        = undef,
-        EXTRA_INFO      = undef,
+    my $track = MyBio::NGS::Track->new({
+        NAME            => undef,
+        SPECIES         => undef,
+        DESCRIPTION     => undef,
+        VISIBILITY      => undef,
+        COLOR           => undef,
+        RGB_FLAG        => undef,
+        COLOR_BY_STRAND => undef,
+        USE_SCORE       => undef,
+        BROWSER         => undef,
+        TAGS            => undef,
+        FILE            => undef,
+        FILETYPE        => undef,
+        EXTRA_INFO      => undef,
     });
 
 
@@ -295,7 +295,7 @@ sub print_all_tags {
 								$tag_seq =~ tr/ATGCUatgcu/TACGAtacga/;
 							}
 						}
-						my $header = $tag->output_tag("BED");
+						my $header = $tag->to_string("BED");
 						$header =~ s/\t/|/g;
 						print $OUT ">$header\n$tag_seq\n";
 					}
