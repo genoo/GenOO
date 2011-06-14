@@ -11,6 +11,7 @@ use base qw( MyBio::_Initializable );
 # 		     START        => undef,
 # 		     STOP         => undef,
 # 		     SEQUENCE     => undef,
+# 		     NAME         => undef,
 # 		     EXTRA_INFO   => undef,
 # 		     });
 
@@ -23,6 +24,7 @@ sub _init {
 	$self->set_start($$data{START});
 	$self->set_stop($$data{STOP});
 	$self->set_sequence($$data{SEQUENCE});
+	$self->set_name($$data{NAME});
 	$self->set_extra($$data{EXTRA_INFO});
 	
 	return $self;
@@ -48,6 +50,9 @@ sub get_stop {
 }
 sub get_sequence {
 	return $_[0]->{SEQUENCE};
+}
+sub get_name {
+	return $_[0]->{NAME};
 }
 sub get_extra {
 	return $_[0]->{EXTRA_INFO};
@@ -102,6 +107,9 @@ sub set_sequence {
 		$self->{SEQUENCE} = $value;
 	}
 }
+sub set_name {
+	$_[0]->{NAME} = $_[1] if defined $_[1];
+}
 sub set_extra {
 	$_[0]->{EXTRA_INFO} = $_[1] if defined $_[1];
 }
@@ -109,6 +117,26 @@ sub set_extra {
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub to_string {
+	my ($self,$method,@attributes) = @_;
+	
+	my $print_tag;
+	if ($method eq "BED") {
+		my $strand;
+		if    ($self->get_strand == 1){$strand = "+";}
+		elsif ($self->get_strand == -1){$strand = "-";}
+		else {$strand = ".";}
+		
+		my $name = defined $self->get_name ? $self->get_name : ".";
+		my $score = 0;
+		
+		$print_tag = "chr".$self->get_chr."\t".$self->get_start."\t".($self->get_stop+1)."\t".$name."\t".$score."\t".$strand;
+		
+	}
+	$print_tag =~ s/\t+$//g;
+	return $print_tag;
+}
+
 sub overlaps {
 	my ($self,$loc2,$offset) = @_;
 	

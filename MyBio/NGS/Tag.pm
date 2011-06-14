@@ -141,7 +141,7 @@ sub to_string {
 		my $name = defined $self->get_name ? $self->get_name : ".";
 		my $score = defined $self->get_score ? $self->get_score : 0;
 		
-		$print_tag = "chr".$self->get_chr."\t".$self->get_start."\t".($self->get_stop+1)."\t".$name."\t".$self->get_score."\t".$strand;
+		$print_tag = "chr".$self->get_chr."\t".$self->get_start."\t".($self->get_stop+1)."\t".$name."\t".$score."\t".$strand;
 		
 		$print_tag .= defined $self->get_thick_start ? "\t".$self->get_thick_start : "\t";
 		$print_tag .= defined $self->get_thick_stop ? "\t".$self->get_thick_stop : "\t";
