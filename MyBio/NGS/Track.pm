@@ -211,7 +211,7 @@ sub output_track_line {
 		if (defined $self->get_use_score){$trackline .= " useScore=".$self->get_use_score;}
 		return $trackline;
 	}
-	if ($method eq "WIG")
+	elsif ($method eq "WIG")
 	{
 		my $extrainfo = $attributes[0]; #will be appended to name
 		my $name = $self->get_name;
@@ -230,7 +230,7 @@ sub print_track_line {
 	if ($method eq "BED"){
 		print $self->output_track_line("BED", @attributes)."\n";
 	}
-	if ($method eq "WIG"){
+	elsif ($method eq "WIG"){
 		print $self->output_track_line("WIG", @attributes)."\n";
 	}
 }
