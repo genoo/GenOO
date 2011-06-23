@@ -279,7 +279,10 @@ sub print_all_tags {
 		}
 		foreach my $chr (keys %available_chrs) {
 			my $chr_file = $chr_folder."/chr$chr.fa";
-			my $time = time;
+			unless (-e $chr_file) {
+				warn "Skipping chromosome. File $chr_file does not exist";
+				next;
+			}
 			my $chr_seq = MyBio::MySub::read_fasta($chr_file,"chr$chr");
 			foreach my $strand (keys %{$tags_ref}) {
 				if (exists $$tags_ref{$strand}{$chr}) {

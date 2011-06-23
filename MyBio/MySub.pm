@@ -94,4 +94,5 @@ sub read_fasta_seq_for_requested_header {
 		}
 	}
 	close $FASTA;
+	return undef;
 }
