@@ -30,7 +30,6 @@ sub _init {
 	$self->set_splice_starts($$data{SPLICE_STARTS});  # [] reference to array of splice starts
 	$self->set_splice_stops($$data{SPLICE_STOPS});  # [] reference to array of splice stops
 	$self->set_exons($$data{EXONS}); # [] reference to an array of locus objects (exons)
-	$self->set_sequence($$data{SEQUENCE});
 	$self->set_extra($$data{EXTRA_INFO});
 	$self->set_accessibility($$data{ACCESSIBILITY});
 	
@@ -42,9 +41,6 @@ sub _init {
 #######################################################################
 sub get_transcript {
 	return $_[0]->{TRANSCRIPT};
-}
-sub get_sequence {
-	return $_[0]->{SEQUENCE};
 }
 sub get_extra {
 	return $_[0]->{EXTRA_INFO};
@@ -156,16 +152,6 @@ sub get_length {
 sub set_extra {
 	$_[0]->{EXTRA_INFO} = $_[1] if defined $_[1];
 }
-sub set_sequence {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		unless ($value =~ /^[ATGCU]*$/i) {
-			$value =~ /([^ATGCU])/i;
-			warn "The nucleotide sequence provided for ".$self->get_transcript->get_enstid()." contains the following invalid characters $1 in $self\n";
-		}
-		$self->{SEQUENCE} = $value;
-	}
-}
 sub set_transcript {
 	my ($self,$value) = @_;
 	if (defined $value) {
@@ -205,14 +191,25 @@ sub set_exons {
 		}
 	}
 }
+
+=head2 set_accessibility
+
+  Arg [1]    : string $accessibilityVar
+               A string with accesibility values per nucleotide separated by pipes "|"
+  Example    : set_accessibility("0.1|0.9|0.5|0.4|0.3") # for a Transcript::Region of length 5
+  Description: Sets the accessibility attribute for the transcript region.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Under development
+
+=cut
 sub set_accessibility {
 	my ($self,$accessibilityVar) = @_;
 	
 	if (defined $accessibilityVar) {
 		my @accessibility = split(/\|/,$accessibilityVar);
-		@accessibility = @accessibility[300..(@accessibility-1)];
 		if (@accessibility != $self->get_length()) {
-			warn $self->get_transcript->get_enstid().":\tAccessibility array size (".scalar @accessibility.") does not match with sequence size (".$self->get_length().") in ".ref($self);
+			warn $self->get_transcript->get_enstid().":\tAccessibility (".scalar @accessibility.") does not match sequence size (".$self->get_length().") in ".ref($self);
 		}
 		$self->{ACCESSIBILITY} = \@accessibility;
 	}
@@ -226,10 +223,11 @@ sub set_accessibility {
 #######################################################################
 sub _sequence_length_from_splicing {
 #this routine calculates the sequence length based on the splicing
+	my ($self) = @_;
 	my $UTRlength=0;
 	
-	my @starts = @{$_[0]->get_splice_starts()};
-	my @stops  = @{$_[0]->get_splice_stops()};
+	my @starts = @{$self->get_splice_starts()};
+	my @stops  = @{$self->get_splice_stops()};
 	
 	for (my $i=0; $i<@starts; $i++)  {
 		$UTRlength += $stops[$i] - $starts[$i]+1;
