@@ -132,12 +132,18 @@ sub calculate_score_for_version_5_0 {
 			my $filename = $attributes[0];
 			%interactions = $class->_read_file_with_interactions($filename);
 		}
+		elsif ($method eq "OLDFILE") {
+			my $filename = $attributes[0];
+			my $miTG_score_threshold = $attributes[1];
+			my $mre_thres = $attributes[2];
+			%interactions = $class->_read_oldfile_with_interactions($filename,$miTG_score_threshold,$mre_thres);
+		}
 		
 		return %interactions;
 	}
 	
 	sub _read_file_with_interactions {
-		my ($class,$file,$mirnaObj)=@_;
+		my ($class,$file) = @_;
 		
 		my %interactions;
 		my $interaction;
@@ -188,7 +194,6 @@ sub calculate_score_for_version_5_0 {
 						EXTRA_INFO        => join('|',@mreExtra),
 						);
 				
-				my $mreObj;
 				if ($where eq 'CDS') {
 					my $mreObj = MyBio::Interaction::MirnaCDS->new(\%data);
 				}
@@ -204,6 +209,97 @@ sub calculate_score_for_version_5_0 {
 		
 		return %interactions;
 	}
+	
+	sub _read_oldfile_with_interactions {
+		my ($class,$file,$miTG_score_threshold,$mre_thres) = @_;
+		
+		my %interactions;
+		my $interaction;
+		my $transcript;
+		my $useInteraction;
+		my $score;
+		my $precision;
+		my $snr;
+		
+		my $fileReadType = ($file =~ /\.gz$/) ? "<:gzip" : "<"; 
+		open (my $IN,$fileReadType,$file) or die "Cannot open file $file: $!";
+		while (my $line = <$IN>) {
+			chomp($line);
+			if ($line =~ /^>/) {
+				$useInteraction = undef;
+				$interaction = undef;
+				$score = undef;
+				
+				my ($chr,$ensg,$name,$strand,$splice_starts,$splice_stops,$enstid,$conservation,$miTGscore,$prec,$ratio) = split(/\|/,$line);
+				$chr =~ s/>//g;
+				
+				if ($miTGscore >= $miTG_score_threshold) {
+					$useInteraction = 1;
+					$score = $miTGscore;
+					$precision = $prec;
+					$snr = $ratio;
+					
+					# check if the corresponding Transcript exists
+					$transcript = MyBio::Transcript->get_by_enstid($enstid);
+					unless (defined $transcript) {
+						$transcript = MyBio::Transcript->new({
+							CHR              => $chr,
+							ENSTID           => $enstid,
+							ENSGID           => $ensg,
+							COMMON_NAME      => $name,
+							STRAND           => $strand,
+							SPLICE_STARTS    => $splice_starts,
+							SPLICE_STOPS     => $splice_stops,
+						});
+					}
+				}
+			}
+			elsif (($line !~ /^#/) and ($useInteraction)) {
+				my ($mirnaName,$seedStart,$seedStop,$dif1,$dif2,$categoryNum,$first_binding_nt,$MRE_start,$MRE_stop,$bindingVector,$RNAhybrid,$NA,$NA2,$energyPercentage,$conservationVector,$access_r1,$access_r2,$access_r3,$access_r4,$MREscore) = split(/\|/,$line);
+				if ($MREscore > $mre_thres) {
+					# check if the corresponding miRNA objects exists
+					my $mirna = MyBio::Mirna::Mimat->get_by_name($mirnaName);
+					unless (defined $mirna) {
+						$mirna = MyBio::Mirna::Mimat->new({NAME => $mirnaName});
+					}
+					
+					# create the interaction if it has not already been created
+					unless (defined $interaction) {
+						$interaction = $class->new({
+								TRANSCRIPT     => $transcript,
+								MIRNA          => $mirna,
+								SCORE          => $score,
+								SNR            => $snr,
+								PRECISION      => $precision,
+								});
+						$interactions{$interaction->get_mirna->get_name()}{$interaction->get_transcript->get_enstid()} = $interaction;
+					}
+					
+					my $mreObj = MyBio::Interaction::MirnaUTR3->new({
+						MIRNA_TRANSCRIPT_INTERACTION => $interaction,
+						WHERE             => "UTR3",
+						CATEG             => $categoryNum,
+						POS_ON_REGION     => $seedStop,
+						DIF1              => $dif1,
+						DIF2              => $dif2,
+						FIRST_BINDING     => $first_binding_nt,
+						BINDING_VECTOR    => $bindingVector,
+						RNAHYBRID         => $RNAhybrid,
+						ENERGY_PERCENTAGE => $energyPercentage,
+						CONSERVATION      => $conservationVector,
+						MRE_SCORE         => $MREscore,
+# 						EXTRA_INFO        => join('|',@mreExtra),
+					});
+
+					
+				}
+			}
+		}
+		close $IN;
+		
+		return %interactions;;
+	}
+	
 	
 # 	sub read_predicted_interactions_from_workFolder {
 # 		my ($class,$workFolder,$predictionsFilename)=@_;
