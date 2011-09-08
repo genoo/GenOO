@@ -43,6 +43,34 @@ sub set_conservation {
 	$_[0]->{CONSERVATION} = $_[1] if defined $_[1];
 }
 
+=head2 set_accessibility
+
+  Arg [1]    : string $accessibilityVar
+               A string with accesibility values per nucleotide separated by pipes "|"
+  Example    : set_accessibility("0.1|0.9|0.5|0.4|0.3") # for a Transcript::UTR3 of length 5
+  Description: Sets the accessibility attribute for the 3'UTR.
+               IMPORTANT: Initially the accessibility calculation for the 3'UTR contained 300 nucleotides upflank. For this, the method overides the default to remove these 300 additional values
+  Returntype : NULL
+  Caller     : ?
+  Status     : Under development
+
+=cut
+sub set_accessibility {
+	my ($self,$accessibilityVar) = @_;
+	
+	if (defined $accessibilityVar) {
+		my @accessibility = split(/\|/,$accessibilityVar);
+		@accessibility = @accessibility[300..(@accessibility-1)];
+		if (@accessibility != $self->get_length()) {
+			warn $self->get_transcript->get_enstid().":\tAccessibility array size (".scalar @accessibility.") does not match with sequence size (".$self->get_length().") in ".ref($self);
+		}
+		$self->{ACCESSIBILITY} = \@accessibility;
+	}
+	else {
+		$self->{ACCESSIBILITY} = undef;
+	}
+}
+
 #######################################################################
 #############################   General   #############################
 #######################################################################
