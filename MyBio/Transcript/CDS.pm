@@ -52,24 +52,6 @@ sub get_cds_start_locus {
 #######################################################################
 sub set_conservation { $_[0]->{CONSERVATION} = $_[1] if defined $_[1];}
 
-###################
-# HACK the method set_accessibility is defined in the parent class Transcript::Region but due to a bug in cds folding it is redefined here. When the bug is fixed it will be removed
-###################
-sub set_accessibility {
-	my ($self,$accessibilityVar) = @_;
-	
-	if (defined $accessibilityVar) {
-		my @accessibility = split(/\|/,$accessibilityVar);
-		if (@accessibility != $self->get_length()) {
-			warn $self->get_transcript->get_enstid().":\tAccessibility array size (".scalar @accessibility.") does not match sequence size (".$self->get_length().") in ".ref($self);
-		}
-		$self->{ACCESSIBILITY} = \@accessibility;
-	}
-	else {
-		$self->{ACCESSIBILITY} = undef;
-	}
-}
-
 #######################################################################
 #############################   General   #############################
 #######################################################################
