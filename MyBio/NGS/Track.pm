@@ -241,7 +241,7 @@ sub print_track_line {
                A descriptor of the desired output method (BED, FASTA, WIG)
   Example    : print_all_tags("BED", "STDOUT" or $file)
                print_all_tags("FASTA", "STDOUT" or $file, $chr_folder) #$chr_folder must have chromosomes in the form $chr_folder/chr$chr.fa
-               print_all_tags("WIG", "STDOUT" or $file, window, step, method) #method can be "RPKM", "SUM". Sum adds the scores of all tags in the window, RPKM divides this by the length of the window in kb.
+               print_all_tags("WIG", "STDOUT" or $file, window, step, method) #method can be "RPKM", "SUM", "SIMPLE". Sum adds the scores of all tags in the window, RPKM divides this by the length of the window in kb., SIMPLE counts tags in the window
   Description: Prints the tags for a track object.
   Returntype : NULL
   Caller     : ?
@@ -337,6 +337,7 @@ sub print_all_tags {
 							{
 								if ($method eq "SUM"){$score += $tag->get_score;}
 								elsif ($method eq "RPKM"){$score += (1000 * $tag->get_score) / $wiglocus->get_length;}
+								elsif ($method eq "SIMPLE"){$score++;}
 								$last_positive_tag_index = $i;
 							}
 							elsif ($wiglocus->get_stop < $tag->get_start)
