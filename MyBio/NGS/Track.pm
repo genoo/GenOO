@@ -369,7 +369,7 @@ sub print_all_tags_FASTA {
 			if (exists $$tags_ref{$strand}{$chr}) {
 				my $tags_array_ref = $$tags_ref{$strand}{$chr};
 				# Unbelievable as it may be, although the if else statement is not needed, having it here speeds up the script by approximately 8 times
-				if (!undef $maxflank) {
+				if (defined $maxflank) {
 					foreach my $tag (@$tags_array_ref) {
 						my $tag_seq;
 						if ($strand == 1) {
