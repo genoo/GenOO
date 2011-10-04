@@ -237,56 +237,160 @@ sub print_track_line {
 
 =head2 print_all_tags
 
-  Arg [1]    : string $method
-               A descriptor of the desired output method (BED, FASTA, WIG)
-  Example    : print_all_tags("BED", "STDOUT" or $file)
-               print_all_tags("FASTA", "STDOUT" or $file, $chr_folder) #$chr_folder must have chromosomes in the form $chr_folder/chr$chr.fa
-               print_all_tags("WIG", "STDOUT" or $file, window, step, method) #method can be "RPKM", "SUM", "SIMPLE". Sum adds the scores of all tags in the window, RPKM divides this by the length of the window in kb., SIMPLE counts tags in the window
-  Description: Prints the tags for a track object.
+  Arg [1]    : hash reference
+               A hash reference containing the parameters for the output. Important: The type of output (BED, FASTA, WIG) must be specified!
+  Example    : print_all_tags({METHOD=>"BED"})
+  Description: Prints all tags for the track object.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Under development
+
+=cut
+sub print_all_tags {
+	my ($self, $params) = @_;
+	
+	unless (ref($params) eq "HASH") {
+		my $class = ref($self) || $self;
+		die "\n\nDon't panic - Just change the way you call method \"print_all_tags\" through $class in your calling script\n\n";
+	}
+	
+	my $method = $params->{'METHOD'};
+	delete $params->{'METHOD'};
+	unless (defined $method) {
+		my $class = ref($self) || $self;
+		die "\nNo print method specified in $class\::print_all_tags";
+	}
+	
+	if ($method eq "BED"){
+		$self->print_all_tags_BED($params);
+	}
+	elsif ($method eq "FASTA") {
+		$self->print_all_tags_FASTA($params);
+	}
+	elsif ($method eq "WIG") {
+		$self->print_all_tags_WIG($params);
+	}
+	else {
+		my $class = ref($self) || $self;
+		die "\nUnknown print method \"$method\" specified in $class\::print_all_tags. Try (BED|WIG|FASTA)";
+	}
+}
+
+=head2 print_all_tags_BED
+
+  Arg [1]    : hash reference
+               A hash reference containing the parameters for the output
+               Required parameters are:
+                  1/ OUTPUT: STDOUT or filename
+  Example    : print_all_tags({
+                  OUTPUT       =>"STDOUT"
+               })      
+  Description: Prints all tags for a track object in BED format.
   Returntype : NULL
   Caller     : ?
   Status     : Stable
 
 =cut
-sub print_all_tags {
-	my ($self, $method, @attributes) = @_;
+sub print_all_tags_BED {
+	my ($self, $params) = @_;
 	
 	my $OUT;
-	if ((!defined $attributes[0]) or ($attributes[0] eq "STDOUT")) {open ($OUT,">&=",STDOUT);}
-	else {open($OUT,">",$attributes[0]);}
-		
-	if ($method eq "BED"){
-		my $tags_ref = $self->get_tags;
-		foreach my $strand (keys %{$tags_ref}) {
-			foreach my $chr (keys %{$$tags_ref{$strand}}) {
-				if (exists $$tags_ref{$strand}{$chr}) {
-					foreach my $tag (@{$$tags_ref{$strand}{$chr}})
-					{
-						print $OUT $tag->to_string("BED")."\n";
-					}
+	if ((!exists $params->{'OUTPUT'}) or ($params->{'OUTPUT'} eq "STDOUT")) {
+		open ($OUT,">&=",STDOUT);
+	}
+	else {
+		open($OUT,">",$params->{'OUTPUT'});
+	}
+	
+	my $tags_ref = $self->get_tags;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				foreach my $tag (@{$$tags_ref{$strand}{$chr}})
+				{
+					print $OUT $tag->to_string("BED")."\n";
 				}
 			}
 		}
 	}
-	elsif ($method eq "FASTA") {
-		my $chr_folder = defined $attributes[1] ? $attributes[1] : die "method FASTA was requested but no chromosome sequences provided";
-		my $tags_ref = $self->get_tags;
-		my %available_chrs;
-		foreach my $strand (keys %{$tags_ref}) {
-			foreach my $chr (keys %{$$tags_ref{$strand}}) {
-				$available_chrs{$chr} = 1;
-			}
+	
+	return 0;
+}
+
+=head2 print_all_tags_FASTA
+
+  Arg [1]    : hash reference
+               A hash reference containing the parameters for the output.
+               Required parameters are:
+                  1/ OUTPUT: STDOUT or filename
+                  2/ CHR_FOLDER: The folder containing the fasta files of the chromosomes
+  Example    : print_all_tags({
+                  OUTPUT       => "STDOUT",
+                  CHR_FOLDER   => "/chromosomes/hg19/"
+               })
+  Description: Prints all tags for a track object in FASTA format.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Stable
+
+=cut
+sub print_all_tags_FASTA {
+	my ($self, $params) = @_;
+	
+	my $chr_folder = exists $params->{'CHR_FOLDER'} ? $params->{'CHR_FOLDER'} : die "The method FASTA is requested in \"print_all_tags\" but the folder with chromosome sequences is not provided";
+	my $upflank = exists $params->{'UP_FLANK'} ? $params->{'UP_FLANK'} : 0;
+	my $downflank = exists $params->{'DOWN_FLANK'} ? $params->{'DOWN_FLANK'} : 0;
+	my $maxflank = $upflank > $downflank ? $upflank : $downflank;
+	
+	my $OUT;
+	if ((!exists $params->{'OUTPUT'}) or ($params->{'OUTPUT'} eq "STDOUT")) {
+		open ($OUT,">&=",STDOUT);
+	}
+	else {
+		open($OUT,">",$params->{'OUTPUT'});
+	}
+	
+	my $tags_ref = $self->get_tags;
+	my %available_chrs;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			$available_chrs{$chr} = 1;
 		}
-		foreach my $chr (keys %available_chrs) {
-			my $chr_file = $chr_folder."/chr$chr.fa";
-			unless (-e $chr_file) {
-				warn "Skipping chromosome. File $chr_file does not exist";
-				next;
-			}
-			my $chr_seq = MyBio::MySub::read_fasta($chr_file,"chr$chr");
-			foreach my $strand (keys %{$tags_ref}) {
-				if (exists $$tags_ref{$strand}{$chr}) {
-					my $tags_array_ref = $$tags_ref{$strand}{$chr};
+	}
+	foreach my $chr (keys %available_chrs) {
+		my $chr_file = $chr_folder."/chr$chr.fa";
+		unless (-e $chr_file) {
+			warn "Skipping chromosome. File $chr_file does not exist";
+			next;
+		}
+		my $chr_seq = join('',map{'N'} (1..$maxflank)).MyBio::MySub::read_fasta($chr_file,"chr$chr").join('',map{'N'} (1..$maxflank));
+		
+		foreach my $strand (keys %{$tags_ref}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				my $tags_array_ref = $$tags_ref{$strand}{$chr};
+				# Unbelievable as it may be, although the if else statement is not needed, having it here speeds up the script by approximately 8 times
+				if (!undef $maxflank) {
+					foreach my $tag (@$tags_array_ref) {
+						my $tag_seq;
+						if ($strand == 1) {
+							$tag_seq = substr($chr_seq,$tag->get_start()+$maxflank-$upflank,$tag->get_length+$upflank+$downflank);
+						}
+						else {
+							$tag_seq = substr($chr_seq,$tag->get_start()+$maxflank-$downflank,$tag->get_length+$upflank+$downflank);
+							$tag_seq = reverse($tag_seq);
+							if ($tag_seq =~ /U/i) {
+								$tag_seq =~ tr/ATGCUatgcu/UACGAuacga/;
+							}
+							else {
+								$tag_seq =~ tr/ATGCUatgcu/TACGAtacga/;
+							}
+						}
+						my $header = $tag->to_string("BED");
+						$header =~ s/\t/|/g;
+						print $OUT ">$header\n$tag_seq\n";
+					}
+				}
+				else {
 					foreach my $tag (@$tags_array_ref) {
 						my $tag_seq = substr($chr_seq,$tag->get_start,$tag->get_length);
 						if ($strand == -1) {
@@ -306,53 +410,87 @@ sub print_all_tags {
 			}
 		}
 	}
-	elsif ($method eq "WIG") {
-		my $window = defined $attributes[1] ? $attributes[1] : 1000;
-		my $step = defined $attributes[2] ? $attributes[2] : 100;
-		my $method = defined $attributes[3] ? $attributes[3] : "RPKM";
-		my $tags_ref = $self->get_tags;
-		$self->sort_tags();
-		
-		foreach my $strand (keys %{$tags_ref}) {
-			$self->print_track_line("WIG", "strand($strand)");
-			foreach my $chr (keys %{$$tags_ref{$strand}}) {
-				if (exists $$tags_ref{$strand}{$chr}) {
-					my $lastend = (sort {$a->get_stop() <=> $b->get_stop()} @{$$tags_ref{$strand}{$chr}})[-1]->get_stop();
-					my $last_positive_tag_index = 0;
-					print "variableStep chrom=chr$chr span=$step\n";
-					for (my $start = $window; $start < $lastend; $start += $step)
+	return 0;
+}
+
+=head2 print_all_tags_WIG
+
+  Arg [1]    : hash reference
+               A hash reference containing the parameters for the output
+               Required parameters are:
+                  1/ OUTPUT: STDOUT or filename
+                  2/ WINDOW: The size in nucleotides of each bin in the WIG filehandle
+                  3/ STEP: The distance in nucleotides between adjacent bins in the WIG file
+                  4/ SCORE_TYPE: It take the values "RPKM", "SUM" or "SIMPLE". "SUM" adds the scores of all tags in the window. "RPKM" divides this by the length of the window in kb. "SIMPLE" counts tags in the window
+  Example    : print_all_tags({
+                  OUTPUT       => "STDOUT",
+                  WINDOW       => 1000,
+                  STEP         => 100,
+                  SCORE_TYPE   => "RPKM"
+               })
+  Description: Prints all tags for a track object in WIG format.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Stable
+
+=cut
+sub print_all_tags_WIG {
+	my ($self, $params) = @_;
+	
+	my $OUT;
+	if ((!exists $params->{'OUTPUT'}) or ($params->{'OUTPUT'} eq "STDOUT")) {
+		open ($OUT,">&=",STDOUT);
+	}
+	else {
+		open($OUT,">",$params->{'OUTPUT'});
+	}
+	
+	my $window = defined $params->{'WINDOW'} ? $params->{'WINDOW'} : 1000;
+	my $step = defined $params->{'STEP'} ? $params->{'STEP'} : 100;
+	my $scoring_type = defined $params->{'SCORE_TYPE'} ? $params->{'SCORE_TYPE'} : "RPKM";
+	my $tags_ref = $self->get_tags;
+	$self->sort_tags();
+	
+	foreach my $strand (keys %{$tags_ref}) {
+		$self->print_track_line("WIG", "strand($strand)");
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				my $lastend = (sort {$a->get_stop() <=> $b->get_stop()} @{$$tags_ref{$strand}{$chr}})[-1]->get_stop();
+				my $last_positive_tag_index = 0;
+				print "variableStep chrom=chr$chr span=$step\n";
+				for (my $start = $window; $start < $lastend; $start += $step)
+				{
+					my $wiglocus = MyBio::Locus->new({
+						STRAND       => $strand,
+						CHR          => $chr,
+						START        => $start,
+						STOP         => ($start+$window-1)
+					});
+					my $score = 0;
+					for (my $i = $last_positive_tag_index; $i< $#{$$tags_ref{$strand}{$chr}}; $i++)
 					{
-						my $wiglocus = MyBio::Locus->new({
-							STRAND       => $strand,
-							CHR          => $chr,
-							START        => $start,
-							STOP         => ($start+$window-1)
-						});
-						my $score = 0;
-						for (my $i = $last_positive_tag_index; $i< $#{$$tags_ref{$strand}{$chr}}; $i++)
+						my $tag = ${$$tags_ref{$strand}{$chr}}[$i];
+						
+						if ($wiglocus->overlaps($tag))
 						{
-							my $tag = ${$$tags_ref{$strand}{$chr}}[$i];
-							
-							if ($wiglocus->overlaps($tag))
-							{
-								if ($method eq "SUM"){$score += $tag->get_score;}
-								elsif ($method eq "RPKM"){$score += (1000 * $tag->get_score) / $wiglocus->get_length;}
-								elsif ($method eq "SIMPLE"){$score++;}
-								$last_positive_tag_index = $i;
-							}
-							elsif ($wiglocus->get_stop < $tag->get_start)
-							{
-								last;
-							}
+							if ($scoring_type eq "SUM"){$score += $tag->get_score;}
+							elsif ($scoring_type eq "RPKM"){$score += (1000 * $tag->get_score) / $wiglocus->get_length;}
+							elsif ($scoring_type eq "SIMPLE"){$score++;}
+							$last_positive_tag_index = $i;
 						}
-						if ($score > 0){print $wiglocus->get_start."\t".$score."\n";}
+						elsif ($wiglocus->get_stop < $tag->get_start)
+						{
+							last;
+						}
 					}
+					if ($score > 0){print $wiglocus->get_start."\t".$score."\n";}
 				}
 			}
 		}
 	}
-	else {warn "Track Print Method $method not recognized. Try (BED|WIG|FASTA)\n";}
+	return 0;
 }
+
 sub sort_tags {
 	my ($self) = @_;
 	
