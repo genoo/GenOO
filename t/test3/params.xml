@@ -1,0 +1,127 @@
+<experiment name="TAF15" path="/data2/sequencing/experiments2/TAF15" species="Homo sapiens" species_id="hg19">
+	<sub_experiment name="RNA-Seq" >
+		<sample name="TAF15_1_CTRL" relative_path="rnaseq_TAF15_1_CTRL" species="Mus musculus" subtype="control">
+			<adaptor sequence="GTGTCAGTCACTTCCAGCGGTCGTATGCCGTCTTCTGCTTG" />
+			<bwa species="mm9" />
+			<liftover species="hg19" />
+			<siRNA_used>
+				<sequence>GGGGTGAGCAGCAAAGTTA</sequence>
+				<sequence>CCGAGGCCGTGGAGGATAT</sequence>
+				<sequence>TAGAGGATATGGCGGGTCA</sequence>
+				<sequence>ACAGAAATGATCAGCGCAA</sequence>
+			</siRNA_used>
+		</sample>
+		<sample name="TAF15_1_K" relative_path="rnaseq_TAF15_1_K" species="Mus musculus" subtype="KO">
+			<adaptor sequence="GTGTCAGTCACTTCCAGCGGTCGTATGCCGTCTTCTGCTTG" />
+			<bwa species="mm9" />
+			<liftover species="hg19" />
+			<siRNA_used>
+				<sequence>GGGGTGAGCAGCAAAGTTA</sequence>
+				<sequence>CCGAGGCCGTGGAGGATAT</sequence>
+				<sequence>TAGAGGATATGGCGGGTCA</sequence>
+				<sequence>ACAGAAATGATCAGCGCAA</sequence>
+			</siRNA_used>
+		</sample>
+		<sample name="TAF15_2_CTRL" relative_path="rnaseq_TAF15_2_CTRL" species="Mus musculus" subtype="control">
+			<adaptor sequence="GTGTCAGTCACTTCCAGCGGTCGTATGCCGTCTTCTGCTTG" />
+			<bwa species="mm9" />
+			<liftover species="hg19" />
+			<siRNA_used>
+				<sequence>GGGGTGAGCAGCAAAGTTA</sequence>
+				<sequence>CCGAGGCCGTGGAGGATAT</sequence>
+				<sequence>TAGAGGATATGGCGGGTCA</sequence>
+				<sequence>ACAGAAATGATCAGCGCAA</sequence>
+			</siRNA_used>
+		</sample>
+		<sample name="TAF15_2_K" relative_path="rnaseq_TAF15_2_K" species="Mus musculus" subtype="KO">
+			<adaptor sequence="GTGTCAGTCACTTCCAGCGGTCGTATGCCGTCTTCTGCTTG" />
+			<bwa species="mm9" />
+			<liftover species="hg19" />
+			<siRNA_used>
+				<sequence>GGGGTGAGCAGCAAAGTTA</sequence>
+				<sequence>CCGAGGCCGTGGAGGATAT</sequence>
+				<sequence>TAGAGGATATGGCGGGTCA</sequence>
+				<sequence>ACAGAAATGATCAGCGCAA</sequence>
+			</siRNA_used>
+		</sample>
+		<sample name="TAF15_3_CTRL" relative_path="rnaseq_TAF15_3_CTRL" species="Mus musculus" subtype="control">
+			<adaptor sequence="GTGTCAGTCACTTCCAGCGGTCGTATGCCGTCTTCTGCTTG" />
+			<bwa species="mm9" />
+			<liftover species="hg19" />
+			<siRNA_used>
+				<sequence>GGGGTGAGCAGCAAAGTTA</sequence>
+				<sequence>CCGAGGCCGTGGAGGATAT</sequence>
+				<sequence>TAGAGGATATGGCGGGTCA</sequence>
+				<sequence>ACAGAAATGATCAGCGCAA</sequence>
+			</siRNA_used>
+		</sample>
+		<sample name="TAF15_3_K" relative_path="rnaseq_TAF15_3_K" species="Mus musculus" subtype="KO">
+			<adaptor sequence="GTGTCAGTCACTTCCAGCGGTCGTATGCCGTCTTCTGCTTG" />
+			<bwa species="mm9" />
+			<liftover species="hg19" />
+			<siRNA_used>
+				<sequence>GGGGTGAGCAGCAAAGTTA</sequence>
+				<sequence>CCGAGGCCGTGGAGGATAT</sequence>
+				<sequence>TAGAGGATATGGCGGGTCA</sequence>
+				<sequence>ACAGAAATGATCAGCGCAA</sequence>
+			</siRNA_used>
+		</sample>
+	</sub_experiment>
+	<sub_experiment name="HITS-CLIP">
+		<sample name="TAF15_1_L" relative_path="sample_TAF15_1_L" species="Homo sapiens">
+			<adaptor sequence="GTGTCAGTCACTTCCAGCGGTCGTATGCCGTCTTCTGCTTG" />
+			<bwa species="hg19" />
+			<file description="Original Reads" method="FASTQ" path="fastq/" filename="reads.fastq.gz" type="fastq"/>
+			<file description="Adaptor Trimmed (tags after adaptor trimming)" method="FASTQ" path="fastq/" filename="reads.adtrim.fastq.gz" type="fastq"/>
+			<file description="Aligned (tags mapped on genome)" method="SIMPLE" path="tracks/" filename="reads.adtrim.align.unique.bed" type="bed"/>
+			<file description="Repeat Masked (tags mapping in repeat masker removed)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.bed" type="bed"/>
+			<file description="2 Samples or more (tags found in 2 or more samples)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.2ormore.bed" type="bed"/>
+			<file description="Overlaping Genes (tags overlaping RefSeq genes)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.2ormore.merged.geneoverlap.bed" type="bed"/>
+			
+		</sample>
+		<sample name="TAF15_2_H" relative_path="sample_TAF15_2_H" species="Homo sapiens">
+			<adaptor sequence="GTGTCAGTCACTTCCAGCGGTCGTATGCCGTCTTCTGCTTG" />
+			<bwa species="hg19" />
+			<file description="Original Reads" method="FASTQ" path="fastq/" filename="reads.fastq.gz" type="fastq"/>
+			<file description="Adaptor Trimmed (tags after adaptor trimming)" method="FASTQ" path="fastq/" filename="reads.adtrim.fastq.gz" type="fastq"/>
+			<file description="Aligned (tags mapped on genome)" method="SIMPLE" path="tracks/" filename="reads.adtrim.align.unique.bed" type="bed"/>
+			<file description="Repeat Masked (tags mapping in repeat masker removed)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.bed" type="bed"/>
+			<file description="2 Samples or more (tags found in 2 or more samples)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.2ormore.bed" type="bed"/>
+			<file description="Overlaping Genes (tags overlaping RefSeq genes)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.2ormore.merged.geneoverlap.bed" type="bed"/>
+		</sample>
+		<sample name="TAF15_2_L" relative_path="sample_TAF15_2_L" species="Homo sapiens">
+			<adaptor sequence="GTGTCAGTCACTTCCAGCGGTCGTATGCCGTCTTCTGCTTG" />
+			<bwa species="hg19" />
+			<file description="Original Reads" method="FASTQ" path="fastq/" filename="reads.fastq.gz" type="fastq"/>
+			<file description="Adaptor Trimmed (tags after adaptor trimming)" method="FASTQ" path="fastq/" filename="reads.adtrim.fastq.gz" type="fastq"/>
+			<file description="Aligned (tags mapped on genome)" method="SIMPLE" path="tracks/" filename="reads.adtrim.align.unique.bed" type="bed"/>
+			<file description="Repeat Masked (tags mapping in repeat masker removed)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.bed" type="bed"/>
+			<file description="2 Samples or more (tags found in 2 or more samples)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.2ormore.bed" type="bed"/>
+			<file description="Overlaping Genes (tags overlaping RefSeq genes)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.2ormore.merged.geneoverlap.bed" type="bed"/>
+		</sample>
+		<sample name="TAF15_3_H" relative_path="sample_TAF15_3_H" species="Homo sapiens">
+			<adaptor sequence="GTGTCAGTCACTTCCAGCGGTCGTATGCCGTCTTCTGCTTG" />
+			<bwa species="hg19" />
+			<file description="Original Reads" method="FASTQ" path="fastq/" filename="reads.fastq.gz" type="fastq"/>
+			<file description="Adaptor Trimmed (tags after adaptor trimming)" method="FASTQ" path="fastq/" filename="reads.adtrim.fastq.gz" type="fastq"/>
+			<file description="Aligned (tags mapped on genome)" method="SIMPLE" path="tracks/" filename="reads.adtrim.align.unique.bed" type="bed"/>
+			<file description="Repeat Masked (tags mapping in repeat masker removed)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.bed" type="bed"/>
+			<file description="2 Samples or more (tags found in 2 or more samples)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.2ormore.bed" type="bed"/>
+			<file description="Overlaping Genes (tags overlaping RefSeq genes)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.2ormore.merged.geneoverlap.bed" type="bed"/>
+		</sample>
+		<sample name="TAF15_3_L" relative_path="sample_TAF15_3_L" species="Homo sapiens">
+			<adaptor sequence="GTGTCAGTCACTTCCAGCGGTCGTATGCCGTCTTCTGCTTG" />
+			<bwa species="hg19" />
+			<file description="Original Reads" method="FASTQ" path="fastq/" filename="reads.fastq.gz" type="fastq"/>
+			<file description="Adaptor Trimmed (tags after adaptor trimming)" method="FASTQ" path="fastq/" filename="reads.adtrim.fastq.gz" type="fastq"/>
+			<file description="Aligned (tags mapped on genome)" method="SIMPLE" path="tracks/" filename="reads.adtrim.align.unique.bed" type="bed"/>
+			<file description="Repeat Masked (tags mapping in repeat masker removed)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.bed" type="bed"/>
+			<file description="2 Samples or more (tags found in 2 or more samples)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.2ormore.bed" type="bed"/>
+			<file description="Overlaping Genes (tags overlaping RefSeq genes)" method="SUM" path="tracks/" filename="reads.adtrim.align.unique.collapse.norepeat.2ormore.merged.geneoverlap.bed" type="bed"/>
+		</sample>
+	</sub_experiment>
+	<tracks relative_path="tracks"></tracks>
+	<fasta relative_path="fasta"></fasta>
+	<html relative_path="html"></html>
+	<tables relative_path="tables"></tables>
+</experiment>
