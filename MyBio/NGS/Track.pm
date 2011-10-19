@@ -241,10 +241,17 @@ sub set_tag_score_variance {
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub delete_from_all {
+	my ($self) = @_;
+	my $class = ref($self) || $self;
+	$class->_delete_from_all($self);
+}
+
 sub add_tag {
 	my ($self,$tag) = @_;
 	push @{$self->get_tags->{$tag->get_strand}->{$tag->get_chr}},$tag;
 }
+
 sub push_to_browser {
 	my ($self,@values) = @_;
 	push @{$self->get_browser},@values;
@@ -263,7 +270,7 @@ sub output_track_line {
 		if (defined $self->get_use_score){$trackline .= " useScore=".$self->get_use_score;}
 		return $trackline;
 	}
-	if ($method eq "WIG")
+	elsif ($method eq "WIG")
 	{
 		my $extrainfo = $attributes[0]; #will be appended to name
 		my $name = $self->get_name;
@@ -282,63 +289,167 @@ sub print_track_line {
 	if ($method eq "BED"){
 		print $self->output_track_line("BED", @attributes)."\n";
 	}
-	if ($method eq "WIG"){
+	elsif ($method eq "WIG"){
 		print $self->output_track_line("WIG", @attributes)."\n";
 	}
 }
 
 =head2 print_all_tags
 
-  Arg [1]    : string $method
-               A descriptor of the desired output method (BED, FASTA, WIG)
-  Example    : print_all_tags("BED", "STDOUT" or $file)
-               print_all_tags("FASTA", "STDOUT" or $file, $chr_folder) #$chr_folder must have chromosomes in the form $chr_folder/chr$chr.fa
-               print_all_tags("WIG", "STDOUT" or $file, window, step, method) #method can be "RPKM", "SUM", "SIMPLE". Sum adds the scores of all tags in the window, RPKM divides this by the length of the window in kb., SIMPLE counts tags in the window
-  Description: Prints the tags for a track object.
+  Arg [1]    : hash reference
+               A hash reference containing the parameters for the output. Important: The type of output (BED, FASTA, WIG) must be specified!
+  Example    : print_all_tags({METHOD=>"BED"})
+  Description: Prints all tags for the track object.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Under development
+
+=cut
+sub print_all_tags {
+	my ($self, $params) = @_;
+	
+	unless (ref($params) eq "HASH") {
+		my $class = ref($self) || $self;
+		die "\n\nDon't panic - Just change the way you call method \"print_all_tags\" through $class in your calling script $0\n\n";
+	}
+	
+	my $method = $params->{'METHOD'};
+	delete $params->{'METHOD'};
+	unless (defined $method) {
+		my $class = ref($self) || $self;
+		die "\nNo print method specified in $class\::print_all_tags";
+	}
+	
+	if ($method eq "BED"){
+		$self->print_all_tags_BED($params);
+	}
+	elsif ($method eq "FASTA") {
+		$self->print_all_tags_FASTA($params);
+	}
+	elsif ($method eq "WIG") {
+		$self->print_all_tags_WIG($params);
+	}
+	else {
+		my $class = ref($self) || $self;
+		die "\nUnknown print method \"$method\" specified in $class\::print_all_tags. Try (BED|WIG|FASTA)";
+	}
+}
+
+=head2 print_all_tags_BED
+
+  Arg [1]    : hash reference
+               A hash reference containing the parameters for the output
+               Required parameters are:
+                  1/ OUTPUT: STDOUT or filename
+  Example    : print_all_tags({
+                  OUTPUT       =>"STDOUT"
+               })      
+  Description: Prints all tags for a track object in BED format.
   Returntype : NULL
   Caller     : ?
   Status     : Stable
 
 =cut
-sub print_all_tags {
-	my ($self, $method, @attributes) = @_;
+sub print_all_tags_BED {
+	my ($self, $params) = @_;
 	
 	my $OUT;
-	if ((!defined $attributes[0]) or ($attributes[0] eq "STDOUT")) {open ($OUT,">&=",STDOUT);}
-	else {open($OUT,">",$attributes[0]);}
-		
-	if ($method eq "BED"){
-		my $tags_ref = $self->get_tags;
-		foreach my $strand (keys %{$tags_ref}) {
-			foreach my $chr (keys %{$$tags_ref{$strand}}) {
-				if (exists $$tags_ref{$strand}{$chr}) {
-					foreach my $tag (@{$$tags_ref{$strand}{$chr}})
-					{
-						print $OUT $tag->to_string("BED")."\n";
-					}
+	if ((!exists $params->{'OUTPUT'}) or ($params->{'OUTPUT'} eq "STDOUT")) {
+		open ($OUT,">&=",STDOUT);
+	}
+	else {
+		open($OUT,">",$params->{'OUTPUT'});
+	}
+	
+	my $tags_ref = $self->get_tags;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				foreach my $tag (@{$$tags_ref{$strand}{$chr}})
+				{
+					print $OUT $tag->to_string("BED")."\n";
 				}
 			}
 		}
 	}
-	elsif ($method eq "FASTA") {
-		my $chr_folder = defined $attributes[1] ? $attributes[1] : die "method FASTA was requested but no chromosome sequences provided";
-		my $tags_ref = $self->get_tags;
-		my %available_chrs;
-		foreach my $strand (keys %{$tags_ref}) {
-			foreach my $chr (keys %{$$tags_ref{$strand}}) {
-				$available_chrs{$chr} = 1;
-			}
+	
+	return 0;
+}
+
+=head2 print_all_tags_FASTA
+
+  Arg [1]    : hash reference
+               A hash reference containing the parameters for the output.
+               Required parameters are:
+                  1/ OUTPUT: STDOUT or filename
+                  2/ CHR_FOLDER: The folder containing the fasta files of the chromosomes
+  Example    : print_all_tags({
+                  OUTPUT       => "STDOUT",
+                  CHR_FOLDER   => "/chromosomes/hg19/"
+               })
+  Description: Prints all tags for a track object in FASTA format.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Stable
+
+=cut
+sub print_all_tags_FASTA {
+	my ($self, $params) = @_;
+	
+	my $chr_folder = exists $params->{'CHR_FOLDER'} ? $params->{'CHR_FOLDER'} : die "The method FASTA is requested in \"print_all_tags\" but the folder with chromosome sequences is not provided";
+	my $upflank = exists $params->{'UP_FLANK'} ? $params->{'UP_FLANK'} : 0;
+	my $downflank = exists $params->{'DOWN_FLANK'} ? $params->{'DOWN_FLANK'} : 0;
+	my $maxflank = $upflank > $downflank ? $upflank : $downflank;
+	
+	my $OUT;
+	if ((!exists $params->{'OUTPUT'}) or ($params->{'OUTPUT'} eq "STDOUT")) {
+		open ($OUT,">&=",STDOUT);
+	}
+	else {
+		open($OUT,">",$params->{'OUTPUT'});
+	}
+	
+	my $tags_ref = $self->get_tags;
+	my %available_chrs;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			$available_chrs{$chr} = 1;
 		}
-		foreach my $chr (keys %available_chrs) {
-			my $chr_file = $chr_folder."/chr$chr.fa";
-			unless (-e $chr_file) {
-				warn "Skipping chromosome. File $chr_file does not exist";
-				next;
-			}
-			my $chr_seq = MyBio::MySub::read_fasta($chr_file,"chr$chr");
-			foreach my $strand (keys %{$tags_ref}) {
-				if (exists $$tags_ref{$strand}{$chr}) {
-					my $tags_array_ref = $$tags_ref{$strand}{$chr};
+	}
+	foreach my $chr (keys %available_chrs) {
+		my $chr_file = $chr_folder."/chr$chr.fa";
+		unless (-e $chr_file) {
+			warn "Skipping chromosome. File $chr_file does not exist";
+			next;
+		}
+		my $chr_seq = join('',map{'N'} (1..$maxflank)).MyBio::MySub::read_fasta($chr_file,"chr$chr").join('',map{'N'} (1..$maxflank));
+		
+		foreach my $strand (keys %{$tags_ref}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				my $tags_array_ref = $$tags_ref{$strand}{$chr};
+				# Unbelievable as it may be, although the if else statement is not needed, having it here speeds up the script by approximately 8 times
+				if (defined $maxflank) {
+					foreach my $tag (@$tags_array_ref) {
+						my $tag_seq;
+						if ($strand == 1) {
+							$tag_seq = substr($chr_seq,$tag->get_start()+$maxflank-$upflank,$tag->get_length+$upflank+$downflank);
+						}
+						else {
+							$tag_seq = substr($chr_seq,$tag->get_start()+$maxflank-$downflank,$tag->get_length+$upflank+$downflank);
+							$tag_seq = reverse($tag_seq);
+							if ($tag_seq =~ /U/i) {
+								$tag_seq =~ tr/ATGCUatgcu/UACGAuacga/;
+							}
+							else {
+								$tag_seq =~ tr/ATGCUatgcu/TACGAtacga/;
+							}
+						}
+						my $header = $tag->to_string("BED");
+						$header =~ s/\t/|/g;
+						print $OUT ">$header\n$tag_seq\n";
+					}
+				}
+				else {
 					foreach my $tag (@$tags_array_ref) {
 						my $tag_seq = substr($chr_seq,$tag->get_start,$tag->get_length);
 						if ($strand == -1) {
@@ -358,53 +469,87 @@ sub print_all_tags {
 			}
 		}
 	}
-	elsif ($method eq "WIG") {
-		my $window = defined $attributes[1] ? $attributes[1] : 1000;
-		my $step = defined $attributes[2] ? $attributes[2] : 100;
-		my $method = defined $attributes[3] ? $attributes[3] : "RPKM";
-		my $tags_ref = $self->get_tags;
-		$self->sort_tags();
-		
-		foreach my $strand (keys %{$tags_ref}) {
-			$self->print_track_line("WIG", "strand($strand)");
-			foreach my $chr (keys %{$$tags_ref{$strand}}) {
-				if (exists $$tags_ref{$strand}{$chr}) {
-					my $lastend = (sort {$a->get_stop() <=> $b->get_stop()} @{$$tags_ref{$strand}{$chr}})[-1]->get_stop();
-					my $last_positive_tag_index = 0;
-					print "variableStep chrom=chr$chr span=$step\n";
-					for (my $start = $window; $start < $lastend; $start += $step)
+	return 0;
+}
+
+=head2 print_all_tags_WIG
+
+  Arg [1]    : hash reference
+               A hash reference containing the parameters for the output
+               Required parameters are:
+                  1/ OUTPUT: STDOUT or filename
+                  2/ WINDOW: The size in nucleotides of each bin in the WIG filehandle
+                  3/ STEP: The distance in nucleotides between adjacent bins in the WIG file
+                  4/ SCORE_TYPE: It take the values "RPKM", "SUM" or "SIMPLE". "SUM" adds the scores of all tags in the window. "RPKM" divides this by the length of the window in kb. "SIMPLE" counts tags in the window
+  Example    : print_all_tags({
+                  OUTPUT       => "STDOUT",
+                  WINDOW       => 1000,
+                  STEP         => 100,
+                  SCORE_TYPE   => "RPKM"
+               })
+  Description: Prints all tags for a track object in WIG format.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Stable
+
+=cut
+sub print_all_tags_WIG {
+	my ($self, $params) = @_;
+	
+	my $OUT;
+	if ((!exists $params->{'OUTPUT'}) or ($params->{'OUTPUT'} eq "STDOUT")) {
+		open ($OUT,">&=",STDOUT);
+	}
+	else {
+		open($OUT,">",$params->{'OUTPUT'});
+	}
+	
+	my $window = defined $params->{'WINDOW'} ? $params->{'WINDOW'} : 1000;
+	my $step = defined $params->{'STEP'} ? $params->{'STEP'} : 100;
+	my $scoring_type = defined $params->{'SCORE_TYPE'} ? $params->{'SCORE_TYPE'} : "RPKM";
+	my $tags_ref = $self->get_tags;
+	$self->sort_tags();
+	
+	foreach my $strand (keys %{$tags_ref}) {
+		$self->print_track_line("WIG", "strand($strand)");
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				my $lastend = (sort {$a->get_stop() <=> $b->get_stop()} @{$$tags_ref{$strand}{$chr}})[-1]->get_stop();
+				my $last_positive_tag_index = 0;
+				print "variableStep chrom=chr$chr span=$step\n";
+				for (my $start = $window; $start < $lastend; $start += $step)
+				{
+					my $wiglocus = MyBio::Locus->new({
+						STRAND       => $strand,
+						CHR          => $chr,
+						START        => $start,
+						STOP         => ($start+$window-1)
+					});
+					my $score = 0;
+					for (my $i = $last_positive_tag_index; $i< $#{$$tags_ref{$strand}{$chr}}; $i++)
 					{
-						my $wiglocus = MyBio::Locus->new({
-							STRAND       => $strand,
-							CHR          => $chr,
-							START        => $start,
-							STOP         => ($start+$window-1)
-						});
-						my $score = 0;
-						for (my $i = $last_positive_tag_index; $i< $#{$$tags_ref{$strand}{$chr}}; $i++)
+						my $tag = ${$$tags_ref{$strand}{$chr}}[$i];
+						
+						if ($wiglocus->overlaps($tag))
 						{
-							my $tag = ${$$tags_ref{$strand}{$chr}}[$i];
-							
-							if ($wiglocus->overlaps($tag))
-							{
-								if ($method eq "SUM"){$score += $tag->get_score;}
-								elsif ($method eq "RPKM"){$score += (1000 * $tag->get_score) / $wiglocus->get_length;}
-								elsif ($method eq "SIMPLE"){$score++;}
-								$last_positive_tag_index = $i;
-							}
-							elsif ($wiglocus->get_stop < $tag->get_start)
-							{
-								last;
-							}
+							if ($scoring_type eq "SUM"){$score += $tag->get_score;}
+							elsif ($scoring_type eq "RPKM"){$score += (1000 * $tag->get_score) / $wiglocus->get_length;}
+							elsif ($scoring_type eq "SIMPLE"){$score++;}
+							$last_positive_tag_index = $i;
 						}
-						if ($score > 0){print $wiglocus->get_start."\t".$score."\n";}
+						elsif ($wiglocus->get_stop < $tag->get_start)
+						{
+							last;
+						}
 					}
+					if ($score > 0){print $wiglocus->get_start."\t".$score."\n";}
 				}
 			}
 		}
 	}
-	else {warn "Track Print Method $method not recognized. Try (BED|WIG|FASTA)\n";}
+	return 0;
 }
+
 sub sort_tags {
 	my ($self) = @_;
 	
@@ -838,22 +983,80 @@ sub compare_value_to_the_two_others {
 	else                {return $index2;}
 }
 
+=head2 overlaps
+
+  Arg [1]    : object MyBio::NGS:Track
+               The track against which $self is compared. 
+  Arg [2]    : hash reference
+               A hash reference containing the parameters for the overlap. Important: The type of overlap (IS_CONTAINED, TOUCHES) must be specified!
+  Example    : $track->overlaps($track2, {
+                   METHOD  =>"TOUCHES",
+                   OFFSET  => 0
+               })
+  Description: Sets for all tags in the $self track the overlap attribute.
+               This attribute indicates whether the tag overlaps with any of the tags on the reference track
+  Returntype : NULL
+  Caller     : ?
+  Status     : Experimental / Unstable
+
+=cut
 sub overlaps {
-	my ($self, $track2, $method, @attributes) = @_;
+	my ($self, $track2, $params) = @_;
+	
+	# Check to enable correction of legacy programs. Previously this sub accepted parameters through an array instead of a hash
+	unless (ref($params) eq "HASH") {
+		my $class = ref($self) || $self;
+		die "\n\nDon't panic - Just change the way you call method \"overlaps\" through $class in your calling script $0\n\n";
+	}
+	
+	# Get the method to check overlap
+	my $method = $params->{'METHOD'}; delete $params->{'METHOD'};
+	unless (defined $method) {
+		my $class = ref($self) || $self;
+		die "\nNo print method specified in $class\::print_all_tags";
+	}
 	
 	if ($method eq "IS_CONTAINED"){
-		my $tags_ref = $self->get_tags;
-		my $tags2_ref = $track2->get_tags;
-		foreach my $strand (keys %{$tags_ref}) {
-			foreach my $chr (keys %{$$tags_ref{$strand}}) {
-				if (exists $$tags_ref{$strand}{$chr}) {
-					if (exists $$tags2_ref{$strand}{$chr}) {
-						foreach my $tag (@{$$tags_ref{$strand}{$chr}})
-						{
-							foreach my $tag2 (@{$$tags2_ref{$strand}{$chr}})
-							{
-								if ($tag->get_stop < $tag2->get_start){last;}
-								elsif ($tag2->contains($tag)){$tag->set_overlap($track2->get_id,1);}
+		$self->_overlaps_IS_CONTAINED($track2, $params);
+	}
+	elsif ($method eq "TOUCHES") {
+		$self->_overlaps_TOUCHES($track2, $params);
+	}
+	else {
+		my $class = ref($self) || $self;
+		die "\nUnknown overlap method \"$method\" specified in $class\::overlaps. Try (IS_CONTAINED|TOUCHES)";
+	}
+}
+
+=head2 _overlaps_IS_CONTAINED
+
+  Arg [1]    : object MyBio::NGS:Track
+               The track against which $self is compared. 
+  Example    : $track->_overlaps_IS_CONTAINED($track2)
+  Description: Sets for all tags in the $self track the overlap attribute.
+               This attribute indicates whether the tag overlaps with any of the tags on the reference track.
+               A tag is said to overlap with another tag if it is contained within (both start and end position) the other tag.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Experimental / Unstable
+
+=cut
+sub _overlaps_IS_CONTAINED {
+	my ($self, $track2, $params) = @_;
+	
+	my $tags_ref = $self->get_tags;
+	my $tags2_ref = $track2->get_tags;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				if (exists $$tags2_ref{$strand}{$chr}) {
+					foreach my $tag (@{$$tags_ref{$strand}{$chr}}) {
+						foreach my $tag2 (@{$$tags2_ref{$strand}{$chr}}) {
+							if ($tag->get_stop < $tag2->get_start) {
+								last;
+							}
+							elsif ($tag2->contains($tag)) {
+								$tag->set_overlap($track2->get_id,1);
 							}
 						}
 					}
@@ -861,32 +1064,51 @@ sub overlaps {
 			}
 		}
 	}
-	if ($method eq "TOUCHES"){
-		my $tags_ref = $self->get_tags;
-		my $tags2_ref = $track2->get_tags;
-		my $offset = 0;
-		if (defined $attributes[0]){$offset = $attributes[0];}
-		foreach my $strand (keys %{$tags_ref}) {
-			foreach my $chr (keys %{$$tags_ref{$strand}}) {
-				if (exists $$tags_ref{$strand}{$chr}) {
-					if (exists $$tags2_ref{$strand}{$chr}) {
-						foreach my $tag (@{$$tags_ref{$strand}{$chr}})
-						{
-							foreach my $tag2 (@{$$tags2_ref{$strand}{$chr}})
-							{
-								if ($tag->get_stop < $tag2->get_start){last;}
-								elsif ($tag2->overlaps($tag, $offset))
-								{
-									$tag->set_overlap($track2->get_id,1);
-									$tag2->set_overlap($self->get_id,1);
-								}
+}
+
+=head2 _overlaps_TOUCHES
+
+  Arg [1]    : object MyBio::NGS:Track
+               The track against which $self is compared.
+  Arg [2]    : hash reference
+               A hash reference containing the parameters for the overlap.
+  Example    : $track->_overlaps_TOUCHES($track2, {
+                   OFFSET  => 0
+               })
+  Description: Sets for all tags in the $self track the overlap attribute.
+               This attribute indicates whether the tag overlaps with any of the tags on the reference track.
+               A tag is said to overlap with another tag if it is located within OFFSET distance from the other tag.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Experimental / Unstable
+
+=cut
+sub _overlaps_TOUCHES {
+	my ($self, $track2, $params) = @_;
+	
+	my $offset = exists $params->{'OFFSET'} ? $params->{'OFFSET'} : 0;
+	
+	my $tags_ref = $self->get_tags;
+	my $tags2_ref = $track2->get_tags;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				if (exists $$tags2_ref{$strand}{$chr}) {
+					foreach my $tag (@{$$tags_ref{$strand}{$chr}}) {
+						foreach my $tag2 (@{$$tags2_ref{$strand}{$chr}}) {
+							if ($tag->get_stop < $tag2->get_start) {
+								last;
+							}
+							elsif ($tag2->overlaps($tag, $offset)) {
+								$tag->set_overlap($track2->get_id,1);
+								$tag2->set_overlap($self->get_id,1);
 							}
 						}
 					}
 				}
 			}
 		}
-	}	
+	}
 }
 
 
@@ -942,6 +1164,9 @@ sub overlaps {
 			my $trackname = $attributes[1];
 			%tracks = $class->_read_bedFile($filename, $trackname);
 			
+		}
+		else {
+			die "\nUnknown read method \"$method\" specified in $class\::read_tracks. Try (BED)";
 		}
 		$_->sort_tags for (values %tracks);
 		return %tracks;
@@ -1018,6 +1243,36 @@ sub overlaps {
 		}
 		close $BED;
 		return %return_tracks;
+	}
+	
+	sub available_strands {
+		my ($class) = @_;
+		
+		my %tracks = MyBio::NGS::Track->get_all();
+		my %available_strands;
+		foreach my $track (values %tracks) {
+			my $tags_ref = $track->get_tags;
+			foreach my $strand (keys %{$tags_ref}) {
+				$available_strands{$strand} = 1;
+			}
+		}
+		return %available_strands;
+	}
+	
+	sub available_chromosomes {
+		my ($class) = @_;
+		
+		my %tracks = MyBio::NGS::Track->get_all();
+		my %available_chrs;
+		foreach my $track (values %tracks) {
+			my $tags_ref = $track->get_tags;
+			foreach my $strand (keys %{$tags_ref}) {
+				foreach my $chr (keys %{$tags_ref->{$strand}}) {
+					$available_chrs{$chr} = 1;
+				}
+			}
+		}
+		return %available_chrs;
 	}
 }
 
