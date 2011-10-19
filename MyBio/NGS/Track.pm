@@ -24,6 +24,10 @@ MyBio::NGS::Track - Object for a collection of MyBio::Locus objects, with featur
         FILE            => undef,
         FILETYPE        => undef,
         EXTRA_INFO      => undef,
+       	TAG_SCORE_MEAN  => undef,
+	TAG_COUNT       => undef,
+	TAG_SCORE_SUM   => undef,
+	TAG_SCORE_VARIANCE => undef,
     });
 
 
@@ -76,6 +80,11 @@ sub _init {
 	$self->set_file($$data{FILE});
 	$self->set_filetype($$data{FILETYPE});
 	$self->set_extra($$data{EXTRA_INFO});
+	#statistics
+	$self->set_tag_score_mean($$data{TAG_SCORE_MEAN});
+	$self->set_tag_count($$data{TAG_COUNT});
+	$self->set_tag_score_sum($$data{TAG_SCORE_SUM});
+	$self->set_tag_score_variance($$data{TAG_SCORE_VARIANCE});
 	
 	my $class = ref($self) || $self;
 	$self->set_id($class->_increase_track_counter);
@@ -140,6 +149,37 @@ sub get_extra {
 sub get_id {
 	return $_[0]->{ID} ;
 }
+sub get_tag_score_mean {
+	if (!defined $_[0]->{TAG_SCORE_MEAN}){
+		calculate_tag_score_mean();
+	}
+	return $_[0]->{TAG_SCORE_MEAN};
+}
+sub get_tag_count {
+	if (!defined $_[0]->{TAG_COUNT}){
+		calculate_tag_count();
+	}
+	return $_[0]->{TAG_COUNT};
+}
+sub get_tag_score_sum {
+	if (!defined $_[0]->{TAG_SCORE_SUM}){
+		calculate_tag_score_sum();
+	}
+	return $_[0]->{TAG_SCORE_SUM};
+}
+sub get_tag_score_variance {
+	if (!defined $_[0]->{TAG_SCORE_VARIANCE}){
+		calculate_tag_score_variance();
+	}
+	return $_[0]->{TAG_SCORE_VARIANCE};
+}
+sub get_tag_score_stdev {
+	if (!defined $_[0]->{TAG_SCORE_VARIANCE}){
+		calculate_tag_score_variance();
+	}
+	return sqrt($_[0]->{TAG_SCORE_VARIANCE});
+}
+
 #######################################################################
 #############################   Setters   #############################
 #######################################################################
@@ -184,6 +224,18 @@ sub set_extra {
 }
 sub set_id {
 	$_[0]->{ID} = $_[1] if defined $_[1];
+}
+sub set_tag_score_mean {
+	$_[0]->{TAG_SCORE_MEAN} = $_[1] if defined $_[1];
+}
+sub set_tag_score_sum {
+	$_[0]->{TAG_SCORE_SUM} = $_[1] if defined $_[1];
+}
+sub set_tag_count {
+	$_[0]->{TAG_COUNT} = $_[1] if defined $_[1];
+}
+sub set_tag_score_variance {
+	$_[0]->{TAG_SCORE_VARIANCE} = $_[1] if defined $_[1];
 }
 
 #######################################################################
@@ -364,6 +416,141 @@ sub sort_tags {
 			}
 		}
 	}
+}
+
+=head2 calculate_tag_score_mean
+
+  Example    : calculate_tag_score_mean 
+  Description: Calculates the mean score of all tags in the track
+  Returntype : NULL
+  Caller     : ?
+  Status     : Experimental / Unstable
+
+=cut
+sub calculate_tag_score_mean
+{
+	my ($self) = @_;
+	my $sum;
+	my $N;
+	my $tags_ref = $self->get_tags;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				foreach my $tag ($$tags_ref{$strand}{$chr})
+				{
+					if (defined $tag->get_score)
+					{
+						$sum += $tag->get_score;
+						$N++;
+					}
+				}
+			}
+		}
+	}
+	my $mean_score = "NaN";
+	if (defined $N){
+		$mean_score = $sum / $N;
+		set_tag_score_mean($mean_score);
+		set_tag_count($N);
+		set_tag_score_sum($sum);
+	}
+	
+}
+=head2 calculate_tag_score_variance
+
+  Example    : calculate_tag_score_variance 
+  Description: Calculates the variance of the scores of all tags in the track
+  Returntype : NULL
+  Caller     : ?
+  Status     : Experimental / Unstable
+
+=cut
+sub calculate_tag_score_variance
+{
+	my ($self) = @_;
+	my $sumsqdiff;
+	my $N;
+	my $mean = $self->get_tag_score_mean;
+	my $tags_ref = $self->get_tags;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				foreach my $tag ($$tags_ref{$strand}{$chr})
+				{
+					if (defined $tag->get_score)
+					{
+						$sumsqdiff += ($tag->get_score - $mean) ** 2;
+						$N++;
+					}
+				}
+			}
+		}
+	}
+	
+	if (defined $N){
+		my $variance = $sumsqdiff / $N;
+		set_tag_score_variance($variance);
+	}
+	
+}
+
+=head2 calculate_tag_score_sum
+
+  Example    : calculate_tag_score_sum 
+  Description: Calculates the sum score of all tags in the track
+  Returntype : NULL
+  Caller     : ?
+  Status     : Experimental / Unstable
+
+=cut
+sub calculate_tag_score_mean
+{
+	my ($self) = @_;
+	my $sum;
+	my $tags_ref = $self->get_tags;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				foreach my $tag ($$tags_ref{$strand}{$chr})
+				{
+					if (defined $tag->get_score)
+					{
+						$sum += $tag->get_score;
+					}
+				}
+			}
+		}
+	}
+	set_tag_score_sum($sum);
+	
+	
+}
+
+=head2 calculate_tag_count
+
+  Example    : calculate_tag_count 
+  Description: Calculates the number of all tags in the track
+  Returntype : NULL
+  Caller     : ?
+  Status     : Experimental / Unstable
+
+=cut
+sub calculate_tag_score_mean
+{
+	my ($self) = @_;
+	my $N;
+	my $tags_ref = $self->get_tags;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				foreach my $tag ($$tags_ref{$strand}{$chr})
+				{
+					$N++;
+				}
+			}
+		}
+	}
+	set_tag_count($N);
 }
 
 =head2 merge_tags
