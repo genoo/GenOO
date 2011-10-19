@@ -189,10 +189,17 @@ sub set_id {
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub delete_from_all {
+	my ($self) = @_;
+	my $class = ref($self) || $self;
+	$class->_delete_from_all($self);
+}
+
 sub add_tag {
 	my ($self,$tag) = @_;
 	push @{$self->get_tags->{$tag->get_strand}->{$tag->get_chr}},$tag;
 }
+
 sub push_to_browser {
 	my ($self,@values) = @_;
 	push @{$self->get_browser},@values;
@@ -251,7 +258,7 @@ sub print_all_tags {
 	
 	unless (ref($params) eq "HASH") {
 		my $class = ref($self) || $self;
-		die "\n\nDon't panic - Just change the way you call method \"print_all_tags\" through $class in your calling script\n\n";
+		die "\n\nDon't panic - Just change the way you call method \"print_all_tags\" through $class in your calling script $0\n\n";
 	}
 	
 	my $method = $params->{'METHOD'};
@@ -789,22 +796,80 @@ sub compare_value_to_the_two_others {
 	else                {return $index2;}
 }
 
+=head2 overlaps
+
+  Arg [1]    : object MyBio::NGS:Track
+               The track against which $self is compared. 
+  Arg [2]    : hash reference
+               A hash reference containing the parameters for the overlap. Important: The type of overlap (IS_CONTAINED, TOUCHES) must be specified!
+  Example    : $track->overlaps($track2, {
+                   METHOD  =>"TOUCHES",
+                   OFFSET  => 0
+               })
+  Description: Sets for all tags in the $self track the overlap attribute.
+               This attribute indicates whether the tag overlaps with any of the tags on the reference track
+  Returntype : NULL
+  Caller     : ?
+  Status     : Experimental / Unstable
+
+=cut
 sub overlaps {
-	my ($self, $track2, $method, @attributes) = @_;
+	my ($self, $track2, $params) = @_;
+	
+	# Check to enable correction of legacy programs. Previously this sub accepted parameters through an array instead of a hash
+	unless (ref($params) eq "HASH") {
+		my $class = ref($self) || $self;
+		die "\n\nDon't panic - Just change the way you call method \"overlaps\" through $class in your calling script $0\n\n";
+	}
+	
+	# Get the method to check overlap
+	my $method = $params->{'METHOD'}; delete $params->{'METHOD'};
+	unless (defined $method) {
+		my $class = ref($self) || $self;
+		die "\nNo print method specified in $class\::print_all_tags";
+	}
 	
 	if ($method eq "IS_CONTAINED"){
-		my $tags_ref = $self->get_tags;
-		my $tags2_ref = $track2->get_tags;
-		foreach my $strand (keys %{$tags_ref}) {
-			foreach my $chr (keys %{$$tags_ref{$strand}}) {
-				if (exists $$tags_ref{$strand}{$chr}) {
-					if (exists $$tags2_ref{$strand}{$chr}) {
-						foreach my $tag (@{$$tags_ref{$strand}{$chr}})
-						{
-							foreach my $tag2 (@{$$tags2_ref{$strand}{$chr}})
-							{
-								if ($tag->get_stop < $tag2->get_start){last;}
-								elsif ($tag2->contains($tag)){$tag->set_overlap($track2->get_id,1);}
+		$self->_overlaps_IS_CONTAINED($track2, $params);
+	}
+	elsif ($method eq "TOUCHES") {
+		$self->_overlaps_TOUCHES($track2, $params);
+	}
+	else {
+		my $class = ref($self) || $self;
+		die "\nUnknown overlap method \"$method\" specified in $class\::overlaps. Try (IS_CONTAINED|TOUCHES)";
+	}
+}
+
+=head2 _overlaps_IS_CONTAINED
+
+  Arg [1]    : object MyBio::NGS:Track
+               The track against which $self is compared. 
+  Example    : $track->_overlaps_IS_CONTAINED($track2)
+  Description: Sets for all tags in the $self track the overlap attribute.
+               This attribute indicates whether the tag overlaps with any of the tags on the reference track.
+               A tag is said to overlap with another tag if it is contained within (both start and end position) the other tag.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Experimental / Unstable
+
+=cut
+sub _overlaps_IS_CONTAINED {
+	my ($self, $track2, $params) = @_;
+	
+	my $tags_ref = $self->get_tags;
+	my $tags2_ref = $track2->get_tags;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				if (exists $$tags2_ref{$strand}{$chr}) {
+					foreach my $tag (@{$$tags_ref{$strand}{$chr}}) {
+						foreach my $tag2 (@{$$tags2_ref{$strand}{$chr}}) {
+							if ($tag->get_stop < $tag2->get_start) {
+								last;
+							}
+							elsif ($tag2->contains($tag)) {
+								$tag->set_overlap($track2->get_id,1);
 							}
 						}
 					}
@@ -812,32 +877,51 @@ sub overlaps {
 			}
 		}
 	}
-	if ($method eq "TOUCHES"){
-		my $tags_ref = $self->get_tags;
-		my $tags2_ref = $track2->get_tags;
-		my $offset = 0;
-		if (defined $attributes[0]){$offset = $attributes[0];}
-		foreach my $strand (keys %{$tags_ref}) {
-			foreach my $chr (keys %{$$tags_ref{$strand}}) {
-				if (exists $$tags_ref{$strand}{$chr}) {
-					if (exists $$tags2_ref{$strand}{$chr}) {
-						foreach my $tag (@{$$tags_ref{$strand}{$chr}})
-						{
-							foreach my $tag2 (@{$$tags2_ref{$strand}{$chr}})
-							{
-								if ($tag->get_stop < $tag2->get_start){last;}
-								elsif ($tag2->overlaps($tag, $offset))
-								{
-									$tag->set_overlap($track2->get_id,1);
-									$tag2->set_overlap($self->get_id,1);
-								}
+}
+
+=head2 _overlaps_TOUCHES
+
+  Arg [1]    : object MyBio::NGS:Track
+               The track against which $self is compared.
+  Arg [2]    : hash reference
+               A hash reference containing the parameters for the overlap.
+  Example    : $track->_overlaps_TOUCHES($track2, {
+                   OFFSET  => 0
+               })
+  Description: Sets for all tags in the $self track the overlap attribute.
+               This attribute indicates whether the tag overlaps with any of the tags on the reference track.
+               A tag is said to overlap with another tag if it is located within OFFSET distance from the other tag.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Experimental / Unstable
+
+=cut
+sub _overlaps_TOUCHES {
+	my ($self, $track2, $params) = @_;
+	
+	my $offset = exists $params->{'OFFSET'} ? $params->{'OFFSET'} : 0;
+	
+	my $tags_ref = $self->get_tags;
+	my $tags2_ref = $track2->get_tags;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				if (exists $$tags2_ref{$strand}{$chr}) {
+					foreach my $tag (@{$$tags_ref{$strand}{$chr}}) {
+						foreach my $tag2 (@{$$tags2_ref{$strand}{$chr}}) {
+							if ($tag->get_stop < $tag2->get_start) {
+								last;
+							}
+							elsif ($tag2->overlaps($tag, $offset)) {
+								$tag->set_overlap($track2->get_id,1);
+								$tag2->set_overlap($self->get_id,1);
 							}
 						}
 					}
 				}
 			}
 		}
-	}	
+	}
 }
 
 
@@ -893,6 +977,9 @@ sub overlaps {
 			my $trackname = $attributes[1];
 			%tracks = $class->_read_bedFile($filename, $trackname);
 			
+		}
+		else {
+			die "\nUnknown read method \"$method\" specified in $class\::read_tracks. Try (BED)";
 		}
 		$_->sort_tags for (values %tracks);
 		return %tracks;
@@ -969,6 +1056,36 @@ sub overlaps {
 		}
 		close $BED;
 		return %return_tracks;
+	}
+	
+	sub available_strands {
+		my ($class) = @_;
+		
+		my %tracks = MyBio::NGS::Track->get_all();
+		my %available_strands;
+		foreach my $track (values %tracks) {
+			my $tags_ref = $track->get_tags;
+			foreach my $strand (keys %{$tags_ref}) {
+				$available_strands{$strand} = 1;
+			}
+		}
+		return %available_strands;
+	}
+	
+	sub available_chromosomes {
+		my ($class) = @_;
+		
+		my %tracks = MyBio::NGS::Track->get_all();
+		my %available_chrs;
+		foreach my $track (values %tracks) {
+			my $tags_ref = $track->get_tags;
+			foreach my $strand (keys %{$tags_ref}) {
+				foreach my $chr (keys %{$tags_ref->{$strand}}) {
+					$available_chrs{$chr} = 1;
+				}
+			}
+		}
+		return %available_chrs;
 	}
 }
 
