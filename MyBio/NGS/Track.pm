@@ -189,6 +189,26 @@ sub set_id {
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub get_longest_tag_length {
+	my ($self) = @_;
+	
+	my $longest_tag = 0;
+	my $tags_ref = $self->get_tags;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$tags_ref->{$strand}}) {
+			if (exists $tags_ref->{$strand}->{$chr}) {
+				foreach my $tag (@{$tags_ref->{$strand}->{$chr}})
+				{
+					if ($tag->get_length() > $longest_tag) {
+						$longest_tag = $tag->get_length();
+					}
+				}
+			}
+		}
+	}
+	return $longest_tag;
+}
+
 sub delete_from_all {
 	my ($self) = @_;
 	my $class = ref($self) || $self;
@@ -306,7 +326,7 @@ sub print_all_tags_BED {
 		open ($OUT,">&=",STDOUT);
 	}
 	else {
-		open($OUT,">",$params->{'OUTPUT'});
+		open($OUT,">",$params->{'OUTPUT'}) or die "Cannot open file ".$params->{'OUTPUT'}.". $!";
 	}
 	
 	my $tags_ref = $self->get_tags;
