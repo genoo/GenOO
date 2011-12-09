@@ -104,13 +104,25 @@ sub get_sample_names_for_subexperiment {
 	}
 }
 sub get_samples_for_subexperiment {
-	my ($self,$name) = @_;
+	my ($self,$name,$sample_names_ref) = @_;
 	
-	if (exists $self->get_info->{'sub_experiment'}->{$name}->{'sample'}) {
-		return values %{$self->get_info->{'sub_experiment'}->{$name}->{'sample'}};
+	#if specific names have been asked
+	if ((defined $sample_names_ref) and (@$sample_names_ref > 0)) {
+		my @outsamples;
+		foreach my $sample_name (@$sample_names_ref) {
+			if (exists $self->get_info->{'sub_experiment'}->{$name}->{'sample'}->{$sample_name}) {
+				push @outsamples, $self->get_info->{'sub_experiment'}->{$name}->{'sample'}->{$sample_name};
+			}
+		}
+		return @outsamples;
 	}
 	else {
-		return ();
+		if (exists $self->get_info->{'sub_experiment'}->{$name}->{'sample'}) {
+			return values %{$self->get_info->{'sub_experiment'}->{$name}->{'sample'}};
+		}
+		else {
+			return ();
+		}
 	}
 }
 sub get_sample {
