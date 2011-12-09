@@ -137,6 +137,20 @@ sub get_all_tags {
 	}
 	return @out;
 }
+sub get_all_tags_score {
+	my @out = ();
+	foreach my $strand (keys %{$_[0]->get_tags})
+	{
+		foreach my $chr (keys %{$_[0]->get_tags->{$strand}})
+		{
+			foreach my $tag (@{$_[0]->get_tags->{$strand}->{$chr}})
+			{
+				push @out, $tag->get_score();
+			}
+		}
+	}
+	return @out;
+}
 sub get_file {
 	return $_[0]->{FILE};
 }
@@ -151,31 +165,31 @@ sub get_id {
 }
 sub get_tag_score_mean {
 	if (!defined $_[0]->{TAG_SCORE_MEAN}){
-		calculate_tag_score_mean();
+		$_[0]->calculate_tag_score_mean();
 	}
 	return $_[0]->{TAG_SCORE_MEAN};
 }
 sub get_tag_count {
 	if (!defined $_[0]->{TAG_COUNT}){
-		calculate_tag_count();
+		$_[0]->calculate_tag_count();
 	}
 	return $_[0]->{TAG_COUNT};
 }
 sub get_tag_score_sum {
 	if (!defined $_[0]->{TAG_SCORE_SUM}){
-		calculate_tag_score_sum();
+		$_[0]->calculate_tag_score_sum();
 	}
 	return $_[0]->{TAG_SCORE_SUM};
 }
 sub get_tag_score_variance {
 	if (!defined $_[0]->{TAG_SCORE_VARIANCE}){
-		calculate_tag_score_variance();
+		$_[0]->calculate_tag_score_variance();
 	}
 	return $_[0]->{TAG_SCORE_VARIANCE};
 }
 sub get_tag_score_stdev {
 	if (!defined $_[0]->{TAG_SCORE_VARIANCE}){
-		calculate_tag_score_variance();
+		$_[0]->calculate_tag_score_variance();
 	}
 	return sqrt($_[0]->{TAG_SCORE_VARIANCE});
 }
@@ -255,6 +269,42 @@ sub add_tag {
 sub push_to_browser {
 	my ($self,@values) = @_;
 	push @{$self->get_browser},@values;
+}
+
+sub normalize {
+	my ($self, $params) = @_;
+	my $scaling_factor = 1;
+	my $normalization_factor = $self->get_tag_score_sum;
+	if (exists $params->{'SCALE'}){$scaling_factor = $params->{'SCALE'};}
+	if (exists $params->{'NORMALIZATION_FACTOR'}){$normalization_factor = $params->{'NORMALIZATION_FACTOR'};}
+	my $tags_ref = $self->get_tags;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				foreach my $tag (@{$$tags_ref{$strand}{$chr}})
+				{
+					my $normal_score = ($tag->get_score / $normalization_factor) * $scaling_factor;
+					$tag->set_score($normal_score);
+				}
+			}
+		}
+	}
+}
+
+sub get_quantile {
+	my ($self, $params) = @_;
+	my $quantile = 25;
+	my $score_threshold = 0;
+	if (exists $params->{'QUANTILE'}){$quantile = $params->{'QUANTILE'};}
+	if (exists $params->{'THRESHOLD'}){$score_threshold = $params->{'THRESHOLD'};}
+	my @scores = sort { $b->get_score <=> $a->get_score } $self->get_all_tags_score;
+	my $size;
+	for ($size = 0; $size < @scores; $size++)
+	{
+		if ($scores[$size] < $score_threshold){last;}
+	}
+	my $index = int($size * ($quantile/100));
+	return $scores[$index]->get_score();
 }
 
 sub output_track_line {
@@ -384,8 +434,9 @@ sub print_all_tags_BED {
                   1/ OUTPUT: STDOUT or filename
                   2/ CHR_FOLDER: The folder containing the fasta files of the chromosomes
   Example    : print_all_tags({
-                  OUTPUT       => "STDOUT",
-                  CHR_FOLDER   => "/chromosomes/hg19/"
+                  OUTPUT           => "STDOUT",
+                  CHR_FOLDER       => "/chromosomes/hg19/"
+                  UPDATE_SEQUENCE  => "1"
                })
   Description: Prints all tags for a track object in FASTA format.
   Returntype : NULL
@@ -444,6 +495,7 @@ sub print_all_tags_FASTA {
 								$tag_seq =~ tr/ATGCUatgcu/TACGAtacga/;
 							}
 						}
+						if (exists $params->{'UPDATE_SEQUENCE'}){$tag->set_sequence($tag_seq);}
 						my $header = $tag->to_string("BED");
 						$header =~ s/\t/|/g;
 						print $OUT ">$header\n$tag_seq\n";
@@ -461,6 +513,7 @@ sub print_all_tags_FASTA {
 								$tag_seq =~ tr/ATGCUatgcu/TACGAtacga/;
 							}
 						}
+						if (exists $params->{'UPDATE_SEQUENCE'}){$tag->set_sequence($tag_seq);}
 						my $header = $tag->to_string("BED");
 						$header =~ s/\t/|/g;
 						print $OUT ">$header\n$tag_seq\n";
@@ -563,6 +616,63 @@ sub sort_tags {
 	}
 }
 
+=head2 set_all_tags_sequence
+
+  Arg [1]    : hash reference
+               A hash reference containing the parameters for the output.
+               Required parameters are:
+                  1/ CHR_FOLDER: The folder containing the fasta files of the chromosomes
+  Example    : set_all_tags_sequence({
+                 CHR_FOLDER       => "/chromosomes/hg19/"
+               })
+  Description: Sets the SEQUENCE for all tags in the Track.
+  Returntype : NULL
+  Caller     : ?
+  Status     : Stable
+
+=cut
+sub set_all_tags_sequence {
+	my ($self, $params) = @_;
+	
+	my $chr_folder = exists $params->{'CHR_FOLDER'} ? $params->{'CHR_FOLDER'} : die "The method FASTA is requested in \"print_all_tags\" but the folder with chromosome sequences is not provided";
+	my $tags_ref = $self->get_tags;
+	my %available_chrs;
+	foreach my $strand (keys %{$tags_ref}) {
+		foreach my $chr (keys %{$$tags_ref{$strand}}) {
+			$available_chrs{$chr} = 1;
+		}
+	}
+	foreach my $chr (keys %available_chrs) {
+		my $chr_file = $chr_folder."/chr$chr.fa";
+		unless (-e $chr_file) {
+			warn "Skipping chromosome. File $chr_file does not exist";
+			next;
+		}
+		my $chr_seq = MyBio::MySub::read_fasta($chr_file,"chr$chr");
+		unless (defined $chr_seq){die "No Chromosome Sequence chr$chr\n";}
+		
+		foreach my $strand (keys %{$tags_ref}) {
+			if (exists $$tags_ref{$strand}{$chr}) {
+				my $tags_array_ref = $$tags_ref{$strand}{$chr};
+				foreach my $tag (@$tags_array_ref) {
+					my $tag_seq = substr($chr_seq,$tag->get_start,$tag->get_length);
+					if ($strand == -1) {
+						$tag_seq = reverse($tag_seq);
+						if ($tag_seq =~ /U/i) {
+							$tag_seq =~ tr/ATGCUatgcu/UACGAuacga/;
+						}
+						else {
+							$tag_seq =~ tr/ATGCUatgcu/TACGAtacga/;
+						}
+					}
+					$tag->set_sequence($tag_seq);
+				}
+			}
+		}
+	}
+	return 0;
+}
+
 =head2 calculate_tag_score_mean
 
   Example    : calculate_tag_score_mean 
@@ -595,9 +705,9 @@ sub calculate_tag_score_mean
 	my $mean_score = "NaN";
 	if (defined $N){
 		$mean_score = $sum / $N;
-		set_tag_score_mean($mean_score);
-		set_tag_count($N);
-		set_tag_score_sum($sum);
+		$self->set_tag_score_mean($mean_score);
+		$self->set_tag_count($N);
+		$self->set_tag_score_sum($sum);
 	}
 	
 }
@@ -634,7 +744,7 @@ sub calculate_tag_score_variance
 	
 	if (defined $N){
 		my $variance = $sumsqdiff / $N;
-		set_tag_score_variance($variance);
+		$self->set_tag_score_variance($variance);
 	}
 	
 }
@@ -648,7 +758,7 @@ sub calculate_tag_score_variance
   Status     : Experimental / Unstable
 
 =cut
-sub calculate_tag_score_mean
+sub calculate_tag_score_sum
 {
 	my ($self) = @_;
 	my $sum;
@@ -656,7 +766,7 @@ sub calculate_tag_score_mean
 	foreach my $strand (keys %{$tags_ref}) {
 		foreach my $chr (keys %{$$tags_ref{$strand}}) {
 			if (exists $$tags_ref{$strand}{$chr}) {
-				foreach my $tag ($$tags_ref{$strand}{$chr})
+				foreach my $tag (@{$tags_ref->{$strand}->{$chr}})
 				{
 					if (defined $tag->get_score)
 					{
@@ -666,7 +776,7 @@ sub calculate_tag_score_mean
 			}
 		}
 	}
-	set_tag_score_sum($sum);
+	$self->set_tag_score_sum($sum);
 	
 	
 }
@@ -688,14 +798,14 @@ sub calculate_tag_score_mean
 	foreach my $strand (keys %{$tags_ref}) {
 		foreach my $chr (keys %{$$tags_ref{$strand}}) {
 			if (exists $$tags_ref{$strand}{$chr}) {
-				foreach my $tag ($$tags_ref{$strand}{$chr})
+				foreach my $tag (@{$tags_ref->{$strand}->{$chr}})
 				{
 					$N++;
 				}
 			}
 		}
 	}
-	set_tag_count($N);
+	$self->set_tag_count($N);
 }
 
 =head2 merge_tags
@@ -1139,6 +1249,10 @@ sub _overlaps_TOUCHES {
 	sub delete_all {
 		my ($class) = @_;
 		%allTracks = ();
+	}
+	sub get_by_id {
+		my ($class,$id) = @_;
+		return $allTracks{$id};
 	}
 	sub get_by_name {
 		my ($class,$name) = @_;

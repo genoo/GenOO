@@ -1,7 +1,8 @@
 package MyBio::Locus;
 use strict;
 
-use base qw( MyBio::_Initializable );
+use base qw( MyBio::_Initializable Clone);
+use MyBio::MyMath;
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $Locus = MyBio::Locus->new({
@@ -102,8 +103,10 @@ sub set_stop {
 sub set_sequence {
 	my ($self,$value) = @_;
 	if (defined $value) {
-		$value =~ /([^ATGCUN])/i;
-		warn "\n\nWARNING:\nNucleotide sequence provided contains invalid characters ($1)\n\n";
+		unless ($value =~ /^[ATGCUN]*$/i) {
+			$value =~ /([^ATGCUN])/i;
+			warn "The nucleotide sequence provided for ".$self->get_name()." contains the following invalid characters $1 in $self\n";
+		}
 		$self->{SEQUENCE} = $value;
 	}
 }
