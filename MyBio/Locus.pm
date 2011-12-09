@@ -138,13 +138,17 @@ sub to_string {
 }
 
 sub overlaps {
-	my ($self,$loc2,$offset) = @_;
+	my ($self,$loc2,$offset,$use_strand) = @_;
 	
 	if (!defined $offset) {$offset = 0;}
-	if ((($self->get_start()-$offset) <= $loc2->get_stop()) and ($loc2->get_start() <= ($self->get_stop()+$offset))) {
+	if (!defined $use_strand) {$use_strand = 1;} 
+	
+	if ((($use_strand == 0) or ($self->get_strand() eq $loc2->get_strand())) and ($self->get_chr() eq $loc2->get_chr()) and (($self->get_start()-$offset) <= $loc2->get_stop()) and ($loc2->get_start() <= ($self->get_stop()+$offset))) {
 		return 1; #overlap
 	}
-	return 0; #no overlap
+	else {
+		return 0; #no overlap
+	}
 }
 
 sub get_overlap_length {
