@@ -75,6 +75,12 @@ sub get_filehandle {
 sub get_extra {
 	return $_[0]->{EXTRA_INFO};
 }
+sub get_comments {
+	unless (exists $_[0]->{COMMENTS}) {
+		$_[0]->set_comments();
+	}
+	return $_[0]->{COMMENTS};
+}
 
 #######################################################################
 #############################   Setters   #############################
@@ -90,6 +96,14 @@ sub set_filehandle {
 }
 sub set_extra {
 	$_[0]->{EXTRA_INFO}=$_[1] if defined $_[1];
+}
+sub set_comments {
+	if (defined $_[1]) {
+		$_[0]->{COMMENTS} = $_[1]
+	}
+	else {
+		$_[0]->{COMMENTS} = [];
+	}
 }
 
 #######################################################################
@@ -108,28 +122,44 @@ sub readline {
 sub next_entity {
 	my ($self) = @_;
 	
-	my $line = $self->readline or return;
-	return $self->line_to_entity($line);
+	while (1) {
+		my $line = $self->readline or return;
+		my $entity = $self->line_to_entity($line);
+		if (exists $entity->{START}) {
+			return $entity;
+		}
+		elsif (exists $entity->{COMMENT_LINE}) {
+			push @{$self->get_comments}, $line;
+		}
+	}
 }
 
 sub line_to_entity {
 	my ($self, $line) = @_;
 	
-	my ($qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, $mpos, $isize, $read, $qual) = split("\t",$line);
-	if ($flag & 4) {return {};} # Unmapped read
-	my $strand = ($flag & 16) ? '-' : '+';
-	
-	return {
-		NAME          => $qname,
-		CHR           => $rname,
-		STRAND        => $strand,
-		START         => $pos - 1, # convert position from one-based to zero-based
-		STOP          => $pos - 1 + length($read) -1, # convert position from one-based to zero-based.
-		FLAG          => $flag,
-		CIGAR         => $cigar,
-		SEQUENCE      => $read,
-		SCORE         => $mapq,
-	};
+	if ($line !~ /^\@/) {
+		my ($qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, $mpos, $isize, $read, $qual) = split("\t",$line);
+		if ($flag & 4) {return {};} # Unmapped read
+		my $strand = ($flag & 16) ? '-' : '+';
+		
+		return {
+			NAME          => $qname,
+			CHR           => $rname,
+			STRAND        => $strand,
+			START         => $pos - 1, # convert position from one-based to zero-based
+			STOP          => $pos - 1 + length($read) -1, # convert position from one-based to zero-based.
+			FLAG          => $flag,
+			CIGAR         => $cigar,
+			SEQUENCE      => $read,
+			SCORE         => $mapq,
+			LOCUS         => 1,
+		};
+	}
+	else {
+		return {
+			COMMENT_LINE => 1,
+		}
+	}
 }
 
 1;

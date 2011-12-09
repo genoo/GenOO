@@ -50,7 +50,13 @@ sub _init {
 	$self->set_type($$data{TYPE});
 	$self->set_file($$data{FILE});
 	$self->set_extra($$data{EXTRA_INFO});
-	my $filehandle = FileHandle->new($self->get_file, "r") or die "Cannot open file \"".$self->get_file."\"  $!";
+	
+	my $read_mode = "<";
+	if ($self->get_file =~ /\.gz$/) {
+		$read_mode = "<:gzip";
+	}
+	
+	my $filehandle = FileHandle->new($self->get_file, $read_mode) or die "Cannot open file \"".$self->get_file."\"  $!";
 	$self->set_filehandle($filehandle);
 }
 
@@ -147,6 +153,7 @@ sub line_to_entity {
 				BLOCK_COUNT   => $others[3],
 				BLOCK_SIZES   => $others[4],
 				BLOCK_STARTS  => $others[5],
+				LOCUS         => 1,
 			};
 		}
 		else {
@@ -157,6 +164,7 @@ sub line_to_entity {
 				STOP          => $stop - 1, #[start,stop)
 				NAME          => $name,
 				SCORE         => $score,
+				LOCUS         => 1,
 			};
 		}
 	}
