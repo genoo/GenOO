@@ -333,6 +333,9 @@ sub set_internalGID {
 				if ($line eq ""){next;}
 				if ($line =~ /^\s*$/){next;}
 				my ($chr, $genome, $type, $start, $stop, $score, $strand, undef, $nameinfo) = split(/\t/, $line);
+				$start = $start-1; #GTF is one based closed => convert to 0-based closed.
+				$stop = $stop-1;
+				
 				$nameinfo =~ /gene_id\s+\"(.+)\"\;\s+transcript_id\s+\"(.+)\"/;
 				my $ensgid = $1;
 				my $enstid = $2;
