@@ -317,14 +317,15 @@ sub get_quantile {
 	my $score_threshold = 0;
 	if (exists $params->{'QUANTILE'}){$quantile = $params->{'QUANTILE'};}
 	if (exists $params->{'THRESHOLD'}){$score_threshold = $params->{'THRESHOLD'};}
-	my @scores = sort { $b->get_score <=> $a->get_score } $self->get_all_tags_score;
+	my @scores = sort {$b <=> $a} $self->get_all_tags_score;
 	my $size;
 	for ($size = 0; $size < @scores; $size++)
 	{
 		if ($scores[$size] < $score_threshold){last;}
 	}
 	my $index = int($size * ($quantile/100));
-	return $scores[$index]->get_score();
+	warn "idx: $index\n";
+	return $scores[$index];
 }
 
 sub output_track_line {

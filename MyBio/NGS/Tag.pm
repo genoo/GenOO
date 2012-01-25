@@ -5,23 +5,22 @@ use base qw(MyBio::Locus Clone);
 
 # HOW TO INITIALIZE THIS OBJECT
 # my $Locus = MyBio::NGS::Tag->new({
-# 		     SPECIES      => undef,
-# 		     STRAND       => undef,
-# 		     CHR          => undef,
-# 		     START        => undef,
-# 		     STOP         => undef,
-# 		     SEQUENCE     => undef,
-# 		     NAME         => undef,
-# 		     SCORE        => undef,
-# 		     THICK_START  => undef,
-# 		     THICK_STOP   => undef,
-# 		     RGB          => undef,
-# 		     BLOCK_COUNT  => undef,
-# 		     BLOCK_SIZES  => undef,
-# 		     BLOCK_STARTS => undef,
-# 		     EXTRA_INFO   => undef,
-
-# 		     });
+# 	SPECIES      => undef,
+# 	STRAND       => undef,
+# 	CHR          => undef,
+# 	START        => undef,
+# 	STOP         => undef,
+# 	SEQUENCE     => undef,
+# 	NAME         => undef,
+# 	SCORE        => undef,
+# 	THICK_START  => undef,
+# 	THICK_STOP   => undef,
+# 	RGB          => undef,
+# 	BLOCK_COUNT  => undef,
+# 	BLOCK_SIZES  => undef,
+# 	BLOCK_STARTS => undef,
+# 	EXTRA_INFO   => undef,
+# });
 
 sub _init {
 	
