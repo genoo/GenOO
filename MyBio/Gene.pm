@@ -20,12 +20,13 @@ sub _init {
 	my ($self,$data) = @_;
 	
 	$self->set_internalID($$data{INTERNAL_ID});
-	$self->{ENSGID}        = $$data{ENSGID};
-	$self->{COMMON_NAME}   = $$data{COMMON_NAME}; # [] reference to array of names
-	$self->{REFSEQ}        = $$data{REFSEQ}; # [] reference to array of refseqs
-	$self->{TRANSCRIPTS}   = $$data{TRANSCRIPTS}; # [] reference to array of gene objects
-	$self->{DESCRIPTION}   = $$data{DESCRIPTION};
-	$self->{EXTRA_INFO}    = $$data{EXTRA_INFO};
+	
+	$self->set_ensgid($$data{ENSGID});
+	$self->set_common_name($$data{COMMON_NAME});
+	$self->set_refseq($$data{REFSEQ}); # [] reference to array of refseqs
+	$self->set_transcripts($$data{TRANSCRIPTS}); # [] reference to array of transcripts
+	$self->set_description($$data{DESCRIPTION});
+	$self->set_extra($$data{EXTRA_INFO});
 	
 	my $class = ref($self) || $self;
 	$class->_add_to_all($self);
@@ -36,19 +37,25 @@ sub _init {
 #######################################################################
 #############################   Getters   #############################
 #######################################################################
-sub get_ensgid                 {return $_[0]->{ENSGID};}
-sub get_extra                  {return $_[0]->{EXTRA_INFO};}
-sub get_description            {return $_[0]->{DESCRIPTION};}
+sub get_ensgid {
+	return $_[0]->{ENSGID};
+}
+sub get_extra {
+	return $_[0]->{EXTRA_INFO};
+}
+sub get_description {
+	return $_[0]->{DESCRIPTION};
+}
 sub get_internalID {
 	return $_[0]->{INTERNAL_ID};
 }
 sub get_refseq {
 	if (defined $_[0]->{REFSEQ}) {
 		if (defined $_[1]) {
-			return ${$_[0]->{REFSEQ}}[$_[1]]; #return the requested gene
+			return $_[0]->{REFSEQ}->[$_[1]]; #return the requested item
 		}
 		else {
-			return $_[0]->{REFSEQ}; # return the reference to the array with the gene objects
+			return $_[0]->{REFSEQ};
 		}
 	}
 	else {
@@ -58,10 +65,10 @@ sub get_refseq {
 sub get_common_name {
 	if (defined $_[0]->{COMMON_NAME}) {
 		if (defined $_[1]) {
-			return ${$_[0]->{COMMON_NAME}}[$_[1]]; #return the requested gene
+			return ${$_[0]->{COMMON_NAME}}[$_[1]]; #return the requested item
 		}
 		else {
-			return $_[0]->{COMMON_NAME}; # return the reference to the array with the gene objects
+			return $_[0]->{COMMON_NAME};
 		}
 	}
 	else {
@@ -85,21 +92,77 @@ sub get_transcripts {
 #######################################################################
 #############################   Setters   #############################
 #######################################################################
-sub set_extra {$_[0]->{EXTRA_INFO} = $_[1] if defined $_[1];}
+sub set_extra {
+	$_[0]->{EXTRA_INFO} = $_[1] if defined $_[1];
+}
+sub set_ensgid {
+	$_[0]->{ENSGID} = $_[1] if defined $_[1];
+}
 sub set_internalID {
 	$_[0]->{INTERNAL_ID} = $_[1] if defined $_[1];
 }
-sub set_description {$_[0]->{DESCRIPTION} = $_[1] if (defined $_[1] && $_[1] ne '');}
-sub set_common_name {$_[0]->{COMMON_NAME} = $_[1] if (defined $_[1] && $_[1] ne '');}
-
-sub add_refseq {
-	push (@{$_[0]->{REFSEQ}},$_[1]) if (defined $_[1] && $_[1] ne '');
+sub set_description {
+	$_[0]->{DESCRIPTION} = $_[1] if (defined $_[1] && $_[1] ne '');
 }
-#add_common_name deleted!!!
+sub set_common_name {
+	$_[0]->{COMMON_NAME} = $_[1] if (defined $_[1] && $_[1] ne '');
+}
+sub set_transcripts {
+	$_[0]->{TRANSCRIPTS} = $_[1] if defined $_[1];
+}
+sub set_refseq {
+	$_[0]->{REFSEQ} = $_[1] if defined $_[1];
+}
 
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub add_refseq {
+	push (@{$_[0]->{REFSEQ}},$_[1]) if (defined $_[1] && $_[1] ne '');
+}
+sub push_transcript {
+	push (@{$_[0]->{TRANSCRIPTS}},$_[1]) if (defined $_[1] && $_[1] ne '');
+}
+sub annotate_constitutive_exons {
+	my ($self) = @_;
+	
+	my %counts;
+	foreach my $transcript (@{$self->get_transcripts}) {
+		foreach my $exon (@{$transcript->get_exons}) {
+			$counts{$exon->get_id}++;
+		}
+	}
+	
+	foreach my $transcript (@{$self->get_transcripts}) {
+		foreach my $exon (@{$transcript->get_exons}) {
+			if ($counts{$exon->get_id} == @{$self->get_transcripts}) {
+				$exon->is_constitutive(1);
+			}
+			else {
+				$exon->is_constitutive(0);
+			}
+		}
+	}
+}
+sub get_constitutive_exons {
+	my ($self) = @_;
+	
+	$self->annotate_constitutive_exons();
+	
+	my @constitutive_exons;
+	my %already_found;
+	foreach my $transcript (@{$self->get_transcripts}) {
+		foreach my $exon (@{$transcript->get_exons}) {
+			if ($exon->is_constitutive() and !exists $already_found{$exon->get_id}) {
+				my $new_exon = $exon->clone();
+				$new_exon->set_where($self);
+				push @constitutive_exons, $new_exon;
+				$already_found{$exon->get_id} = 1;
+			}
+		}
+	}
+	return \@constitutive_exons;
+}
 
 #######################################################################
 ##########################   Class Methods   ##########################

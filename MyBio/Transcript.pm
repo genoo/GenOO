@@ -15,6 +15,8 @@ MyBio::Transcript - Transcript object, with features
         SPECIES        => undef,
         STRAND         => undef,
         CHR            => undef,
+        START          => undef,
+        STOP           => undef,
         GENE           => undef, # MyBio::Gene
         UTR5           => undef, # MyBio::Transcript::UTR5
         CDS            => undef, # MyBio::Transcript::CDS
@@ -23,14 +25,16 @@ MyBio::Transcript - Transcript object, with features
         BIOTYPE        => undef,
         INTERNAL_ID    => undef,
         INTERNAL_GID   => undef,
-        START          => undef,
-        STOP           => undef,
         EXTRA_INFO     => undef,
     });
 
 =head1 DESCRIPTION
 
-    Not provided yet
+    The Transcript class describes a transcript of a gene. It has a backreference back to the gene where it belongs
+    and contains functional regions such as 5'UTR, CDS and 3'UTR for protein coding genes. If the gene is not protein
+    coding then the CDNA region is set and the above remain undefined. It's up to the user to check if the attributes
+    are defined or not. The transcript class inherits the SplicedLocus class so it also describes a genomic region
+    where Introns and Exons are defined.
 
 =head1 EXAMPLES
 
@@ -38,7 +42,7 @@ MyBio::Transcript - Transcript object, with features
 
 =head1 AUTHOR - Manolis Maragkakis, Panagiotis Alexiou
 
-Email maragkakis@fleming.gr, pan.alexiou@fleming.gr
+Email em.maragkakis@gmail.com, pan.alexiou@fleming.gr
 
 =cut
 
@@ -50,28 +54,28 @@ use strict;
 use Scalar::Util qw/weaken/;
 use MyBio::DBconnector;
 use MyBio::Gene;
+use MyBio::Transcript::CDNA;
 use MyBio::Transcript::UTR5;
 use MyBio::Transcript::CDS;
 use MyBio::Transcript::UTR3;
-use MyBio::Transcript::Exon;
-use MyBio::Transcript::CDNA;
 
-use base qw(MyBio::Locus);
+use base qw(MyBio::SplicedLocus);
 
 sub _init {
 	my ($self,$data) = @_;
 	
 	$self->SUPER::_init($data);
 	$self->set_enstid($$data{ENSTID});
+	$self->set_biotype($$data{BIOTYPE});
+	$self->set_internalID($$data{INTERNAL_ID});
+	$self->set_internalGID($$data{INTERNAL_GID});
+	$self->set_coding_start($$data{CODING_START});
+	$self->set_coding_stop($$data{CODING_STOP});
 	$self->set_gene($$data{GENE}); # MyBio::Gene
+	$self->set_cdna($$data{CDNA}); # MyBio::Transcript::CDNA
 	$self->set_utr5($$data{UTR5}); # MyBio::Transcript::UTR5
 	$self->set_cds($$data{CDS});   # MyBio::Transcript::CDS
 	$self->set_utr3($$data{UTR3}); # MyBio::Transcript::UTR3
-	$self->set_cdna($$data{CDNA}); # MyBio::Transcript::CDNA
-	$self->set_internalID($$data{INTERNAL_ID});
-	$self->set_biotype($$data{BIOTYPE});
-	$self->set_internalGID($$data{INTERNAL_GID});
-	$self->set_extra($$data{EXTRA_INFO});
 	
 	my $class = ref($self) || $self;
 	$class->_add_to_all($self);
@@ -85,50 +89,88 @@ sub _init {
 sub get_enstid {
 	return $_[0]->{ENSTID};
 }
-sub get_gene {
-	return $_[0]->{GENE};
-}
-sub get_utr5 {
-	my ($self) = @_;
-	
-	unless (defined $self->{UTR5}) {
-		$self->set_utr5(MyBio::Transcript::UTR5->create_new_UTR5_from_database($self));
-	}
-	return $self->{UTR5};
-}
-sub get_cds {
-	my ($self) = @_;
-	
-	unless (defined $self->{CDS}) {
-		$self->set_cds(MyBio::Transcript::CDS->create_new_CDS_from_database($self));
-	}
-	return $self->{CDS};
-}
-sub get_cdna {
-	my ($self) = @_;
-	return $self->{CDNA};
-}
-sub get_utr3 {
-	my ($self) = @_;
-	
-	unless (defined $self->{UTR3}) {
-		$self->set_utr3(MyBio::Transcript::UTR3->create_new_UTR3_from_database($self));
-	}
-	return $self->{UTR3};
-}
-sub get_extra {
-	return $_[0]->{EXTRA_INFO};
+sub get_biotype {
+	return $_[0]->{BIOTYPE};
 }
 sub get_internalID {
 	return $_[0]->{INTERNAL_ID};
 }
-sub get_biotype {
-	return $_[0]->{BIOTYPE};
-}
 sub get_internalGID {
 	return $_[0]->{INTERNAL_GID};
 }
-
+sub get_coding_start {
+	return $_[0]->{CODING_START}
+}
+sub get_coding_stop {
+	return $_[0]->{CODING_STOP}
+}
+sub get_gene {
+	return $_[0]->{GENE};
+}
+sub get_cdna {
+	my ($self) = @_;
+	if (defined $self->{CDNA}) {
+		return $self->{CDNA};
+	}
+	else {
+		$self->create_cdna();
+		return $self->{CDNA};
+	}
+}
+sub get_utr5 {
+	my ($self) = @_;
+	my $class = ref($self) || $self;
+	if (defined $self->{UTR5}) {
+		return $self->{UTR5};
+	}
+	elsif ($self->get_biotype eq 'coding') {
+		$self->create_utr5();
+		return $self->{UTR5};
+	}
+	elsif ($class->database_access eq 'ALLOW') {
+		$self->set_utr5(MyBio::Transcript::UTR5->create_new_UTR5_from_database($self));
+		return $self->{UTR5};
+	}
+	else {
+		return undef;
+	}
+}
+sub get_cds {
+	my ($self) = @_;
+	my $class = ref($self) || $self;
+	if (defined $self->{CDS}) {
+		return $self->{CDS};
+	}
+	elsif ($self->get_biotype eq 'coding') {
+		$self->create_cds();
+		return $self->{CDS};
+	}
+	elsif ($class->database_access eq 'ALLOW') {
+		$self->set_cds(MyBio::Transcript::CDS->create_new_CDS_from_database($self));
+		return $self->{CDS};
+	}
+	else {
+		return undef;
+	}
+}
+sub get_utr3 {
+	my ($self) = @_;
+	my $class = ref($self) || $self;
+	if (defined $self->{UTR3}) {
+		return $self->{UTR3};
+	}
+	elsif ($self->get_biotype eq 'coding') {
+		$self->create_utr3();
+		return $self->{UTR3};
+	}
+	elsif ($class->database_access eq 'ALLOW') {
+		$self->set_utr3(MyBio::Transcript::UTR3->create_new_UTR3_from_database($self));
+		return $self->{UTR3};
+	}
+	else {
+		return undef;
+	}
+}
 #######################################################################
 #############################   Setters   #############################
 #######################################################################
@@ -137,6 +179,62 @@ sub set_enstid {
 	if (defined $value) {
 		$value =~ s/>//;
 		$self->{ENSTID} = $value;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+sub set_biotype {
+	my ($self,$value) = @_;
+	if (defined $value) {
+		$self->{BIOTYPE} = $value;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+sub set_internalID {
+	my ($self,$value) = @_;
+	if (defined $value) {
+		$self->{INTERNAL_ID} = $value;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+sub set_internalGID {
+	my ($self,$value) = @_;
+	if (defined $value) {
+		$self->{INTERNAL_GID} = $value;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+sub set_coding_start {
+	my ($self,$value) = @_;
+	if (defined $value) {
+		$self->{CODING_START} = $value;
+		$self->set_biotype('coding');
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+sub set_coding_stop {
+	my ($self,$value) = @_;
+	if (defined $value) {
+		$self->{CODING_STOP} = $value;
+		$self->set_biotype('coding');
+		return 0;
+	}
+	else {
+		return 1;
 	}
 }
 sub set_gene {
@@ -144,60 +242,154 @@ sub set_gene {
 	if (defined $value) {
 		$self->{GENE} = $value;
 		weaken($self->{GENE}); # circular reference needs to be weakened to avoid memory leaks
-	}
-}
-sub set_utr5 {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$self->{UTR5} = $value;
+		return 0;
 	}
 	else {
-		$self->{UTR5} = MyBio::Transcript::UTR5->new( {TRANSCRIPT => $self} );
-	}
-}
-sub set_cds {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$self->{CDS} = $value;
-	}
-	else {
-		$self->{CDS} = MyBio::Transcript::CDS->new( {TRANSCRIPT => $self} );
+		return 1;
 	}
 }
 sub set_cdna {
 	my ($self,$value) = @_;
 	if (defined $value) {
 		$self->{CDNA} = $value;
+		return 0;
 	}
 	else {
-		$self->{CDNA} = MyBio::Transcript::CDNA->new( {TRANSCRIPT => $self} );
+		return 1;
+	}
+}
+sub set_utr5 {
+	my ($self,$value) = @_;
+	if (defined $value) {
+		$self->{UTR5} = $value;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+sub set_cds {
+	my ($self,$value) = @_;
+	if (defined $value) {
+		$self->{CDS} = $value;
+		return 0;
+	}
+	else {
+		return 1;
 	}
 }
 sub set_utr3 {
 	my ($self,$value) = @_;
 	if (defined $value) {
 		$self->{UTR3} = $value;
+		return 0;
 	}
 	else {
-		$self->{UTR3} = MyBio::Transcript::UTR3->new( {TRANSCRIPT => $self} );
+		return 1;
 	}
-}
-sub set_extra {
-	$_[0]->{EXTRA_INFO} = $_[1] if defined $_[1];
-}
-sub set_internalID {
-	$_[0]->{INTERNAL_ID} = $_[1] if defined $_[1];
-}
-sub set_biotype {
-	$_[0]->{BIOTYPE} = $_[1] if defined $_[1];
-}
-sub set_internalGID {
-	$_[0]->{INTERNAL_GID} = $_[1] if defined $_[1];
 }
 
 #######################################################################
-#########################   General Methods   #########################
+#############################   Methods   #############################
 #######################################################################
+sub delete {
+	my ($self) = @_;
+	my $class = ref($self) || $self;
+	my $gene_transcripts = $self->get_gene->get_transcripts;
+	for (my $i=0;$i<@$gene_transcripts;$i++) {
+		if ($self eq $$gene_transcripts[$i]) {
+			splice @$gene_transcripts,$i,1;
+		}
+	}
+	$class->_delete_from_all($self);
+}
+sub is_coding {
+	if ($_[0]->get_biotype eq 'coding') {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+sub get_exons_split_by_function {
+	my ($self) = @_;
+	if ($self->get_biotype eq 'coding') {
+		my @exons;
+		if (defined $self->get_utr5) {
+			push @exons,@{$self->get_utr5->get_exons};
+		}
+		if (defined $self->get_cds) {
+			push @exons,@{$self->get_cds->get_exons};
+		}
+		if (defined $self->get_utr3) {
+			push @exons,@{$self->get_utr3->get_exons};
+		}
+		return \@exons;
+	}
+	else {
+		return $self->get_cdna->get_exons;
+	} 
+}
+sub create_cdna {
+	my ($self) = @_;
+	$self->{CDNA} = MyBio::Transcript::CDNA->new({
+		START         => $self->get_start,
+		STOP          => $self->get_stop,
+		SPLICE_STARTS => $self->get_splice_starts,
+		SPLICE_STOPS  => $self->get_splice_stops,
+		TRANSCRIPT    => $self
+	});
+	return 0;
+}
+sub create_utr5 {
+	my ($self) = @_;
+	if (defined $self->get_coding_start and defined $self->get_coding_stop) {
+		my $utr5_start = ($self->get_strand == 1) ? $self->get_start : $self->get_coding_stop + 1;
+		my $utr5_stop = ($self->get_strand == 1) ? $self->get_coding_start - 1 : $self->get_stop;
+		$self->{UTR5} = MyBio::Transcript::UTR5->new({
+			START      => $utr5_start,
+			STOP       => $utr5_stop,
+			TRANSCRIPT => $self
+		});
+		$self->get_utr5->set_splicing_info($self->get_splice_starts,$self->get_splice_stops);
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+sub create_cds {
+	my ($self) = @_;
+	if (defined $self->get_coding_start and defined $self->get_coding_stop) {
+		$self->{CDS} = MyBio::Transcript::CDS->new({
+			START      => $self->get_coding_start,
+			STOP       => $self->get_coding_stop,
+			TRANSCRIPT => $self
+		});
+		$self->get_cds->set_splicing_info($self->get_splice_starts,$self->get_splice_stops);
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+sub create_utr3 {
+	my ($self) = @_;
+	if (defined $self->get_coding_start and defined $self->get_coding_stop) {
+		my $utr3_start = ($self->get_strand == 1) ? $self->get_coding_stop + 1 : $self->get_start;
+		my $utr3_stop = ($self->get_strand == 1) ? $self->get_stop : $self->get_coding_start - 1;
+		$self->{UTR3} = MyBio::Transcript::UTR3->new({
+			START      => $utr3_start,
+			STOP       => $utr3_stop,
+			TRANSCRIPT => $self
+		});
+		$self->get_utr3->set_splicing_info($self->get_splice_starts,$self->get_splice_stops);
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
 
 #######################################################################
 ##########################   Class Methods   ##########################
@@ -247,7 +439,7 @@ sub set_internalGID {
 			return $class->create_new_transcript_from_database($enstid);
 		}
 		else {
-			return;
+			return undef;
 		}
 	}
 	
@@ -258,9 +450,13 @@ sub set_internalGID {
 			my $filename = $attributes[0];
 			return $class->_read_file_with_transcripts($filename);
 		}
-		if ($method eq "GTF") {
+		elsif ($method eq "GTF") {
 			my $filename = $attributes[0];
 			return $class->_read_gtf_with_transcripts($filename);
+		}
+		elsif ($method eq "EXON_INFO_FILE") {
+			my $filename = $attributes[0];
+			return $class->_read_exon_info_file($filename);
 		}
 	}
 	
@@ -297,15 +493,15 @@ sub set_internalGID {
 				}
 				else {
 					$transcript = $class->new({
-								ENSTID           => $enstid,
-								SPECIES          => $species,
-								STRAND           => $strand,
-								CHR              => $chr,
-								START            => $start,
-								STOP             => $stop,
-								BIOTYPE          => $biotype,
-								GENE             => $geneObj,
-								});
+						ENSTID           => $enstid,
+						SPECIES          => $species,
+						STRAND           => $strand,
+						CHR              => $chr,
+						START            => $start,
+						STOP             => $stop,
+						BIOTYPE          => $biotype,
+						GENE             => $geneObj,
+					});
 				}
 			}
 			elsif (substr($line,0,1) eq '#') {
@@ -320,134 +516,158 @@ sub set_internalGID {
 	sub _read_gtf_with_transcripts {
 		my ($class,$file)=@_;
 		
-		my %allexons;
-		my %coding_start;
-		my %coding_stop;
-		my %t_start;
-		my %t_stop;
-		my %ensg;
 		open (my $IN,"<",$file) or die "Cannot open file $file: $!";
 		while (my $line=<$IN>){
 			chomp($line);
-			if (substr($line,0,1) ne '#') {
-				if ($line eq ""){next;}
-				if ($line =~ /^\s*$/){next;}
+			if (($line !~ /^#/) and ($line ne '') and ($line !~ /^\s*$/)) {
 				my ($chr, $genome, $type, $start, $stop, $score, $strand, undef, $nameinfo) = split(/\t/, $line);
 				$start = $start-1; #GTF is one based closed => convert to 0-based closed.
 				$stop = $stop-1;
-				
 				$nameinfo =~ /gene_id\s+\"(.+)\"\;\s+transcript_id\s+\"(.+)\"/;
 				my $ensgid = $1;
 				my $enstid = $2;
 				
-				$ensg{$enstid} = $ensgid; 
-				
-				my $exon = MyBio::Transcript::Exon->new({
-				     SPECIES      => undef,
-				     STRAND       => $strand,
-				     CHR          => $chr,
-				     START        => $start,
-				     STOP         => $stop,
-				     SEQUENCE     => undef,
-				     WHERE        => undef,
-				     EXTRA_INFO   => $type,
-				});
-				
-				if ((!defined $t_start{$enstid}) or ($start < $t_start{$enstid})){$t_start{$enstid} = $start;}
-				if ((!defined $t_stop{$enstid}) or ($stop > $t_stop{$enstid})){$t_stop{$enstid} = $stop;}
-				
-				if ($type eq "start_codon") {
-					if ($strand eq "+"){$coding_start{$enstid} = $start;}
-					elsif ($strand eq "-"){$coding_stop{$enstid} = $stop;}
-					else {warn "unknown strand $strand\n"; next;}
+				my $geneObj = MyBio::Gene->get_by_ensgid($ensgid);
+				unless ($geneObj) {
+					$geneObj = MyBio::Gene->new({
+						ENSGID   => $ensgid,
+					});
 				}
-				elsif ($type eq "stop_codon") {
-					if ($strand eq "+"){$coding_stop{$enstid} = $stop;}
-					elsif ($strand eq "-"){$coding_start{$enstid} = $start;}
-					else {warn "unknown strand $strand\n"; next;}
+				
+				my $transcriptObj = $class->get_by_enstid($enstid);
+				unless ($transcriptObj) {
+					$transcriptObj = $class->new({
+						ENSTID   => $enstid,
+						GENE     => $geneObj,
+						CHR      => $chr,
+						STRAND   => $strand,
+						BIOTYPE  => 'non coding',
+					});
+					$geneObj->push_transcript($transcriptObj);
 				}
-				elsif ($type eq "CDS"){next;}				
-				else {
-					push @{$allexons{$enstid}}, $exon;
+				
+				if (!defined $transcriptObj->get_start or ($start < $transcriptObj->get_start)) {
+					$transcriptObj->set_start($start);
+				}
+				if (!defined $transcriptObj->get_stop or ($stop > $transcriptObj->get_stop)) {
+					$transcriptObj->set_stop($stop);
+				}
+				
+				if ($type =~ /exon/) {
+					$transcriptObj->push_splice_start_stop_pair($start,$stop);
+				}
+				elsif ($type =~ /codon/) {
+					$transcriptObj->set_biotype('coding');
+					if ($type eq 'start_codon') {
+						if ($strand eq '+') {
+							$transcriptObj->set_coding_start($start);
+						}
+						elsif ($strand eq '-') {
+							$transcriptObj->set_coding_stop($stop);
+						}
+					}
+					elsif ($type eq 'stop_codon') {
+						if ($strand eq '+') {
+							$transcriptObj->set_coding_stop($stop);
+						}
+						elsif ($strand eq '-') {
+							$transcriptObj->set_coding_start($start);
+						}
+					}
 				}
 			}
 		}
 		close $IN;
-		
-		foreach my $enstid (keys %allexons)
-		{
-			my $chr = ${$allexons{$enstid}}[0]->get_chr;
-			my $strand = ${$allexons{$enstid}}[0]->get_strand;
-			
-		
-			my $ensgid = $ensg{$enstid};
-			# Search if the gene has already been defined. If not create it
-			my $geneObj = MyBio::Gene->get_by_ensgid($ensgid);
-			unless ($geneObj) {
-				$geneObj = MyBio::Gene->new({
-					ENSGID   => $ensgid,
-				});
-			}
-			
-			# Search if the transcript has already been defined. If not create it
-			my $transcriptObj = $class->get_by_enstid($ensgid);
-			unless ($transcriptObj) {
-				$transcriptObj = $class->new({
-					ENSTID   => $enstid,
-					GENE     => $geneObj,
-					CHR      => $chr,
-					STRAND   => $strand,
-					START    => $t_start{$enstid},
-					STOP     => $t_stop{$enstid}
-				});
-			}
-						
-			foreach my $exon (@{$allexons{$enstid}})
-			{
-				$exon->set_extra("from_file");
-				$transcriptObj->get_cdna->push_exon($exon);
-			}
-			
-			$transcriptObj->get_cdna->set_chr($transcriptObj->get_chr);
-			$transcriptObj->get_cdna->set_strand($transcriptObj->get_strand);
-			$transcriptObj->get_cdna->set_start($transcriptObj->get_start);
-			$transcriptObj->get_cdna->set_stop($transcriptObj->get_stop);
-			
-			if ((!exists $coding_start{$enstid}) and (!exists $coding_stop{$enstid})){$transcriptObj->set_biotype("non coding");}
-			else 
-			{
-				if ($transcriptObj->get_strand == 1){
-					$transcriptObj->get_utr5->set_start($transcriptObj->get_start);
-					$transcriptObj->get_utr5->set_stop($coding_start{$enstid}-1);
-					$transcriptObj->get_cds->set_start($coding_start{$enstid});
-					$transcriptObj->get_cds->set_stop($coding_stop{$enstid});
-					$transcriptObj->get_utr3->set_start($coding_stop{$enstid}+1);
-					$transcriptObj->get_utr3->set_stop($transcriptObj->get_stop);
-				}
-				elsif ($transcriptObj->get_strand == -1){
-					$transcriptObj->get_utr5->set_start($coding_stop{$enstid}+1);
-					$transcriptObj->get_utr5->set_stop($transcriptObj->get_stop);
-					$transcriptObj->get_cds->set_start($coding_start{$enstid});
-					$transcriptObj->get_cds->set_stop($coding_stop{$enstid});
-					$transcriptObj->get_utr3->set_start($transcriptObj->get_start);
-					$transcriptObj->get_utr3->set_stop($coding_start{$enstid}-1);
-				}
-				
-				$transcriptObj->get_utr5->set_chr($transcriptObj->get_chr);
-				$transcriptObj->get_utr3->set_chr($transcriptObj->get_chr);
-				$transcriptObj->get_cds->set_chr($transcriptObj->get_chr);
-				
-				$transcriptObj->get_utr5->set_strand($transcriptObj->get_strand);
-				$transcriptObj->get_utr3->set_strand($transcriptObj->get_strand);
-				$transcriptObj->get_cds->set_strand($transcriptObj->get_strand);
-				
-				$transcriptObj->set_biotype("coding");
-			}
-			
-		}
 		return %allTranscripts;
 	}
-	
+	sub _read_exon_info_file {
+		my ($class,$file)=@_;
+		
+		open (my $IN,"<",$file) or die "Cannot open file $file: $!";
+		while (my $line=<$IN>){
+			chomp($line);
+			if (($line !~ /^#/) and ($line ne '') and ($line !~ /^\s*$/)) {
+				my ($enstid,$ensgid,$exon_id,$chr,$start,$stop,$id,$score,$strand,$UTR5,$UTR3,$CDS,$coding,$UTR5_CDS_break,$UTR3_CDS_break,$length,$description) = split(/\t/,$line);
+				$stop = $stop-1;
+				
+				my $geneObj = MyBio::Gene->get_by_ensgid($ensgid);
+				unless ($geneObj) {
+					$geneObj = MyBio::Gene->new({
+						ENSGID      => $ensgid,
+						DESCRIPTION => $description,
+					});
+				}
+				
+				my $transcriptObj = $class->get_by_enstid($enstid);
+				unless ($transcriptObj) {
+					$transcriptObj = $class->new({
+						ENSTID   => $enstid,
+						GENE     => $geneObj,
+						CHR      => $chr,
+						STRAND   => $strand,
+						BIOTYPE  => 'non coding',
+					});
+					$geneObj->push_transcript($transcriptObj);
+				}
+				
+				if (!defined $transcriptObj->get_start or ($start < $transcriptObj->get_start)) {
+					$transcriptObj->set_start($start);
+				}
+				if (!defined $transcriptObj->get_stop or ($stop > $transcriptObj->get_stop)) {
+					$transcriptObj->set_stop($stop);
+				}
+				
+				$transcriptObj->push_splice_start_stop_pair($start,$stop);
+				if ($coding == 1) {
+					$transcriptObj->set_biotype('coding');
+				}
+				
+				if ($CDS == 1) {
+					my @breakpoints = ($start);
+					if ($UTR5 == 1) {
+						if    ($strand eq '+') {push @breakpoints, $UTR5_CDS_break + 1;}
+						elsif ($strand eq '-') {push @breakpoints, $UTR5_CDS_break;}
+					}
+					if ($UTR3 == 1) {
+						if    ($strand eq '+') {push @breakpoints, $UTR3_CDS_break;}
+						elsif ($strand eq '-') {push @breakpoints, $UTR3_CDS_break + 1;}
+					}
+					push @breakpoints, $stop+1;
+					@breakpoints = sort {$a <=> $b} @breakpoints;
+					
+					if ($UTR5 == 1) {
+						if ($strand eq '+') {
+							shift @breakpoints;
+						}
+						else {
+							pop @breakpoints;
+						}
+					}
+					if ($UTR3 == 1) {
+						if ($strand eq '+') {
+							pop @breakpoints;
+						}
+						else {
+							shift @breakpoints;
+						}
+					}
+					
+					my $set_start = $breakpoints[0];
+					my $set_stop = $breakpoints[1] - 1;
+					
+					if (!defined $transcriptObj->get_coding_start or $set_start < $transcriptObj->get_coding_start) {
+						$transcriptObj->set_coding_start($set_start);
+					}
+					
+					if (!defined $transcriptObj->get_coding_stop or $set_stop > $transcriptObj->get_coding_stop) {
+						$transcriptObj->set_coding_stop($set_stop);
+					}
+				}
+			}
+		}
+		close $IN;
+		return %allTranscripts;
+	}
 	sub read_region_info_for_transcripts {
 		my ($class,$method,@attributes) = @_;
 		

@@ -1,5 +1,6 @@
 package MyBio::Transcript::Exon;
 use strict;
+use Scalar::Util qw/weaken/;
 
 use base qw(MyBio::Locus);
 
@@ -22,7 +23,7 @@ sub _init {
 	
 	$self->SUPER::_init($data);
 	$self->set_where($$data{WHERE});
-	$self->set_extra($$data{EXTRA_INFO});
+	$self->is_constitutive($$data{CONSTITUTIVE});
 	
 	return $self;
 }
@@ -32,9 +33,6 @@ sub _init {
 #######################################################################
 sub get_where {
 	return $_[0]->{WHERE} ;
-}
-sub get_extra {
-	return $_[0]->{EXTRA_INFO} ;
 }
 #######################################################################
 #############################   Setters   #############################
@@ -46,15 +44,20 @@ sub set_where {
 		weaken($self->{WHERE}); # circular reference needs to be weakened to avoid memory leaks
 	}
 }
-sub set_extra {
-	$_[0]->{EXTRA_INFO} = $_[1] if defined $_[1];
-}
 
 #######################################################################
 #############################   General   #############################
 #######################################################################
 sub whatami {
 	return 'Exon';
+}
+sub is_constitutive {
+	if (defined $_[1]) {
+		$_[0]->{CONSTITUTIVE} = $_[1];
+	}
+	else {
+		return $_[0]->{CONSTITUTIVE};
+	}
 }
 
 #######################################################################

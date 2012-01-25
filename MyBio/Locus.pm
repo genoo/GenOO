@@ -44,10 +44,10 @@ sub get_chr {
 	return $_[0]->{CHR};
 }
 sub get_start {
-	return $_[0]->{CHR_START};
+	return $_[0]->{START};
 }
 sub get_stop {
-	return $_[0]->{CHR_STOP};
+	return $_[0]->{STOP};
 }
 sub get_sequence {
 	return $_[0]->{SEQUENCE};
@@ -83,9 +83,9 @@ sub set_strand {
 		$value =~ s/^\-$/-1/;
 		$self->{STRAND} = $value;
 	}
-	else {
-		$self->{STRAND} = 0;
-	}
+# 	else {
+# 		$self->{STRAND} = 0;
+# 	}
 }
 sub set_chr {
 	my ($self,$value) = @_;
@@ -95,10 +95,10 @@ sub set_chr {
 	}
 }
 sub set_start {
-	$_[0]->{CHR_START} = $_[1] if defined $_[1];
+	$_[0]->{START} = $_[1] if defined $_[1];
 }
 sub set_stop {
-	$_[0]->{CHR_STOP} = $_[1] if defined $_[1];
+	$_[0]->{STOP} = $_[1] if defined $_[1];
 }
 sub set_sequence {
 	my ($self,$value) = @_;
@@ -120,6 +120,10 @@ sub set_extra {
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub get_id {
+	my ($self,$method,@attributes) = @_;
+	return $_[0]->get_chr.":".$_[0]->get_start."-".$_[0]->get_stop.":".$_[0]->get_strand;
+}
 sub to_string {
 	my ($self,$method,@attributes) = @_;
 	

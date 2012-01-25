@@ -6,7 +6,7 @@ use strict;
 
 our $VERSION = '2.0';
 
-use base qw(MyBio::Transcript::Region);
+use base qw(MyBio::Transcript::TranscriptRegion);
 
 # HOW TO CREATE THIS OBJECT
 # my $cdsObj = Transcript::CDS->new({

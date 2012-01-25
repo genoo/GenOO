@@ -1,12 +1,12 @@
 package MyBio::Transcript::UTR5;
 
-# Corresponds to the 5'UTR of a gene transcript. It inherits all the attributes and methods of the class MyBio::Transcript::Region.
+# Corresponds to the 5'UTR of a gene transcript. It inherits all the attributes and methods of the class MyBio::Transcript::TranscriptRegion.
 
 use strict;
 
 our $VERSION = '2.0';
 
-use base qw(MyBio::Transcript::Region);
+use base qw(MyBio::Transcript::TranscriptRegion);
 
 # HOW TO CREATE THIS OBJECT
 # my $utr5Obj = Transcript::UTR5->new({
