@@ -1267,6 +1267,10 @@ sub _overlaps_TOUCHES {
 		my ($class) = @_;
 		return %allTracks;
 	}
+	sub get_all_in_array {
+		my ($class) = @_;
+		return values %allTracks;
+	}
 	sub delete_all {
 		my ($class) = @_;
 		%allTracks = ();
@@ -1291,31 +1295,44 @@ sub _overlaps_TOUCHES {
 		}
 	}
 	sub read_tracks {
-		my ($class,$method,@attributes) = @_;
+		my ($class, $params) = @_;
+	
+		unless (ref($params) eq "HASH") {
+			die "\n\nDon't panic - Just use hash notation when calling ".(caller(0))[3]." in script $0\n\n";
+		}
 		
-		my %tracks;
-		if ($method eq "BED") {
-			my $filename = $attributes[0];
-			my $trackname = $attributes[1];
-			%tracks = $class->_read_bedFile($filename, $trackname);
-			
+		my %handlers = (
+			'BED' => \&_read_bedFile,
+		);
+		
+		my $method = delete $params->{'METHOD'};
+		unless (exists $handlers{$method}) {
+			if (!defined $method) {
+				die "\nNo method specified in ".(caller(0))[3]."\n";
+			}
+			else {
+				die "\nUnknown method \"$method\" in ".(caller(0))[3].". Try (BED)";
+			}
 		}
-		else {
-			die "\nUnknown read method \"$method\" specified in $class\::read_tracks. Try (BED)";
+		
+		my %tracks = $handlers{$method}->($class,$params);
+		foreach my $track (values %tracks) {
+			$track->sort_tags;
 		}
-		$_->sort_tags for (values %tracks);
+		
 		return %tracks;
 	}
 	sub _read_bedFile {
-		my ($class,$filename, $trackname) = @_;
+		my ($class,$params) = @_;
 		
-		if (!defined $trackname){$trackname = scalar(localtime());}
+		my $filename = $params->{'FILENAME'};
+		my $trackname = exists $params->{'TRACK_NAME'} ? $params->{'TRACK_NAME'} : scalar(localtime());
+		my $tag_score_thres = $params->{'SCORE_THRESHOLD'};
+		
 		my $track;
 		my @browser_info;
 		my %return_tracks;
 		my $BED = new FileHandle;
-# 		my $maf_read_pos=$MAF->getpos; # reading place in the filehandle
-# 		$MAF->setpos($maf_read_pos);
 		$BED->open($filename) or die "Cannot open file $filename $!";
 		while (my $line=<$BED>){
 			chomp($line);
@@ -1358,22 +1375,24 @@ sub _overlaps_TOUCHES {
 				
 				my ($chr,$start,$stop,$name,$score,$strand,@others) = split(/\t/,$line);
 				
-				my $tag = MyBio::NGS::Tag->new({
-					STRAND        => $strand,
-					CHR           => $chr,
-					START         => $start,
-					STOP          => $stop - 1, #[start,stop)
-					NAME          => $name,
-					SCORE         => $score,
-					THICK_START   => $others[0],
-					THICK_STOP    => $others[1],
-					RGB           => $others[2],
-					BLOCK_COUNT   => $others[3],
-					BLOCK_SIZES   => $others[4],
-					BLOCK_STARTS  => $others[5],
-				});
-				
-				$track->add_tag($tag);
+				if (!defined $tag_score_thres or ($score >= $tag_score_thres)) {
+					my $tag = MyBio::NGS::Tag->new({
+						STRAND        => $strand,
+						CHR           => $chr,
+						START         => $start,
+						STOP          => $stop - 1, #[start,stop)
+						NAME          => $name,
+						SCORE         => $score,
+						THICK_START   => $others[0],
+						THICK_STOP    => $others[1],
+						RGB           => $others[2],
+						BLOCK_COUNT   => $others[3],
+						BLOCK_SIZES   => $others[4],
+						BLOCK_STARTS  => $others[5],
+					});
+					
+					$track->add_tag($tag);
+				}
 			}
 		}
 		close $BED;
