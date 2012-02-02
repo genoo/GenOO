@@ -313,7 +313,7 @@ sub is_coding {
 }
 sub get_exons_split_by_function {
 	my ($self) = @_;
-	if ($self->get_biotype eq 'coding') {
+	if ($self->is_coding) {
 		my @exons;
 		if (defined $self->get_utr5) {
 			push @exons,@{$self->get_utr5->get_exons};
