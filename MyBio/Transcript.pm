@@ -52,6 +52,7 @@ package MyBio::Transcript;
 use strict;
 
 use Scalar::Util qw/weaken/;
+use MyBio::Helper::Locus;
 use MyBio::DBconnector;
 use MyBio::Gene;
 use MyBio::Transcript::CDNA;
@@ -583,31 +584,24 @@ sub create_utr3 {
 	sub _read_exon_info_file {
 		my ($class,$file)=@_;
 		
+		my %transcripts_for_genename;
 		open (my $IN,"<",$file) or die "Cannot open file $file: $!";
 		while (my $line=<$IN>){
 			chomp($line);
 			if (($line !~ /^#/) and ($line ne '') and ($line !~ /^\s*$/)) {
-				my ($enstid,$ensgid,$exon_id,$chr,$start,$stop,$id,$score,$strand,$UTR5,$UTR3,$CDS,$coding,$UTR5_CDS_break,$UTR3_CDS_break,$length,$description) = split(/\t/,$line);
+				my ($tid,$genename,$exon_id,$chr,$start,$stop,$id,$score,$strand,$UTR5,$UTR3,$CDS,$coding,$UTR5_CDS_break,$UTR3_CDS_break,$length,$description) = split(/\t/,$line);
 				$stop = $stop-1;
 				
-				my $geneObj = MyBio::Gene->get_by_ensgid($ensgid);
-				unless ($geneObj) {
-					$geneObj = MyBio::Gene->new({
-						ENSGID      => $ensgid,
-						DESCRIPTION => $description,
-					});
-				}
-				
-				my $transcriptObj = $class->get_by_enstid($enstid);
+				my $transcriptObj = $class->get_by_enstid($tid);
 				unless ($transcriptObj) {
 					$transcriptObj = $class->new({
-						ENSTID   => $enstid,
-						GENE     => $geneObj,
+						ENSTID   => $tid,
 						CHR      => $chr,
 						STRAND   => $strand,
 						BIOTYPE  => 'non coding',
 					});
-					$geneObj->push_transcript($transcriptObj);
+					push @{$transcripts_for_genename{$genename}},$transcriptObj;
+					$transcriptObj->{TEMP_DESCRIPTION} = $description;
 				}
 				
 				if (!defined $transcriptObj->get_start or ($start < $transcriptObj->get_start)) {
@@ -616,8 +610,8 @@ sub create_utr3 {
 				if (!defined $transcriptObj->get_stop or ($stop > $transcriptObj->get_stop)) {
 					$transcriptObj->set_stop($stop);
 				}
-				
 				$transcriptObj->push_splice_start_stop_pair($start,$stop);
+				
 				if ($coding == 1) {
 					$transcriptObj->set_biotype('coding');
 				}
@@ -666,6 +660,20 @@ sub create_utr3 {
 			}
 		}
 		close $IN;
+		
+		foreach my $genename (keys %transcripts_for_genename) {
+			my ($merged_loci,$included_transcripts) = MyBio::Helper::Locus::merge($transcripts_for_genename{$genename});
+			for (my $i=0;$i<@$merged_loci;$i++) {
+				my $gene = MyBio::Gene->new($$merged_loci[$i]);
+				$gene->set_name($genename);
+				foreach my $transcript (@{$$included_transcripts[$i]}) {
+					$gene->set_description(delete $transcript->{TEMP_DESCRIPTION});
+					$gene->add_transcript($transcript);
+					$transcript->set_gene($gene);
+				}
+			}
+		}
+		
 		return %allTranscripts;
 	}
 	sub read_region_info_for_transcripts {

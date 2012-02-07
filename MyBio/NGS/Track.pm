@@ -732,6 +732,7 @@ sub calculate_tag_score_mean
 	}
 	
 }
+
 =head2 calculate_tag_score_variance
 
   Example    : calculate_tag_score_variance 
@@ -811,7 +812,7 @@ sub calculate_tag_score_sum
   Status     : Experimental / Unstable
 
 =cut
-sub calculate_tag_score_mean
+sub calculate_tag_count
 {
 	my ($self) = @_;
 	my $N;

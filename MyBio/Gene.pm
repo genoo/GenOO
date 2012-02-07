@@ -1,32 +1,69 @@
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+MyBio::Gene - Gene object, with features
+
+=head1 SYNOPSIS
+
+    # This is the main gene object
+    # It represents a gene (a genomic region and a collection of transcripts)
+    
+    # To initialize 
+    my $transcript = MyBio::Transcript->new({
+        INTERNAL_ID    => undef,
+        SPECIES        => undef,
+        STRAND         => undef,
+        CHR            => undef,
+        START          => undef,
+        STOP           => undef,
+        ENSGID         => undef,
+        NAME           => undef,
+        REFSEQ         => undef,
+        TRANSCRIPTS    => undef, # [] reference to array of gene objects
+        DESCRIPTION    => undef,
+        EXTRA_INFO     => undef,
+    });
+
+=head1 DESCRIPTION
+
+    MyBio::Gene describes a gene. A gene is defined as a locus and as a collection of transcript. This means that it has
+    genomic location attributes which are set in respect to the start and stop positions of its contained transcripts. 
+    Whenever a transcript is added to a gene object the genomic coordinates of the gene are automatically updated. 
+    It is not clear if the gene should have attributes like the biotype as it is not definite whether its contained
+    transcripts would all have the same biotype or not.
+    Whenever a gene object is created a unique id is associated with the object until it gets out of scope.
+
+=head1 EXAMPLES
+
+    my $gene = MyBio::Gene->get_by_ensgid('ENSG00000000143'); # using the class method to get the corresponding object
+
+=head1 AUTHOR - Manolis Maragkakis, Panagiotis Alexiou
+
+Email em.maragkakis@gmail.com, pan.alexiou@fleming.gr
+
+=cut
+
+# Let the code begin...
+
 package MyBio::Gene;
 use strict;
+use Object::ID;
 
 use MyBio::DBconnector;
 
-use base qw( MyBio::_Initializable );
-
-# HOW TO INITIALIZE THIS OBJECT
-# my $geneObj = MyBio::Gene->new({
-# 		     INTERNAL_ID      => undef,
-# 		     ENSGID           => undef,
-# 		     COMMON_NAME      => undef,
-# 		     REFSEQ           => undef,
-# 		     TRANSCRIPTS      => undef, # [] reference to array of gene objects
-# 		     DESCRIPTION      => undef,
-# 		     EXTRA_INFO       => undef,
-# 		     });
+use base qw(MyBio::Locus);
 
 sub _init {
 	my ($self,$data) = @_;
 	
+	$self->SUPER::_init($data);
 	$self->set_internalID($$data{INTERNAL_ID});
-	
 	$self->set_ensgid($$data{ENSGID});
-	$self->set_common_name($$data{COMMON_NAME});
+	$self->set_name($$data{NAME});
 	$self->set_refseq($$data{REFSEQ}); # [] reference to array of refseqs
 	$self->set_transcripts($$data{TRANSCRIPTS}); # [] reference to array of transcripts
 	$self->set_description($$data{DESCRIPTION});
-	$self->set_extra($$data{EXTRA_INFO});
 	
 	my $class = ref($self) || $self;
 	$class->_add_to_all($self);
@@ -37,11 +74,11 @@ sub _init {
 #######################################################################
 #############################   Getters   #############################
 #######################################################################
+sub get_id {
+	return $_[0]->object_id;
+}
 sub get_ensgid {
 	return $_[0]->{ENSGID};
-}
-sub get_extra {
-	return $_[0]->{EXTRA_INFO};
 }
 sub get_description {
 	return $_[0]->{DESCRIPTION};
@@ -62,18 +99,8 @@ sub get_refseq {
 		return [];
 	}
 }
-sub get_common_name {
-	if (defined $_[0]->{COMMON_NAME}) {
-		if (defined $_[1]) {
-			return ${$_[0]->{COMMON_NAME}}[$_[1]]; #return the requested item
-		}
-		else {
-			return $_[0]->{COMMON_NAME};
-		}
-	}
-	else {
-		return [];
-	}
+sub get_name {
+	return $_[0]->{NAME};
 }
 sub get_transcripts {
 	if (defined $_[0]->{TRANSCRIPTS}) {
@@ -92,9 +119,6 @@ sub get_transcripts {
 #######################################################################
 #############################   Setters   #############################
 #######################################################################
-sub set_extra {
-	$_[0]->{EXTRA_INFO} = $_[1] if defined $_[1];
-}
 sub set_ensgid {
 	$_[0]->{ENSGID} = $_[1] if defined $_[1];
 }
@@ -102,13 +126,20 @@ sub set_internalID {
 	$_[0]->{INTERNAL_ID} = $_[1] if defined $_[1];
 }
 sub set_description {
-	$_[0]->{DESCRIPTION} = $_[1] if (defined $_[1] && $_[1] ne '');
+	$_[0]->{DESCRIPTION} = $_[1] if defined $_[1];
 }
-sub set_common_name {
-	$_[0]->{COMMON_NAME} = $_[1] if (defined $_[1] && $_[1] ne '');
+sub set_name {
+	$_[0]->{NAME} = $_[1] if defined $_[1];
 }
 sub set_transcripts {
-	$_[0]->{TRANSCRIPTS} = $_[1] if defined $_[1];
+	my ($self,$transcripts_ref) = @_;
+	foreach my $transcript (@$transcripts_ref) {
+		unless ($transcript->isa('MyBio::Transcript')) {
+			die 'Object "'.ref($transcript).'" is not MyBio::Transcript.';
+		}
+		$self->update_info_from_transcript($transcript);
+	}
+	$self->{TRANSCRIPTS} = $transcripts_ref;
 }
 sub set_refseq {
 	$_[0]->{REFSEQ} = $_[1] if defined $_[1];
@@ -117,11 +148,57 @@ sub set_refseq {
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub update_info_from_transcript {
+	my ($self,$transcript) = @_;
+	
+	if (!defined $self->get_species) {
+		$self->set_species($transcript->get_species);
+	}
+	elsif ($self->get_species ne $transcript->get_species) {
+		die "Inconsistency found when trying to update gene info from transcript. Gene species: ".$self->get_species."\tTranscript species: ".$transcript->get_species."\n";
+	}
+	
+	
+	if (!defined $self->get_strand) {
+		$self->set_strand($transcript->get_strand);
+	}
+	elsif ($self->get_strand ne $transcript->get_strand) {
+		die "Inconsistency found when trying to update gene info from transcript. Gene strand: ".$self->get_strand."\tTranscript strand: ".$transcript->get_strand."\n";
+	}
+	
+	if (!defined $self->get_chr) {
+		$self->set_chr($transcript->get_chr);
+	}
+	elsif ($self->get_chr ne $transcript->get_chr) {
+		die "Inconsistency found when trying to update gene info from transcript. Gene chr: ".$self->get_chr."\tTranscript chr: ".$transcript->get_chr."\n";
+	}
+	
+	if (!defined $self->get_start or $transcript->get_start < $self->get_start) {
+		$self->set_start($transcript->get_start);
+	}
+	
+	if (!defined $self->get_stop or $transcript->get_stop > $self->get_stop) {
+		$self->set_stop($transcript->get_stop);
+	}
+}
 sub add_refseq {
-	push (@{$_[0]->{REFSEQ}},$_[1]) if (defined $_[1] && $_[1] ne '');
+	my ($self,$value) = @_;
+	push (@{$self->{REFSEQ}},$value) if defined $value;
+}
+sub add_transcript {
+	my ($self,$transcript) = @_;
+	if (defined $transcript and ($transcript->isa('MyBio::Transcript'))) {
+		$self->update_info_from_transcript($transcript);
+		push (@{$self->{TRANSCRIPTS}},$transcript);
+	}
+	else {
+		warn 'Object "'.ref($transcript).'" is not MyBio::Transcript.    skipped';
+	}
 }
 sub push_transcript {
-	push (@{$_[0]->{TRANSCRIPTS}},$_[1]) if (defined $_[1] && $_[1] ne '');
+	my ($self,$transcript) = @_;
+	warn "Method ".(caller(0))[3]." is deprecated. Consider using method \"add_transcript\" instead.\n";
+	$self->add_transcript($transcript);
 }
 sub annotate_constitutive_exons {
 	my ($self) = @_;
@@ -168,53 +245,117 @@ sub get_constitutive_exons {
 ##########################   Class Methods   ##########################
 #######################################################################
 {
-	my %allGenes;
+	my %all_gene_ids;      # unique key for every gene
+	my %all_gene_ensgids;  # unique key for every gene
+	my %all_gene_names;    # non-unique key for every gene -> value is an array
 	
 	sub _add_to_all {
 		my ($class,$obj) = @_;
-		$allGenes{$obj->get_ensgid} = $obj;
+		$all_gene_ids{$obj->get_id} = $obj;
+		if (defined $obj->get_ensgid) {
+			$all_gene_ensgids{$obj->get_ensgid} = $obj;
+		}
+		if (defined $obj->get_name) {
+			unless (exists $all_gene_names{$obj->get_name}) {
+				$all_gene_names{$obj->get_name} = [];
+			}
+			push @{$all_gene_names{$obj->get_name}}, $obj;
+		}
 	}
-	
 	sub _delete_from_all {
 		my ($class,$obj) = @_;
-		delete $allGenes{$obj->get_ensgid};
+		delete $all_gene_ids{$obj->get_id};
+		delete $all_gene_ensgids{$obj->get_ensgid};
+		if (exists $all_gene_names{$obj->get_name}) {
+			for (my $i=0;$i<@{$all_gene_names{$obj->get_name}};$i++) {
+				if ($all_gene_names{$obj->get_name}->[$i]->get_id eq $obj->get_id) {
+					splice(@{$all_gene_names{$obj->get_name}},$i,1);
+				}
+			}
+		}
 	}
 	
 	sub get_all {
 		my ($class) = @_;
-		return %allGenes;
+		return values %all_gene_ids;
 	}
 	
 	sub delete_all {
 		my ($class) = @_;
-		%allGenes = ();
+		%all_gene_ids = ();
+	}
+
+=head2 get_by_id
+
+  Arg [1]    : string $id
+               The primary id of the gene.
+  Example    : MyBio::Gene->get_by_id;
+  Description: Class method that returns the object which corresponds to the provided primary gene id.
+               If no object is found returns undef
+  Returntype : MyBio::Gene / undef
+  Caller     : ?
+  Status     : Under development
+
+=cut
+	sub get_by_id {
+		my ($class,$id) = @_;
+		if (exists $all_gene_ids{$id}) {
+			return $all_gene_ids{$id};
+		}
+		else {
+			return undef;
+		}
 	}
 	
 =head2 get_by_ensgid
 
   Arg [1]    : string $ensgid
-               The primary id of the gene.
+               The Ensembl id of the gene.
   Example    : MyBio::Gene->get_by_ensgid;
-  Description: Class method that returns the object which corresponds to the provided primary gene id.
+  Description: Class method that returns the object which corresponds to the provided Ensembl gene id.
                If no object is found, then depending on the database access policy the method either attempts
-               to create a new object or returns NULL
-  Returntype : MyBio::Gene / NULL
+               to create a new object or returns undef
+  Returntype : MyBio::Gene / undef
   Caller     : ?
   Status     : Stable
 
 =cut
 	sub get_by_ensgid {
 		my ($class,$ensgid) = @_;
-		if (exists $allGenes{$ensgid}) {
-			return $allGenes{$ensgid};
+		if (exists $all_gene_ensgids{$ensgid}) {
+			return $all_gene_ensgids{$ensgid};
 		}
 		elsif ($class->database_access eq 'ALLOW') {
 			return $class->create_new_gene_from_database($ensgid);
 		}
 		else {
-			return;
+			return undef;
 		}
 	}
+	
+=head2 get_by_name
+
+  Arg [1]    : string $ensgid
+               The name of the gene.
+  Example    : MyBio::Gene->get_by_name;
+  Description: Class method that returns a reference to an array of object which correspond to the provided gene name.
+               If no matching object is found a reference to an empty array is returned.
+  Returntype : MyBio::Gene / []
+  Caller     : ?
+  Status     : Stable
+
+=cut
+	sub get_by_name {
+		my ($class,$name) = @_;
+		if (exists $all_gene_names{$name}) {
+			return $all_gene_names{$name};
+		}
+		else {
+			return [];
+		}
+	}
+	
+	
 	sub read_refseqs {
 		my ($class,$method,@attributes) = @_;
 		
@@ -241,19 +382,19 @@ sub get_constitutive_exons {
 		}
 		close $IN;
 		
-		return %allGenes;
+		return %all_gene_ids;
 	}
 	
-	sub read_common_names {
+	sub read_names {
 		my ($class,$method,@attributes) = @_;
 		
 		if ($method eq "FILE") {
 			my $filename = $attributes[0];
-			return $class->_read_file_with_common_names($filename);
+			return $class->_read_file_with_names($filename);
 		}
 	}
 	
-	sub _read_file_with_common_names {
+	sub _read_file_with_names {
 		my ($class,$file)=@_;
 		
 		open (my $IN,"<",$file) or die "Cannot open file $file: $!";
@@ -266,11 +407,11 @@ sub get_constitutive_exons {
 							   ENSGID   => $ensgid,
 							});
 			}
-			$geneObj->set_common_name($commonName);
+			$geneObj->set_name($commonName);
 		}
 		close $IN;
 		
-		return %allGenes;
+		return %all_gene_ids;
 	}
 	
 	sub read_description {
@@ -299,7 +440,7 @@ sub get_constitutive_exons {
 		}
 		close $IN;
 		
-		return %allGenes;
+		return %all_gene_ids;
 	}
 	
 	########################################## database ##########################################
