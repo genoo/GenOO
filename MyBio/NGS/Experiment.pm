@@ -118,7 +118,8 @@ sub get_samples_for_subexperiment {
 	}
 	else {
 		if (exists $self->get_info->{'sub_experiment'}->{$name}->{'sample'}) {
-			return values %{$self->get_info->{'sub_experiment'}->{$name}->{'sample'}};
+			my @outsamples = sort {$a->{'name'} cmp $b->{'name'}} values %{$self->get_info->{'sub_experiment'}->{$name}->{'sample'}};
+			return @outsamples;
 		}
 		else {
 			return ();

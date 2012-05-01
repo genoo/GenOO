@@ -37,12 +37,14 @@ use MyBio::Locus;
   Arg [1]    : array reference of MyBio::Locus objects or objects that inherit from this class.
                The loci to be merged.
   Arg [2]    : hash reference with parameters
-               The loci to be merged.
-  Example    : my @merged_loci = MyBio::Helper::Locus::merge(\@overlapping_loci, $params);
-  Description: Function that gets as input a set of possibly overlapping loci and returns a new list of merged loci.
-               When called in list context it also returns a list of the initial loci which have been merged into an output merged locus.
-               It merges overlapping loci into a new locus by calculating as start the smallest start and as stop the highest stop
-               position of the loci that overalap.
+               Supported params:
+                                a. OFFSET
+                                b. USE_STRAND
+  Example    : my ($merged_loci,$included_loci) = MyBio::Helper::Locus::merge(\@overlapping_loci, $params);
+  Description: Function that gets as input a set of possibly overlapping loci and returns a new array of merged loci.
+               When called in list context it also returns an array whose each element is a list of the initial loci which have been
+               merged into the corresponding output merged locus. It merges overlapping loci into a new locus by calculating as start
+               the smallest start and as stop the highest stop position of the loci that overalap.
                If any of the entries in the input list is not a MyBio::Locus it invokes a warning and skips the corresponding entry.
                
   Returntype : In scalar context:

@@ -173,6 +173,27 @@ sub line_to_entity {
 			COMMENT_LINE => 1,
 		}
 	}
+	elsif ($line =~ /^track/) {
+		my %info;
+		while ($line =~ /(\S+?)=(".+?"|\d+?)/g) {
+			$info{$1} = $2;
+		}
+		return {
+			NAME            => $info{'name'},
+			DESCRIPTION     => $info{'description'},
+			VISIBILITY      => $info{'visibility'},
+			COLOR           => $info{'color'},
+			RGB_FLAG        => $info{'itemRgb'},
+			COLOR_BY_STRAND => $info{'colorByStrand'},
+			USE_SCORE       => $info{'useScore'},
+			TRACK_INFO      => 1,
+		};
+	}
+	elsif ($line =~ /^browser/) {
+		return {
+			BROWSER         => $line,
+		};
+	}
 	else {
 		return {};
 	}

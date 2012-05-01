@@ -222,19 +222,15 @@ sub get_intron_exon_junctions {
 	}
 	return \@junctions;
 }
-sub get_length {
+sub get_exon_length {
 	my ($self) = @_;
-	if (!defined $self->{LENGTH}) {
-		if (defined $self->get_sequence) {
-			$self->{LENGTH} = length($self->get_sequence);
-		}
-		else {
-			$self->{LENGTH} = $self->_get_sequence_length_from_splicing();
-		}
+	
+	my ($length, $starts, $stops) = (0, $self->get_splice_starts, $self->get_splice_stops);
+	for (my $i=0; $i<@$starts; $i++)  {
+		$length += $$stops[$i] - $$starts[$i] + 1;
 	}
-	return $self->{LENGTH};
+	return $length;
 }
-
 sub push_splice_start_stop_pair {
 	my ($self,$start,$stop) = @_;
 	if (defined $start and defined $stop) {
@@ -313,17 +309,6 @@ sub set_splicing_info {
 	}
 	$self->set_splice_starts(\@splice_starts);
 	$self->set_splice_stops(\@splice_stops);
-}
-sub _get_sequence_length_from_splicing {
-	my ($self) = @_;
-	
-	my $UTRlength=0;
-	my $starts = $self->get_splice_starts;
-	my $stops  = $self->get_splice_stops;
-	for (my $i=0; $i<@$starts; $i++)  {
-		$UTRlength += $$stops[$i] - $$starts[$i] + 1;
-	}
-	return $UTRlength;
 }
 sub _set_exons_from_splicing {
 	my ($self) = @_;

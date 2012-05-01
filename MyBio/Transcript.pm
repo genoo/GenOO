@@ -59,6 +59,7 @@ use MyBio::Transcript::CDNA;
 use MyBio::Transcript::UTR5;
 use MyBio::Transcript::CDS;
 use MyBio::Transcript::UTR3;
+use MyBio::Junction;
 
 use base qw(MyBio::SplicedLocus);
 
@@ -390,6 +391,33 @@ sub create_utr3 {
 	else {
 		return 1;
 	}
+}
+sub get_exon_exon_junctions {
+	my ($self) = @_;
+	
+	my @junctions;
+	my @junction_starts;
+	my @junction_stops;
+	
+	my $exons = $self->get_exons();
+	if (@$exons > 1) {
+		for (my $i=0;$i<@$exons-1;$i++) {
+			push @junction_starts, $$exons[$i]->get_stop;
+			push @junction_stops, $$exons[$i+1]->get_start;
+		}
+	}
+	
+	my $junctions_count = @junction_starts == @junction_stops ? @junction_starts : die "Junctions starts are not of the same size as junction stops\n";
+	for (my $i=0;$i<$junctions_count;$i++) {
+		push @junctions, MyBio::Junction->new({
+			SPECIES      => $self->get_species,
+			STRAND       => $self->get_strand,
+			CHR          => $self->get_chr,
+			START        => $junction_starts[$i],
+			STOP         => $junction_stops[$i],
+		});
+	}
+	return @junctions;
 }
 
 #######################################################################
