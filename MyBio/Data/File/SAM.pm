@@ -2,14 +2,14 @@
 
 =head1 NAME
 
-MyBio::File::BED - Object implementing mehtods for accessing bed formatted files
+MyBio::Data::File::SAM - Object implementing mehtods for accessing sam formatted files
 
 =head1 SYNOPSIS
 
-    # Object that manages a bed file. 
+    # Object that manages a sam file. 
 
     # To initialize 
-    my $file = MyBio::File::BED->new({
+    my $file = MyBio::Data::File::SAM->new({
         TYPE            => undef,
         FILE            => undef,
         EXTRA_INFO      => undef,
@@ -18,15 +18,15 @@ MyBio::File::BED - Object implementing mehtods for accessing bed formatted files
 
 =head1 DESCRIPTION
 
-    This object offers functions to read a bed file line by line.
+    This object offers functions to read a sam file line by line.
 
 =head1 EXAMPLES
 
     # Read one line
-    my $line = $bed_obj->read_ln();
+    my $line = $sam_obj->readline();
     
     # Read one entity
-    my %entity = %{$bed_obj->read_entity()};
+    my %entity = %{$sam_obj->next_entity()};
 
 =head1 AUTHOR - Manolis Maragkakis
 
@@ -36,7 +36,7 @@ Email em.maragkakis@gmail.com
 
 # Let the code begin...
 
-package MyBio::File::BED;
+package MyBio::Data::File::SAM;
 use strict;
 
 use FileHandle;
@@ -137,65 +137,28 @@ sub next_entity {
 sub line_to_entity {
 	my ($self, $line) = @_;
 	
-	if ($line =~ /^chr/) {
-		my ($chr,$start,$stop,$name,$score,$strand,@others) = split(/\t/,$line);
-		if (@others) {
-			return {
-				STRAND        => $strand,
-				CHR           => $chr,
-				START         => $start,
-				STOP          => $stop - 1, #[start,stop)
-				NAME          => $name,
-				SCORE         => $score,
-				THICK_START   => $others[0],
-				THICK_STOP    => $others[1],
-				RGB           => $others[2],
-				BLOCK_COUNT   => $others[3],
-				BLOCK_SIZES   => $others[4],
-				BLOCK_STARTS  => $others[5],
-				LOCUS         => 1,
-			};
-		}
-		else {
-			return {
-				STRAND        => $strand,
-				CHR           => $chr,
-				START         => $start,
-				STOP          => $stop - 1, #[start,stop)
-				NAME          => $name,
-				SCORE         => $score,
-				LOCUS         => 1,
-			};
-		}
-	}
-	elsif ($line =~ /^#/) {
+	if ($line !~ /^\@/) {
+		my ($qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, $mpos, $isize, $read, $qual) = split("\t",$line);
+		if ($flag & 4) {return {};} # Unmapped read
+		my $strand = ($flag & 16) ? '-' : '+';
+		
 		return {
-			COMMENT_LINE => 1,
-		}
-	}
-	elsif ($line =~ /^track/) {
-		my %info;
-		while ($line =~ /(\S+?)=(".+?"|\d+?)/g) {
-			$info{$1} = $2;
-		}
-		return {
-			NAME            => $info{'name'},
-			DESCRIPTION     => $info{'description'},
-			VISIBILITY      => $info{'visibility'},
-			COLOR           => $info{'color'},
-			RGB_FLAG        => $info{'itemRgb'},
-			COLOR_BY_STRAND => $info{'colorByStrand'},
-			USE_SCORE       => $info{'useScore'},
-			TRACK_INFO      => 1,
-		};
-	}
-	elsif ($line =~ /^browser/) {
-		return {
-			BROWSER         => $line,
+			NAME          => $qname,
+			CHR           => $rname,
+			STRAND        => $strand,
+			START         => $pos - 1, # convert position from one-based to zero-based
+			STOP          => $pos - 1 + length($read) -1, # convert position from one-based to zero-based.
+			FLAG          => $flag,
+			CIGAR         => $cigar,
+			SEQUENCE      => $read,
+			SCORE         => $mapq,
+			LOCUS         => 1,
 		};
 	}
 	else {
-		return {};
+		return {
+			COMMENT_LINE => 1,
+		}
 	}
 }
 

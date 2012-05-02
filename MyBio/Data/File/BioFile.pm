@@ -2,14 +2,14 @@
 
 =head1 NAME
 
-MyBio::File::BioFile - Object that acts as an accessor for biology related files eg BED, FASTA ...
+MyBio::Data::File::BioFile - Object that acts as an accessor for biology related files eg BED, FASTA ...
 
 =head1 SYNOPSIS
 
     # Object that based on the type of file provided returns the correct file accessor object
 
     # To initialize 
-    my $file_obj = MyBio::File::BioFile->new({
+    my $file_obj = MyBio::Data::File::BioFile->new({
         TYPE            => undef,
     });
 
@@ -21,7 +21,7 @@ MyBio::File::BioFile - Object that acts as an accessor for biology related files
 =head1 EXAMPLES
 
     # Read tracks from a file in BED format
-    my $filobj = MyBio::File::BioFile->new({TYPE => "BED"});
+    my $filobj = MyBio::Data::File::BioFile->new({TYPE => "BED"});
     
 =head1 AUTHOR - Manolis Maragkakis
 
@@ -31,7 +31,7 @@ Email em.maragkakis@gmail.com
 
 # Let the code begin...
 
-package MyBio::File::BioFile;
+package MyBio::Data::File::BioFile;
 use strict;
 
 sub new {
@@ -42,7 +42,7 @@ sub new {
 
 	# normalize capitalization
 	return undef unless( &_load_format_module($type) );
-	return "MyBio::File::$type"->new($data);
+	return "MyBio::Data::File::$type"->new($data);
 }
 
 

@@ -60,7 +60,7 @@ use strict;
 use FileHandle;
 use MyBio::NGS::Tag;
 use MyBio::MySub;
-use MyBio::File::BioFile;
+use MyBio::Data::File::BioFile;
 
 use base qw(MyBio::_Initializable);
 
@@ -1459,7 +1459,7 @@ sub _overlaps_TOUCHES {
 			NAME            => $trackname,
 		});
 		
-		my $bedfile = MyBio::File::BioFile->new({
+		my $bedfile = MyBio::Data::File::BioFile->new({
 			TYPE => 'BED',
 			FILE => $file,
 		});
