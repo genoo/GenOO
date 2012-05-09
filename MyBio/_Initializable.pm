@@ -13,4 +13,12 @@ sub new {
 	return $self;
 };
 
+sub set_extra {
+	$_[0]->{EXTRA_INFO} = $_[1] if defined $_[1];
+}
+
+sub get_extra {
+	return $_[0]->{EXTRA_INFO};
+}
+
 1;

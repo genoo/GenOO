@@ -2,15 +2,14 @@
 
 =head1 NAME
 
-MyBio::Data::File::SAM - Object implementing mehtods for accessing sam formatted files
+MyBio::Data::File::SAM - Object implementing methods for accessing sam formatted files
 
 =head1 SYNOPSIS
 
     # Object that manages a sam file. 
 
     # To initialize 
-    my $file = MyBio::Data::File::SAM->new({
-        TYPE            => undef,
+    my $sam_file = MyBio::Data::File::SAM->new({
         FILE            => undef,
         EXTRA_INFO      => undef,
     });
@@ -18,15 +17,17 @@ MyBio::Data::File::SAM - Object implementing mehtods for accessing sam formatted
 
 =head1 DESCRIPTION
 
-    This object offers functions to read a sam file line by line.
+    This object offers methods to read a sam file line by line.
 
 =head1 EXAMPLES
 
     # Read one line
-    my $line = $sam_obj->readline();
+    my $sam_file = MyBio::Data::File::SAM->new({
+          FILE => 't/sample_data/sample.sam.gz'
+    });
     
-    # Read one entity
-    my %entity = %{$sam_obj->next_entity()};
+    # Read one record at a time
+    my $sam_record = $sam_file->next_record();
 
 =head1 AUTHOR - Manolis Maragkakis
 
@@ -43,123 +44,215 @@ use FileHandle;
 
 use base qw(MyBio::_Initializable);
 
+our $VERSION = '1.0';
+
 sub _init {
-	
 	my ($self,$data) = @_;
 	
-	$self->set_type($$data{TYPE});
 	$self->set_file($$data{FILE});
 	$self->set_extra($$data{EXTRA_INFO});
 	
-	my $read_mode = "<";
-	if ($self->get_file =~ /\.gz$/) {
-		$read_mode = "<:gzip";
-	}
+	$self->open($self->get_file);
 	
-	my $filehandle = FileHandle->new($self->get_file, $read_mode) or die "Cannot open file \"".$self->get_file."\"  $!";
-	$self->set_filehandle($filehandle);
+	$self->init_header_cache;
+	$self->init_records_cache;
+	
+	$self->parse_header_section;
+}
+
+sub open {
+	my ($self, $filename) = @_;
+	
+	my $read_mode = ($filename !~ /\.gz$/) ? '<' : '<:gzip';
+	$self->{FILEHANDLE} = FileHandle->new($filename, $read_mode) or die "Cannot open file \"$filename\". $!";
 }
 
 #######################################################################
-#############################   Getters   #############################
+########################   Attribute Setters   ########################
 #######################################################################
-sub get_type {
-	return $_[0]->{TYPE};
-}
-sub get_file {
-	return $_[0]->{FILE};
-}
-sub get_filehandle {
-	return $_[0]->{FILEHANDLE};
-}
-sub get_extra {
-	return $_[0]->{EXTRA_INFO};
-}
-sub get_comments {
-	unless (exists $_[0]->{COMMENTS}) {
-		$_[0]->set_comments();
-	}
-	return $_[0]->{COMMENTS};
-}
-
-#######################################################################
-#############################   Setters   #############################
-#######################################################################
-sub set_type {
-	$_[0]->{TYPE}=$_[1] if defined $_[1];
-}
 sub set_file {
-	$_[0]->{FILE}=$_[1] if defined $_[1];
+	my ($self, $value) = @_;
+	return $self->{FILE}=$value if defined $value;
 }
-sub set_filehandle {
-	$_[0]->{FILEHANDLE}=$_[1] if defined $_[1];
+
+#######################################################################
+########################   Attribute Getters   ########################
+#######################################################################
+sub get_file {
+	my ($self) = @_;
+	return $self->{FILE};
 }
-sub set_extra {
-	$_[0]->{EXTRA_INFO}=$_[1] if defined $_[1];
+
+#######################################################################
+############################   Accessors   ############################
+#######################################################################
+sub filehandle {
+	my ($self) = @_;
+	return $self->{FILEHANDLE};
 }
-sub set_comments {
-	if (defined $_[1]) {
-		$_[0]->{COMMENTS} = $_[1]
-	}
-	else {
-		$_[0]->{COMMENTS} = [];
-	}
+
+sub header_cache {
+	my ($self) = @_;
+	return $self->{HEADER_CACHE}
+}
+
+sub records_cache {
+	my ($self) = @_;
+	return $self->{RECORDS_CACHE}
 }
 
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
-
-sub readline {
+sub init_header_cache {
 	my ($self) = @_;
-	
-	my $fh = $self->get_filehandle or return;
-	my $line = <$fh>;
-	chomp($line);
-	return $line;
+	$self->{HEADER_CACHE} = [];
 }
 
-sub next_entity {
+sub init_records_cache {
+	my ($self) = @_;
+	$self->{RECORDS_CACHE} = [];
+}
+
+sub parse_header_section {
 	my ($self) = @_;
 	
-	while (1) {
-		my $line = $self->readline or return;
-		my $entity = $self->line_to_entity($line);
-		if (exists $entity->{START}) {
-			return $entity;
+	my $filehandle = $self->filehandle;
+	while (my $line = $filehandle->getline) {
+		if ($line =~ /^\@/) {
+			$self->add_to_header_cache($line);
 		}
-		elsif (exists $entity->{COMMENT_LINE}) {
-			push @{$self->get_comments}, $line;
+		else {
+			$self->add_to_records_cache($line); # unfortunatelly the while reads the first line after the header section and in zipped files we cannot go back
+			return;
 		}
 	}
 }
 
-sub line_to_entity {
+sub add_to_header_cache {
 	my ($self, $line) = @_;
+	push @{$self->{HEADER_CACHE}}, $line,
+}
+
+sub add_to_records_cache {
+	my ($self, $line) = @_;
+	push @{$self->{RECORDS_CACHE}}, $line,
+}
+
+sub next_record {
+	my ($self) = @_;
 	
-	if ($line !~ /^\@/) {
-		my ($qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, $mpos, $isize, $read, $qual) = split("\t",$line);
-		if ($flag & 4) {return {};} # Unmapped read
-		my $strand = ($flag & 16) ? '-' : '+';
-		
-		return {
-			NAME          => $qname,
-			CHR           => $rname,
-			STRAND        => $strand,
-			START         => $pos - 1, # convert position from one-based to zero-based
-			STOP          => $pos - 1 + length($read) -1, # convert position from one-based to zero-based.
-			FLAG          => $flag,
-			CIGAR         => $cigar,
-			SEQUENCE      => $read,
-			SCORE         => $mapq,
-			LOCUS         => 1,
-		};
+	if ($self->record_cache_not_empty) {
+		return $self->get_next_record_from_cache;
 	}
 	else {
-		return {
-			COMMENT_LINE => 1,
+		return $self->get_next_record_from_file;
+	}
+}
+
+sub get_next_record_from_file {
+	my ($self) = @_;
+	
+	my $line = $self->filehandle->getline;
+	if (defined $line) {
+		if ($line !~ /^\@/) {
+			return $self->parse_record_line($line);
+		}
+		else {
+			die "A record is requested but the line looks like a header - header section should have been parsed. $line\n";
 		}
 	}
+	else {
+		return undef;
+	}
+}
+
+sub get_next_record_from_cache {
+	my ($self) = @_;
+	
+	my $line = shift @{$self->{RECORDS_CACHE}};
+	if (defined $line) {
+		return $self->parse_record_line($line);
+	}
+	else {
+		return undef;
+	}
+}
+
+sub parse_record_line {
+	my ($self,$line) = @_;
+	
+	chomp $line;
+	my ($qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, $mpos, $isize, $read, $qual) = split("\t",$line);
+	if ($flag & 4) {return {};} # Unmapped read
+	my $strand = ($flag & 16) ? '-' : '+';
+	
+	return {
+		NAME          => $qname,
+		CHR           => $rname,
+		STRAND        => $strand,
+		START         => $pos - 1, # convert position from one-based to zero-based
+		STOP          => $pos - 1 + length($read) -1, # convert position from one-based to zero-based.
+		FLAG          => $flag,
+		CIGAR         => $cigar,
+		SEQUENCE      => $read,
+		SCORE         => $mapq,
+		LOCUS         => 1,
+	};
+}
+
+sub record_cache_not_empty {
+	my ($self) = @_;
+	
+	if ($self->record_cache_size > 0) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+sub header_cache_not_empty {
+	my ($self) = @_;
+	
+	if ($self->header_cache_size > 0) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+sub record_cache_is_empty {
+	my ($self) = @_;
+	
+	if ($self->record_cache_size > 0) {
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+
+sub header_cache_is_empty {
+	my ($self) = @_;
+	
+	if ($self->header_cache_size > 0) {
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+
+sub record_cache_size {
+	my ($self) = @_;
+	return scalar @{$self->records_cache};
+}
+
+sub header_cache_size {
+	my ($self) = @_;
+	return scalar @{$self->header_cache};
 }
 
 1;
