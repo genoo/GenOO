@@ -49,6 +49,7 @@ use strict;
 
 use MyBio::Transcript::Exon;
 use MyBio::Transcript::Intron;
+use MyBio::Junction;
 
 our $VERSION = '1.0';
 
@@ -119,6 +120,76 @@ sub set_splice_stops {
 #######################################################################
 #############################   Methods   #############################
 #######################################################################
+sub is_position_within_exon {
+	my ($self, $position) = @_;
+	
+	my $exons = $self->get_exons();
+	foreach my $exon (@$exons) {
+		if ($exon->contains_position($position)) {
+			return 1;
+		}
+	}
+}
+
+sub is_position_within_intron {
+	my ($self, $position) = @_;
+	
+	my $introns = $self->get_introns();
+	foreach my $intron (@$introns) {
+		if ($intron->contains_position($position)) {
+			return 1;
+		}
+	}
+}
+
+sub get_exon_exon_junctions {
+	my ($self) = @_;
+	
+	my @junctions;
+	my @junction_starts;
+	my @junction_stops;
+	
+	my $exons = $self->get_exons();
+	if (@$exons > 1) {
+		for (my $i=0;$i<@$exons-1;$i++) {
+			push @junction_starts, $$exons[$i]->get_stop;
+			push @junction_stops, $$exons[$i+1]->get_start;
+		}
+	}
+	
+	my $junctions_count = @junction_starts == @junction_stops ? @junction_starts : die "Junctions starts are not of the same size as junction stops\n";
+	for (my $i=0;$i<$junctions_count;$i++) {
+		push @junctions, MyBio::Junction->new({
+			SPECIES      => $self->get_species,
+			STRAND       => $self->get_strand,
+			CHR          => $self->get_chr,
+			START        => $junction_starts[$i],
+			STOP         => $junction_stops[$i],
+			SLICE        => $self,
+		});
+	}
+	return @junctions;
+}
+
+sub get_exonic_sequence {
+	my ($self) = @_;
+	
+	my $exonic_sequence = '';
+	my $locus_seq = $self->get_strand == 1 ? $self->get_sequence : reverse($self->get_sequence);
+	if (defined $locus_seq) {
+		foreach my $exon (@{$self->get_exons}) {
+			$exonic_sequence .= substr($locus_seq,($exon->get_start - $self->get_start),$exon->get_length);
+		}
+	}
+	
+	if ($self->get_strand == 1) {
+		return $exonic_sequence;
+	}
+	else {
+		return reverse($exonic_sequence);
+	}
+}
+
 sub get_exons {
 	my ($self,$value) = @_;
 	if (!defined $self->{EXONS}) {
@@ -222,7 +293,7 @@ sub get_intron_exon_junctions {
 	}
 	return \@junctions;
 }
-sub get_exon_length {
+sub get_exonic_length {
 	my ($self) = @_;
 	
 	my ($length, $starts, $stops) = (0, $self->get_splice_starts, $self->get_splice_stops);

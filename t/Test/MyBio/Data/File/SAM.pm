@@ -73,26 +73,26 @@ sub records_cache : Test(1) {
 sub next_record : Test(1) {
 	my ($self) = @_;
 	
-	isa_ok $self->sam->next_record, 'HASH', 'object returned by next_record';
+	isa_ok $self->sam->next_record, 'MyBio::Data::File::SAM::Record', 'object returned by next_record';
 }
 
 sub get_next_record_from_file : Test(1) {
 	my ($self) = @_;
 	
-	isa_ok $self->sam->get_next_record_from_file, 'HASH', 'object returned by get_next_record_from_file';
+	isa_ok $self->sam->get_next_record_from_file, 'MyBio::Data::File::SAM::Record', 'object returned by get_next_record_from_file';
 }
 
 sub get_next_record_from_cache : Test(1) {
 	my ($self) = @_;
 	
-	isa_ok $self->sam->get_next_record_from_cache, 'HASH', 'object returned by get_next_record_from_cache';
+	isa_ok $self->sam->get_next_record_from_cache, 'MyBio::Data::File::SAM::Record', 'object returned by get_next_record_from_cache';
 }
 
 sub parse_record_line : Test(2) {
 	my ($self) = @_;
 	
 	my $record = $self->sam->parse_record_line($self->sample_line);
-	isa_ok $record, 'HASH', 'object returned by parse_record_line';
+	isa_ok $record, 'MyBio::Data::File::SAM::Record', 'object returned by parse_record_line';
 	local $TODO = "sam record object check currently unimplemented";
 # 	is_deeply($record, $record);
 }
@@ -132,22 +132,5 @@ sub header_cache_size : Test(1) {
 	
 	is $self->sam->header_cache_size, 22, 'header_cache_size should give 24';
 }
-
-
-# # Various ways to say "ok"
-# ok($got eq $expected, $test_name);
-# 
-# is  ($got, $expected, $test_name);
-# isnt($got, $expected, $test_name);
-# 
-# like  ($got, qr/expected/, $test_name);
-# unlike($got, qr/expected/, $test_name);
-# 
-# cmp_ok($got, '==', $expected, $test_name);
-# 
-# is_deeply($got_complex_structure, $expected_complex_structure, $test_name);
-# 
-# can_ok($module, @methods);
-# isa_ok($object, $class);
 
 1;

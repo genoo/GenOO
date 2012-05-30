@@ -229,6 +229,14 @@ sub contains {
 	return 0;
 }
 
+sub contains_position {
+	my ($self, $position) = @_;
+	
+	if (($self->get_start <= $position) and ($position <= $self->get_stop)) {
+		return 1;
+	}
+}
+
 sub get_contained_locuses {
 # 	$self is a locus
 # 	$array is a reference to an array of locus objects

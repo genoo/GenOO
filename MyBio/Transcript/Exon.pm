@@ -34,6 +34,9 @@ sub _init {
 sub get_where {
 	return $_[0]->{WHERE} ;
 }
+sub get_slice {
+	return $_[0]->{WHERE} ;
+}
 #######################################################################
 #############################   Setters   #############################
 #######################################################################
@@ -59,6 +62,93 @@ sub is_constitutive {
 		return $_[0]->{CONSTITUTIVE};
 	}
 }
+
+
+
+
+
+##############################################
+### FROM HERE - Strange code that calculates relative coordinates to transcript
+
+sub get_spliced_start_relative_to_slice {
+	my ($self) = @_;
+	
+	if ($self->get_strand == 1) {
+		return $self->get_spliced_relative_5p;
+	}
+	else {
+		return $self->get_slice->get_exonic_length - $self->get_spliced_relative_5p - 1;
+	}
+}
+
+sub get_spliced_stop_relative_to_slice {
+	my ($self) = @_;
+	
+	if ($self->get_strand == 1) {
+		return $self->get_spliced_relative_3p;
+	}
+	else {
+		return $self->get_slice->get_exonic_length - $self->get_spliced_relative_3p - 1;
+	}
+}
+
+sub get_spliced_relative_5p {
+	my ($self) = @_;
+	if ($self->get_strand == 1) {
+		return $self->get_spliced_relative_start;
+	}
+	else {
+		return $self->get_spliced_relative_stop;
+	}
+}
+
+sub get_spliced_relative_3p {
+	my ($self) = @_;
+	if ($self->get_strand == 1) {
+		return $self->get_spliced_relative_stop;
+	}
+	else {
+		return $self->get_spliced_relative_start;
+	}
+}
+
+sub get_spliced_relative_start {
+	my ($self) = @_;
+	return $self->to_spliced_relative($self->get_start);
+}
+
+sub get_spliced_relative_stop {
+	my ($self) = @_;
+	return $self->to_spliced_relative($self->get_stop);
+}
+
+sub to_spliced_relative {
+	my ($self, $abs_pos) = @_;
+	
+	if (defined $self->get_slice and $self->get_slice->is_position_within_exon($abs_pos)) {
+		my $relative_pos = $abs_pos - $self->get_slice->get_start;
+		my $introns = $self->get_slice->get_introns;
+		foreach my $intron (@$introns) {
+			if ($intron->get_stop < $abs_pos) {
+				$relative_pos -= $intron->get_length;
+			}
+			else {
+				last;
+			}
+		}
+		return $relative_pos;
+	}
+	else {
+		return undef;
+	}
+}
+
+
+### TO HERE
+##############################################
+
+
+
 
 #######################################################################
 ##########################   Class Methods   ##########################

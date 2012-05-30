@@ -2,14 +2,14 @@
 
 =head1 NAME
 
-MyBio::Data::File::SAM - Object implementing methods for accessing sam formatted files
+MyBio::Data::File::GFF - Object implementing methods for accessing gff formatted files (http://www.sanger.ac.uk/resources/software/gff/spec.html)
 
 =head1 SYNOPSIS
 
-    # Object that manages a sam file. 
+    # Object that manages a gff file. 
 
     # To initialize 
-    my $sam_file = MyBio::Data::File::SAM->new({
+    my $gff_file = MyBio::Data::File::GFF->new({
         FILE            => undef,
         EXTRA_INFO      => undef,
     });
@@ -17,17 +17,17 @@ MyBio::Data::File::SAM - Object implementing methods for accessing sam formatted
 
 =head1 DESCRIPTION
 
-    This object offers methods to read a sam file line by line.
+    This object offers methods to read a gff file line by line.
 
 =head1 EXAMPLES
 
     # Create object
-    my $sam_file = MyBio::Data::File::SAM->new({
-          FILE => 't/sample_data/sample.sam.gz'
+    my $gff_file = MyBio::Data::File::GFF->new({
+          FILE => 't/sample_data/sample.gff.gz'
     });
     
     # Read one record at a time
-    my $sam_record = $sam_file->next_record();
+    my $record = $gff_file->next_record();
 
 =head1 AUTHOR - Manolis Maragkakis
 
@@ -37,11 +37,11 @@ Email em.maragkakis@gmail.com
 
 # Let the code begin...
 
-package MyBio::Data::File::SAM;
+package MyBio::Data::File::GFF;
 use strict;
 use FileHandle;
 
-use MyBio::Data::File::SAM::Record;
+use MyBio::Data::File::GFF::Record;
 
 use base qw(MyBio::_Initializable);
 
@@ -55,7 +55,7 @@ sub _init {
 	
 	$self->open($self->get_file);
 	
-	$self->init_header_cache;
+	$self->init_header;
 	$self->init_records_cache;
 	$self->init_records_read_count;
 	
@@ -102,9 +102,9 @@ sub filehandle {
 	return $self->{FILEHANDLE};
 }
 
-sub header_cache {
+sub header {
 	my ($self) = @_;
-	return $self->{HEADER_CACHE};
+	return $self->{HEADER};
 }
 
 sub records_cache {
@@ -117,12 +117,17 @@ sub records_read_count {
 	return $self->{RECORDS_READ_COUNT};
 }
 
+sub version {
+	my ($self) = @_;
+	return $self->header->{VERSION};
+}
+
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
-sub init_header_cache {
+sub init_header {
 	my ($self) = @_;
-	$self->{HEADER_CACHE} = [];
+	$self->{HEADER} = {};
 }
 
 sub init_records_cache {
@@ -145,8 +150,8 @@ sub parse_header_section {
 	
 	my $filehandle = $self->filehandle;
 	while (my $line = $filehandle->getline) {
-		if ($line =~ /^\@/) {
-			$self->add_to_header_cache($line);
+		if ($self->line_looks_like_header($line)) {
+			$self->recognize_and_store_header_line($line);
 		}
 		else {
 			$self->add_to_records_cache($line); # unfortunatelly the while reads the first line after the header section and in zipped files we cannot go back
@@ -155,9 +160,15 @@ sub parse_header_section {
 	}
 }
 
-sub add_to_header_cache {
+sub recognize_and_store_header_line {
 	my ($self, $line) = @_;
-	push @{$self->{HEADER_CACHE}}, $line,
+	if ($self->line_looks_like_version($line)) {
+		$self->parse_and_store_version_line($line);
+		
+	}
+	else {
+		$self->parse_and_store_generic_header_line($line);
+	}
 }
 
 sub add_to_records_cache {
@@ -185,19 +196,17 @@ sub next_record {
 sub get_next_record_from_file {
 	my ($self) = @_;
 	
-	my $line = $self->filehandle->getline;
-	if (defined $line) {
-		if ($line !~ /^\@/) {
+	while (my $line = $self->filehandle->getline) {
+		if ($self->line_looks_like_record($line)) {
 			return $self->parse_record_line($line);
 		}
-		else {
-			die "A record is requested but the line looks like a header - header section should have been parsed. $line\n";
+		elsif ($self->line_looks_like_header) {
+			die "A record was expected but line looks like a header - the header should have been parsed already. $line\n";
 		}
 	}
-	else {
-		$self->set_eof;
-		return undef;
-	}
+	
+	$self->set_eof; # When you reach this point the file has finished
+	return undef;
 }
 
 sub get_next_record_from_cache {
@@ -213,79 +222,75 @@ sub get_next_record_from_cache {
 }
 
 sub parse_record_line {
-	my ($self,$line) = @_;
+	my ($self, $line) = @_;
 	
 	chomp $line;
-	my ($qname, $flag, $rname, $pos, $mapq, $cigar, $rnext, $pnext, $tlen, $seq, $qual, @tags) = split(/\t/,$line);
+	$line =~ s/(#.+)$//;
+	my $comment_string = $1;
+	my ($seqname, $source, $feature, $start, $end, $score, $strand, $frame, $attributes_string) = split(/\t/,$line);
+	my @attributes = split(/;/,$attributes_string);
 	
-	return MyBio::Data::File::SAM::Record->new({
-		QNAME      => $qname,
-		FLAG       => $flag,
-		RNAME      => $rname,
-		POS        => $pos,
-		MAPQ       => $mapq,
-		CIGAR      => $cigar,
-		RNEXT      => $rnext,
-		PNEXT      => $pnext,
-		TLEN       => $tlen,
-		SEQ        => $seq,
-		QUAL       => $qual,
-		TAGS       => \@tags,
+	return MyBio::Data::File::GFF::Record->new({
+		SEQNAME     => $seqname,
+		SOURCE      => $source,
+		FEATURE     => $feature,
+		START_1     => $start, # 1-based
+		STOP_1      => $end, # 1-based
+		SCORE       => $score,
+		STRAND      => $strand,
+		FRAME       => $frame,
+		ATTRIBUTES  => \@attributes,
+		COMMENT     => $comment_string,
 	});
+}
+
+sub parse_and_store_version_line {
+	my ($self, $line) = @_;
+	
+	my $version = (split(/\s+/,$line))[1];
+	$self->header->{VERSION} = $version;
+}
+
+sub parse_and_store_generic_header_line {
+	my ($self, $line) = @_;
+	
+	my ($key,@values) = split(/\s+/,$line);
+	$self->header->{$key} = join(' ',@values);
+}
+
+sub line_looks_like_comment {
+	my ($self, $line) = @_;
+	return ($line !~ /^#{2}/) ? 1 : 0;
+}
+
+sub line_looks_like_header {
+	my ($self, $line) = @_;
+	return ($line =~ /^#{2}/) ? 1 : 0;
+}
+
+sub line_looks_like_record {
+	my ($self, $line) = @_;
+	return ($line !~ /^#/) ? 1 : 0;
+}
+
+sub line_looks_like_version {
+	my ($self, $line) = @_;
+	return ($line =~ /^##gff-version/) ? 1 : 0;
 }
 
 sub record_cache_not_empty {
 	my ($self) = @_;
-	
-	if ($self->record_cache_size > 0) {
-		return 1;
-	}
-	else {
-		return 0;
-	}
-}
-
-sub header_cache_not_empty {
-	my ($self) = @_;
-	
-	if ($self->header_cache_size > 0) {
-		return 1;
-	}
-	else {
-		return 0;
-	}
+	return ($self->record_cache_size > 0) ? 1 : 0;
 }
 
 sub record_cache_is_empty {
 	my ($self) = @_;
-	
-	if ($self->record_cache_size > 0) {
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-
-sub header_cache_is_empty {
-	my ($self) = @_;
-	
-	if ($self->header_cache_size > 0) {
-		return 0;
-	}
-	else {
-		return 1;
-	}
+	return ($self->record_cache_size == 0) ? 1 : 0;
 }
 
 sub record_cache_size {
 	my ($self) = @_;
 	return scalar @{$self->records_cache};
-}
-
-sub header_cache_size {
-	my ($self) = @_;
-	return scalar @{$self->header_cache};
 }
 
 1;

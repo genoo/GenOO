@@ -21,6 +21,7 @@ MyBio::Data::File::SAM::Record - Object representing a record of a sam file
         TLEN       => undef,
         SEQ        => undef,
         QUAL       => undef,
+        TAGS       => undef,
         EXTRA_INFO => undef,
     });
 
@@ -71,6 +72,7 @@ sub _init {
 	$self->set_tlen($$data{TLEN});   # Int [-229+1,229-1] observed Template LENgth
 	$self->set_seq($$data{SEQ});     # String \*|[A-Za-z=.]+ segment SEQuence
 	$self->set_qual($$data{QUAL});   # String [!-~]+ ASCII of Phred-scaled base QUALity+33
+	$self->set_tags($$data{TAGS});   # Extra tags
 }
 
 #######################################################################
@@ -78,47 +80,57 @@ sub _init {
 #######################################################################
 sub set_qname {
 	my ($self,$value) = @_;
-	return $self->{QNAME}=$value if defined $value;
+	$self->{QNAME} = $value if defined $value;
 }
 sub set_flag {
 	my ($self,$value) = @_;
-	return $self->{FLAG}=$value if defined $value;
+	$self->{FLAG} = $value if defined $value;
 }
 sub set_rname {
 	my ($self,$value) = @_;
-	return $self->{RNAME}=$value if defined $value;
+	$self->{RNAME} = $value if defined $value;
 }
 sub set_pos {
 	my ($self,$value) = @_;
-	return $self->{POS}=$value if defined $value;
+	$self->{POS} = $value if defined $value;
 }
 sub set_mapq {
 	my ($self,$value) = @_;
-	return $self->{MAPQ}=$value if defined $value;
+	$self->{MAPQ} = $value if defined $value;
 }
 sub set_cigar {
 	my ($self,$value) = @_;
-	return $self->{CIGAR}=$value if defined $value;
+	$self->{CIGAR} = $value if defined $value;
 }
 sub set_rnext {
 	my ($self,$value) = @_;
-	return $self->{RNEXT}=$value if defined $value;
+	$self->{RNEXT} = $value if defined $value;
 }
 sub set_pnext {
 	my ($self,$value) = @_;
-	return $self->{PNEXT}=$value if defined $value;
+	$self->{PNEXT} = $value if defined $value;
 }
 sub set_tlen {
 	my ($self,$value) = @_;
-	return $self->{TLEN}=$value if defined $value;
+	$self->{TLEN} = $value if defined $value;
 }
 sub set_seq {
 	my ($self,$value) = @_;
-	return $self->{SEQ}=$value if defined $value;
+	$self->{SEQ} = $value if defined $value;
 }
 sub set_qual {
 	my ($self,$value) = @_;
-	return $self->{QUAL}=$value if defined $value;
+	$self->{QUAL} = $value if defined $value;
+}
+sub set_tags {
+	my ($self,$value) = @_;
+	
+	if (defined $value) {
+		foreach my $tag_var (@$value) { #"XT:A:R\tNM:i:0\tX0:i:2\tX1:i:0\tXM:i:0\tXO:i:0\tXG:i:0\tMD:Z:32\tXA:Z:chr9,+110183777,32M,0;"
+			my ($tag, $tag_type, $tag_value) = split(/:/,$tag_var);
+			$self->{TAGS}->{"$tag:$tag_type"} = $tag_value;
+		}
+	}
 }
 
 #######################################################################
@@ -168,17 +180,25 @@ sub get_qual {
 	my ($self) = @_;
 	return $self->{QUAL};
 }
+sub get_tags {
+	my ($self) = @_;
+	return $self->{TAGS};
+}
 
 #######################################################################
 ############################   Accessors   ############################
 #######################################################################
+sub get_length {
+	my ($self) = @_;
+	return $self->get_stop - $self->get_start + 1;
+}
 sub get_start {
 	my ($self) = @_;
 	return $self->get_pos - 1;
 }
 sub get_stop {
 	my ($self) = @_;
-	return $self->get_start + length($self->get_seq) - 1;
+	return $self->get_start + length($self->get_seq) - 1 - $self->insertion_count;
 }
 sub get_strand {
 	my ($self) = @_;
@@ -207,10 +227,38 @@ sub get_strand_symbol {
 		return undef;
 	}
 }
+sub get_tag {
+	my ($self, $tag_id) = @_;
+	
+	if (defined $self->get_tags) {
+		return $self->get_tags->{$tag_id};
+	}
+}
+sub get_alternative_mappings {
+	my ($self) = @_;
+	
+	my $tag = 'XA:Z';
+	my $value = $self->get_tag($tag);
+	if (defined $value) {
+		my @alternative_mappings = split(/;/,$value);
+		return @alternative_mappings;
+	}
+}
 
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub insertion_count {
+	my ($self) = @_;
+	
+	my $insertion_count = 0;
+	my $cigar = $self->get_cigar;
+	while ($cigar =~ /(\d)I/g) {
+		$insertion_count += $1;
+	}
+	return $insertion_count;
+}
+
 sub is_mapped {
 	my ($self) = @_;
 	

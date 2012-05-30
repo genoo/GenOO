@@ -26,7 +26,8 @@ sub _loading_test : Test(4) {
 		TLEN       => '0',
 		SEQ        => 'ATTCGGCAGGTGAGTTGTTACACACTCCTTAG',
 		QUAL       => 'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG',
-		TAGS       => "XT:A:R\tNM:i:0\tX0:i:2\tX1:i:0\tXM:i:0\tXO:i:0\tXG:i:0\tMD:Z:32\tXA:Z:chr9,+110183777,32M,0;",
+		TAGS       => ['XT:A:R','NM:i:0','X0:i:2','X1:i:0','XM:i:0',
+		               'XO:i:0','XG:i:0','MD:Z:32','XA:Z:chr9,+110183777,32M,0;'],
 		EXTRA_INFO => undef
 	};
 	
@@ -92,11 +93,34 @@ sub qual : Test(4) {
 	$self->simple_attribute_test('qual', 'GHHGHHHGHHGGGDGEGHHHFHGG', 'GHHGHHHGHHGGGDGEGHHHFHGG');
 }
 
+sub tags : Test(4) {
+	my ($self) = @_;
+	my $value = [
+		'XT:A:R',
+		'XA:Z:chr9,+110183777,32M,0;'
+	];
+	my $expected = {
+		'XT:A'  => 'R',
+		'XA:Z'  => 'chr9,+110183777,32M,0;'
+	};
+	$self->deep_attribute_test('tags', $value, $expected);
+}
+
 #######################################################################
 ###########################   Other Tests   ###########################
 #######################################################################
-sub tags : Test(1) {
-	local $TODO = "get_tags -> currently unimplemented";
+sub get_length : Test(3) {
+	my ($self) = @_;
+	
+	my $obj = $self->class->new;
+	can_ok $obj, 'get_length';
+	
+	$obj->set_pos(85867636);
+	$obj->set_seq('ATTCGGCAGGTGAGTTGTTACACACTCCTTAG');
+	is $obj->get_length, 32, "... and should return the correct value";
+	
+	$obj->set_cigar('14M1I5M'); # implements an insertion
+	is $obj->get_length, 31, "... and should return the correct value again";
 }
 
 sub get_start : Test(2) {
@@ -109,7 +133,7 @@ sub get_start : Test(2) {
 	is $obj->get_start, 85867635, "... and should return the correct value";
 }
 
-sub get_stop : Test(2) {
+sub get_stop : Test(3) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
@@ -118,6 +142,9 @@ sub get_stop : Test(2) {
 	$obj->set_pos(85867636);
 	$obj->set_seq('ATTCGGCAGGTGAGTTGTTACACACTCCTTAG');
 	is $obj->get_stop, 85867666, "... and should return the correct value";
+	
+	$obj->set_cigar('14M1I5M'); # implements an insertion
+	is $obj->get_stop, 85867665, "... and should return the correct value again";
 }
 
 sub get_strand : Test(4) {
@@ -150,6 +177,43 @@ sub get_strand_symbol : Test(4) {
 	
 	$obj->set_flag(4); # unmapped
 	is $obj->get_strand_symbol, undef, "... and again";
+}
+
+sub get_tag : Test(4) {
+	my ($self) = @_;
+	
+	my $obj = $self->class->new;
+	can_ok $obj, 'get_tag';
+	
+	$obj->set_tags(['XT:A:R','XA:Z:chr9,+110183777,32M,0;']);
+	is $obj->get_tag(), undef, "... and should return the correct value";
+	is $obj->get_tag('XT:A'), 'R', "... and should return the correct value again";
+	is $obj->get_tag('XA:Z'), 'chr9,+110183777,32M,0;', "... and again";
+}
+
+sub get_alternative_mappings : Test(3) {
+	my ($self) = @_;
+	
+	my $obj = $self->class->new;
+	can_ok $obj, 'get_alternative_mappings';
+	
+	$obj->set_tags(['XA:Z:chr9,+110183777,32M,0;chr8,+110183756,30M1I,0;']);
+	my @values = $obj->get_alternative_mappings;
+	is $values[0], 'chr9,+110183777,32M,0', "... and should return the correct value";
+	is $values[1], 'chr8,+110183756,30M1I,0', "... and again";
+}
+
+sub insertion_count : Test(3) {
+	my ($self) = @_;
+	
+	my $obj = $self->class->new;
+	can_ok $obj, 'insertion_count';
+	
+	$obj->set_cigar('14M1I5M');
+	is $obj->insertion_count, 1, "... and should return the correct value";
+	
+	$obj->set_cigar('14M1I5M2I5M');
+	is $obj->insertion_count, 3, "... and should return the correct value again";
 }
 
 sub is_mapped : Test(4) {
