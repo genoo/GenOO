@@ -145,7 +145,7 @@ sub _set_exons_from_transcript_exons {
 }
 sub _set_introns_from_transcript_introns {
 	my ($self) = @_;
-	warn "Method _set_introns_from_transcript_introns has not been tested for bugs. Please check and remove warning";
+# 	warn "Method _set_introns_from_transcript_introns has not been tested for bugs. Please check and remove warning";
 	my $introns = $self->get_contained_locuses($self->get_transcript->get_introns);
 	foreach my $intron (@$introns) {
 		$self->push_intron(MyBio::Transcript::Intron->new({

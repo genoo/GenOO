@@ -544,7 +544,7 @@ sub create_utr3 {
 						STRAND   => $strand,
 						BIOTYPE  => 'non coding',
 					});
-					$geneObj->push_transcript($transcriptObj);
+					$geneObj->add_transcript($transcriptObj);
 				}
 				
 				if (!defined $transcriptObj->get_start or ($start < $transcriptObj->get_start)) {
