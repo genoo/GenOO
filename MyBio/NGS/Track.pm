@@ -60,6 +60,7 @@ use strict;
 use FileHandle;
 use MyBio::NGS::Tag;
 use MyBio::MySub;
+use MyBio::Data::File::BioFile;
 
 use base qw(MyBio::_Initializable);
 
@@ -128,10 +129,8 @@ sub get_tags {
 }
 sub get_all_tags {
 	my @out = ();
-	foreach my $strand (keys %{$_[0]->get_tags})
-	{
-		foreach my $chr (keys %{$_[0]->get_tags->{$strand}})
-		{
+	foreach my $strand (keys %{$_[0]->get_tags}) {
+		foreach my $chr (keys %{$_[0]->get_tags->{$strand}}) {
 			push @out, @{$_[0]->get_tags->{$strand}->{$chr}};
 		}
 	}
@@ -1309,7 +1308,7 @@ sub _overlaps_TOUCHES {
 		}
 		
 		my %handlers = (
-			'BED'    => \&_read_bedFile,
+			'BED' => \&_read_bedFile_with_multiple_tracks,
 			'BEDGRAPH' => \&_read_bedgraphFile,
 		);
 		
@@ -1330,7 +1329,7 @@ sub _overlaps_TOUCHES {
 		
 		return %tracks;
 	}
-	sub _read_bedFile {
+	sub _read_bedFile_with_multiple_tracks {
 		my ($class,$params) = @_;
 		
 		my $filename = $params->{'FILENAME'};
@@ -1406,7 +1405,7 @@ sub _overlaps_TOUCHES {
 		close $BED;
 		return %return_tracks;
 	}
-	
+
 	sub _read_bedgraphFile {
 		my ($class,$params) = @_;
 		
@@ -1476,9 +1475,7 @@ sub _overlaps_TOUCHES {
 		return %return_tracks;
 	}
 	
-	
-	
-	sub available_strands {
+	sub strands {
 		my ($class) = @_;
 		
 		my %tracks = MyBio::NGS::Track->get_all();
@@ -1492,7 +1489,7 @@ sub _overlaps_TOUCHES {
 		return %available_strands;
 	}
 	
-	sub available_chromosomes {
+	sub chromosomes {
 		my ($class) = @_;
 		
 		my %tracks = MyBio::NGS::Track->get_all();
@@ -1506,6 +1503,61 @@ sub _overlaps_TOUCHES {
 			}
 		}
 		return %available_chrs;
+	}
+	
+	sub read_track {
+		my ($class, $params) = @_;
+	
+		my %handlers = (
+			'BED' => \&_read_bedFile_with_single_track,
+		);
+		
+		my $method = delete $params->{'METHOD'};
+		unless (exists $handlers{$method}) {
+			if (!defined $method) {die "\nNo method specified in ".(caller(0))[3]."\n";}
+			else                  {die "\nUnknown method \"$method\" in ".(caller(0))[3].". Try (BED)";}
+		}
+		
+		my $track = $handlers{$method}->($class,$params);
+		$track->sort_tags;
+		return $track;
+	}
+	
+	sub _read_bedFile_with_single_track {
+		my ($class,$params) = @_;
+		
+		my $file = $params->{'FILENAME'};
+		my $trackname = exists $params->{'TRACK_NAME'} ? $params->{'TRACK_NAME'} : scalar(localtime());
+		my $tag_score_thres = $params->{'SCORE_THRESHOLD'};
+		
+		
+		my $track = $class->new({
+			NAME            => $trackname,
+		});
+		
+		my $bedfile = MyBio::Data::File::BioFile->new({
+			TYPE => 'BED',
+			FILE => $file,
+		});
+		
+		while (my $entity = $bedfile->next_entity) {
+			if (exists $entity->{LOCUS} and (!defined $tag_score_thres or ($entity->{SCORE} >= $tag_score_thres))) {
+				$track->add_tag(MyBio::NGS::Tag->new($entity));
+			}
+			elsif (exists $entity->{TRACK_INFO}) {
+				if (exists $entity->{NAME}) {$track->set_name($entity->{NAME})}
+				if (exists $entity->{DESCRIPTION}) {$track->set_description($entity->{DESCRIPTION})}
+				if (exists $entity->{VISIBILITY}) {$track->set_visibility($entity->{VISIBILITY})}
+				if (exists $entity->{COLOR}) {$track->set_color($entity->{COLOR})}
+				if (exists $entity->{RGB_FLAG}) {$track->set_rgb_flag($entity->{RGB_FLAG})}
+				if (exists $entity->{COLOR_BY_STRAND}) {$track->set_color_by_strand($entity->{COLOR_BY_STRAND})}
+				if (exists $entity->{USE_SCORE}) {$track->set_use_score($entity->{USE_SCORE})}
+			}
+			elsif (exists $entity->{BROWSER}) {
+				$track->push_to_browser($entity->{BROWSER});
+			}
+		}
+		return $track;
 	}
 }
 

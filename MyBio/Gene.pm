@@ -51,6 +51,7 @@ use strict;
 use Object::ID;
 
 use MyBio::DBconnector;
+use MyBio::Helper::Locus;
 
 use base qw(MyBio::Locus);
 
@@ -114,6 +115,28 @@ sub get_transcripts {
 	else {
 		return [];
 	}
+}
+sub get_coding_transcripts {
+	my ($self) = @_;
+	
+	my @coding_transcripts;
+	foreach my $transcript (@{$self->get_transcripts}) {
+		if ($transcript->is_coding) {
+			push @coding_transcripts,$transcript;
+		}
+	}
+	return \@coding_transcripts;
+}
+sub get_non_coding_transcripts {
+	my ($self) = @_;
+	
+	my @non_coding_transcripts;
+	foreach my $transcript (@{$self->get_transcripts}) {
+		if (!$transcript->is_coding) {
+			push @non_coding_transcripts,$transcript;
+		}
+	}
+	return \@non_coding_transcripts;
 }
 
 #######################################################################
@@ -221,6 +244,36 @@ sub annotate_constitutive_exons {
 		}
 	}
 }
+sub annotate_constitutive_coding_exons {
+	my ($self) = @_;
+	
+	my $coding_transcripts_count = 0;
+	my %counts;
+	my $coding_transcripts = $self->get_coding_transcripts;
+	my $non_coding_transcripts = $self->get_non_coding_transcripts;
+	foreach my $transcript (@$coding_transcripts) {
+		foreach my $exon (@{$transcript->get_exons}) {
+			$counts{$exon->get_id}++;
+		}
+	}
+	
+	foreach my $transcript (@$coding_transcripts) {
+		foreach my $exon (@{$transcript->get_exons}) {
+			if ($counts{$exon->get_id} == @$coding_transcripts) {
+				$exon->is_constitutive(1);
+			}
+			else {
+				$exon->is_constitutive(0);
+			}
+		}
+	}
+	
+	foreach my $transcript (@$non_coding_transcripts) {
+		foreach my $exon (@{$transcript->get_exons}) {
+			$exon->is_constitutive(0);
+		}
+	}
+}
 sub get_constitutive_exons {
 	my ($self) = @_;
 	
@@ -239,6 +292,69 @@ sub get_constitutive_exons {
 		}
 	}
 	return \@constitutive_exons;
+}
+sub get_constitutive_coding_exons {
+	my ($self) = @_;
+	
+	$self->annotate_constitutive_coding_exons();
+	
+	my @constitutive_exons;
+	my %already_found;
+	foreach my $transcript (@{$self->get_transcripts}) {
+		foreach my $exon (@{$transcript->get_exons}) {
+			if ($exon->is_constitutive() and !exists $already_found{$exon->get_id}) {
+				my $new_exon = $exon->clone();
+				$new_exon->set_where($self);
+				push @constitutive_exons, $new_exon;
+				$already_found{$exon->get_id} = 1;
+			}
+		}
+	}
+	return \@constitutive_exons;
+}
+sub get_exon_length {
+	my ($self) = @_;
+	
+	my @exons;
+	foreach my $transcript (@{$self->get_transcripts}) {
+		foreach my $exon (@{$transcript->get_exons}) {
+			push @exons, $exon;
+		}
+	}
+	
+	my $merged_exons = MyBio::Helper::Locus::merge(\@exons);
+	
+	my $exon_length = 0;
+	foreach my $exon (@$merged_exons) {
+		$exon_length += $exon->get_length;
+	}
+	
+	return $exon_length;
+}
+sub get_merged_exons {
+	my ($self) = @_;
+	
+	my @exons;
+	foreach my $transcript (@{$self->get_transcripts}) {
+		foreach my $exon (@{$transcript->get_exons}) {
+			push @exons, $exon;
+		}
+	}
+	
+	return MyBio::Helper::Locus::merge(\@exons);
+}
+sub has_coding_transcript {
+	my ($self) = @_;
+	
+	my $has_coding_transcript = 0;
+	foreach my $transcript (@{$self->get_transcripts}) {
+		if ($transcript->is_coding) {
+			$has_coding_transcript = 1;
+			last;
+		}
+	}
+	
+	return $has_coding_transcript;
 }
 
 #######################################################################

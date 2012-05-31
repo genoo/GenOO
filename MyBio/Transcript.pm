@@ -59,6 +59,7 @@ use MyBio::Transcript::CDNA;
 use MyBio::Transcript::UTR5;
 use MyBio::Transcript::CDS;
 use MyBio::Transcript::UTR3;
+use MyBio::MySub;
 
 use base qw(MyBio::SplicedLocus);
 
@@ -676,6 +677,46 @@ sub create_utr3 {
 		
 		return %allTranscripts;
 	}
+	
+	sub set_sequences_from_genome {
+		my ($class, $params) = @_;
+		
+		my $chr_folder = exists $params->{'CHR_FOLDER'} ? $params->{'CHR_FOLDER'} : die "Chromosome folder must be provided";
+		
+		my %in_chromosomes;
+		foreach my $transcipt (values %allTranscripts) {
+			push @{$in_chromosomes{$transcipt->get_chr}}, $transcipt;
+		}
+		
+		foreach my $chr (keys %in_chromosomes) {
+			my $chr_file = $chr_folder."/chr$chr.fa";
+			unless (-e $chr_file) {
+				warn "Skipping chromosome. File $chr_file does not exist";
+				next;
+			}
+			my $chr_seq = MyBio::MySub::read_fasta($chr_file,"chr$chr");
+			
+			unless (defined $chr_seq) {
+				die "No Chromosome Sequence chr$chr\n";
+			}
+			
+			foreach my $transcript (@{$in_chromosomes{$chr}}) {
+				my $seq = substr($chr_seq,$transcript->get_start,$transcript->get_length);
+				if ($transcript->get_strand == -1) {
+					$seq = reverse($seq);
+					if ($seq =~ /U/i) {
+						$seq =~ tr/ATGCUatgcu/UACGAuacga/;
+					}
+					else {
+						$seq =~ tr/ATGCUatgcu/TACGAtacga/;
+					}
+				}
+				$transcript->set_sequence($seq);
+			}
+		}
+	}
+	
+	
 	sub read_region_info_for_transcripts {
 		my ($class,$method,@attributes) = @_;
 		

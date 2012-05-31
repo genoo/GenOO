@@ -1,6 +1,6 @@
 package MyBio::Transcript::CDNA;
 
-# Corresponds to the whole region of a gene transcript. It inherits all the attributes and methods of the class Transcript::Region.
+# Corresponds to the whole region of a gene transcript. It inherits all the attributes and methods of the class MyBio::Transcript::TranscriptRegion.
 
 use strict;
 

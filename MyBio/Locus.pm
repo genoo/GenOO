@@ -120,8 +120,39 @@ sub set_extra {
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub get_strand_symbol {
+	if ($_[0]->get_strand == 1) {
+		return '+';
+	}
+	elsif ($_[0]->get_strand == -1) {
+		return '-';
+	}
+	else {
+		return undef;
+	}
+}
+sub get_5p {
+	my ($self) = @_;
+	if ($self->get_strand == 1) {
+		return $self->get_start;
+	}
+	else {
+		return $self->get_stop;
+	}
+}
+sub get_3p {
+	my ($self) = @_;
+	if ($self->get_strand == 1) {
+		return $self->get_stop;
+	}
+	else {
+		return $self->get_start;
+	}
+}
 sub get_id {
-	my ($self,$method,@attributes) = @_;
+	return $_[0]->get_chr.":".$_[0]->get_start."-".$_[0]->get_stop.":".$_[0]->get_strand;
+}
+sub get_location {
 	return $_[0]->get_chr.":".$_[0]->get_start."-".$_[0]->get_stop.":".$_[0]->get_strand;
 }
 sub to_string {
@@ -143,7 +174,22 @@ sub to_string {
 	$print_tag =~ s/\t+$//g;
 	return $print_tag;
 }
-
+sub get_5p_5p_distance_from {
+	my ($self,$from_locus) = @_;
+	return ($self->get_5p - $from_locus->get_5p) * $self->get_strand;
+}
+sub get_5p_3p_distance_from {
+	my ($self,$from_locus) = @_;
+	return ($self->get_5p - $from_locus->get_3p) * $self->get_strand;
+}
+sub get_3p_5p_distance_from {
+	my ($self,$from_locus) = @_;
+	return ($self->get_3p - $from_locus->get_5p) * $self->get_strand;
+}
+sub get_3p_3p_distance_from {
+	my ($self,$from_locus) = @_;
+	return ($self->get_3p - $from_locus->get_3p) * $self->get_strand;
+}
 sub overlaps {
 	my ($self,$loc2,$offset,$use_strand) = @_;
 	
@@ -181,6 +227,14 @@ sub contains {
 # 	print $self->get_start." - ".$self->get_stop."\t".$loc2->get_start." - ".$loc2->get_stop."\t".($overhang / $loc2->get_length)."\t".$percent."\n";
 	if (($overhang / $loc2->get_length) <= (1-$percent)){return 1;}
 	return 0;
+}
+
+sub contains_position {
+	my ($self, $position) = @_;
+	
+	if (($self->get_start <= $position) and ($position <= $self->get_stop)) {
+		return 1;
+	}
 }
 
 sub get_contained_locuses {

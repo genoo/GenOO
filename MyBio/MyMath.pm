@@ -87,4 +87,9 @@ sub min {
 	return ($min_index,$min_value);
 }
 
+sub glog {
+	my ($value) = @_;
+	my $glog = log($value + sqrt(1 + $value**2))/log(2);
+}
+
 1;
