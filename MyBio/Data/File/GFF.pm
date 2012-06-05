@@ -153,7 +153,7 @@ sub parse_header_section {
 		if ($self->line_looks_like_header($line)) {
 			$self->recognize_and_store_header_line($line);
 		}
-		else {
+		elsif ($self->line_looks_like_record($line)) {
 			$self->add_to_records_cache($line); # unfortunatelly the while reads the first line after the header section and in zipped files we cannot go back
 			return;
 		}
@@ -228,7 +228,7 @@ sub parse_record_line {
 	$line =~ s/(#.+)$//;
 	my $comment_string = $1;
 	my ($seqname, $source, $feature, $start, $end, $score, $strand, $frame, $attributes_string) = split(/\t/,$line);
-	my @attributes = split(/;/,$attributes_string);
+	my @attributes = split(/;\s*/,$attributes_string);
 	
 	return MyBio::Data::File::GFF::Record->new({
 		SEQNAME     => $seqname,
