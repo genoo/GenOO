@@ -1,0 +1,8 @@
+This is a library developed for bioinformatics analysis.
+
+Summary:
+The main goal of this library is to support deep sequencing analysis.
+We have always found BioPerl to be more complex than actually needed for most tasks so we designed this library keeping in mind that it should be easier to use than BioPerl.
+
+State:
+The library is under heavy development and functionality is added on a daily basis.
