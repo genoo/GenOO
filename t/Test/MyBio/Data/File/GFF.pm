@@ -84,7 +84,7 @@ sub records_cache : Test(2) {
 	isa_ok $self->gff->records_cache, 'ARRAY', "... and the returned object";
 }
 
-sub records_read_count : Test(4) {
+sub records_read_count : Test(5) {
 	my ($self) = @_;
 	
 	can_ok $self->gff, 'records_read_count';
@@ -95,6 +95,9 @@ sub records_read_count : Test(4) {
 	
 	$self->gff->next_record();
 	is $self->gff->records_read_count, 2, "... and again";
+	
+	while ($self->gff->next_record()) {}
+	is $self->gff->records_read_count, 93, "... and again (when the whole file is read)";
 }
 
 sub version : Test(2) {
@@ -134,17 +137,29 @@ sub get_next_record_from_cache : Test(2) {
 	isa_ok $self->gff->get_next_record_from_cache, 'MyBio::Data::File::GFF::Record', "... and the returned object";
 }
 
-sub parse_record_line : Test(3) {
+sub parse_record_line : Test(12) {
 	my ($self) = @_;
 	
-	my $line = join(/\t/,(
-		'chr1','MirBase','miRNA','151518272','151518367','0.5','+','.',
+	my $line = join("\t",
+		'chr1','MirBase','miRNA','151518272','151518367',0.5,'+','.',
 		'ACC="MI0003559"; ID="hsa-mir-554"; #Comment'
-	));
+	);
 	
 	can_ok $self->gff, 'parse_record_line';
-	isa_ok $self->gff->parse_record_line($line), 'MyBio::Data::File::GFF::Record', "... and the returned object";
-	local $TODO = "Check for the record returned is currently unimplemented";
+	
+	my $record =  $self->gff->parse_record_line($line);
+	isa_ok $record, 'MyBio::Data::File::GFF::Record', "... and the returned object";
+	
+	is $record->get_seqname, 'chr1', "... and should have the correct value";
+	is $record->get_source, 'MirBase', "... and again";
+	is $record->get_feature, 'miRNA', "... and again";
+	is $record->get_start, '151518271', "... and again";
+	is $record->get_stop, '151518366', "... and again";
+	is $record->get_score, 0.5, "... and again";
+	is $record->get_strand, 1, "... and again";
+	is $record->get_frame, '.', "... and again";
+	is $record->get_attribute('ACC'), 'MI0003559', "... and again";
+	is $record->get_attribute('ID'), 'hsa-mir-554', "... and again";
 }
 
 sub line_looks_like_comment : Test(3) {
@@ -172,7 +187,7 @@ sub line_looks_like_header : Test(3) {
 sub line_looks_like_record : Test(3) {
 	my ($self) = @_;
 	
-	my $line = join(/\t/,(
+	my $line = join("\t",(
 		'chr1','MirBase','miRNA','151518272','151518367','0.5','+','.',
 		'ACC="MI0003559"; ID="hsa-mir-554"; #Comment'
 	));
