@@ -971,9 +971,15 @@ sub merge_overlaping_tags {
 		if ($tagobjects[$i]->get_stop() > $newtag->get_stop()) {
 			$newtag->set_stop($tagobjects[$i]->get_stop());
 		}
-		my $tempscore = $newtag->get_score() + $tagobjects[$i]->get_score();
-		$newtag->set_score($tempscore);
-		$newtag->set_name($tempscore);
+		
+		if ($newtag->can("get_score") and $tagobjects[$i]->can("get_score")) {
+			my $tempscore = $newtag->get_score() + $tagobjects[$i]->get_score();
+			$newtag->set_score($tempscore);
+			$newtag->set_name($tempscore);
+		}
+		else {
+			$newtag->set_name("");
+		}
 	}
 	push (@out,$newtag);
 	return @out;
@@ -1303,6 +1309,7 @@ sub _overlaps_TOUCHES {
 		
 		my %handlers = (
 			'BED' => \&_read_bedFile_with_multiple_tracks,
+			'BEDGRAPH' => \&_read_bedgraphFile,
 		);
 		
 		my $method = delete $params->{'METHOD'};
@@ -1396,6 +1403,75 @@ sub _overlaps_TOUCHES {
 			}
 		}
 		close $BED;
+		return %return_tracks;
+	}
+
+	sub _read_bedgraphFile {
+		my ($class,$params) = @_;
+		
+		my $filename = $params->{'FILENAME'};
+		my $trackname = exists $params->{'TRACK_NAME'} ? $params->{'TRACK_NAME'} : scalar(localtime());
+		my $tag_score_thres = $params->{'SCORE_THRESHOLD'};
+		
+		my $track;
+		my @browser_info;
+		my %return_tracks;
+		my $BEDgraph = new FileHandle;
+		$BEDgraph->open($filename) or die "Cannot open file $filename $!";
+		while (my $line=<$BEDgraph>){
+			chomp($line);
+			if ($line =~ /^track/){
+				my %info;
+				while ($line =~ /(\S+?)=(".+?"|\d+?)/g) {
+					$info{$1} = $2;
+				}
+				$track = $class->new({
+					NAME            => $info{"name"} || $trackname,
+					DESCRIPTION     => $info{"description"},
+					VISIBILITY      => $info{"visibility"},
+					COLOR           => $info{"color"},
+					RGB_FLAG        => $info{"itemRgb"},
+					COLOR_BY_STRAND => $info{"colorByStrand"},
+					USE_SCORE       => $info{"useScore"},
+				});
+				if (@browser_info > 0) {
+					$track->push_to_browser(@browser_info);
+					@browser_info = ();
+				}
+				$return_tracks{$track->get_name} = $track;
+			}
+			elsif ($line =~ /^browser/) {
+				push @browser_info,$line;
+			}
+			elsif ($line =~ /^chr/) {
+				
+				if (!defined $track){
+					$track = $class->new({
+						NAME            => $trackname
+					});
+					if (@browser_info > 0) {
+						$track->push_to_browser(@browser_info);
+						@browser_info = ();
+					}
+					$return_tracks{$track->get_name} = $track;
+				}
+				
+				
+				my ($chr,$start,$stop,$score) = split(/\t/,$line);
+				
+				if (!defined $tag_score_thres or ($score >= $tag_score_thres)) {
+					my $tag = MyBio::NGS::Tag->new({
+						CHR           => $chr,
+						START         => $start,
+						STOP          => $stop - 1, #[start,stop)
+						SCORE         => $score,
+					});
+					
+					$track->add_tag($tag);
+				}
+			}
+		}
+		close $BEDgraph;
 		return %return_tracks;
 	}
 	
