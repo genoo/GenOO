@@ -31,7 +31,7 @@ sub startup : Test(startup => 3) {
 	can_ok $self->class, 'new';
 	
 	
-	ok $self->{SAM} = MyBio::Data::File::SAM->new({
+	ok $self->{SAM} = $self->class->new({
 		FILE => 't/sample_data/sample.sam.gz'
 	}), '... and the constructor succeeds';
 };
@@ -43,7 +43,7 @@ sub startup : Test(startup => 3) {
 sub isa_check : Test(1) {
 	my ($self) = @_;
 	
-	isa_ok $self->sam, 'MyBio::Data::File::SAM';
+	isa_ok $self->sam, $self->class;
 }
 
 sub get_file : Test(1) {

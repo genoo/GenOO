@@ -31,7 +31,7 @@ sub _loading_test : Test(4) {
 		EXTRA_INFO => undef
 	};
 	
-	ok my $obj = MyBio::Data::File::SAM::Record->new($data), '... and the constructor succeeds';
+	ok my $obj = $self->class->new($data), '... and the constructor succeeds';
 	isa_ok $obj, $self->class, "... and the object";
 }
 

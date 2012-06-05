@@ -21,7 +21,7 @@ sub startup : Test(startup => 3) {
 	use_ok $self->class;
 	can_ok $self->class, 'new';
 	
-	ok $self->{GFF} = MyBio::Data::File::GFF->new({
+	ok $self->{GFF} = $self->class->new({
 		FILE => 't/sample_data/sample.gff.gz'
 	}), '... and the constructor succeeds';
 };
@@ -32,7 +32,7 @@ sub startup : Test(startup => 3) {
 sub new_object : Test(setup) {
 	my ($self) = @_;
 	
-	$self->{GFF} = MyBio::Data::File::GFF->new({
+	$self->{GFF} = $self->class->new({
 		FILE => 't/sample_data/sample.gff.gz'
 	});
 };

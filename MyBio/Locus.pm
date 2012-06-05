@@ -90,7 +90,7 @@ sub set_strand {
 sub set_chr {
 	my ($self,$value) = @_;
 	if (defined $value) {
-		$value =~ s/>*chr//;
+		$value =~ s/^>*//;
 		$self->{CHR} = $value;
 	}
 }
@@ -136,8 +136,11 @@ sub get_5p {
 	if ($self->get_strand == 1) {
 		return $self->get_start;
 	}
-	else {
+	elsif ($self->get_strand == -1) {
 		return $self->get_stop;
+	}
+	else {
+		return undef;
 	}
 }
 sub get_3p {
@@ -145,35 +148,49 @@ sub get_3p {
 	if ($self->get_strand == 1) {
 		return $self->get_stop;
 	}
-	else {
+	elsif ($self->get_strand == -1) {
 		return $self->get_start;
+	}
+	else {
+		return undef;
 	}
 }
 sub get_id {
 	return $_[0]->get_chr.":".$_[0]->get_start."-".$_[0]->get_stop.":".$_[0]->get_strand;
 }
 sub get_location {
+	#This is EXACTLY the same as get_id ???
 	return $_[0]->get_chr.":".$_[0]->get_start."-".$_[0]->get_stop.":".$_[0]->get_strand;
 }
 sub to_string {
-	my ($self,$method,@attributes) = @_;
+	my ($self, $params) = @_;
 	
-	my $print_tag;
-	if ($method eq "BED") {
-		my $strand;
-		if    ($self->get_strand == 1){$strand = "+";}
-		elsif ($self->get_strand == -1){$strand = "-";}
-		else {$strand = ".";}
-		
-		my $name = defined $self->get_name ? $self->get_name : ".";
-		my $score = 0;
-		
-		$print_tag = "chr".$self->get_chr."\t".$self->get_start."\t".($self->get_stop+1)."\t".$name."\t".$score."\t".$strand;
-		
+	#changed from the old ($self,$method,@attributes) way to the new ($self,$params) way
+	my $method;
+	if ($params eq 'BED'){
+		warn "Don't panic - Just use hash notation when calling ".(caller(0))[3]." in script $0 - Your output is ok.\n";
+		$method = 'BED';
 	}
-	$print_tag =~ s/\t+$//g;
-	return $print_tag;
+	else {
+		$method = exists $params->{'METHOD'} ? $params->{'METHOD'} : undef;
+	}
+	
+	if ($method eq 'BED') {
+		return $self->to_string_bed;
+	}
+	else {
+		die "\n\nUnknown or no method provided when calling ".(caller(0))[3]." in script $0\n\n";
+	}
 }
+sub to_string_bed {
+	my ($self) = @_;
+	my $strand = defined $self->get_strand_symbol ? $self->get_strand_symbol : ".";
+	my $name = defined $self->get_name ? $self->get_name : ".";
+	my $score = 0;
+	
+	return $self->get_chr."\t".$self->get_start."\t".($self->get_stop+1)."\t".$name."\t".$score."\t".$strand;
+}
+
 sub get_5p_5p_distance_from {
 	my ($self,$from_locus) = @_;
 	return ($self->get_5p - $from_locus->get_5p) * $self->get_strand;
@@ -191,19 +208,22 @@ sub get_3p_3p_distance_from {
 	return ($self->get_3p - $from_locus->get_3p) * $self->get_strand;
 }
 sub overlaps {
-	my ($self,$loc2,$offset,$use_strand) = @_;
-	
-	if (!defined $offset) {$offset = 0;}
-	if (!defined $use_strand) {$use_strand = 1;} 
-	
-	if ((($use_strand == 0) or ($self->get_strand() eq $loc2->get_strand())) and ($self->get_chr() eq $loc2->get_chr()) and (($self->get_start()-$offset) <= $loc2->get_stop()) and ($loc2->get_start() <= ($self->get_stop()+$offset))) {
-		return 1; #overlap
+	my ($self,$loc2,$params) = @_;
+	if ((!defined $params) or (UNIVERSAL::isa( $params, "HASH" ))){
+		my $offset = defined $params->{OFFSET} ? $params->{OFFSET} : 0;
+		my $use_strand = defined $params->{USE_STRAND} ? $params->{USE_STRAND} : 0;
+		
+		if ((($use_strand == 0) or ($self->get_strand() eq $loc2->get_strand())) and ($self->get_chr() eq $loc2->get_chr()) and (($self->get_start()-$offset) <= $loc2->get_stop()) and ($loc2->get_start() <= ($self->get_stop()+$offset))) {
+			return 1; #overlap
+		}
+		else {
+			return 0; #no overlap
+		}
 	}
 	else {
-		return 0; #no overlap
+		die "\n\nUnknown or no method provided when calling ".(caller(0))[3]." in script $0\n\n";
 	}
 }
-
 sub get_overlap_length {
 	my ($self,$loc2) = @_;
 	
@@ -214,29 +234,32 @@ sub get_overlap_length {
 	if ($loc2->get_stop > $self->get_stop){$nt_overlap -= ($loc2->get_stop - $self->get_stop);} #right overhang removed
 	return $nt_overlap;
 }
-
 sub contains {
-	my ($self,$loc2,$percent) = @_;
+	my ($self,$loc2,$params) = @_;
 	
-	if (!defined $percent) {$percent = 1;}
-	my $overhang = 0;
-	my $left_overhang = ($self->get_start - $loc2->get_start);
-	my $right_overhang = ($loc2->get_stop - $self->get_stop);
-	if ($left_overhang > 0){$overhang += $left_overhang;}
-	if ($right_overhang > 0){$overhang += $right_overhang;}
-# 	print $self->get_start." - ".$self->get_stop."\t".$loc2->get_start." - ".$loc2->get_stop."\t".($overhang / $loc2->get_length)."\t".$percent."\n";
-	if (($overhang / $loc2->get_length) <= (1-$percent)){return 1;}
-	return 0;
+	if ((!defined $params) or (UNIVERSAL::isa( $params, "HASH" ))){
+		my $percent = defined $params->{PERCENT} ? $params->{PERCENT} : 1;
+		my $overhang = 0;
+		my $left_overhang = ($self->get_start - $loc2->get_start);
+		my $right_overhang = ($loc2->get_stop - $self->get_stop);
+		if ($left_overhang > 0){$overhang += $left_overhang;}
+		if ($right_overhang > 0){$overhang += $right_overhang;}
+	# 	print $self->get_start." - ".$self->get_stop."\t".$loc2->get_start." - ".$loc2->get_stop."\t".($overhang / $loc2->get_length)."\t".$percent."\n";
+		if (($overhang / $loc2->get_length) <= (1-$percent)){return 1;}
+		return 0;
+	}
+	else {
+		die "\n\nUnknown or no method provided when calling ".(caller(0))[3]." in script $0\n\n";
+	}
 }
-
 sub contains_position {
 	my ($self, $position) = @_;
 	
 	if (($self->get_start <= $position) and ($position <= $self->get_stop)) {
 		return 1;
 	}
+	else {return 0;}
 }
-
 sub get_contained_locuses {
 # 	$self is a locus
 # 	$array is a reference to an array of locus objects

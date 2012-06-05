@@ -6,6 +6,8 @@ INIT { Test::Class->runtests }
 use base qw(Test::Class);
 use Test::More;
 
+# our $data = {};
+
 sub class {
 	my ($self) = @_;
 	(my $class = ref($self) || $self) =~ s/^Test:://;
@@ -42,6 +44,17 @@ sub deep_attribute_test {
 	can_ok $obj, $set;
 	$obj->$set($value);
 	is_deeply $obj->$get, $expected, "... and setting its value should succeed";
+}
+
+sub get_input_for {
+	my ($self, $attribute) = @_;
+	warn ">>>>".$self->data->{strand}->{INPUT}->[0];
+	return ($self->data->{$attribute}->{INPUT});
+}
+
+sub get_output_for {
+	my ($self, $attribute) = @_;
+	return ($self->data->{$attribute}->{OUTPUT});
 }
 
 1;
