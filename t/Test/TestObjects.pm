@@ -26,6 +26,7 @@ sub get_testobject_MyBio_JobGraph_Job_Generic
 						Test::TestObjects->get_testobject_MyBio_JobGraph_Description->[0]
 					}),
 			LOG          => 'anything',
+			CODE         => 'return "anything";'
 		},
 	];
 }

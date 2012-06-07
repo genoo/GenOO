@@ -36,6 +36,14 @@ sub data {
 			INPUT  => ['anything'],
 			OUTPUT => ['anything']
 		},
+		code =>  {
+			INPUT  => ['anything'],
+			OUTPUT => ['anything']
+		},
+		run =>  {
+			INPUT  => [''],
+			OUTPUT => ['anything']
+		},
 		add_default_variables_to_description => {
 			INPUT  => [],
 			OUTPUT => [1,1]
@@ -78,9 +86,25 @@ sub log : Test(4) {
 	$self->simple_attribute_test('log', $self->get_input_for('log')->[0], $self->get_output_for('log')->[0]);
 }
 
+sub code : Test(4) {
+	my ($self) = @_;
+	$self->simple_attribute_test('code', $self->get_input_for('code')->[0], $self->get_output_for('code')->[0]);
+}
 #######################################################################
 #############################   Methods   #############################
 #######################################################################
+
+sub run : Test(2) {
+	my ($self) = @_;
+	
+	my $obj = $self->class->new; 
+	can_ok $obj, 'run';
+	
+	$obj = $self->class->new(sample_object->[0]);
+	is $obj->run(), $self->get_output_for('run')->[0], "... and should return the correct value";
+}
+
+
 sub add_default_variables_to_description : Test(2) {
 	my ($self) = @_;
 	

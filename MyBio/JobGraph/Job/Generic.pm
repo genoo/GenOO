@@ -11,8 +11,8 @@ MyBio::JobGraph::Job::Generic - Generic Job object, with features
     
     # To initialize 
     my $job = MyBio::JobGraph::Job::Generic->new({
-		INPUT        => {$inputobject,...},
-		OUTPUT       => {$outputobject,...},
+		INPUT        => [$inputobject,...],
+		OUTPUT       => [$outputobject,...],
 		DESCRIPTION  => $descriptionobj,
 		LOG          => $logobj,
     });
@@ -41,6 +41,8 @@ sub _init {
 	$self->set_output($$data{OUTPUT});
 	$self->set_description($$data{DESCRIPTION});
 	$self->set_log($$data{LOG});
+	$self->set_code($$data{CODE});
+	
 	
 	return $self;
 }
@@ -66,6 +68,11 @@ sub get_description {
 sub get_log {
 	my ($self) = @_;
 	return $self->{LOG};
+}
+
+sub get_code {
+	my ($self) = @_;
+	return $self->{CODE};
 }
 
 #######################################################################
@@ -119,6 +126,18 @@ sub set_log {
 	}
 }
 
+sub set_code {
+	my ($self,$value) = @_;
+	
+	if (defined $value) {
+		$self->{CODE} = $value;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+
 #######################################################################
 #############################   Methods   #############################
 #######################################################################
@@ -131,7 +150,8 @@ sub develop { #this method will change the output folders/files to "development 
 }
 
 sub run { #this method will run
-
+	my ($self) = @_;
+	return eval($self->get_code());
 }
 
 =head2 add_default_variables_to_description
