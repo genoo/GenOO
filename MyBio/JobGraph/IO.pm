@@ -2,14 +2,14 @@
 
 =head1 NAME
 
-MyBio::JobGraph::Input - Input interface object
+MyBio::JobGraph::IO - Input Output base object
 
 =head1 SYNOPSIS
 
-    # This is the main Input object
+    # This is the main IO object
        
     # To initialize 
-    my $input = MyBio::JobGraph::Input->new({
+    my $output = MyBio::JobGraph::IO->new({
 		NAME       => 'anything',
 		SOURCE     => 'anything',
 		TYPE       => 'anything',
@@ -17,7 +17,7 @@ MyBio::JobGraph::Input - Input interface object
 
 =head1 DESCRIPTION
 
-    The Input object contains all information for an Input of a job.
+    The IO object contains common information for the Input and Output objects.
 
 =head1 EXAMPLES
 
@@ -27,28 +27,81 @@ MyBio::JobGraph::Input - Input interface object
 
 # Let the code begin...
 
-package MyBio::JobGraph::Input;
+package MyBio::JobGraph::IO;
 use strict;
 
-use base qw(MyBio::_Initializable MyBio::JobGraph::IO);
+use base qw(MyBio::_Initializable);
 
 sub _init {
 	my ($self,$data) = @_;
 	
-	$self->SUPER::_init($data);
+	$self->set_name($$data{NAME});
+	$self->set_source($$data{SOURCE});
+	$self->set_type($$data{TYPE});	
 	return $self;
 }
  
 #######################################################################
 ########################   Attribute Getters   ########################
 #######################################################################
+sub get_name {
+	my ($self) = @_;
+	return $self->{NAME};
+}
+
+sub get_source {
+	my ($self) = @_;
+	return $self->{SOURCE};
+}
+
+sub get_type {
+	my ($self) = @_;
+	return $self->{TYPE};
+}
 
 #######################################################################
 ########################   Attribute Setters   ########################
 #######################################################################
+sub set_name {
+	my ($self,$value) = @_;
+	
+	if (defined $value) {
+		$self->{NAME} = $value;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+
+sub set_source {
+	my ($self,$value) = @_;
+	
+	if (defined $value) {
+		$self->{SOURCE} = $value;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+
+sub set_type {
+	my ($self,$value) = @_;
+	
+	if (defined $value) {
+		$self->{TYPE} = $value;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+
 
 #######################################################################
 #############################   Methods   #############################
 #######################################################################
+
 
 1;

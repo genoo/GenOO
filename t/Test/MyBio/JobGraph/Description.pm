@@ -3,6 +3,7 @@ use strict;
 
 use base qw(Test::MyBio);
 use Test::More;
+use Test::TestObjects;
 
 #######################################################################
 ###########################   To Do Dev     ###########################
@@ -12,18 +13,7 @@ use Test::More;
 ###########################   Test Data     ###########################
 #######################################################################
 sub sample_object {
-	return [
-		{
-			#this is a generic object of the class
-			HEADER     => 'anything {{var1}} anything {{var2}}',
-			ABSTRACT   => 'anything',
-			TEXT 	   => 'anything',
-			VARIABLES  => {
-					'var1' => 'value for var1',
-					'var2' => 'value for var2',
-				      },
-		},
-	];
+	return Test::TestObjects->get_testobject_MyBio_JobGraph_Description;
 }
 sub data {
 	return {

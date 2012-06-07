@@ -3,6 +3,7 @@ use strict;
 
 use base qw(Test::MyBio);
 use Test::More;
+use Test::TestObjects;
 
 #######################################################################
 ###########################   To Do Dev     ###########################
@@ -12,30 +13,10 @@ use Test::More;
 ###########################   Test Data     ###########################
 #######################################################################
 sub sample_object {
-	return [
-		{
-			#this is a generic object of the class
-			NAME       => 'anything',
-			SOURCE     => 'anything',
-			TYPE 	   => 'anything',
-		},
-	];
+	return Test::TestObjects->get_testobject_MyBio_JobGraph_Output;
 }
 sub data {
-	return {
-		name => {
-			INPUT  => ['anything'],
-			OUTPUT => ['anything']
-		},
-		source => {
-			INPUT  => ['anything'],
-			OUTPUT => ['anything']
-		},
-		type => {
-			INPUT  => ['anything'],
-			OUTPUT => ['anything']
-		},
-	};
+	{}
 }
 
 #######################################################################
@@ -53,20 +34,6 @@ sub _loading_test : Test(4) {
 # #######################################################################
 # #########################   Attributes Tests   ########################
 # #######################################################################
-sub name : Test(4) {
-	my ($self) = @_;
-	$self->simple_attribute_test('name', $self->get_input_for('name')->[0], $self->get_output_for('name')->[0]);
-}
-
-sub source : Test(4) {
-	my ($self) = @_;
-	$self->simple_attribute_test('source', $self->get_input_for('source')->[0], $self->get_output_for('source')->[0]);
-}
-
-sub type : Test(4) {
-	my ($self) = @_;
-	$self->simple_attribute_test('type', $self->get_input_for('type')->[0], $self->get_output_for('type')->[0]);
-}
 
 #######################################################################
 #############################   Methods   #############################

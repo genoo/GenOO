@@ -30,73 +30,22 @@ MyBio::JobGraph::Output - Output interface object
 package MyBio::JobGraph::Output;
 use strict;
 
-use base qw(MyBio::_Initializable);
+use base qw(MyBio::_Initializable MyBio::JobGraph::IO);
 
 sub _init {
 	my ($self,$data) = @_;
 	
-	$self->set_name($$data{NAME});
-	$self->set_source($$data{SOURCE});
-	$self->set_type($$data{TYPE});	
+	$self->SUPER::_init($data);
 	return $self;
 }
  
 #######################################################################
 ########################   Attribute Getters   ########################
 #######################################################################
-sub get_name {
-	my ($self) = @_;
-	return $self->{NAME};
-}
-
-sub get_source {
-	my ($self) = @_;
-	return $self->{SOURCE};
-}
-
-sub get_type {
-	my ($self) = @_;
-	return $self->{TYPE};
-}
-
+ 
 #######################################################################
 ########################   Attribute Setters   ########################
 #######################################################################
-sub set_name {
-	my ($self,$value) = @_;
-	
-	if (defined $value) {
-		$self->{NAME} = $value;
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-
-sub set_source {
-	my ($self,$value) = @_;
-	
-	if (defined $value) {
-		$self->{SOURCE} = $value;
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-
-sub set_type {
-	my ($self,$value) = @_;
-	
-	if (defined $value) {
-		$self->{TYPE} = $value;
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
 
 
 #######################################################################

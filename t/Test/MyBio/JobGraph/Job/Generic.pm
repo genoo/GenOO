@@ -3,9 +3,7 @@ use strict;
 
 use base qw(Test::MyBio);
 use Test::More;
-use MyBio::JobGraph::Description;
-use MyBio::JobGraph::Input;
-use MyBio::JobGraph::Output;
+use Test::TestObjects;
 
 #######################################################################
 ###########################   To Do Dev     ###########################
@@ -18,45 +16,7 @@ use MyBio::JobGraph::Output;
 ###########################   Test Data     ###########################
 #######################################################################
 sub sample_object {
-	return [
-		{
-			#this is a generic object of the class
-			INPUT        => [
-						MyBio::JobGraph::Input->new({
-								NAME       => 'anything1',
-								SOURCE     => 'anything',
-								TYPE       => 'anything',
-						}), 
-						MyBio::JobGraph::Input->new({
-								NAME       => 'anything2',
-								SOURCE     => 'anything',
-								TYPE       => 'anything',
-						})
-					],
-			OUTPUT        => [
-						MyBio::JobGraph::Output->new({
-								NAME       => 'anything1',
-								SOURCE     => 'anything',
-								TYPE       => 'anything',
-						}), 
-						MyBio::JobGraph::Output->new({
-								NAME       => 'anything2',
-								SOURCE     => 'anything',
-								TYPE       => 'anything',
-						})
-					],
-			DESCRIPTION  => MyBio::JobGraph::Description->new({
-						HEADER     => 'anything {{var1}} anything {{var2}}',
-						ABSTRACT   => 'anything',
-						TEXT 	   => 'anything',
-						VARIABLES  => {
-								'var1' => 'value for var1',
-								'var2' => 'value for var2',
-							},
-					}),
-			LOG          => 'anything',
-		},
-	];
+	return Test::TestObjects->get_testobject_MyBio_JobGraph_Job_Generic;
 }
 sub data {
 	return {
@@ -124,12 +84,12 @@ sub log : Test(4) {
 sub add_default_variables_to_description : Test(2) {
 	my ($self) = @_;
 	
-	my $obj = $self->class->new;
+	my $obj = $self->class->new; 
 	can_ok $obj, 'add_default_variables_to_description';
 	
 	$obj = $self->class->new(sample_object->[0]);
 	
-	is $obj->add_default_variables_to_description($self->get_input_for('add_default_variables_to_description')->[0]), $self->get_output_for('add_default_variables_to_description')->[0], "... and should return the correct value";
+	is $obj->add_default_variables_to_description($self->get_input_for('add_default_variables_to_description')->[0]), $self->get_output_for('add_default_variables_to_description')->[0], "... and should return the correct value"; 
 }
 
 
