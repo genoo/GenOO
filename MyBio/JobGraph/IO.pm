@@ -12,6 +12,7 @@ MyBio::JobGraph::IO - Input Output base object
     my $output = MyBio::JobGraph::IO->new({
 		NAME       => 'anything',
 		SOURCE     => 'anything',
+		DEVEL_SOURCE     => 'anything',
 		TYPE       => 'anything',
     });
 
@@ -37,7 +38,8 @@ sub _init {
 	
 	$self->set_name($$data{NAME});
 	$self->set_source($$data{SOURCE});
-	$self->set_type($$data{TYPE});	
+	$self->set_source($$data{DEVEL_SOURCE});
+	$self->set_type($$data{TYPE});
 	return $self;
 }
  
@@ -52,6 +54,11 @@ sub get_name {
 sub get_source {
 	my ($self) = @_;
 	return $self->{SOURCE};
+}
+
+sub get_devel_source {
+	my ($self) = @_;
+	return $self->{DEVEL_SOURCE};
 }
 
 sub get_type {
@@ -86,6 +93,18 @@ sub set_source {
 	}
 }
 
+sub set_devel_source {
+	my ($self,$value) = @_;
+	
+	if (defined $value) {
+		$self->{DEVEL_SOURCE} = $value;
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
+
 sub set_type {
 	my ($self,$value) = @_;
 	
@@ -98,10 +117,15 @@ sub set_type {
 	}
 }
 
-
 #######################################################################
 #############################   Methods   #############################
 #######################################################################
 
+sub set_to_development {
+	my ($self) = @_;
+	$self->set_source($self->get_devel_source);
+	return 1;
+
+}
 
 1;

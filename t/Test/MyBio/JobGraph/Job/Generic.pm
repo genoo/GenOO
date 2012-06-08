@@ -41,11 +41,11 @@ sub data {
 			OUTPUT => ['anything']
 		},
 		run =>  {
-			INPUT  => [''],
+			INPUT  => [sample_object->[0]],
 			OUTPUT => ['anything']
 		},
 		add_default_variables_to_description => {
-			INPUT  => [],
+			INPUT  => [sample_object->[0]],
 			OUTPUT => [1,1]
 		},
 	};
@@ -100,7 +100,7 @@ sub run : Test(2) {
 	my $obj = $self->class->new; 
 	can_ok $obj, 'run';
 	
-	$obj = $self->class->new(sample_object->[0]);
+	$obj = $self->class->new($self->get_input_for('run')->[0]);
 	is $obj->run(), $self->get_output_for('run')->[0], "... and should return the correct value";
 }
 
@@ -111,12 +111,10 @@ sub add_default_variables_to_description : Test(2) {
 	my $obj = $self->class->new; 
 	can_ok $obj, 'add_default_variables_to_description';
 	
-	$obj = $self->class->new(sample_object->[0]);
+	$obj = $self->class->new($self->get_input_for('add_default_variables_to_description')->[0]);
 	
-	is $obj->add_default_variables_to_description($self->get_input_for('add_default_variables_to_description')->[0]), $self->get_output_for('add_default_variables_to_description')->[0], "... and should return the correct value"; 
+	is $obj->add_default_variables_to_description(), $self->get_output_for('add_default_variables_to_description')->[0], "... and should return the correct value"; 
 }
-
-
 
 1;
 

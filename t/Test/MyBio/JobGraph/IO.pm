@@ -29,6 +29,14 @@ sub data {
 			INPUT  => ['anything'],
 			OUTPUT => ['anything']
 		},
+		devel_source => {
+			INPUT  => ['anything_devel'],
+			OUTPUT => ['anything_devel']
+		},
+		set_to_development => {
+			INPUT  => [sample_object->[0]],
+			OUTPUT => [1,'anything_devel']
+		},
 	};
 }
 
@@ -62,8 +70,25 @@ sub type : Test(4) {
 	$self->simple_attribute_test('type', $self->get_input_for('type')->[0], $self->get_output_for('type')->[0]);
 }
 
+sub devel_source : Test(4) {
+	my ($self) = @_;
+	$self->simple_attribute_test('devel_source', $self->get_input_for('devel_source')->[0], $self->get_output_for('devel_source')->[0]);
+}
+
 #######################################################################
 #############################   Methods   #############################
 #######################################################################
+sub set_to_development : Test(3) {
+	my ($self) = @_;
+
+	my $obj = $self->class->new; 
+	can_ok $obj, 'set_to_development';
+	
+	$obj = $self->class->new($self->get_input_for('set_to_development')->[0]);
+	
+	is $obj->set_to_development(), $self->get_output_for('set_to_development')->[0], "... and should return the correct value";
+	$obj->set_to_development();
+	is $obj->get_source(), $self->get_output_for('set_to_development')->[1], "... and should return the correct value"; 
+}
 
 1;

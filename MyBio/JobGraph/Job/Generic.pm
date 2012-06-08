@@ -15,6 +15,7 @@ MyBio::JobGraph::Job::Generic - Generic Job object, with features
 		OUTPUT       => [$outputobject,...],
 		DESCRIPTION  => $descriptionobj,
 		LOG          => $logobj,
+		CODE         => reference to a sub of code,
     });
 
 =head1 DESCRIPTION
@@ -145,13 +146,37 @@ sub clean { #this method will clean-up all the outputs
 
 }
 
-sub develop { #this method will change the output folders/files to "development ones"
+=head2 use_develop
 
+  Arg []     : 0 or 1. 1 sets development mode ON. 0 sets it off
+  Example    : ?
+  Description: Sets all I/O to development
+  Returntype : NaN
+  Caller     : ?
+  Status     : Stable
+
+=cut
+sub use_develop {
+	my ($self) = @_;
+	foreach my $io_obj ($self->get_input, $self->get_output)
+	{
+		$io_obj->set_to_development;
+	}
 }
 
-sub run { #this method will run
+=head2 run
+
+  Arg []     : NaN
+  Example    : ?
+  Description: Runs arbirtrary code
+  Returntype : Output of code
+  Caller     : ?
+  Status     : Stable
+
+=cut
+sub run {
 	my ($self) = @_;
-	return eval($self->get_code());
+	return $self->get_code->($self->get_input,$self->get_output);
 }
 
 =head2 add_default_variables_to_description
@@ -176,7 +201,7 @@ sub add_default_variables_to_description {
 	my $i=0;
 	foreach my $inputobj (@{$self->get_input})
 	{
-		$description_attr_obj{"INPUT.$i"} = $inputobj->get_name;
+		$description_attr_obj{"INPUT$i"} = $inputobj->get_name;
 		$i++;
 		push (@inputnames, $inputobj->get_name);
 	}
@@ -186,7 +211,7 @@ sub add_default_variables_to_description {
 	my $i=0;
 	foreach my $outputobj (@{$self->get_output})
 	{
-		$description_attr_obj{"OUTPUT.$i"} = $outputobj->get_name;
+		$description_attr_obj{"OUTPUT$i"} = $outputobj->get_name;
 		$i++;
 		push (@outputnames, $outputobj->get_name);
 	}

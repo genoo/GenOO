@@ -26,7 +26,7 @@ sub get_testobject_MyBio_JobGraph_Job_Generic
 						Test::TestObjects->get_testobject_MyBio_JobGraph_Description->[0]
 					}),
 			LOG          => 'anything',
-			CODE         => 'return "anything";'
+			CODE         => sub {return 'anything';}
 		},
 	];
 }
@@ -35,9 +35,10 @@ sub get_testobject_MyBio_JobGraph_IO
 	return [
 		{
 			#this is a generic object of the class
-			NAME       => 'anything',
-			SOURCE     => 'anything',
-			TYPE 	   => 'anything',
+			NAME         => 'anything',
+			SOURCE       => 'anything',
+			TYPE 	     => 'anything',
+			DEVEL_SOURCE => 'anything_devel',
 		},
 	];
 }
@@ -49,6 +50,7 @@ sub get_testobject_MyBio_JobGraph_Input
 			NAME       => 'anything',
 			SOURCE     => 'anything',
 			TYPE 	   => 'anything',
+			DEVEL_SOURCE => 'anything_devel',
 		},
 	];
 }
@@ -59,6 +61,7 @@ sub get_testobject_MyBio_JobGraph_Output {
 			NAME       => 'anything',
 			SOURCE     => 'anything',
 			TYPE 	   => 'anything',
+			DEVEL_SOURCE => 'anything_devel',
 		},
 	];
 }
