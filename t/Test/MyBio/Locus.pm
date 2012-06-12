@@ -3,47 +3,14 @@ use strict;
 
 use base qw(Test::MyBio);
 use Test::More;
+use Test::TestObjects;
 
 #######################################################################
 ###########################   Test Data     ###########################
 #######################################################################
 
 sub sample_object {
-	return [
-		{
-			#this is a generic object of the class
-			SPECIES      => "HUMAN",
-			STRAND       => "1",
-			CHR          => "chr9",
-			START        => "10000",
-			STOP         => "10100",
-			SEQUENCE     => "CAATACATACGTGTTCCGGCTCTTATCCTGCATCGGAAGCTCAATCATGCATCGCACCAGCGTGTTCGTGTCATCTAGGAGGGGCGCGTAGGATAAATAA",
-			NAME         => "test_locus_generic",
-			EXTRA_INFO   => undef,
-		},
-		{
-			#this is a generic object of the class (minus strand)
-			SPECIES      => "HUMAN",
-			STRAND       => "-1",
-			CHR          => "chr9",
-			START        => "10000",
-			STOP         => "10100",
-			SEQUENCE     => "CAATACATACGTGTTCCGGCTCTTATCCTGCATCGGAAGCTCAATCATGCATCGCACCAGCGTGTTCGTGTCATCTAGGAGGGGCGCGTAGGATAAATAA",
-			NAME         => "test_locus_generic2",
-			EXTRA_INFO   => undef,
-		},
-		{
-			#this is a generic object of the class (missing name and strand)
-			SPECIES      => "HUMAN",
-			STRAND       => undef,
-			CHR          => "chr9",
-			START        => "10000",
-			STOP         => "10100",
-			SEQUENCE     => "CAATACATACGTGTTCCGGCTCTTATCCTGCATCGGAAGCTCAATCATGCATCGCACCAGCGTGTTCGTGTCATCTAGGAGGGGCGCGTAGGATAAATAA",
-			NAME         => undef,
-			EXTRA_INFO   => undef,
-		},
-	];
+	return Test::TestObjects->get_testobject_MyBio_Locus;
 }
 sub data {
 	return {
