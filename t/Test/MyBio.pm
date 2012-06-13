@@ -48,7 +48,6 @@ sub deep_attribute_test {
 
 sub get_input_for {
 	my ($self, $attribute) = @_;
-	warn ">>>>".$self->data->{strand}->{INPUT}->[0];
 	return ($self->data->{$attribute}->{INPUT});
 }
 

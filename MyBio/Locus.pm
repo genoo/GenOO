@@ -156,10 +156,9 @@ sub get_3p {
 	}
 }
 sub get_id {
-	return $_[0]->get_chr.":".$_[0]->get_start."-".$_[0]->get_stop.":".$_[0]->get_strand;
+	return $_[0]->get_location;
 }
 sub get_location {
-	#This is EXACTLY the same as get_id ???
 	return $_[0]->get_chr.":".$_[0]->get_start."-".$_[0]->get_stop.":".$_[0]->get_strand;
 }
 sub to_string {
