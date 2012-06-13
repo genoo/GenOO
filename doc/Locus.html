@@ -68,6 +68,7 @@ Locus documentation.
 <tr><td id="methIndEntry">set_stop</td><td id="methIndEntry"><div id="error">No description</div></td><td id="methIndEntry"><a href="#CODE32">Code</a></td></tr>
 <tr><td id="methIndEntry">set_strand</td><td id="methIndEntry"><div id="error">No description</div></td><td id="methIndEntry"><a href="#CODE33">Code</a></td></tr>
 <tr><td id="methIndEntry">to_string</td><td id="methIndEntry"><div id="error">No description</div></td><td id="methIndEntry"><a href="#CODE34">Code</a></td></tr>
+<tr><td id="methIndEntry">to_string_bed</td><td id="methIndEntry"><div id="error">No description</div></td><td id="methIndEntry"><a href="#CODE35">Code</a></td></tr>
 </table>
 <div id="sep"></div>
 <a name="MethDesc" id="MethDesc"></a>
@@ -95,15 +96,19 @@ Locus documentation.
 <div id="sep"></div>
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE2" id="CODE2"></a>contains</td><td >description</td><td ><a href="#CODE1">prev</a></td><td ><a href="#CODE3">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">contains</span>
-{<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span>,<span id="var">$loc2</span>,<span id="var">$percent</span><span id="braces">)</span> = <span id="var">@_</span>;
+{<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span>,<span id="var">$loc2</span>,<span id="var">$params</span><span id="braces">)</span> = <span id="var">@_</span>;
 	
-	<span id="perlKey">if</span> <span id="braces">(</span>!<span id="perlFunc">defined</span> <span id="var">$percent</span><span id="braces">)</span> <span id="braces">{</span><span id="var">$percent</span> = 1;<span id="braces">}</span>
-	<span id="perlKey">my</span> <span id="var">$overhang</span> = 0;
-	<span id="perlKey">my</span> <span id="var">$left_overhang</span> = <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_start</span> - <span id="var">$loc2</span>-&gt;<span id="method">get_start</span><span id="braces">)</span>;
-	<span id="perlKey">my</span> <span id="var">$right_overhang</span> = <span id="braces">(</span><span id="var">$loc2</span>-&gt;<span id="method">get_stop</span> - <span id="var">$self</span>-&gt;<span id="method">get_stop</span><span id="braces">)</span>;
-	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$left_overhang</span> &gt; 0<span id="braces">)</span><span id="braces">{</span><span id="var">$overhang</span> += <span id="var">$left_overhang</span>;<span id="braces">}</span>
-	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$right_overhang</span> &gt; 0<span id="braces">)</span><span id="braces">{</span><span id="var">$overhang</span> += <span id="var">$right_overhang</span>;<span id="braces">}</span>
-<span id="comment"># 	print $self-&gt;get_start.&quot; - &quot;.$self-&gt;get_stop.&quot;\t&quot;.$loc2-&gt;get_start.&quot; - &quot;.$loc2-&gt;get_stop.&quot;\t&quot;.($overhang / $loc2-&gt;get_length).&quot;\t&quot;.$percent.&quot;\n&quot;;</span><br />	<span id="perlKey">if</span> <span id="braces">(</span><span id="braces">(</span><span id="var">$overhang</span> <span id="regExp">/ </span><span id="var">$loc2</span><span id="regExp">-&gt;get_length) &lt;= (1-</span><span id="var">$percent</span>)){return 1;}<br />	return 0;<br /></pre>}</td></div>
+	<span id="perlKey">if</span> <span id="braces">(</span><span id="braces">(</span>!<span id="perlFunc">defined</span> <span id="var">$params</span><span id="braces">)</span> or <span id="braces">(</span><span id="module">UNIVERSAL</span>::<span id="method">isa</span><span id="braces">(</span> <span id="var">$params</span>, <span id="dqStr">"HASH"</span> <span id="braces">)</span><span id="braces">)</span><span id="braces">)</span><span id="braces">{</span>
+		<span id="perlKey">my</span> <span id="var">$percent</span> = <span id="perlFunc">defined</span> <span id="var">$params</span>-&gt;<span id="braces">{</span>PERCENT<span id="braces">}</span> ? <span id="var">$params</span>-&gt;<span id="braces">{</span>PERCENT<span id="braces">}</span> : 1;
+		<span id="perlKey">my</span> <span id="var">$overhang</span> = 0;
+		<span id="perlKey">my</span> <span id="var">$left_overhang</span> = <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_start</span> - <span id="var">$loc2</span>-&gt;<span id="method">get_start</span><span id="braces">)</span>;
+		<span id="perlKey">my</span> <span id="var">$right_overhang</span> = <span id="braces">(</span><span id="var">$loc2</span>-&gt;<span id="method">get_stop</span> - <span id="var">$self</span>-&gt;<span id="method">get_stop</span><span id="braces">)</span>;
+		<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$left_overhang</span> &gt; 0<span id="braces">)</span><span id="braces">{</span><span id="var">$overhang</span> += <span id="var">$left_overhang</span>;<span id="braces">}</span>
+		<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$right_overhang</span> &gt; 0<span id="braces">)</span><span id="braces">{</span><span id="var">$overhang</span> += <span id="var">$right_overhang</span>;<span id="braces">}</span>
+	<span id="comment"># 	print $self-&gt;get_start.&quot; - &quot;.$self-&gt;get_stop.&quot;\t&quot;.$loc2-&gt;get_start.&quot; - &quot;.$loc2-&gt;get_stop.&quot;\t&quot;.($overhang / $loc2-&gt;get_length).&quot;\t&quot;.$percent.&quot;\n&quot;;</span><br />		<span id="perlKey">if</span> <span id="braces">(</span><span id="braces">(</span><span id="var">$overhang</span> <span id="regExp">/ </span><span id="var">$loc2</span><span id="regExp">-&gt;get_length) &lt;= (1-</span><span id="var">$percent</span>)){return 1;}<br />		return 0;<br />	<span id="braces">}</span>
+	<span id="perlKey">else</span> <span id="braces">{</span>
+		<span id="perlFunc">die</span> <span id="dqStr">"\n\nUnknown or no method provided when calling "</span>.<span id="braces">(</span><span id="perlFunc">caller</span><span id="braces">(</span>0<span id="braces">)</span><span id="braces">)</span><span id="braces">[</span>3<span id="braces">]</span>.<span id="dqStr">" in script $0\n\n"</span>;
+	<span id="braces">}</span></pre>}</td></div>
 <div id="sep"></div>
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE3" id="CODE3"></a>contains_position</td><td >description</td><td ><a href="#CODE2">prev</a></td><td ><a href="#CODE4">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">contains_position</span>
@@ -111,7 +116,8 @@ Locus documentation.
 	
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_start</span> &lt;= <span id="var">$position</span><span id="braces">)</span> and <span id="braces">(</span><span id="var">$position</span> &lt;= <span id="var">$self</span>-&gt;<span id="method">get_stop</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
 		<span id="perlKey">return</span> 1;
-	<span id="braces">}</span></pre>}</td></div>
+	<span id="braces">}</span>
+	<span id="perlKey">else</span> <span id="braces">{</span><span id="perlKey">return</span> 0;<span id="braces">}</span></pre>}</td></div>
 <div id="sep"></div>
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE4" id="CODE4"></a>get_3p</td><td >description</td><td ><a href="#CODE3">prev</a></td><td ><a href="#CODE5">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">get_3p</span>
@@ -119,8 +125,11 @@ Locus documentation.
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span> == 1<span id="braces">)</span> <span id="braces">{</span>
 		<span id="perlKey">return</span> <span id="var">$self</span>-&gt;<span id="method">get_stop</span>;
 	<span id="braces">}</span>
-	<span id="perlKey">else</span> <span id="braces">{</span>
+	<span id="perlKey">elsif</span> <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span> == -1<span id="braces">)</span> <span id="braces">{</span>
 		<span id="perlKey">return</span> <span id="var">$self</span>-&gt;<span id="method">get_start</span>;
+	<span id="braces">}</span>
+	<span id="perlKey">else</span> <span id="braces">{</span>
+		<span id="perlKey">return</span> <span id="perlFunc">undef</span>;
 	<span id="braces">}</span></pre>}</td></div>
 <div id="sep"></div>
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE5" id="CODE5"></a>get_3p_3p_distance_from</td><td >description</td><td ><a href="#CODE4">prev</a></td><td ><a href="#CODE6">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
@@ -139,8 +148,11 @@ Locus documentation.
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span> == 1<span id="braces">)</span> <span id="braces">{</span>
 		<span id="perlKey">return</span> <span id="var">$self</span>-&gt;<span id="method">get_start</span>;
 	<span id="braces">}</span>
-	<span id="perlKey">else</span> <span id="braces">{</span>
+	<span id="perlKey">elsif</span> <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span> == -1<span id="braces">)</span> <span id="braces">{</span>
 		<span id="perlKey">return</span> <span id="var">$self</span>-&gt;<span id="method">get_stop</span>;
+	<span id="braces">}</span>
+	<span id="perlKey">else</span> <span id="braces">{</span>
+		<span id="perlKey">return</span> <span id="perlFunc">undef</span>;
 	<span id="braces">}</span></pre>}</td></div>
 <div id="sep"></div>
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE8" id="CODE8"></a>get_5p_3p_distance_from</td><td >description</td><td ><a href="#CODE7">prev</a></td><td ><a href="#CODE9">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
@@ -204,7 +216,7 @@ Locus documentation.
 <div id="sep"></div>
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE15" id="CODE15"></a>get_location</td><td >description</td><td ><a href="#CODE14">prev</a></td><td ><a href="#CODE16">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">get_location</span>
-{<pre>	<span id="perlKey">return</span> <span id="var">$_</span><span id="braces">[</span>0<span id="braces">]</span>-&gt;<span id="method">get_chr</span>.<span id="dqStr">":"</span>.<span id="var">$_</span><span id="braces">[</span>0<span id="braces">]</span>-&gt;<span id="method">get_start</span>.<span id="dqStr">"-"</span>.<span id="var">$_</span><span id="braces">[</span>0<span id="braces">]</span>-&gt;<span id="method">get_stop</span>.<span id="dqStr">":"</span>.<span id="var">$_</span><span id="braces">[</span>0<span id="braces">]</span>-&gt;<span id="method">get_strand</span>;</pre>}</td></div>
+{<pre>	<span id="comment">#This is EXACTLY the same as get_id ???</span><br />	<span id="perlKey">return</span> <span id="var">$_</span><span id="braces">[</span>0<span id="braces">]</span>-&gt;<span id="method">get_chr</span>.<span id="dqStr">":"</span>.<span id="var">$_</span><span id="braces">[</span>0<span id="braces">]</span>-&gt;<span id="method">get_start</span>.<span id="dqStr">"-"</span>.<span id="var">$_</span><span id="braces">[</span>0<span id="braces">]</span>-&gt;<span id="method">get_stop</span>.<span id="dqStr">":"</span>.<span id="var">$_</span><span id="braces">[</span>0<span id="braces">]</span>-&gt;<span id="method">get_strand</span>;</pre>}</td></div>
 <div id="sep"></div>
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE16" id="CODE16"></a>get_name</td><td >description</td><td ><a href="#CODE15">prev</a></td><td ><a href="#CODE17">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">get_name</span>
@@ -263,21 +275,25 @@ Locus documentation.
 <div id="sep"></div>
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE25" id="CODE25"></a>overlaps</td><td >description</td><td ><a href="#CODE24">prev</a></td><td ><a href="#CODE26">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">overlaps</span>
-{<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span>,<span id="var">$loc2</span>,<span id="var">$offset</span>,<span id="var">$use_strand</span><span id="braces">)</span> = <span id="var">@_</span>;
-	
-	<span id="perlKey">if</span> <span id="braces">(</span>!<span id="perlFunc">defined</span> <span id="var">$offset</span><span id="braces">)</span> <span id="braces">{</span><span id="var">$offset</span> = 0;<span id="braces">}</span>
-	<span id="perlKey">if</span> <span id="braces">(</span>!<span id="perlFunc">defined</span> <span id="var">$use_strand</span><span id="braces">)</span> <span id="braces">{</span><span id="var">$use_strand</span> = 1;<span id="braces">}</span> 
-	
-	<span id="perlKey">if</span> <span id="braces">(</span><span id="braces">(</span><span id="braces">(</span><span id="var">$use_strand</span> == 0<span id="braces">)</span> or <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span><span id="braces">(</span><span id="braces">)</span> <span id="perlKey">eq</span> <span id="var">$loc2</span>-&gt;<span id="method">get_strand</span><span id="braces">(</span><span id="braces">)</span><span id="braces">)</span><span id="braces">)</span> and <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_chr</span><span id="braces">(</span><span id="braces">)</span> <span id="perlKey">eq</span> <span id="var">$loc2</span>-&gt;<span id="method">get_chr</span><span id="braces">(</span><span id="braces">)</span><span id="braces">)</span> and <span id="braces">(</span><span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_start</span><span id="braces">(</span><span id="braces">)</span>-<span id="var">$offset</span><span id="braces">)</span> &lt;= <span id="var">$loc2</span>-&gt;<span id="method">get_stop</span><span id="braces">(</span><span id="braces">)</span><span id="braces">)</span> and <span id="braces">(</span><span id="var">$loc2</span>-&gt;<span id="method">get_start</span><span id="braces">(</span><span id="braces">)</span> &lt;= <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_stop</span><span id="braces">(</span><span id="braces">)</span>+<span id="var">$offset</span><span id="braces">)</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="perlKey">return</span> 1; <span id="comment">#overlap</span><br />	<span id="braces">}</span>
+{<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span>,<span id="var">$loc2</span>,<span id="var">$params</span><span id="braces">)</span> = <span id="var">@_</span>;
+	<span id="perlKey">if</span> <span id="braces">(</span><span id="braces">(</span>!<span id="perlFunc">defined</span> <span id="var">$params</span><span id="braces">)</span> or <span id="braces">(</span><span id="module">UNIVERSAL</span>::<span id="method">isa</span><span id="braces">(</span> <span id="var">$params</span>, <span id="dqStr">"HASH"</span> <span id="braces">)</span><span id="braces">)</span><span id="braces">)</span><span id="braces">{</span>
+		<span id="perlKey">my</span> <span id="var">$offset</span> = <span id="perlFunc">defined</span> <span id="var">$params</span>-&gt;<span id="braces">{</span>OFFSET<span id="braces">}</span> ? <span id="var">$params</span>-&gt;<span id="braces">{</span>OFFSET<span id="braces">}</span> : 0;
+		<span id="perlKey">my</span> <span id="var">$use_strand</span> = <span id="perlFunc">defined</span> <span id="var">$params</span>-&gt;<span id="braces">{</span>USE_STRAND<span id="braces">}</span> ? <span id="var">$params</span>-&gt;<span id="braces">{</span>USE_STRAND<span id="braces">}</span> : 0;
+		
+		<span id="perlKey">if</span> <span id="braces">(</span><span id="braces">(</span><span id="braces">(</span><span id="var">$use_strand</span> == 0<span id="braces">)</span> or <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span><span id="braces">(</span><span id="braces">)</span> <span id="perlKey">eq</span> <span id="var">$loc2</span>-&gt;<span id="method">get_strand</span><span id="braces">(</span><span id="braces">)</span><span id="braces">)</span><span id="braces">)</span> and <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_chr</span><span id="braces">(</span><span id="braces">)</span> <span id="perlKey">eq</span> <span id="var">$loc2</span>-&gt;<span id="method">get_chr</span><span id="braces">(</span><span id="braces">)</span><span id="braces">)</span> and <span id="braces">(</span><span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_start</span><span id="braces">(</span><span id="braces">)</span>-<span id="var">$offset</span><span id="braces">)</span> &lt;= <span id="var">$loc2</span>-&gt;<span id="method">get_stop</span><span id="braces">(</span><span id="braces">)</span><span id="braces">)</span> and <span id="braces">(</span><span id="var">$loc2</span>-&gt;<span id="method">get_start</span><span id="braces">(</span><span id="braces">)</span> &lt;= <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_stop</span><span id="braces">(</span><span id="braces">)</span>+<span id="var">$offset</span><span id="braces">)</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
+			<span id="perlKey">return</span> 1; <span id="comment">#overlap</span><br />		<span id="braces">}</span>
+		<span id="perlKey">else</span> <span id="braces">{</span>
+			<span id="perlKey">return</span> 0; <span id="comment">#no overlap</span><br />		<span id="braces">}</span>
+	<span id="braces">}</span>
 	<span id="perlKey">else</span> <span id="braces">{</span>
-		<span id="perlKey">return</span> 0; <span id="comment">#no overlap</span><br />	<span id="braces">}</span></pre>}</td></div>
+		<span id="perlFunc">die</span> <span id="dqStr">"\n\nUnknown or no method provided when calling "</span>.<span id="braces">(</span><span id="perlFunc">caller</span><span id="braces">(</span>0<span id="braces">)</span><span id="braces">)</span><span id="braces">[</span>3<span id="braces">]</span>.<span id="dqStr">" in script $0\n\n"</span>;
+	<span id="braces">}</span></pre>}</td></div>
 <div id="sep"></div>
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE26" id="CODE26"></a>set_chr</td><td >description</td><td ><a href="#CODE25">prev</a></td><td ><a href="#CODE27">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">set_chr</span>
 {<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span>,<span id="var">$value</span><span id="braces">)</span> = <span id="var">@_</span>;
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">defined</span> <span id="var">$value</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="var">$value</span> =~ <span id="regExp">s/&gt;*chr//</span>;
+		<span id="var">$value</span> =~ <span id="regExp">s/^&gt;*//</span>;
 		<span id="var">$self</span>-&gt;<span id="braces">{</span>CHR<span id="braces">}</span> = <span id="var">$value</span>;
 	<span id="braces">}</span></pre>}</td></div>
 <div id="sep"></div>
@@ -322,25 +338,34 @@ Locus documentation.
 	<span id="braces">}</span>
 <span id="comment"># 	else {</span><br /><span id="comment"># 		$self-&gt;{STRAND} = 0;</span><br /><span id="comment"># 	}</span><br /></pre>}</td></div>
 <div id="sep"></div>
-<table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE34" id="CODE34"></a>to_string</td><td >description</td><td ><a href="#CODE33">prev</a></td><td >next</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
+<table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE34" id="CODE34"></a>to_string</td><td >description</td><td ><a href="#CODE33">prev</a></td><td ><a href="#CODE35">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">to_string</span>
-{<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span>,<span id="var">$method</span>,<span id="var">@attributes</span><span id="braces">)</span> = <span id="var">@_</span>;
+{<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span>, <span id="var">$params</span><span id="braces">)</span> = <span id="var">@_</span>;
 	
-	<span id="perlKey">my</span> <span id="var">$print_tag</span>;
-	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$method</span> <span id="perlKey">eq</span> <span id="dqStr">"BED"</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="perlKey">my</span> <span id="var">$strand</span>;
-		<span id="perlKey">if</span>    <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span> == 1<span id="braces">)</span><span id="braces">{</span><span id="var">$strand</span> = <span id="dqStr">"+"</span>;<span id="braces">}</span>
-		<span id="perlKey">elsif</span> <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span> == -1<span id="braces">)</span><span id="braces">{</span><span id="var">$strand</span> = <span id="dqStr">"-"</span>;<span id="braces">}</span>
-		<span id="perlKey">else</span> <span id="braces">{</span><span id="var">$strand</span> = <span id="dqStr">"."</span>;<span id="braces">}</span>
-		
-		<span id="perlKey">my</span> <span id="var">$name</span> = <span id="perlFunc">defined</span> <span id="var">$self</span>-&gt;<span id="method">get_name</span> ? <span id="var">$self</span>-&gt;<span id="method">get_name</span> : <span id="dqStr">"."</span>;
-		<span id="perlKey">my</span> <span id="var">$score</span> = 0;
-		
-		<span id="var">$print_tag</span> = <span id="dqStr">"chr"</span>.<span id="var">$self</span>-&gt;<span id="method">get_chr</span>.<span id="dqStr">"\t"</span>.<span id="var">$self</span>-&gt;<span id="method">get_start</span>.<span id="dqStr">"\t"</span>.<span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_stop</span>+1<span id="braces">)</span>.<span id="dqStr">"\t"</span>.<span id="var">$name</span>.<span id="dqStr">"\t"</span>.<span id="var">$score</span>.<span id="dqStr">"\t"</span>.<span id="var">$strand</span>;
-		
+	<span id="comment">#changed from the old ($self,$method,@attributes) way to the new ($self,$params) way</span><br />	<span id="perlKey">my</span> <span id="var">$method</span>;
+	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$params</span> <span id="perlKey">eq</span> <span id="sqStr">'BED'</span><span id="braces">)</span><span id="braces">{</span>
+		<span id="perlFunc">warn</span> <span id="dqStr">"Don't panic - Just use hash notation when calling "</span>.<span id="braces">(</span><span id="perlFunc">caller</span><span id="braces">(</span>0<span id="braces">)</span><span id="braces">)</span><span id="braces">[</span>3<span id="braces">]</span>.<span id="dqStr">" in script <span id="var">$0</span> - Your output is ok.\n"</span>;
+		<span id="var">$method</span> = <span id="sqStr">'BED'</span>;
 	<span id="braces">}</span>
-	<span id="var">$print_tag</span> =~ <span id="regExp">s/\t+$//g</span>;
-	<span id="perlKey">return</span> <span id="var">$print_tag</span>;</pre>}</td></div>
+	<span id="perlKey">else</span> <span id="braces">{</span>
+		<span id="var">$method</span> = <span id="perlFunc">exists</span> <span id="var">$params</span>-&gt;<span id="braces">{</span><span id="sqStr">'METHOD'</span><span id="braces">}</span> ? <span id="var">$params</span>-&gt;<span id="braces">{</span><span id="sqStr">'METHOD'</span><span id="braces">}</span> : <span id="perlFunc">undef</span>;
+	<span id="braces">}</span>
+	
+	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$method</span> <span id="perlKey">eq</span> <span id="sqStr">'BED'</span><span id="braces">)</span> <span id="braces">{</span>
+		<span id="perlKey">return</span> <span id="var">$self</span>-&gt;<span id="method">to_string_bed</span>;
+	<span id="braces">}</span>
+	<span id="perlKey">else</span> <span id="braces">{</span>
+		<span id="perlFunc">die</span> <span id="dqStr">"\n\nUnknown or no method provided when calling "</span>.<span id="braces">(</span><span id="perlFunc">caller</span><span id="braces">(</span>0<span id="braces">)</span><span id="braces">)</span><span id="braces">[</span>3<span id="braces">]</span>.<span id="dqStr">" in script $0\n\n"</span>;
+	<span id="braces">}</span></pre>}</td></div>
+<div id="sep"></div>
+<table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE35" id="CODE35"></a>to_string_bed</td><td >description</td><td ><a href="#CODE34">prev</a></td><td >next</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
+<div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">to_string_bed</span>
+{<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span><span id="braces">)</span> = <span id="var">@_</span>;
+	<span id="perlKey">my</span> <span id="var">$strand</span> = <span id="perlFunc">defined</span> <span id="var">$self</span>-&gt;<span id="method">get_strand_symbol</span> ? <span id="var">$self</span>-&gt;<span id="method">get_strand_symbol</span> : <span id="dqStr">"."</span>;
+	<span id="perlKey">my</span> <span id="var">$name</span> = <span id="perlFunc">defined</span> <span id="var">$self</span>-&gt;<span id="method">get_name</span> ? <span id="var">$self</span>-&gt;<span id="method">get_name</span> : <span id="dqStr">"."</span>;
+	<span id="perlKey">my</span> <span id="var">$score</span> = 0;
+	
+	<span id="perlKey">return</span> <span id="var">$self</span>-&gt;<span id="method">get_chr</span>.<span id="dqStr">"\t"</span>.<span id="var">$self</span>-&gt;<span id="method">get_start</span>.<span id="dqStr">"\t"</span>.<span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_stop</span>+1<span id="braces">)</span>.<span id="dqStr">"\t"</span>.<span id="var">$name</span>.<span id="dqStr">"\t"</span>.<span id="var">$score</span>.<span id="dqStr">"\t"</span>.<span id="var">$strand</span>;</pre>}</td></div>
 <div id="sep"></div>
 <a name="General" id="General"></a>
 <div id="mainTitle">General documentation</div>
