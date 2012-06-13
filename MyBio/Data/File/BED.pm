@@ -2,35 +2,31 @@
 
 =head1 NAME
 
-MyBio::Data::File::BED - Object implementing mehtods for accessing bed formatted files
+MyBio::Data::File::BED - Object implementing methods for accessing bed formatted files (http://genome.ucsc.edu/FAQ/FAQformat#format1)
 
 =head1 SYNOPSIS
 
     # Object that manages a bed file. 
 
     # To initialize 
-    my $file = MyBio::Data::File::BED->new({
-        TYPE            => undef,
+    my $bed_file = MyBio::Data::File::BED->new({
         FILE            => undef,
         EXTRA_INFO      => undef,
     });
 
-
 =head1 DESCRIPTION
 
-    This object offers functions to read a bed file line by line.
+    This object offers methods to read a bed file line by line.
 
 =head1 EXAMPLES
 
-    # Read one line
-    my $line = $bed_obj->read_ln();
+    # Create object
+    my $bed_file = MyBio::Data::File::BED->new({
+          FILE => 't/sample_data/sample.bed.gz'
+    });
     
-    # Read one entity
-    my %entity = %{$bed_obj->read_entity()};
-
-=head1 AUTHOR - Manolis Maragkakis
-
-Email em.maragkakis@gmail.com
+    # Read one record at a time
+    my $record = $bed_file->next_record();
 
 =cut
 
@@ -38,165 +34,247 @@ Email em.maragkakis@gmail.com
 
 package MyBio::Data::File::BED;
 use strict;
-
 use FileHandle;
+
+use MyBio::Data::File::BED::Record;
 
 use base qw(MyBio::_Initializable);
 
+our $VERSION = '1.0';
+
 sub _init {
-	
 	my ($self,$data) = @_;
 	
-	$self->set_type($$data{TYPE});
 	$self->set_file($$data{FILE});
 	$self->set_extra($$data{EXTRA_INFO});
 	
-	my $read_mode = "<";
-	if ($self->get_file =~ /\.gz$/) {
-		$read_mode = "<:gzip";
-	}
+	$self->init;
+}
+
+sub open {
+	my ($self, $filename) = @_;
 	
-	my $filehandle = FileHandle->new($self->get_file, $read_mode) or die "Cannot open file \"".$self->get_file."\"  $!";
-	$self->set_filehandle($filehandle);
+	my $read_mode = ($filename !~ /\.gz$/) ? '<' : '<:gzip';
+	$self->{FILEHANDLE} = FileHandle->new($filename, $read_mode) or die "Cannot open file \"$filename\". $!";
 }
 
 #######################################################################
-#############################   Getters   #############################
+########################   Attribute Setters   ########################
 #######################################################################
-sub get_type {
-	return $_[0]->{TYPE};
-}
-sub get_file {
-	return $_[0]->{FILE};
-}
-sub get_filehandle {
-	return $_[0]->{FILEHANDLE};
-}
-sub get_extra {
-	return $_[0]->{EXTRA_INFO};
-}
-sub get_comments {
-	unless (exists $_[0]->{COMMENTS}) {
-		$_[0]->set_comments();
-	}
-	return $_[0]->{COMMENTS};
-}
-
-#######################################################################
-#############################   Setters   #############################
-#######################################################################
-sub set_type {
-	$_[0]->{TYPE}=$_[1] if defined $_[1];
-}
 sub set_file {
-	$_[0]->{FILE}=$_[1] if defined $_[1];
+	my ($self, $value) = @_;
+	$self->{FILE} = $value if defined $value;
 }
-sub set_filehandle {
-	$_[0]->{FILEHANDLE}=$_[1] if defined $_[1];
+
+sub set_eof_reached {
+	my ($self) = @_;
+	$self->{EOF} = 1;
 }
-sub set_extra {
-	$_[0]->{EXTRA_INFO}=$_[1] if defined $_[1];
+
+#######################################################################
+############################   Accessors   ############################
+#######################################################################
+sub file {
+	my ($self) = @_;
+	return $self->{FILE};
 }
-sub set_comments {
-	if (defined $_[1]) {
-		$_[0]->{COMMENTS} = $_[1]
-	}
-	else {
-		$_[0]->{COMMENTS} = [];
-	}
+
+sub filehandle {
+	my ($self) = @_;
+	return $self->{FILEHANDLE};
+}
+
+sub header {
+	my ($self) = @_;
+	return $self->{HEADER};
+}
+
+sub records_cache {
+	my ($self) = @_;
+	return $self->{RECORDS_CACHE};
+}
+
+sub records_read_count {
+	my ($self) = @_;
+	return $self->{RECORDS_READ_COUNT};
 }
 
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
-
-sub readline {
+sub init {
 	my ($self) = @_;
+	$self->open($self->file);
 	
-	my $fh = $self->get_filehandle or return;
-	my $line = <$fh>;
-	chomp($line);
-	return $line;
+	$self->init_header;
+	$self->init_records_cache;
+	$self->init_records_read_count;
+	
+	$self->parse_header_section;
 }
 
-sub next_entity {
+sub init_header {
 	my ($self) = @_;
-	
-	while (1) {
-		my $line = $self->readline or return;
-		my $entity = $self->line_to_entity($line);
-		if (exists $entity->{START}) {
-			return $entity;
-		}
-		elsif (exists $entity->{COMMENT_LINE}) {
-			push @{$self->get_comments}, $line;
-		}
-	}
+	$self->{HEADER} = {};
 }
 
-sub line_to_entity {
-	my ($self, $line) = @_;
+sub init_records_cache {
+	my ($self) = @_;
+	$self->{RECORDS_CACHE} = [];
+}
+
+sub init_records_read_count {
+	my ($self) = @_;
+	$self->{RECORDS_READ_COUNT} = 0;
+}
+
+sub increment_records_read_count {
+	my ($self) = @_;
+	$self->{RECORDS_READ_COUNT}++;
+}
+
+sub parse_header_section {
+	my ($self) = @_;
 	
-	if ($line =~ /^chr/) {
-		my ($chr,$start,$stop,$name,$score,$strand,@others) = split(/\t/,$line);
-		if (@others) {
-			return {
-				STRAND        => $strand,
-				CHR           => $chr,
-				START         => $start,
-				STOP          => $stop - 1, #[start,stop)
-				NAME          => $name,
-				SCORE         => $score,
-				THICK_START   => $others[0],
-				THICK_STOP    => $others[1],
-				RGB           => $others[2],
-				BLOCK_COUNT   => $others[3],
-				BLOCK_SIZES   => $others[4],
-				BLOCK_STARTS  => $others[5],
-				LOCUS         => 1,
-			};
+	my $filehandle = $self->filehandle;
+	while (my $line = $filehandle->getline) {
+		if ($self->line_looks_like_header($line)) {
+			$self->recognize_and_store_header_line($line);
+		}
+		elsif ($self->line_looks_like_record($line)) {
+			# the while loop will read one line after header. Usually, this is the first record and unfortunately in zipped files we cannot go back
+			my $record = $self->parse_record_line($line);
+			$self->add_to_records_cache($record); 
+			return;
 		}
 		else {
-			return {
-				STRAND        => $strand,
-				CHR           => $chr,
-				START         => $start,
-				STOP          => $stop - 1, #[start,stop)
-				NAME          => $name,
-				SCORE         => $score,
-				LOCUS         => 1,
-			};
+			return;
 		}
 	}
-	elsif ($line =~ /^#/) {
-		return {
-			COMMENT_LINE => 1,
-		}
-	}
-	elsif ($line =~ /^track/) {
-		my %info;
-		while ($line =~ /(\S+?)=(".+?"|\d+?)/g) {
-			$info{$1} = $2;
-		}
-		return {
-			NAME            => $info{'name'},
-			DESCRIPTION     => $info{'description'},
-			VISIBILITY      => $info{'visibility'},
-			COLOR           => $info{'color'},
-			RGB_FLAG        => $info{'itemRgb'},
-			COLOR_BY_STRAND => $info{'colorByStrand'},
-			USE_SCORE       => $info{'useScore'},
-			TRACK_INFO      => 1,
-		};
-	}
-	elsif ($line =~ /^browser/) {
-		return {
-			BROWSER         => $line,
-		};
+}
+
+# TODO fix to store "browser" and "track" lines
+sub recognize_and_store_header_line {
+	my ($self, $line) = @_;
+# 	if ($self->line_looks_like_version($line)) {
+# 		$self->parse_and_store_version_line($line);
+# 		
+# 	}
+# 	else {
+# 		$self->parse_and_store_header_line($line);
+# 	}
+}
+
+sub add_to_records_cache {
+	my ($self, $record) = @_;
+	push @{$self->{RECORDS_CACHE}}, $record,
+}
+
+sub next_record {
+	my ($self) = @_;
+	
+	my $record;
+	if ($self->record_cache_not_empty) {
+		$record = $self->next_record_from_cache;
 	}
 	else {
-		return {};
+		$record = $self->next_record_from_file;
 	}
+	
+	if (defined $record) {
+		$self->increment_records_read_count;
+	}
+	return $record;
+}
+
+sub next_record_from_file {
+	my ($self) = @_;
+	
+	while (my $line = $self->filehandle->getline) {
+		if ($self->line_looks_like_record($line)) {
+			return $self->parse_record_line($line);
+		}
+		else {
+			if ($self->line_looks_like_header($line)) {
+				die "Record was expected but line looks like a header - the header should have been parsed already. $line\n";
+			}
+			else {
+				warn "Record was expected but line looks different. $line\n";
+			}
+		}
+	}
+	
+	$self->set_eof_reached;
+	return undef;
+}
+
+sub next_record_from_cache {
+	my ($self) = @_;
+	
+	my $record = shift @{$self->{RECORDS_CACHE}};
+	if (defined $record) {
+		return $record;
+	}
+	else {
+		return undef;
+	}
+}
+
+sub parse_record_line {
+	my ($self, $line) = @_;
+	
+	chomp $line;
+	my ($chr,$start,$stop_1,$name,$score,$strand,$thick_start,$thick_stop,$rgb,$block_count,$block_sizes,$block_starts) = split(/\t/,$line);
+	
+	return MyBio::Data::File::BED::Record->new({
+		CHR          => $chr,
+		START        => $start,
+		STOP_1       => $stop_1,
+		NAME         => $name,
+		SCORE        => $score,
+		STRAND       => $strand,
+		THICK_START  => $thick_start,
+		THICK_STOP   => $thick_stop,
+		RGB          => $rgb,
+		BLOCK_COUNT  => $block_count,
+		BLOCK_SIZES  => [split(/,/,$block_sizes)],
+		BLOCK_STARTS => [split(/,/,$block_starts)],
+	});
+}
+
+sub line_looks_like_comment {
+	my ($self, $line) = @_;
+	return ($line =~ /^#/) ? 1 : 0;
+}
+
+sub line_looks_like_header {
+	my ($self, $line) = @_;
+	return ($line =~ /^(track|browser)/) ? 1 : 0;
+}
+
+sub line_looks_like_record {
+	my ($self, $line) = @_;
+	return ($line !~ /^(#|track|browser)/) ? 1 : 0;
+}
+
+sub record_cache_not_empty {
+	my ($self) = @_;
+	return ($self->record_cache_size > 0) ? 1 : 0;
+}
+
+sub record_cache_is_empty {
+	my ($self) = @_;
+	return ($self->record_cache_size == 0) ? 1 : 0;
+}
+
+sub record_cache_size {
+	my ($self) = @_;
+	return scalar @{$self->records_cache};
+}
+
+sub is_eof_reached {
+	my ($self) = @_;
+	return $self->{EOF};
 }
 
 1;
