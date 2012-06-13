@@ -6,13 +6,18 @@ use Test::More;
 
 
 #######################################################################
-###########################   Basic Tests   ###########################
+################   Startup (Runs once in the begining  ################
 #######################################################################
-sub _loading_test : Test(4) {
+sub _check_loading : Test(startup => 1) {
 	my ($self) = @_;
-	
 	use_ok $self->class;
-	can_ok $self->class, 'new';
+};
+
+#######################################################################
+###########################   Actual Tests   ##########################
+#######################################################################
+sub _isa_test : Test(1) {
+	my ($self) = @_;
 	
 	my $data = {
 		SEQNAME     => 'chr1',
@@ -25,16 +30,11 @@ sub _loading_test : Test(4) {
 		FRAME       => '.',
 		ATTRIBUTES  => ['ACC="MI0003559"','ID="hsa-mir-554"'],
 		COMMENT     => 'This is just a test line',
-		EXTRA_INFO  => undef
 	};
 	
-	ok my $obj = $self->class->new($data), '... and the constructor succeeds';
-	isa_ok $obj, $self->class, "... and the object";
+	isa_ok $self->class->new($data), $self->class, "... and the object";
 }
 
-#######################################################################
-#########################   Attributes Tests   ########################
-#######################################################################
 sub seqname : Test(4) {
 	my ($self) = @_;
 	$self->simple_attribute_test('seqname', 'chr1', 'chr1');
@@ -85,11 +85,6 @@ sub comment : Test(4) {
 	$self->simple_attribute_test('comment', 'This is a comment', 'This is a comment');
 }
 
-
-
-#######################################################################
-###########################   Other Tests   ###########################
-#######################################################################
 sub get_length : Test(2) {
 	my ($self) = @_;
 	

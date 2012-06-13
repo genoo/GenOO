@@ -12,22 +12,26 @@ TOC for all levels
 <table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocIndex" ><a href="#MyBio">MyBio</a></td></tr>
 <tr><td id="tocIndex" ><a href="#MyBio::Data">MyBio::Data</a></td></tr>
 <tr><td id="tocIndex" ><a href="#MyBio::Data::File">MyBio::Data::File</a></td></tr>
+<tr><td id="tocIndex" ><a href="#MyBio::Data::File::BED">MyBio::Data::File::BED</a></td></tr>
 <tr><td id="tocIndex" ><a href="#MyBio::Data::File::SAM">MyBio::Data::File::SAM</a></td></tr>
 <tr><td id="tocIndex" ><a href="#MyBio::Data::File::GFF">MyBio::Data::File::GFF</a></td></tr>
 <tr><td id="tocIndex" ><a href="#MyBio::Transcript">MyBio::Transcript</a></td></tr>
+<tr><td id="tocIndex" ><a href="#MyBio::LocusCollection">MyBio::LocusCollection</a></td></tr>
 <tr><td id="tocIndex" ><a href="#MyBio::Helper">MyBio::Helper</a></td></tr>
-<tr><td id="tocIndex" ><a href="#MyBio::Mirna">MyBio::Mirna</a></td></tr>
 <tr><td id="tocIndex" ><a href="#MyBio::NGS">MyBio::NGS</a></td></tr>
-<tr><td id="tocIndex" ><a href="#MyBio::NGS::TrackFactory">MyBio::NGS::TrackFactory</a></td></tr>
+<tr><td id="tocIndex" ><a href="#MyBio::NGS::Track">MyBio::NGS::Track</a></td></tr>
+<tr><td id="tocIndex" ><a href="#MyBio::NGS::Track::Factory">MyBio::NGS::Track::Factory</a></td></tr>
+<tr><td id="tocIndex" ><a href="#MyBio::NGS::Track::Factory::BED">MyBio::NGS::Track::Factory::BED</a></td></tr>
+<tr><td id="tocIndex" ><a href="#MyBio::NGS::Track::Factory::SAM">MyBio::NGS::Track::Factory::SAM</a></td></tr>
+<tr><td id="tocIndex" ><a href="#MyBio::NGS::Track::Factory::GFF">MyBio::NGS::Track::Factory::GFF</a></td></tr>
 <tr><td id="tocIndex" ><a href="#MyBio::NGS::JobGraph">MyBio::NGS::JobGraph</a></td></tr>
-<tr><td id="tocIndex" ><a href="#MyBio::Pathway">MyBio::Pathway</a></td></tr>
-<tr><td id="tocIndex" ><a href="#MyBio::Interaction">MyBio::Interaction</a></td></tr>
 </table>
 <div id="sep"></div>
 <table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio"></a>MyBio</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="/DBconnector.html">DBconnector</a></td><td id="tocDesc" >Connector to database object, with features</td></tr>
 <tr><td id="tocMod" WIDTH="20%"><a href="/Gene.html">Gene</a></td><td id="tocDesc" >Gene object, with features</td></tr>
 <tr><td id="tocMod" WIDTH="20%"><a href="/Junction.html">Junction</a></td><td id="tocDesc" >A junction object with features</td></tr>
 <tr><td id="tocMod" WIDTH="20%"><a href="/Locus.html">Locus(1)</a></td><td id="tocDesc" > </td></tr>
+<tr><td id="tocMod" WIDTH="20%"><a href="/LocusCollection.html">LocusCollection</a></td><td id="tocDesc" >Object for a collection of MyBio::Locus objects, with features</td></tr>
 <tr><td id="tocMod" WIDTH="20%"><a href="/MyMath.html">MyMath</a></td><td id="tocDesc" > </td></tr>
 <tr><td id="tocMod" WIDTH="20%"><a href="/MySub.html">MySub</a></td><td id="tocDesc" > </td></tr>
 <tr><td id="tocMod" WIDTH="20%"><a href="/SplicedLocus.html">SplicedLocus</a></td><td id="tocDesc" >A region consisting of spicing elements</td></tr>
@@ -37,18 +41,19 @@ TOC for all levels
 <div id="sep"></div>
 <table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Data"></a>MyBio::Data</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" ><div id="error">Nothing here</div></td></tr></table>
 <div id="sep"></div>
-<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Data::File"></a>MyBio::Data::File</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Data/File/BED.html">BED</a></td><td id="tocDesc" >Object implementing mehtods for accessing bed formatted files</td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="Data/File/BioFile.html">BioFile</a></td><td id="tocDesc" >Object that acts as an accessor for biology related files eg BED, FASTA ...</td></tr>
+<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Data::File"></a>MyBio::Data::File</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Data/File/BED.html">BED(1)</a></td><td id="tocDesc" >Object implementing methods for accessing bed formatted files (http://genome.ucsc.edu/FAQ/FAQformat#format1)</td></tr>
 <tr><td id="tocMod" WIDTH="20%"><a href="Data/File/FASTQ.html">FASTQ</a></td><td id="tocDesc" >Object implementing mehtods for accessing bed formatted files</td></tr>
 <tr><td id="tocMod" WIDTH="20%"><a href="Data/File/GFF.html">GFF(1)</a></td><td id="tocDesc" >Object implementing methods for accessing gff formatted files (http://www.sanger.ac.uk/resources/software/gff/spec.html)</td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="Data/File/SAM.html">SAM</a></td><td id="tocDesc" >Object implementing methods for accessing sam formatted files</td></tr>
+<tr><td id="tocMod" WIDTH="20%"><a href="Data/File/SAM.html">SAM(1)</a></td><td id="tocDesc" >Object implementing methods for accessing sam formatted files</td></tr>
 </table>
 <div id="sep"></div>
-<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Data::File::SAM"></a>MyBio::Data::File::SAM</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Data/File/SAM/Record.html">Record(1)</a></td><td id="tocDesc" >Object representing a record of a sam file</td></tr>
+<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Data::File::BED"></a>MyBio::Data::File::BED</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Data/File/BED/Record.html">Record(1)</a></td><td id="tocDesc" >Object representing a record of a bed file</td></tr>
 </table>
 <div id="sep"></div>
-<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Data::File::GFF"></a>MyBio::Data::File::GFF</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Data/File/GFF/Record.html">Record(2)</a></td><td id="tocDesc" >Object representing a record of a gff file</td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="Data/File/GFF/Tag.html">Tag(1)</a></td><td id="tocDesc" >Object that offers a MyBio::NGS::Tag interface for MyBio::Data::File::GFF::Record</td></tr>
+<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Data::File::SAM"></a>MyBio::Data::File::SAM</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Data/File/SAM/Record.html">Record(2)</a></td><td id="tocDesc" >Object representing a record of a sam file</td></tr>
+</table>
+<div id="sep"></div>
+<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Data::File::GFF"></a>MyBio::Data::File::GFF</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Data/File/GFF/Record.html">Record(3)</a></td><td id="tocDesc" >Object representing a record of a gff file</td></tr>
 </table>
 <div id="sep"></div>
 <table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Transcript"></a>MyBio::Transcript</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Transcript/CDNA.html">CDNA</a></td><td id="tocDesc" > </td></tr>
@@ -60,39 +65,43 @@ TOC for all levels
 <tr><td id="tocMod" WIDTH="20%"><a href="Transcript/UTR5.html">UTR5</a></td><td id="tocDesc" > </td></tr>
 </table>
 <div id="sep"></div>
-<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Helper"></a>MyBio::Helper</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Helper/Locus.html">Locus(2)</a></td><td id="tocDesc" >Helper functions which could not fit in MyBio::Locus class</td></tr>
+<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::LocusCollection"></a>MyBio::LocusCollection</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="LocusCollection/Iterator.html">Iterator</a></td><td id="tocDesc" >Iterator object for the MyBio::LocusCollection data structure</td></tr>
+<tr><td id="tocMod" WIDTH="20%"><a href="LocusCollection/Stats.html">Stats(1)</a></td><td id="tocDesc" >Object for managing statistics for MyBio::LocusCollection</td></tr>
 </table>
 <div id="sep"></div>
-<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Mirna"></a>MyBio::Mirna</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Mirna/Hairpin.html">Hairpin</a></td><td id="tocDesc" > </td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="Mirna/Mimat.html">Mimat</a></td><td id="tocDesc" > </td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="Mirna/MockMimat.html">MockMimat</a></td><td id="tocDesc" > </td></tr>
+<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Helper"></a>MyBio::Helper</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Helper/Locus.html">Locus(2)</a></td><td id="tocDesc" >Helper functions which could not fit in MyBio::Locus class</td></tr>
 </table>
 <div id="sep"></div>
 <table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::NGS"></a>MyBio::NGS</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="NGS/Experiment.html">Experiment</a></td><td id="tocDesc" >Object describing a Next Generation Sequencing experiment</td></tr>
 <tr><td id="tocMod" WIDTH="20%"><a href="NGS/JobI.html">Job</a></td><td id="tocDesc" >Job object, with features</td></tr>
 <tr><td id="tocMod" WIDTH="20%"><a href="NGS/JobGraph.html">JobGraph</a></td><td id="tocDesc" >Job object, with features</td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="NGS/Tag.html">Tag(2)</a></td><td id="tocDesc" > </td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="NGS/Track.html">Track</a></td><td id="tocDesc" >Object for a collection of MyBio::Locus objects, with features</td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="NGS/TrackFactory.html">TrackFactory</a></td><td id="tocDesc" >Factory for creating MyBio::NGS::Track objects</td></tr>
+<tr><td id="tocMod" WIDTH="20%"><a href="NGS/Tag.html">Tag(1)</a></td><td id="tocDesc" > </td></tr>
+<tr><td id="tocMod" WIDTH="20%"><a href="NGS/Track.html">Track</a></td><td id="tocDesc" >Object for a collection of MyBio::NGS::Tag objects, with features</td></tr>
 </table>
 <div id="sep"></div>
-<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::NGS::TrackFactory"></a>MyBio::NGS::TrackFactory</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="NGS/TrackFactory/GFF.html">GFF(2)</a></td><td id="tocDesc" >Factory for creating MyBio::NGS::Track object from a GFF formatted file</td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="NGS/TrackFactory/Interface.html">Interface</a></td><td id="tocDesc" >Interface of a concrete factory for creating MyBio::NGS::Track objects</td></tr>
+<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::NGS::Track"></a>MyBio::NGS::Track</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="NGS/Track/Factory.html">Factory</a></td><td id="tocDesc" >Factory for creating MyBio::NGS::Track objects</td></tr>
+<tr><td id="tocMod" WIDTH="20%"><a href="NGS/Track/Stats.html">Stats(2)</a></td><td id="tocDesc" >Object for managing statistics for a MyBio::NGS::Track</td></tr>
+<tr><td id="tocMod" WIDTH="20%"><a href="NGS/Track/UCSC.html">UCSC</a></td><td id="tocDesc" >Object that corresponds to a UCSC defined track</td></tr>
+</table>
+<div id="sep"></div>
+<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::NGS::Track::Factory"></a>MyBio::NGS::Track::Factory</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="NGS/Track/Factory/BED.html">BED(2)</a></td><td id="tocDesc" >Factory for creating MyBio::NGS::Track object from a BED formatted file</td></tr>
+<tr><td id="tocMod" WIDTH="20%"><a href="NGS/Track/Factory/GFF.html">GFF(2)</a></td><td id="tocDesc" >Factory for creating MyBio::NGS::Track object from a GFF formatted file</td></tr>
+<tr><td id="tocMod" WIDTH="20%"><a href="NGS/Track/Factory/Interface.html">Interface</a></td><td id="tocDesc" >Interface of a concrete factory for creating MyBio::NGS::Track objects</td></tr>
+<tr><td id="tocMod" WIDTH="20%"><a href="NGS/Track/Factory/SAM.html">SAM(2)</a></td><td id="tocDesc" >Factory for creating MyBio::NGS::Track object from a SAM formatted file</td></tr>
+</table>
+<div id="sep"></div>
+<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::NGS::Track::Factory::BED"></a>MyBio::NGS::Track::Factory::BED</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="NGS/Track/Factory/BED/Tag.html">Tag(2)</a></td><td id="tocDesc" >Object that offers a MyBio::NGS::Tag interface for MyBio::NGS::Track::Factory::BED::Record</td></tr>
+</table>
+<div id="sep"></div>
+<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::NGS::Track::Factory::SAM"></a>MyBio::NGS::Track::Factory::SAM</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="NGS/Track/Factory/SAM/Tag.html">Tag(3)</a></td><td id="tocDesc" >Object that offers a MyBio::NGS::Tag interface for MyBio::NGS::Track::Factory::SAM::Record</td></tr>
+</table>
+<div id="sep"></div>
+<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::NGS::Track::Factory::GFF"></a>MyBio::NGS::Track::Factory::GFF</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="NGS/Track/Factory/GFF/Tag.html">Tag(4)</a></td><td id="tocDesc" >Object that offers a MyBio::NGS::Tag interface for MyBio::NGS::Track::Factory::GFF::Record</td></tr>
 </table>
 <div id="sep"></div>
 <table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::NGS::JobGraph"></a>MyBio::NGS::JobGraph</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="NGS/JobGraph/JobNode.html">Job(1)</a></td><td id="tocDesc" >Job object, with features</td></tr>
 <tr><td id="tocMod" WIDTH="20%"><a href="NGS/JobGraph/Job.html">Job(2)</a></td><td id="tocDesc" >Job object, with features</td></tr>
 <tr><td id="tocMod" WIDTH="20%"><a href="NGS/JobGraph/Node.html">Node</a></td><td id="tocDesc" >Node for a JobGraph object, with features</td></tr>
-</table>
-<div id="sep"></div>
-<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Pathway"></a>MyBio::Pathway</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Pathway/KEGG.html">KEGG</a></td><td id="tocDesc" > </td></tr>
-</table>
-<div id="sep"></div>
-<table id="tocHead" width="100%" cellspacing="0"><tr><td><a name="MyBio::Interaction"></a>MyBio::Interaction</td><td align="right"><a href="#TOP">Top</a></td></tr></table><table id="tocIndexArea" cellspacing="0" width="100%"><tr><td id="tocMod" WIDTH="20%"><a href="Interaction/MRE.html">MRE</a></td><td id="tocDesc" > </td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="Interaction/MirnaCDS.html">MirnaCDS</a></td><td id="tocDesc" > </td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="Interaction/MirnaTranscript.html">MirnaTranscript</a></td><td id="tocDesc" > </td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="Interaction/MirnaUTR3.html">MirnaUTR3</a></td><td id="tocDesc" > </td></tr>
-<tr><td id="tocMod" WIDTH="20%"><a href="Interaction/MirnaUTR5.html">MirnaUTR5</a></td><td id="tocDesc" > </td></tr>
 </table>
 <div id="sep"></div>
 </body></html>

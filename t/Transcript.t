@@ -29,7 +29,7 @@ isa_ok($transcript, 'MyBio::Locus');
 
 is ($transcript->get_species, 'HUMAN', 'Is species correct');
 is ($transcript->get_strand, 1, 'Is strand correct');
-is ($transcript->get_chr, 1, 'Is chromosome correct');
+is ($transcript->get_chr, 'chr1', 'Is chromosome correct');
 is ($transcript->get_start, 1500, 'Is start correct');
 is ($transcript->get_stop, 2500, 'Is stop correct');
 
