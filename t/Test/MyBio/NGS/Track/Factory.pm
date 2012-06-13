@@ -1,16 +1,15 @@
-package Test::MyBio::NGS::TrackFactory;
+package Test::MyBio::NGS::Track::Factory;
 use strict;
 
 use base qw(Test::MyBio);
-use Test::More;
+use Test::Most;
 
 
 #######################################################################
-###########################   Basic Tests   ###########################
+################   Startup (Runs once in the begining  ################
 #######################################################################
-sub _loading_test : Test(1) {
+sub _check_loading : Test(startup => 1) {
 	my ($self) = @_;
-	
 	use_ok $self->class;
 }
 
@@ -57,8 +56,7 @@ sub new_legitimate_type {
 sub new_unsupported_type {
 	my ($self, $type) = @_;
 	
-	eval {$self->class->new($type)};
-	ok ($@, '... and the constructor should throw an exception');
+	dies_ok {$self->class->new($type)} '... and the constructor should throw an exception';
 }
 
 sub instantiate_legitimate_type {
@@ -73,8 +71,7 @@ sub instantiate_legitimate_type {
 sub instantiate_unsupported_type {
 	my ($self, $type) = @_;
 	
-	eval {$self->class->instantiate($type)};
-	ok ($@, '... and the constructor should throw an exception');
+	dies_ok {$self->class->instantiate($type)} '... and the constructor should throw an exception';
 }
 
 1;

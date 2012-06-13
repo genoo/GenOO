@@ -2,14 +2,14 @@
 
 =head1 NAME
 
-MyBio::Data::File::GFF::Tag - Object that offers a MyBio::NGS::Tag interface for MyBio::Data::File::GFF::Record
+MyBio::NGS::Track::Factory::GFF::Tag - Object that offers a MyBio::NGS::Tag interface for MyBio::NGS::Track::Factory::GFF::Record
 
 =head1 SYNOPSIS
 
     # Object representing a record of a gff file 
 
     # To initialize 
-    my $gff_record_tag = MyBio::Data::File::GFF::Tag->new({
+    my $gff_record_tag = MyBio::NGS::Track::Factory::GFF::Tag->new({
         RECORD       => undef,
         EXTRA_INFO   => undef,
     });
@@ -28,7 +28,7 @@ MyBio::Data::File::GFF::Tag - Object that offers a MyBio::NGS::Tag interface for
 
 # Let the code begin...
 
-package MyBio::Data::File::GFF::Tag;
+package MyBio::NGS::Track::Factory::GFF::Tag;
 use strict;
 
 use MyBio::Data::File::GFF::Record;
@@ -52,9 +52,9 @@ sub set_record {
 }
 
 #######################################################################
-########################   Attribute Getters   ########################
+#########################   Accessor Methods   ########################
 #######################################################################
-sub get_record {
+sub record {
 	my ($self) = @_;
 	return $self->{RECORD};
 }
@@ -64,27 +64,27 @@ sub get_record {
 #######################################################################
 sub get_strand {
 	my ($self) = @_;
-	return $self->get_record->get_strand;
+	return $self->record->get_strand;
 }
 sub get_chr {
 	my ($self) = @_;
-	return $self->get_record->get_seqname;
+	return $self->record->get_seqname;
 }
 sub get_start {
 	my ($self) = @_;
-	return $self->get_record->get_start;
+	return $self->record->get_start;
 }
 sub get_stop {
 	my ($self) = @_;
-	return $self->get_record->get_stop;
+	return $self->record->get_stop;
 }
 sub get_name {
 	my ($self) = @_;
-	return $self->get_record->get_feature;
+	return $self->record->get_feature;
 }
 sub get_score {
 	my ($self) = @_;
-	return $self->get_record->get_score;
+	return $self->record->get_score;
 }
 
 1;

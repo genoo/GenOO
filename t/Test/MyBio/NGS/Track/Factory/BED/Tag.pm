@@ -1,28 +1,15 @@
-package Test::MyBio::Data::File::GFF::Tag;
+package Test::MyBio::NGS::Track::Factory::BED::Tag;
 use strict;
 
 use base qw(Test::MyBio);
-use Test::More;
-
-#######################################################################
-############################   Accessors   ############################
-#######################################################################
-sub obj {
-	my ($self) = @_;
-	return $self->{OBJ};
-}
+use Test::Most;
 
 #######################################################################
 ################   Startup (Runs once in the begining  ################
 #######################################################################
-sub startup : Test(startup => 3) {
+sub _check_loading : Test(startup => 1) {
 	my ($self) = @_;
-	
 	use_ok $self->class;
-	can_ok $self->class, 'new';
-	
-	ok $self->{OBJ} = MyBio::Data::File::GFF::Tag->new({
-	}), '... and the constructor succeeds';
 };
 
 #######################################################################
@@ -32,20 +19,22 @@ sub new_object : Test(setup) {
 	my ($self) = @_;
 	
 	my $record_data = {
-		SEQNAME     => 'chr1',
-		SOURCE      => 'MirBase',
-		FEATURE     => 'miRNA',
-		START_1     => '151518272',
-		STOP_1      => '151518367',
-		SCORE       => 0.5,
-		STRAND      => '+',
-		FRAME       => '.',
-		ATTRIBUTES  => ['ACC="MI0003559"','ID="hsa-mir-554"'],
-		COMMENT     => 'This is just a test line',
+		CHR          => 'chr7',
+		START        => 127471196,
+		STOP_1       => 127472363,
+		NAME         => 'Pos1',
+		SCORE        => 0,
+		STRAND       => '+',
+		THICK_START  => 127471196,
+		THICK_STOP   => 127472363,
+		RGB          => '255,0,0',
+		BLOCK_COUNT  => 2,
+		BLOCK_SIZES  => [100,200],
+		BLOCK_STARTS => [0, 900],
 	};
-	my $record = MyBio::Data::File::GFF::Record->new($record_data);
 	
-	$self->{OBJ} = MyBio::Data::File::GFF::Tag->new({
+	my $record = MyBio::Data::File::BED::Record->new($record_data);
+	$self->{OBJ} = MyBio::NGS::Track::Factory::BED::Tag->new({
 		RECORD => $record,
 	});
 };
@@ -59,11 +48,11 @@ sub _isa_test : Test(1) {
 	isa_ok $self->obj, $self->class, "... and the object";
 }
 
-sub get_record : Test(2) {
+sub record : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_record';
-	isa_ok $self->obj->get_record, 'MyBio::Data::File::GFF::Record', "... and returned object";
+	can_ok $self->obj, 'record';
+	isa_ok $self->obj->record, 'MyBio::Data::File::BED::Record', "... and returned object";
 }
 
 sub get_strand : Test(2) {
@@ -79,7 +68,7 @@ sub get_chr : Test(2) {
 	
 	can_ok $self->obj, 'get_chr';
 	
-	is $self->obj->get_chr, 'chr1', "... and should return the correct value";
+	is $self->obj->get_chr, 'chr7', "... and should return the correct value";
 }
 
 sub get_start : Test(2) {
@@ -87,7 +76,7 @@ sub get_start : Test(2) {
 	
 	can_ok $self->obj, 'get_start';
 	
-	is $self->obj->get_start, 151518271, "... and should return the correct value";
+	is $self->obj->get_start, 127471196, "... and should return the correct value";
 }
 
 sub get_stop : Test(2) {
@@ -95,7 +84,7 @@ sub get_stop : Test(2) {
 	
 	can_ok $self->obj, 'get_stop';
 	
-	is $self->obj->get_stop, 151518366, "... and should return the correct value";
+	is $self->obj->get_stop, 127472362, "... and should return the correct value";
 }
 
 sub get_name : Test(2) {
@@ -103,7 +92,7 @@ sub get_name : Test(2) {
 	
 	can_ok $self->obj, 'get_name';
 	
-	is $self->obj->get_name, 'miRNA', "... and should return the correct value";
+	is $self->obj->get_name, 'Pos1', "... and should return the correct value";
 }
 
 sub get_score : Test(2) {
@@ -111,7 +100,15 @@ sub get_score : Test(2) {
 	
 	can_ok $self->obj, 'get_score';
 	
-	is $self->obj->get_score, 0.5, "... and should return the correct value";
+	is $self->obj->get_score, 0, "... and should return the correct value";
+}
+
+#######################################################################
+##########################   Helper Methods   #########################
+#######################################################################
+sub obj {
+	my ($self) = @_;
+	return $self->{OBJ};
 }
 
 1;

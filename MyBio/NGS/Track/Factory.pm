@@ -2,14 +2,14 @@
 
 =head1 NAME
 
-MyBio::NGS::TrackFactory - Factory for creating MyBio::NGS::Track objects
+MyBio::NGS::Track::Factory - Factory for creating MyBio::NGS::Track objects
 
 =head1 SYNOPSIS
 
     # It helps to encapsulate the actual factories that handle the creation of the requested objects
     
     # Usage
-    my $factory = MyBio::NGS::TrackFactory->new({
+    my $factory = MyBio::NGS::Track::Factory->new({
         TYPE => 'GFF'
         FILE => 'sample.gff'
     });
@@ -21,12 +21,12 @@ MyBio::NGS::TrackFactory - Factory for creating MyBio::NGS::Track objects
 =head1 EXAMPLES
 
     # Create a factory
-    my $factory = MyBio::NGS::TrackFactory->new({
+    my $factory = MyBio::NGS::Track::Factory->new({
         TYPE => 'GFF'
     }); # returns the actual factory that can handle GFF files
     
     # ditto (preferably)
-    my $factory = MyBio::NGS::TrackFactory->instantiate({
+    my $factory = MyBio::NGS::Track::Factory->instantiate({
         TYPE => 'GFF'
     });
 
@@ -34,7 +34,7 @@ MyBio::NGS::TrackFactory - Factory for creating MyBio::NGS::Track objects
 
 # Let the code begin...
 
-package MyBio::NGS::TrackFactory;
+package MyBio::NGS::Track::Factory;
 use strict;
 
 our $VERSION = '1.0';
@@ -51,8 +51,8 @@ sub instantiate {
 	my $type = delete $data->{TYPE};
 	
 	if (defined $type) {
-		my $handler_class_path = 'MyBio/NGS/TrackFactory/'.$type.'.pm';
-		my $handler_class = 'MyBio::NGS::TrackFactory::'.$type;
+		my $handler_class_path = 'MyBio/NGS/Track/Factory/'.$type.'.pm';
+		my $handler_class = 'MyBio::NGS::Track::Factory::'.$type;
 		require $handler_class_path;
 	
 		return $handler_class->new($data);

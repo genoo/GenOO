@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-MyBio::NGS::TrackFactory::Interface - Interface of a concrete factory for creating MyBio::NGS::Track objects
+MyBio::NGS::Track::Factory::Interface - Interface of a concrete factory for creating MyBio::NGS::Track objects
 
 =head1 SYNOPSIS
 
@@ -16,7 +16,7 @@ MyBio::NGS::TrackFactory::Interface - Interface of a concrete factory for creati
 
 # Let the code begin...
 
-package MyBio::NGS::TrackFactory::Interface;
+package MyBio::NGS::Track::Factory::Interface;
 use strict;
 
 use MyBio::NGS::Track;

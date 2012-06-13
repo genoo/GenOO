@@ -2,17 +2,21 @@ package Test::MyBio::Data::File::SAM::Record;
 use strict;
 
 use base qw(Test::MyBio);
-use Test::More;
-
+use Test::Most;
 
 #######################################################################
-###########################   Basic Tests   ###########################
+################   Startup (Runs once in the begining  ################
 #######################################################################
-sub _loading_test : Test(4) {
+sub _check_loading : Test(startup => 1) {
 	my ($self) = @_;
-	
 	use_ok $self->class;
-	can_ok $self->class, 'new';
+};
+
+#######################################################################
+###########################   Actual Tests   ##########################
+#######################################################################
+sub _isa_test : Test(1) {
+	my ($self) = @_;
 	
 	my $data = {
 		QNAME      => 'HWI-EAS235_25:1:1:4282:1093',
@@ -31,13 +35,9 @@ sub _loading_test : Test(4) {
 		EXTRA_INFO => undef
 	};
 	
-	ok my $obj = $self->class->new($data), '... and the constructor succeeds';
-	isa_ok $obj, $self->class, "... and the object";
+	isa_ok $self->class->new($data), $self->class, "... and the object";
 }
 
-#######################################################################
-#########################   Attributes Tests   ########################
-#######################################################################
 sub qname : Test(4) {
 	my ($self) = @_;
 	$self->simple_attribute_test('qname', 'HWI-EAS235_25:1:1:4282:1093', 'HWI-EAS235_25:1:1:4282:1093');
@@ -106,9 +106,6 @@ sub tags : Test(4) {
 	$self->deep_attribute_test('tags', $value, $expected);
 }
 
-#######################################################################
-###########################   Other Tests   ###########################
-#######################################################################
 sub get_length : Test(3) {
 	my ($self) = @_;
 	
