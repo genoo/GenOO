@@ -35,8 +35,8 @@ sub data {
 			OUTPUT => ['10000']
 		},
 		sequence => {
-			INPUT  => ['anything'],
-			OUTPUT => ['anything']
+			INPUT  => ['CGATGCTACTA'],
+			OUTPUT => ['CGATGCTACTA']
 		},
 		name => {
 			INPUT  => ['anything'],
@@ -46,7 +46,7 @@ sub data {
 			INPUT  => ['anything'],
 			OUTPUT => ['anything']
 		},
-		get_strand_symbol => {
+		strand_symbol => {
 			INPUT  => ['1','-1','anything_else'],
 			OUTPUT => ['+','-',undef]
 		},
@@ -58,11 +58,11 @@ sub data {
 			INPUT  => [sample_object->[0],sample_object->[1],'anything_else'],
 			OUTPUT => ['10100','10000',undef]
 		},
-		get_id => {
+		id => {
 			INPUT  => [sample_object->[0]],
 			OUTPUT => ['chr9:10000-10100:1']
 		},
-		get_location => {
+		location => {
 			INPUT  => [sample_object->[0]],
 			OUTPUT => ['chr9:10000-10100:1']
 		},
@@ -174,20 +174,20 @@ sub extra : Test(4) {
 ###########################   Other Tests   ###########################
 #######################################################################
 
-sub get_strand_symbol : Test(4) {
+sub strand_symbol : Test(4) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_strand_symbol';
+	can_ok $obj, 'strand_symbol';
 	
-	$obj->set_strand($self->get_input_for('get_strand_symbol')->[0]); 
-	is $obj->get_strand_symbol, $self->get_output_for('get_strand_symbol')->[0], "... and should return the correct value";
+	$obj->set_strand($self->get_input_for('strand_symbol')->[0]); 
+	is $obj->strand_symbol, $self->get_output_for('strand_symbol')->[0], "... and should return the correct value";
 	
-	$obj->set_strand($self->get_input_for('get_strand_symbol')->[1]); 
-	is $obj->get_strand_symbol, $self->get_output_for('get_strand_symbol')->[1], "... and should return the correct value again";
+	$obj->set_strand($self->get_input_for('strand_symbol')->[1]); 
+	is $obj->strand_symbol, $self->get_output_for('strand_symbol')->[1], "... and should return the correct value again";
 	
-	$obj->set_strand($self->get_input_for('get_strand_symbol')->[2]); 
-	is $obj->get_strand_symbol, $self->get_output_for('get_strand_symbol')->[2], "... and again";
+	$obj->set_strand($self->get_input_for('strand_symbol')->[2]); 
+	is $obj->strand_symbol, $self->get_output_for('strand_symbol')->[2], "... and again";
 	
 }
 
@@ -223,24 +223,24 @@ sub get_3p : Test(4) {
 	is $obj->get_3p, $self->get_output_for('get_3p')->[2], "... and again";
 }
 
-sub get_id : Test(2) {
+sub id : Test(2) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_id';
+	can_ok $obj, 'id';
 	
-	$obj = $self->class->new($self->get_input_for('get_id')->[0]); 
-	is $obj->get_id, $self->get_output_for('get_id')->[0], "... and should return the correct value";
+	$obj = $self->class->new($self->get_input_for('id')->[0]); 
+	is $obj->id, $self->get_output_for('id')->[0], "... and should return the correct value";
 }
 
-sub get_location : Test(2) {
+sub location : Test(2) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_location';
+	can_ok $obj, 'location';
 	
-	$obj = $self->class->new($self->get_input_for('get_location')->[0]); 
-	is $obj->get_location, $self->get_output_for('get_location')->[0], "... and should return the correct value";
+	$obj = $self->class->new($self->get_input_for('location')->[0]); 
+	is $obj->location, $self->get_output_for('location')->[0], "... and should return the correct value";
 }
 
 sub to_string : Test(4) {
@@ -280,17 +280,17 @@ sub get_5p_5p_distance_from : Test(5) {
 	
 	$obj = $self->class->new($self->get_input_for('get_5p_5p_distance_from')->[0]);
 	my $obj2 = $self->class->new($self->get_input_for('get_5p_5p_distance_from')->[0]);
-	$obj2->set_start($obj->get_start+100);
+	$obj2->set_start($obj->start+100);
 	is $obj->get_5p_5p_distance_from($obj2), $self->get_output_for('get_5p_5p_distance_from')->[0], "... and should return the correct value";
 
-	$obj2->set_start($obj->get_start-100);
+	$obj2->set_start($obj->start-100);
 	is $obj->get_5p_5p_distance_from($obj2), $self->get_output_for('get_5p_5p_distance_from')->[1], "... and should return the correct value";
 
-	$obj2->set_stop($obj->get_start+100);
+	$obj2->set_stop($obj->start+100);
 	$obj2->set_strand(-1);
 	is $obj->get_5p_5p_distance_from($obj2), $self->get_output_for('get_5p_5p_distance_from')->[2], "... and should return the correct value";
 
-	$obj2->set_stop($obj->get_start-100);
+	$obj2->set_stop($obj->start-100);
 	$obj2->set_strand(-1);
 	is $obj->get_5p_5p_distance_from($obj2), $self->get_output_for('get_5p_5p_distance_from')->[3], "... and should return the correct value";
 }
@@ -303,17 +303,17 @@ sub get_5p_3p_distance_from : Test(5) {
 	
 	$obj = $self->class->new($self->get_input_for('get_5p_3p_distance_from')->[0]);
 	my $obj2 = $self->class->new($self->get_input_for('get_5p_3p_distance_from')->[0]);
-	$obj2->set_stop($obj->get_start+100);
+	$obj2->set_stop($obj->start+100);
 	is $obj->get_5p_3p_distance_from($obj2), $self->get_output_for('get_5p_3p_distance_from')->[0], "... and should return the correct value";
 	
-	$obj2->set_stop($obj->get_start-100);
+	$obj2->set_stop($obj->start-100);
 	is $obj->get_5p_3p_distance_from($obj2), $self->get_output_for('get_5p_3p_distance_from')->[1], "... and should return the correct value";
 	
-	$obj2->set_start($obj->get_start+100);
+	$obj2->set_start($obj->start+100);
 	$obj2->set_strand(-1);
 	is $obj->get_5p_3p_distance_from($obj2), $self->get_output_for('get_5p_3p_distance_from')->[2], "... and should return the correct value";
 	
-	$obj2->set_start($obj->get_start-100);
+	$obj2->set_start($obj->start-100);
 	$obj2->set_strand(-1);
 	is $obj->get_5p_3p_distance_from($obj2), $self->get_output_for('get_5p_3p_distance_from')->[3], "... and should return the correct value";
 }
@@ -326,17 +326,17 @@ sub get_3p_5p_distance_from : Test(5) {
 	
 	$obj = $self->class->new($self->get_input_for('get_3p_5p_distance_from')->[0]);
 	my $obj2 = $self->class->new($self->get_input_for('get_3p_5p_distance_from')->[0]);
-	$obj2->set_start($obj->get_stop+100);
+	$obj2->set_start($obj->stop+100);
 	is $obj->get_3p_5p_distance_from($obj2), $self->get_output_for('get_3p_5p_distance_from')->[0], "... and should return the correct value";
 	
-	$obj2->set_start($obj->get_stop-100);
+	$obj2->set_start($obj->stop-100);
 	is $obj->get_3p_5p_distance_from($obj2), $self->get_output_for('get_3p_5p_distance_from')->[1], "... and should return the correct value";
 	
-	$obj2->set_stop($obj->get_stop+100);
+	$obj2->set_stop($obj->stop+100);
 	$obj2->set_strand(-1);
 	is $obj->get_3p_5p_distance_from($obj2), $self->get_output_for('get_3p_5p_distance_from')->[2], "... and should return the correct value";
 	
-	$obj2->set_stop($obj->get_stop-100);
+	$obj2->set_stop($obj->stop-100);
 	$obj2->set_strand(-1);
 	is $obj->get_3p_5p_distance_from($obj2), $self->get_output_for('get_3p_5p_distance_from')->[3], "... and should return the correct value";
 }
@@ -349,17 +349,17 @@ sub get_3p_3p_distance_from : Test(5) {
 	
 	$obj = $self->class->new($self->get_input_for('get_3p_3p_distance_from')->[0]);
 	my $obj2 = $self->class->new($self->get_input_for('get_3p_3p_distance_from')->[0]);
-	$obj2->set_stop($obj->get_stop+100);
+	$obj2->set_stop($obj->stop+100);
 	is $obj->get_3p_3p_distance_from($obj2), $self->get_output_for('get_3p_3p_distance_from')->[0], "... and should return the correct value";
 	
-	$obj2->set_stop($obj->get_stop-100);
+	$obj2->set_stop($obj->stop-100);
 	is $obj->get_3p_3p_distance_from($obj2), $self->get_output_for('get_3p_3p_distance_from')->[1], "... and should return the correct value";
 	
-	$obj2->set_start($obj->get_stop+100);
+	$obj2->set_start($obj->stop+100);
 	$obj2->set_strand(-1);
 	is $obj->get_3p_3p_distance_from($obj2), $self->get_output_for('get_3p_3p_distance_from')->[2], "... and should return the correct value";
 	
-	$obj2->set_start($obj->get_stop-100);
+	$obj2->set_start($obj->stop-100);
 	$obj2->set_strand(-1);
 	is $obj->get_3p_3p_distance_from($obj2), $self->get_output_for('get_3p_3p_distance_from')->[3], "... and should return the correct value";
 }
@@ -373,9 +373,9 @@ sub overlaps : Test(6) {
 	$obj = $self->class->new($self->get_input_for('overlaps')->[0]);
 	my $obj2 = $self->class->new($self->get_input_for('overlaps')->[0]);
 
-	$obj2->set_start($obj->get_stop+100);
-	$obj2->set_stop($obj2->get_start+100);
-	$obj2->set_strand($obj->get_strand * -1); #opposite strand
+	$obj2->set_start($obj->stop+100);
+	$obj2->set_stop($obj2->start+100);
+	$obj2->set_strand($obj->strand * -1); #opposite strand
 	
 	my $params = ({OFFSET => 0, USE_STRAND => 1}); #no overlap
 	is $obj->overlaps($obj2,$params), $self->get_output_for('overlaps')->[0], "... and should return the correct value";
@@ -384,9 +384,9 @@ sub overlaps : Test(6) {
 	$params = ({OFFSET => 0, USE_STRAND => 0}); #no overlap
 	is $obj->overlaps($obj2,$params), $self->get_output_for('overlaps')->[2], "... and should return the correct value again";
 	
-	$obj2->set_start($obj->get_start-100);
-	$obj2->set_stop($obj->get_start+100);
-	$obj2->set_strand($obj->get_strand); #same strand
+	$obj2->set_start($obj->start-100);
+	$obj2->set_stop($obj->start+100);
+	$obj2->set_strand($obj->strand); #same strand
 	$params = ({OFFSET => 0, USE_STRAND => 1}); #overlaps
 	is $obj->overlaps($obj2), $self->get_output_for('overlaps')->[3], "... and should return the correct value again";
 	
@@ -402,12 +402,12 @@ sub get_overlap_length : Test(3) {
 	$obj = $self->class->new($self->get_input_for('get_overlap_length')->[0]);
 	my $obj2 = $self->class->new($self->get_input_for('get_overlap_length')->[0]);
 
-	$obj2->set_start($obj->get_start-10);
-	$obj2->set_stop($obj->get_start-10);
+	$obj2->set_start($obj->start-10);
+	$obj2->set_stop($obj->start-10);
 	is $obj->get_overlap_length($obj2), $self->get_output_for('get_overlap_length')->[0], "... and should return the correct value";
 	
-	$obj2->set_start($obj->get_start-10);
-	$obj2->set_stop($obj->get_start+10);
+	$obj2->set_start($obj->start-10);
+	$obj2->set_stop($obj->start+10);
 	is $obj->get_overlap_length($obj2), $self->get_output_for('get_overlap_length')->[1], "... and should return the correct value again";
 }
 sub contains : Test(3) {
@@ -419,12 +419,12 @@ sub contains : Test(3) {
 	$obj = $self->class->new($self->get_input_for('contains')->[0]);
 	my $obj2 = $self->class->new($self->get_input_for('contains')->[0]);
 
-	$obj2->set_start($obj->get_start-10);
-	$obj2->set_stop($obj->get_start-10);
+	$obj2->set_start($obj->start-10);
+	$obj2->set_stop($obj->start-10);
 	is $obj->contains($obj2), $self->get_output_for('contains')->[0], "... and should return the correct value";
 	
-	$obj2->set_start($obj->get_start+1);
-	$obj2->set_stop($obj->get_stop-1);
+	$obj2->set_start($obj->start+1);
+	$obj2->set_stop($obj->stop-1);
 	is $obj->contains($obj2), $self->get_output_for('contains')->[1], "... and should return the correct value again";
 }
 sub contains_position : Test(3) {
@@ -434,10 +434,10 @@ sub contains_position : Test(3) {
 	can_ok $obj, 'contains_position';
 	
 	$obj = $self->class->new($self->get_input_for('contains_position')->[0]);
-	my $position = $obj->get_start - 1;
+	my $position = $obj->start - 1;
 	is $obj->contains_position($position), $self->get_output_for('contains_position')->[0], "... and should return the correct value";
 	
-	$position = $obj->get_start + 1;
+	$position = $obj->start + 1;
 	is $obj->contains_position($position), $self->get_output_for('contains_position')->[1], "... and should return the correct value again";	
 }
 sub get_contained_locuses : Test(3) {
@@ -451,8 +451,8 @@ sub get_contained_locuses : Test(3) {
 	for (my $i = -10; $i < 10; $i++)
 	{
 		my $obj2 = $self->class->new($self->get_input_for('get_contained_locuses')->[0]);
-		$obj2->set_start($obj->get_start - 10);
-		$obj2->set_stop($obj->get_start + $i - 1);
+		$obj2->set_start($obj->start - 10);
+		$obj2->set_stop($obj->start + $i - 1);
 		push (@objarray, $obj2)
 	}
 
@@ -472,8 +472,8 @@ sub get_touching_locuses : Test(3) {
 	for (my $i = -10; $i < 10; $i++)
 	{
 		my $obj2 = $self->class->new($self->get_input_for('get_touching_locuses')->[0]);
-		$obj2->set_start($obj->get_start - 10);
-		$obj2->set_stop($obj->get_start + $i - 1);
+		$obj2->set_start($obj->start - 10);
+		$obj2->set_stop($obj->start + $i - 1);
 		push (@objarray, $obj2)
 	}
 

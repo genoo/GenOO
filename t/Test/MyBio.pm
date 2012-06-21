@@ -17,7 +17,7 @@ sub class {
 sub simple_attribute_test {
 	my ($self,$attribute,$value,$expected) = @_;
 	
-	my $get = 'get_'.$attribute;
+	my $get = $attribute;
 	my $set = 'set_'.$attribute;
 	
 	my $obj = $self->class->new;
@@ -33,7 +33,7 @@ sub simple_attribute_test {
 sub deep_attribute_test {
 	my ($self,$attribute,$value,$expected) = @_;
 	
-	my $get = 'get_'.$attribute;
+	my $get = $attribute;
 	my $set = 'set_'.$attribute;
 	
 	my $obj = $self->class->new;

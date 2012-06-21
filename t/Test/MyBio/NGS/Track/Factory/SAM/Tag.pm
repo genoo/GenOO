@@ -64,60 +64,60 @@ sub record : Test(2) {
 	isa_ok $self->obj->record, 'MyBio::Data::File::SAM::Record', "... and returned object";
 }
 
-sub get_strand : Test(2) {
+sub strand : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_strand';
+	can_ok $self->obj, 'strand';
 	
-	is $self->obj->get_strand, -1, "... and should return the correct value";
+	is $self->obj->strand, -1, "... and should return the correct value";
 }
 
-sub get_chr : Test(2) {
+sub chr : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_chr';
+	can_ok $self->obj, 'chr';
 	
-	is $self->obj->get_chr, 'chr18', "... and should return the correct value";
+	is $self->obj->chr, 'chr18', "... and should return the correct value";
 }
 
-sub get_start : Test(2) {
+sub start : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_start';
+	can_ok $self->obj, 'start';
 	
-	is $self->obj->get_start, 85867635, "... and should return the correct value";
+	is $self->obj->start, 85867635, "... and should return the correct value";
 }
 
-sub get_stop : Test(2) {
+sub stop : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_stop';
+	can_ok $self->obj, 'stop';
 	
-	is $self->obj->get_stop, 85867666, "... and should return the correct value";
+	is $self->obj->stop, 85867666, "... and should return the correct value";
 }
 
-sub get_name : Test(2) {
+sub name : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_name';
+	can_ok $self->obj, 'name';
 	
-	is $self->obj->get_name, 'HWI-EAS235_25:1:1:4282:1093', "... and should return the correct value";
+	is $self->obj->name, 'HWI-EAS235_25:1:1:4282:1093', "... and should return the correct value";
 }
 
-sub get_score : Test(2) {
+sub score : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_score';
+	can_ok $self->obj, 'score';
 	
-	is $self->obj->get_score, 0, "... and should return the correct value";
+	is $self->obj->score, 0, "... and should return the correct value";
 }
 
-sub get_length : Test(2) {
+sub length : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_length';
+	can_ok $self->obj, 'length';
 	
-	is $self->obj->get_length, 32, "... and should return the correct value";
+	is $self->obj->length, 32, "... and should return the correct value";
 }
 
 1;

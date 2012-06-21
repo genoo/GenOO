@@ -91,4 +91,39 @@ sub set_to_development : Test(3) {
 	is $obj->get_source(), $self->get_output_for('set_to_development')->[1], "... and should return the correct value"; 
 }
 
+#######################################################################
+##########################   Helper Methods   #########################
+#######################################################################
+sub simple_attribute_test {
+	my ($self,$attribute,$value,$expected) = @_;
+	
+	my $get = 'get_'.$attribute;
+	my $set = 'set_'.$attribute;
+	
+	my $obj = $self->class->new;
+	
+	can_ok $obj, $get;
+	ok !defined $obj->$get, "... and $attribute should start as undefined";
+	
+	can_ok $obj, $set;
+	$obj->$set($value);
+	is $obj->$get, $expected, "... and setting its value should succeed";
+}
+
+sub deep_attribute_test {
+	my ($self,$attribute,$value,$expected) = @_;
+	
+	my $get = 'get_'.$attribute;
+	my $set = 'set_'.$attribute;
+	
+	my $obj = $self->class->new;
+	
+	can_ok $obj, $get;
+	ok !defined $obj->$get, "... and $attribute should start as undefined";
+	
+	can_ok $obj, $set;
+	$obj->$set($value);
+	is_deeply $obj->$get, $expected, "... and setting its value should succeed";
+}
+
 1;

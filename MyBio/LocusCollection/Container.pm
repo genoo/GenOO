@@ -65,7 +65,7 @@ sub reset {
 
 sub add_entry {
 	my ($self, $entry) = @_;
-	$self->SUPER::add_entry($entry->get_strand, $entry->get_chr, $entry);
+	$self->SUPER::add_entry($entry->strand, $entry->chr, $entry);
 	$self->reset;
 }
 
@@ -86,8 +86,8 @@ sub find_and_set_longest_entry_length {
 		sub {
 			my ($entry) = @_;
 			
-			if ($entry->get_length > $longest_entry_length) {
-				$longest_entry_length = $entry->get_length;
+			if ($entry->length > $longest_entry_length) {
+				$longest_entry_length = $entry->length;
 			}
 		}
 	);
@@ -121,7 +121,7 @@ sub sort_entries {
 	foreach my $strand ($self->strands) {
 		foreach my $chr ($self->chromosomes_for_strand($strand)) {
 			my $entries_array_ref = $self->entries_ref_for_strand_and_chromosome($strand, $chr);
-			@$entries_array_ref = sort {$a->get_start <=> $b->get_start} @$entries_array_ref;
+			@$entries_array_ref = sort {$a->start <=> $b->start} @$entries_array_ref;
 		}
 	}
 	$self->set_sorted;
@@ -140,13 +140,13 @@ sub entries_overlapping_region {
 	$self->sort_entries unless $self->sorted;
 	
 	my $target_value = $start - $self->get_or_find_longest_entry_length;
-	my $index = MyBio::Module::Search::Binary->binary_search_for_value_greater_or_equal($target_value, $entries_ref, sub {return $_[0]->get_start});
+	my $index = MyBio::Module::Search::Binary->binary_search_for_value_greater_or_equal($target_value, $entries_ref, sub {return $_[0]->start});
 	
 	my @overlapping_entries;
 	while ($index < @$entries_ref) {
 		my $entry = $entries_ref->[$index];
-		if ($entry->get_start <= $stop) {
-			if ($start <= $entry->get_stop) {
+		if ($entry->start <= $stop) {
+			if ($start <= $entry->stop) {
 				push @overlapping_entries, $entry;
 			}
 		}

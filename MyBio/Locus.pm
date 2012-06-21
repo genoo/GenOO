@@ -1,20 +1,42 @@
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+MyBio::Locus - Object that represents an area in the genome
+
+=head1 SYNOPSIS
+
+    # Instantiate 
+    my $locus = MyBio::Locus->new({
+        SPECIES      => undef,
+        STRAND       => undef,
+        CHR          => undef,
+        START        => undef,
+        STOP         => undef,
+        SEQUENCE     => undef,
+        NAME         => undef,
+        EXTRA_INFO   => undef,
+    });
+
+
+=head1 DESCRIPTION
+
+    This class corresponds to an area in the genome.
+
+=head1 EXAMPLES
+
+    # Get locus start
+    $locus->start();
+
+=cut
+
+# Let the code begin...
+
 package MyBio::Locus;
 use strict;
 
 use base qw( MyBio::_Initializable Clone);
 use MyBio::MyMath;
-
-# HOW TO INITIALIZE THIS OBJECT
-# my $Locus = MyBio::Locus->new({
-# 		     SPECIES      => undef,
-# 		     STRAND       => undef,
-# 		     CHR          => undef,
-# 		     START        => undef,
-# 		     STOP         => undef,
-# 		     SEQUENCE     => undef,
-# 		     NAME         => undef,
-# 		     EXTRA_INFO   => undef,
-# 		     });
 
 sub _init {
 	my ($self,$data) = @_;
@@ -32,135 +54,185 @@ sub _init {
 }
 
 #######################################################################
-#############################   Getters   #############################
-#######################################################################
-sub get_species {
-	return $_[0]->{SPECIES};
-}
-sub get_strand {
-	return $_[0]->{STRAND};
-}
-sub get_chr {
-	return $_[0]->{CHR};
-}
-sub get_start {
-	return $_[0]->{START};
-}
-sub get_stop {
-	return $_[0]->{STOP};
-}
-sub get_sequence {
-	return $_[0]->{SEQUENCE};
-}
-sub get_name {
-	return $_[0]->{NAME};
-}
-sub get_extra {
-	return $_[0]->{EXTRA_INFO};
-}
-sub get_length {
-	if    (defined $_[0]->{LENGTH})   {
-	}
-	elsif (defined $_[0]->{SEQUENCE}) {
-		$_[0]->{LENGTH} = length($_[0]->get_sequence);
-	}
-	else {
-		$_[0]->{LENGTH} = $_[0]->get_stop - $_[0]->get_start + 1;
-	}
-	return $_[0]->{LENGTH};
-}
-
-#######################################################################
 #############################   Setters   #############################
 #######################################################################
 sub set_species {
-	$_[0]->{SPECIES} = uc($_[1]) if defined $_[1];
+	my ($self, $value) = @_;
+	$self->{SPECIES} = uc($value) if defined $value;
 }
+
 sub set_strand {
 	my ($self,$value) = @_;
+	
 	if (defined $value) {
 		$value =~ s/^\+$/1/;
 		$value =~ s/^\-$/-1/;
 		$self->{STRAND} = $value;
 	}
-# 	else {
-# 		$self->{STRAND} = 0;
-# 	}
 }
+
 sub set_chr {
 	my ($self,$value) = @_;
+	
 	if (defined $value) {
 		$value =~ s/^>*//;
 		$self->{CHR} = $value;
 	}
 }
+
 sub set_start {
-	$_[0]->{START} = $_[1] if defined $_[1];
+	my ($self, $value) = @_;
+	$self->{START} = $value if defined $value;
 }
+
 sub set_stop {
-	$_[0]->{STOP} = $_[1] if defined $_[1];
+	my ($self, $value) = @_;
+	$self->{STOP} = $value if defined $value;
 }
+
 sub set_sequence {
 	my ($self,$value) = @_;
+	
 	if (defined $value) {
 		unless ($value =~ /^[ATGCUN]*$/i) {
 			$value =~ /([^ATGCUN])/i;
-			warn "The nucleotide sequence provided for ".$self->get_name()." contains the following invalid characters $1 in $self\n";
+			warn "The nucleotide sequence provided for ".$self->name()." contains the following invalid characters $1 in $self\n";
 		}
 		$self->{SEQUENCE} = $value;
 	}
 }
+
 sub set_name {
-	$_[0]->{NAME} = $_[1] if defined $_[1];
+	my ($self,$value) = @_;
+	$self->{NAME} = $value if defined $value;
 }
-sub set_extra {
-	$_[0]->{EXTRA_INFO} = $_[1] if defined $_[1];
+
+#######################################################################
+############################   Accessors   ############################
+#######################################################################
+sub species {
+	my ($self) = @_;
+	return $self->{SPECIES};
+}
+
+sub strand {
+	my ($self) = @_;
+	return $self->{STRAND};
+}
+
+sub chr {
+	my ($self) = @_;
+	return $self->{CHR};
+}
+
+sub start {
+	my ($self) = @_;
+	return $self->{START};
+}
+
+sub stop {
+	my ($self) = @_;
+	return $self->{STOP};
+}
+
+sub sequence {
+	my ($self) = @_;
+	return $self->{SEQUENCE};
+}
+
+sub name {
+	my ($self) = @_;
+	return $self->{NAME};
 }
 
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
-sub get_strand_symbol {
-	if ($_[0]->get_strand == 1) {
+sub id {
+	my ($self) = @_;
+	return $self->location;
+}
+
+sub location {
+	my ($self) = @_;
+	return $self->chr . ':' . $self->start . '-' . $self->stop . ':' . $self->strand;
+}
+
+sub length {
+	my ($self) = @_;
+	
+	if (defined $self->{LENGTH}) {
+		return $self->{LENGTH};
+	}
+	elsif (defined $self->{SEQUENCE}) {
+		return $self->{LENGTH} = length($self->sequence);
+	}
+	else {
+		return $self->{LENGTH} = $self->stop - $self->start + 1;
+	}
+	
+}
+
+sub strand_symbol {
+	my ($self) = @_;
+	
+	if ($self->strand == 1) {
 		return '+';
 	}
-	elsif ($_[0]->get_strand == -1) {
+	elsif ($self->strand == -1) {
 		return '-';
 	}
-	else {
-		return undef;
-	}
+	return undef;
 }
+
 sub get_5p {
 	my ($self) = @_;
-	if ($self->get_strand == 1) {
-		return $self->get_start;
+	
+	if ($self->strand == 1) {
+		return $self->start;
 	}
-	elsif ($self->get_strand == -1) {
-		return $self->get_stop;
+	elsif ($self->strand == -1) {
+		return $self->stop;
 	}
 	else {
 		return undef;
 	}
 }
+
 sub get_3p {
 	my ($self) = @_;
-	if ($self->get_strand == 1) {
-		return $self->get_stop;
+	
+	if ($self->strand == 1) {
+		return $self->stop;
 	}
-	elsif ($self->get_strand == -1) {
-		return $self->get_start;
+	elsif ($self->strand == -1) {
+		return $self->start;
 	}
 	else {
 		return undef;
 	}
 }
-sub get_id {
-	return $_[0]->get_location;
+
+sub get_5p_5p_distance_from {
+	my ($self, $from_locus) = @_;
+	return ($self->get_5p - $from_locus->get_5p) * $self->strand;
 }
-sub get_location {
-	return $_[0]->get_chr.":".$_[0]->get_start."-".$_[0]->get_stop.":".$_[0]->get_strand;
+
+sub get_5p_3p_distance_from {
+	my ($self, $from_locus) = @_;
+	return ($self->get_5p - $from_locus->get_3p) * $self->strand;
 }
+
+sub get_3p_5p_distance_from {
+	my ($self, $from_locus) = @_;
+	return ($self->get_3p - $from_locus->get_5p) * $self->strand;
+}
+
+sub get_3p_3p_distance_from {
+	my ($self, $from_locus) = @_;
+	return ($self->get_3p - $from_locus->get_3p) * $self->strand;
+}
+
 sub to_string {
 	my ($self, $params) = @_;
 	
@@ -181,38 +253,23 @@ sub to_string {
 		die "\n\nUnknown or no method provided when calling ".(caller(0))[3]." in script $0\n\n";
 	}
 }
+
 sub to_string_bed {
 	my ($self) = @_;
-	my $strand = defined $self->get_strand_symbol ? $self->get_strand_symbol : ".";
-	my $name = defined $self->get_name ? $self->get_name : ".";
-	my $score = 0;
 	
-	return $self->get_chr."\t".$self->get_start."\t".($self->get_stop+1)."\t".$name."\t".$score."\t".$strand;
+	my $strand = defined $self->strand_symbol ? $self->strand_symbol : ".";
+	my $name = defined $self->name ? $self->name : ".";
+	return $self->chr."\t".$self->start."\t".($self->stop+1)."\t".$name."\t".'0'."\t".$strand;
 }
 
-sub get_5p_5p_distance_from {
-	my ($self,$from_locus) = @_;
-	return ($self->get_5p - $from_locus->get_5p) * $self->get_strand;
-}
-sub get_5p_3p_distance_from {
-	my ($self,$from_locus) = @_;
-	return ($self->get_5p - $from_locus->get_3p) * $self->get_strand;
-}
-sub get_3p_5p_distance_from {
-	my ($self,$from_locus) = @_;
-	return ($self->get_3p - $from_locus->get_5p) * $self->get_strand;
-}
-sub get_3p_3p_distance_from {
-	my ($self,$from_locus) = @_;
-	return ($self->get_3p - $from_locus->get_3p) * $self->get_strand;
-}
 sub overlaps {
 	my ($self,$loc2,$params) = @_;
+	
 	if ((!defined $params) or (UNIVERSAL::isa( $params, "HASH" ))){
 		my $offset = defined $params->{OFFSET} ? $params->{OFFSET} : 0;
 		my $use_strand = defined $params->{USE_STRAND} ? $params->{USE_STRAND} : 0;
 		
-		if ((($use_strand == 0) or ($self->get_strand() eq $loc2->get_strand())) and ($self->get_chr() eq $loc2->get_chr()) and (($self->get_start()-$offset) <= $loc2->get_stop()) and ($loc2->get_start() <= ($self->get_stop()+$offset))) {
+		if ((($use_strand == 0) or ($self->strand eq $loc2->strand)) and ($self->chr eq $loc2->chr) and (($self->start-$offset) <= $loc2->stop) and ($loc2->start <= ($self->stop+$offset))) {
 			return 1; #overlap
 		}
 		else {
@@ -223,104 +280,179 @@ sub overlaps {
 		die "\n\nUnknown or no method provided when calling ".(caller(0))[3]." in script $0\n\n";
 	}
 }
+
+=head2 get_overlap_length
+  Arg [1]    : locus. Locus object self is compared to.
+  Description: Return the number of nucleotides of self that are covered by provided locus
+  Returntype : int
+=cut
 sub get_overlap_length {
-	my ($self,$loc2) = @_;
+	my ($self, $loc2) = @_;
 	
-	#will return number of nucleotides of $self that are covered by $loc2
-	unless ($self->overlaps($loc2)){return 0;} #sanity check
-	my $nt_overlap = $loc2->get_length;
-	if ($loc2->get_start < $self->get_start){$nt_overlap -= ($self->get_start - $loc2->get_start);} #left overhang removed
-	if ($loc2->get_stop > $self->get_stop){$nt_overlap -= ($loc2->get_stop - $self->get_stop);} #right overhang removed
+	unless ($self->overlaps($loc2)){return 0;}
+	my $nt_overlap = $loc2->length;
+	if ($loc2->start < $self->start){$nt_overlap -= ($self->start - $loc2->start);} #left overhang removed
+	if ($loc2->stop > $self->stop){$nt_overlap -= ($loc2->stop - $self->stop);} #right overhang removed
 	return $nt_overlap;
 }
+
 sub contains {
 	my ($self,$loc2,$params) = @_;
 	
 	if ((!defined $params) or (UNIVERSAL::isa( $params, "HASH" ))){
 		my $percent = defined $params->{PERCENT} ? $params->{PERCENT} : 1;
 		my $overhang = 0;
-		my $left_overhang = ($self->get_start - $loc2->get_start);
-		my $right_overhang = ($loc2->get_stop - $self->get_stop);
+		my $left_overhang = ($self->start - $loc2->start);
+		my $right_overhang = ($loc2->stop - $self->stop);
 		if ($left_overhang > 0){$overhang += $left_overhang;}
 		if ($right_overhang > 0){$overhang += $right_overhang;}
-	# 	print $self->get_start." - ".$self->get_stop."\t".$loc2->get_start." - ".$loc2->get_stop."\t".($overhang / $loc2->get_length)."\t".$percent."\n";
-		if (($overhang / $loc2->get_length) <= (1-$percent)){return 1;}
+		if (($overhang / $loc2->length) <= (1-$percent)){return 1;}
 		return 0;
 	}
 	else {
 		die "\n\nUnknown or no method provided when calling ".(caller(0))[3]." in script $0\n\n";
 	}
 }
+
 sub contains_position {
 	my ($self, $position) = @_;
 	
-	if (($self->get_start <= $position) and ($position <= $self->get_stop)) {
+	if (($self->start <= $position) and ($position <= $self->stop)) {
 		return 1;
 	}
 	else {return 0;}
 }
+
+=head2 get_contained_locuses
+
+  Arg [1]    : array reference. Reference to an array of locus objects
+  Description: Return an array of locus objects containing the parts (or the whole) objects of the array that are contained within $self
+                       ---------------------------------------------
+               ---    ---              ---       ----            ------   ---
+                                     returns
+                       --              ---       ----            ---               
+  Returntype : array reference
+=cut
 sub get_contained_locuses {
-# 	$self is a locus
-# 	$array is a reference to an array of locus objects
-#	the sub will return an array of locus objects containing the parts (or whole) objects on the array that fall within $self
-#
-#	          ---------------------------------------------
-#	  ---    ---              ---       ----              ------    -------
-#return
-#	          --              ---       ----              -                
-#
-	my ($self,$array) = @_;
-	my @outarray;
+	my ($self, $array) = @_;
 	
-	if ((defined $self->get_start) and (defined $self->get_stop)){ #sanity check!
-		
-		foreach my $region (@{$array})
-		{
-			if ($region->get_chr ne $self->get_chr){next;} #chromosome check! don't align things in diff chromosome
+	my @outarray;
+	if ((defined $self->start) and (defined $self->stop)) {
+		foreach my $region (@{$array}) {
+			if ($region->chr ne $self->chr){next;} #chromosome check! don't align things in diff chromosome
 			if ($self->contains($region)){push @outarray, $region;} #fully contained in self
-			elsif ($self->overlaps($region))
-			{
+			elsif ($self->overlaps($region)) {
 				my $class = ref($region) || $region;
 				my $partLocus = $class->new({
-					SPECIES      => $region->get_species,
-					STRAND       => $region->get_strand,
-					CHR          => $region->get_chr,
-					START        => (MyBio::MyMath::max( [$region->get_start, $self->get_start] ))[1],
-					STOP         => (MyBio::MyMath::min( [$region->get_stop, $self->get_stop] ))[1],
+					SPECIES      => $region->species,
+					STRAND       => $region->strand,
+					CHR          => $region->chr,
+					START        => (MyBio::MyMath::max( [$region->start, $self->start] ))[1],
+					STOP         => (MyBio::MyMath::min( [$region->stop, $self->stop] ))[1],
 					SEQUENCE     => undef, #not sure what to do with seq!!!
 					EXTRA_INFO   => $region->get_extra,
 				});
 				push @outarray, $partLocus;
 			}
+			else {
+				next; #no overlap
+			}
+		}
+	}
+	return \@outarray;
+}
+
+=head2 get_touching_locuses
+
+  Arg [1]    : array reference. Reference to an array of locus objects
+  Description: Return the locus objects from the given array that overlap with $self within an $offset
+                       ---------------------------------------------
+               ---    ---              ---       ----              ------    -------
+                                     returns
+                      ---              ---       ----              ------                
+  Returntype : array reference
+=cut
+sub get_touching_locuses {
+	my ($self, $array, $offset) = @_;
+	
+	my @outarray;
+	if ((defined $self->start) and (defined $self->stop)) {		
+		foreach my $region (@{$array}) {
+			if ($region->chr ne $self->chr){next;} #chromosome check! don't align things in diff chromosome
+			if ($self->overlaps($region,$offset)){push @outarray, $region;} #overlaps with self
 			else {next;} #no overlap
 		}
 	}
 	return \@outarray;
 }
 
-sub get_touching_locuses {
-# 	$self is a locus
-# 	$array is a reference to an array of locus objects
-#	the sub will return an array of locus objects overlaping with $self within $offset
-#
-#	          ---------------------------------------------
-#	  ---    ---              ---       ----              ------    -------
-#return
-#	         ---              ---       ----              ------                
-#
-	my ($self,$array,$offset) = @_;
-	my @outarray;
-	
-	if ((defined $self->get_start) and (defined $self->get_stop)){ #sanity check!
-		
-		foreach my $region (@{$array})
-		{
-			if ($region->get_chr ne $self->get_chr){next;} #chromosome check! don't align things in diff chromosome
-			if ($self->overlaps($region,$offset)){push @outarray, $region;} #overlaps with self
-			else {next;} #no overlap
-		}
-	}
-	return \@outarray;
+#######################################################################
+#######################   Deprecated Methods   ########################
+#######################################################################
+sub get_species {
+	my ($self) = @_;
+	warn 'Deprecated method "get_species". Consider using "species" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->species;
+}
+
+sub get_strand {
+	my ($self) = @_;
+	warn 'Deprecated method "get_strand". Consider using "strand" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->strand;
+}
+
+sub get_chr {
+	my ($self) = @_;
+	warn 'Deprecated method "get_chr". Consider using "chr" instead '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->chr;
+}
+
+sub get_start {
+	my ($self) = @_;
+	warn 'Deprecated method "get_start". Consider using "start" instead '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->start;
+}
+
+sub get_stop {
+	my ($self) = @_;
+	warn 'Deprecated method "get_stop". Consider using "stop" instead '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->stop;
+}
+
+sub get_sequence {
+	my ($self) = @_;
+	warn 'Deprecated method "get_sequence". Consider using "sequence" instead '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->sequence;
+}
+
+sub get_name {
+	my ($self) = @_;
+	warn 'Deprecated method "get_name". Consider using "name" instead '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->name;
+}
+
+sub get_length {
+	my ($self) = @_;
+	warn 'Deprecated method "get_length". Consider using "length" instead '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->length;
+}
+
+sub get_strand_symbol {
+	my ($self) = @_;
+	warn 'Deprecated method "get_strand_symbol". Consider using "strand_symbol" instead '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->strand_symbol;
+}
+
+sub get_id {
+	my ($self) = @_;
+	warn 'Deprecated method "get_id". Consider using "id" instead '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->id;
+}
+
+sub get_location {
+	my ($self) = @_;
+	warn 'Deprecated method "get_location". Consider using "location" instead '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->location;
 }
 
 1;

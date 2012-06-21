@@ -55,60 +55,60 @@ sub record : Test(2) {
 	isa_ok $self->obj->record, 'MyBio::Data::File::BED::Record', "... and returned object";
 }
 
-sub get_strand : Test(2) {
+sub strand : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_strand';
+	can_ok $self->obj, 'strand';
 	
-	is $self->obj->get_strand, 1, "... and should return the correct value";
+	is $self->obj->strand, 1, "... and should return the correct value";
 }
 
-sub get_chr : Test(2) {
+sub chr : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_chr';
+	can_ok $self->obj, 'chr';
 	
-	is $self->obj->get_chr, 'chr7', "... and should return the correct value";
+	is $self->obj->chr, 'chr7', "... and should return the correct value";
 }
 
-sub get_start : Test(2) {
+sub start : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_start';
+	can_ok $self->obj, 'start';
 	
-	is $self->obj->get_start, 127471196, "... and should return the correct value";
+	is $self->obj->start, 127471196, "... and should return the correct value";
 }
 
-sub get_stop : Test(2) {
+sub stop : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_stop';
+	can_ok $self->obj, 'stop';
 	
-	is $self->obj->get_stop, 127472362, "... and should return the correct value";
+	is $self->obj->stop, 127472362, "... and should return the correct value";
 }
 
-sub get_name : Test(2) {
+sub name : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_name';
+	can_ok $self->obj, 'name';
 	
-	is $self->obj->get_name, 'Pos1', "... and should return the correct value";
+	is $self->obj->name, 'Pos1', "... and should return the correct value";
 }
 
-sub get_score : Test(2) {
+sub score : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_score';
+	can_ok $self->obj, 'score';
 	
-	is $self->obj->get_score, 0, "... and should return the correct value";
+	is $self->obj->score, 0, "... and should return the correct value";
 }
 
-sub get_length : Test(2) {
+sub length : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'get_length';
+	can_ok $self->obj, 'length';
 	
-	is $self->obj->get_length, 1167, "... and should return the correct value";
+	is $self->obj->length, 1167, "... and should return the correct value";
 }
 
 #######################################################################

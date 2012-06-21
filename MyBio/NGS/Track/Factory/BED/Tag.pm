@@ -62,31 +62,31 @@ sub record {
 #######################################################################
 ############################   Interface   ############################
 #######################################################################
-sub get_strand {
+sub strand {
 	my ($self) = @_;
 	return $self->record->strand;
 }
-sub get_chr {
+sub chr {
 	my ($self) = @_;
 	return $self->record->chr;
 }
-sub get_start {
+sub start {
 	my ($self) = @_;
 	return $self->record->start;
 }
-sub get_stop {
+sub stop {
 	my ($self) = @_;
 	return $self->record->stop;
 }
-sub get_name {
+sub name {
 	my ($self) = @_;
 	return $self->record->name;
 }
-sub get_score {
+sub score {
 	my ($self) = @_;
 	return $self->record->score;
 }
-sub get_length {
+sub length {
 	my ($self) = @_;
 	return $self->record->length;
 }
