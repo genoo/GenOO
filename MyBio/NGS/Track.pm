@@ -49,21 +49,52 @@ sub _init {
 }
 
 #######################################################################
-#############################   Setters   #############################
+############################   Accessors  #############################
 #######################################################################
+sub stats {
+	my ($self) = @_;
+	return $self->{STATS};
+}
 
 #######################################################################
-#############################   Getters   #############################
+#########################   General Methods   #########################
 #######################################################################
+sub init {
+	my ($self) = @_;
+	
+	$self->SUPER::init;
+	$self->init_stats;
+}
 
-#######################################################################
-##########################   Stats Methods   ##########################
-#######################################################################
 sub init_stats {
 	my ($self) = @_;
+	
 	$self->{STATS} = MyBio::NGS::Track::Stats->new({
-		COLLECTION => $self
+		TRACK => $self
 	}); 
+}
+
+sub reset_stats {
+	my ($self) = @_;
+	$self->stats->reset; 
+}
+
+sub add_entry {
+	my ($self, $entry) = @_;
+	
+	$self->SUPER::add_entry($entry);
+	$self->reset_stats;
+}
+
+sub get_scores_for_all_entries {
+	my ($self) = @_;
+	
+	my @out = ();
+	$self->foreach_entry_do( sub {
+		my ($entry) = @_;
+		push @out, $entry->get_score;
+	});
+	return @out;
 }
 
 sub score_sum {
@@ -84,20 +115,6 @@ sub score_variance {
 sub score_stdv {
 	my ($self) = @_;
 	return $self->stats->get_or_calculate_score_stdv;
-}
-
-#######################################################################
-#########################   General Methods   #########################
-#######################################################################
-sub get_all_entries_score {
-	my ($self) = @_;
-	
-	my @out = ();
-	my $iterator = $self->get_entries_iterator;
-	while (my $entry = $iterator->next) {
-		push @out, $entry->get_score;
-	}
-	return @out;
 }
 
 #######################################################################
@@ -386,7 +403,7 @@ sub get_quantile {
 	my $score_threshold = 0;
 	if (exists $params->{'QUANTILE'}){$quantile = $params->{'QUANTILE'};}
 	if (exists $params->{'THRESHOLD'}){$score_threshold = $params->{'THRESHOLD'};}
-	my @scores = sort {$b <=> $a} $self->get_all_entries_score;
+	my @scores = sort {$b <=> $a} $self->get_scores_for_all_entries;
 	my $size;
 	for ($size = 0; $size < @scores; $size++)
 	{
