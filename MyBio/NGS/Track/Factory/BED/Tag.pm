@@ -86,5 +86,9 @@ sub get_score {
 	my ($self) = @_;
 	return $self->record->score;
 }
+sub get_length {
+	my ($self) = @_;
+	return $self->record->length;
+}
 
 1;

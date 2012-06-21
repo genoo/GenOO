@@ -86,5 +86,9 @@ sub get_score {
 	my ($self) = @_;
 	return $self->record->get_mapq;
 }
+sub get_length {
+	my ($self) = @_;
+	return $self->record->get_length;
+}
 
 1;
