@@ -8,9 +8,9 @@ MyBio::NGS::Track::Stats - Object for managing statistics for a MyBio::NGS::Trac
 
     # Object that offers methods calculating statistics for a MyBio::NGS::Track. 
 
-    # To initialize (NOTE: Should not be instantiated ONLY through a track object)
+    # To initialize (NOTE: Should ONLY be instantiated through the track class)
     my $track_stats = MyBio::NGS::Track::Stats->new({
-        COLLECTION            => undef,
+        TRACK            => undef,
     });
 
 
@@ -18,9 +18,9 @@ MyBio::NGS::Track::Stats - Object for managing statistics for a MyBio::NGS::Trac
 
     This class offers methods for calculating several statistical measures for a Track. It does not
     make any assumpions for the internal data structure of the Track. Note that it should not be
-    instantiated by itself but rather through a track object. The reason is that it weakens the reference
-    to the track and therefore when the track falls out of scope even though the stats object is still
-    within scope the internal structure is corrupted.
+    instantiated by itself but rather through a track object. The reason is that it weakens the
+    reference to the track and therefore when the track falls out of scope even though the stats
+    object is still within scope the internal structure is corrupted.
 
 =head1 EXAMPLES
 
@@ -41,13 +41,12 @@ package MyBio::NGS::Track::Stats;
 use strict;
 use Scalar::Util qw/weaken/;
 
-use base qw(MyBio::LocusCollection::Stats);
+use base qw(MyBio::_Initializable);
 
 sub _init {
 	my ($self,$data) = @_;
 	
-	$self->SUPER::_init($data);
-	$self->init_stats;
+	$self->set_track($$data{TRACK});
 	
 	return $self;
 }
@@ -55,33 +54,38 @@ sub _init {
 #######################################################################
 #############################   Setters   #############################
 #######################################################################
+sub set_track {
+	my ($self, $value) = @_;
+	if (defined $value) {
+		$self->{TRACK} = $value;
+		weaken($self->{TRACK});
+	}
+}
 
 #######################################################################
-#############################   Getters   #############################
+############################   Accessors  #############################
 #######################################################################
+sub track {
+	my ($self) = @_;
+	return $self->{TRACK};
+}
 
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
-sub init_stats {
-	my ($self) = @_;
-	$self->SUPER::init_stats();
-}
-
 sub reset {
 	my ($self) = @_;
 	
-	$self->SUPER::reset();
-	$self->{SCORE_SUM} = undef;
-	$self->{SCORE_MEAN} = undef;
-	$self->{SCORE_VARIANCE} = undef;
+	delete $self->{SCORE_SUM};
+	delete $self->{SCORE_MEAN};
+	delete $self->{SCORE_VARIANCE};
 }
 
 sub get_or_calculate_score_sum {
 	my ($self) = @_;
 	
 	if (!defined $self->{SCORE_SUM}) {
-		$self->calculate_score_sum_and_mean;
+		$self->calculate_and_set_score_sum_and_mean;
 	}
 	return $self->{SCORE_SUM};
 }
@@ -90,7 +94,7 @@ sub get_or_calculate_score_mean {
 	my ($self) = @_;
 	
 	if (!defined $self->{SCORE_MEAN}) {
-		$self->calculate_score_sum_and_mean;
+		$self->calculate_and_set_score_sum_and_mean;
 	}
 	return $self->{SCORE_MEAN};
 }
@@ -99,7 +103,7 @@ sub get_or_calculate_score_variance {
 	my ($self) = @_;
 	
 	if (!defined $self->{SCORE_VARIANCE}) {
-		$self->calculate_score_variance;
+		$self->calculate_and_set_score_variance;
 	}
 	return $self->{SCORE_VARIANCE};
 }
@@ -108,52 +112,54 @@ sub get_or_calculate_score_stdv {
 	my ($self) = @_;
 	
 	if (!defined $self->{SCORE_VARIANCE}) {
-		$self->calculate_score_variance;
+		$self->calculate_and_set_score_variance;
 	}
 	return sqrt($self->{SCORE_VARIANCE});
 }
 
-sub calculate_score_sum_and_mean {
+sub calculate_and_set_score_sum_and_mean {
 	my ($self) = @_;
 	
-	if ($self->collection_is_not_empty) {
-		my $score_sum = 0;
-		my $iterator = $self->get_collection->entries_iterator;
-		while (my $entry = $iterator->next) {
+	my $score_sum = 0;
+	$self->track->foreach_entry_do(
+		sub {
+			my ($entry) = @_;
+			
 			if (defined $entry->get_score) {
 				$score_sum += $entry->get_score;
 			}
 			else {
-				$self->{SCORE_SUM} = undef;
-				$self->{SCORE_MEAN} = undef;
+				warn "score is not defined and sum and mean cannot be calculated";
+				delete $self->{SCORE_SUM};
+				delete $self->{SCORE_MEAN};
 				return;
 			}
 		}
-		
-		$self->{SCORE_SUM} = $score_sum;
-		$self->{SCORE_MEAN} = $score_sum / $self->entries_count;
-	}
+	);
+	$self->{SCORE_SUM} = $score_sum;
+	$self->{SCORE_MEAN} = $score_sum / $self->track->entries_count;
 }
 
-sub calculate_score_variance {
+sub calculate_and_set_score_variance {
 	my ($self) = @_;
 	
-	if ($self->collection_is_not_empty) {
-		my $score_sum_sq_diff = 0;
-		my $mean = $self->get_or_recalculate_score_mean;
-		my $iterator = $self->get_collection->entries_iterator;
-		while (my $entry = $iterator->next) {
+	my $score_sum_sq_diff = 0;
+	my $score_mean = $self->get_or_calculate_score_mean;
+	$self->track->foreach_entry_do(
+		sub {
+			my ($entry) = @_;
+			
 			if (defined $entry->get_score) {
-				$score_sum_sq_diff += ($entry->get_score - $mean) ** 2;
+				$score_sum_sq_diff += ($entry->get_score - $score_mean) ** 2;
 			}
 			else {
-				$self->{SCORE_VARIANCE} = undef;
+				warn "score is not defined and variance cannot be calculated";
+				delete $self->{SCORE_VARIANCE};
 				return;
 			}
 		}
-		
-		$self->{SCORE_VARIANCE} = $score_sum_sq_diff / $self->entries_count;
-	}
+	);
+	$self->{SCORE_VARIANCE} = $score_sum_sq_diff / $self->track->entries_count;
 }
 
 1;

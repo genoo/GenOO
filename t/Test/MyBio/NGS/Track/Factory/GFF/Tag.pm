@@ -109,4 +109,12 @@ sub get_score : Test(2) {
 	is $self->obj->get_score, 0.5, "... and should return the correct value";
 }
 
+sub get_length : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj, 'get_length';
+	
+	is $self->obj->get_length, 96, "... and should return the correct value";
+}
+
 1;

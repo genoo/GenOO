@@ -13,7 +13,6 @@ MyBio::LocusCollection - Object for a collection of MyBio::Locus objects, with f
         NAME            => undef,
         SPECIES         => undef,
         DESCRIPTION     => undef,
-        ENTRIES         => undef,
         EXTRA_INFO      => undef,
     });
 
@@ -41,7 +40,7 @@ use strict;
 
 use MyBio::Locus;
 use MyBio::MySub;
-use MyBio::LocusCollection::Stats;
+use MyBio::LocusCollection::Container;
 
 use base qw(MyBio::_Initializable);
 
@@ -55,21 +54,6 @@ sub _init {
 	$self->init;
 	
 	return $self;
-}
-
-#######################################################################
-#############################   Setters   #############################
-#######################################################################
-sub init {
-	my ($self) = @_;
-	
-	$self->init_stats;
-	$self->init_entries;
-}
-
-sub init_entries {
-	my ($self) = @_;
-	$self->{ENTRIES} = {};
 }
 
 #######################################################################
@@ -93,187 +77,118 @@ sub set_description {
 #######################################################################
 #############################   Getters   #############################
 #######################################################################
+sub get_entries {
+	my ($self) = @_;
+	warn 'Deprecated method "get_entries". Use the iterator instead';
+	return $self->container->structure;
+}
+
 sub get_name {
 	my ($self) = @_;
-	return $self->{NAME};
+	warn 'Deprecated method "get_name". Consider using "name" instead';
+	return $self->name;
 }
 
 sub get_species {
 	my ($self) = @_;
-	return $self->{SPECIES};
-}
-
-sub get_description {
-	my ($self) = @_;
-	return $self->{DESCRIPTION};
+	warn 'Deprecated method "get_species". Consider using "species" instead';
+	return $self->species;
 }
 
 #######################################################################
 ########################   Accessor Methods   #########################
 #######################################################################
-sub entries {
+sub name {
 	my ($self) = @_;
-	return $self->{ENTRIES};
+	return $self->{NAME};
 }
 
-sub entries_count {
+sub species {
 	my ($self) = @_;
-	return $self->{ENTRY_COUNT};
+	return $self->{SPECIES};
 }
 
-#######################################################################
-##########################   Stats Methods   ##########################
-#######################################################################
-sub init_stats {
+sub description {
 	my ($self) = @_;
-	$self->{STATS} = MyBio::LocusCollection::Stats->new({
-		COLLECTION => $self
-	}); 
+	return $self->{DESCRIPTION};
 }
 
-sub reset_stats {
+sub container {
 	my ($self) = @_;
-	$self->stats->reset; 
-}
-
-sub stats {
-	my ($self) = @_;
-	return $self->{STATS};
-}
-
-sub length_for_longest_entry {
-	my ($self) = @_;
-	return $self->stats->get_or_find_length_for_longest_entry;
+	return $self->{CONTAINER};
 }
 
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub init {
+	my ($self) = @_;
+	
+	$self->init_container;
+}
+
+sub init_container {
+	my ($self) = @_;
+	$self->{CONTAINER} = MyBio::LocusCollection::Container->new();
+}
+
 sub add_entry {
 	my ($self, $entry) = @_;
-	
-	push @{$self->entries->{$entry->get_strand}->{$entry->get_chr}},$entry;
-	$self->increment_entries_count();
-	$self->stats->reset;
+	$self->container->add_entry($entry);
 }
 
-sub increment_entries_count {
-	my ($self) = @_;
-	$self->{ENTRY_COUNT}++;
+sub foreach_entry_do {
+	my ($self, $block) = @_;
+	$self->container->foreach_entry_do($block);
 }
 
-sub entries_iterator {
+sub entries_count {
 	my ($self) = @_;
-	
-	return MyBio::LocusCollection::Iterator->new({
-		DATA_STRUCTURE => $self->entries,
-	});
+	return $self->container->entries_count;
 }
 
 sub strands {
 	my ($self) = @_;
-	return keys %{$self->entries};
+	return $self->container->strands;
 }
 
 sub chromosomes_for_strand {
 	my ($self, $strand) = @_;
-	return keys %{$self->entries->{$strand}};
+	return $self->container->chromosomes_for_strand($strand);
 }
 
 sub chromosomes_for_all_strands {
 	my ($self) = @_;
-	
-	my %available_chrs;
-	foreach my $strand ($self->strands) {
-		foreach my $chr ($self->chromosomes_for_strand($strand)) {
-			$available_chrs{$chr} = 1;
-		}
-	}
-	return keys %available_chrs;
+	return $self->container->chromosomes_for_all_strands;
+}
+
+sub get_or_find_longest_entry_length {
+	my ($self) = @_;
+	return $self->container->get_or_find_longest_entry_length;
 }
 
 sub is_empty {
 	my ($self) = @_;
-	
-	if ($self->entries_count == 0) {
-		return 1;
-	}
-	else {
-		return 0;
-	}
+	return $self->container->is_empty;
 }
 
 sub is_not_empty {
 	my ($self) = @_;
-	
-	if ($self->entries_count > 0) {
-		return 1;
-	}
-	else {
-		return 0;
-	}
+	return $self->container->is_not_empty;
 }
 
-#######################################################################
-################   Methods specific to data structure  ################
-#######################################################################
 sub sort_entries {
+# TODO this method does not belong here. It should only be in the container. It should not be required by any other method.
 	my ($self) = @_;
-	
-	my $entries_ref = $self->entries;
-	foreach my $strand (keys %{$entries_ref}) {
-		foreach my $chr (keys %{$$entries_ref{$strand}}) {
-			if (exists $$entries_ref{$strand}{$chr}) {
-				@{$$entries_ref{$strand}{$chr}} = sort {$a->get_start() <=> $b->get_start()} @{$$entries_ref{$strand}{$chr}};
-			}
-		}
-	}
+	$self->container->sort_entries;
 }
 
-sub find_closest_entry_index_to_position {
-	my ($self,$target_value,$entries,$fromIndex,$toIndex)=@_; 
-	#target_value = the value we want to match
-	#entries = a reference to an array of entry objects. the index will match this array 
-	#fromIndex - toIndex = range of indexes that will be used for the search
-	
-	if ($toIndex == -1){return $fromIndex;}
-	my $closest_index;
-	if ($fromIndex == $toIndex){return $fromIndex;}	
-	
-	my $scanIndex=int($fromIndex+($toIndex-$fromIndex)/2); #begin at half-way point
 
-	if ($toIndex == $fromIndex+1){$closest_index = $self->compare_value_to_the_two_others($target_value,$entries,($scanIndex+1),$scanIndex);} #end
-	elsif ($target_value == $$entries[$scanIndex]->get_start()) {$closest_index = $scanIndex;} #end - found exact value
-	elsif ($target_value <  $$entries[$scanIndex]->get_start()) {
-		if   ($target_value >=  $$entries[$scanIndex-1]->get_start()) {
-		
-			$closest_index = $self->compare_value_to_the_two_others($target_value,$entries,$scanIndex,($scanIndex-1));
-		}
-		else {
-			$closest_index = $self->find_closest_entry_index_to_position($target_value,$entries,$fromIndex,$scanIndex);
-		}
-	}
-	elsif ($target_value >  $$entries[$scanIndex]->get_start()) {
-		if   ($target_value <=  $$entries[$scanIndex+1]->get_start()) {
-		
-			$closest_index = $self->compare_value_to_the_two_others($target_value,$entries,($scanIndex+1),$scanIndex);
-		}
-		else {
-			$closest_index = $self->find_closest_entry_index_to_position($target_value,$entries,$scanIndex,$toIndex);
-		}
-	}
-	return $closest_index;
-}
 
-sub compare_value_to_the_two_others {
-	my ($self,$value,$entries,$index1,$index2)=@_;
-	
-	my $dif1=abs($value-($$entries[$index1]->get_start()));
-	my $dif2=abs($value-($$entries[$index2]->get_start()));
-	
-	if ($dif1 <= $dif2) {return $index1;}
-	else                {return $index2;}
-}
+
+# TODO fix to not use data structure
+
+
 
 #######################################################################
 ##################   Methods that modify the object  ##################
