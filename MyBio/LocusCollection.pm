@@ -183,16 +183,15 @@ sub sort_entries {
 	$self->container->sort_entries;
 }
 
-
-
-
-# TODO fix to not use data structure
-
-
+sub entries_overlapping_region {
+	my ($self, $strand, $chr, $start, $stop) = @_;
+	return $self->container->entries_overlapping_region($strand, $chr, $start, $stop);
+}
 
 #######################################################################
 ##################   Methods that modify the object  ##################
 #######################################################################
+# TODO fix to not use data structure
 =head2 annotate_entries_contained_in_collection
   Arg [1]    : MyBio::LocusCollection. A locus collection against which $self is compared.
   Example    : $locus_collection->annotate_entries_contained_in_collection($locus_collection2)

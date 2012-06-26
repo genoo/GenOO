@@ -132,10 +132,10 @@ sub sort_entries : Test(7) {
 	my @test_array_2 = @{$self->obj->entries_ref_for_strand_and_chromosome(1,'chr2')};
 	my @test_array_3 = @{$self->obj->entries_ref_for_strand_and_chromosome(-1,'chr3')};
 	my @test_array_4 = @{$self->obj->entries_ref_for_strand_and_chromosome(-1,'chr4')};
-	is_deeply [map{$_->get_start} @test_array_1], [1,2,3], "... and sorting should result in correct order";
-	is_deeply [map{$_->get_start} @test_array_2], [11,12,13], "... and sorting should result in correct order";
-	is_deeply [map{$_->get_start} @test_array_3], [21,22,23], "... and sorting should result in correct order";
-	is_deeply [map{$_->get_start} @test_array_4], [31,32,33], "... and sorting should result in correct order";
+	is_deeply [map{$_->start} @test_array_1], [1,2,3], "... and sorting should result in correct order";
+	is_deeply [map{$_->start} @test_array_2], [11,12,13], "... and sorting should result in correct order";
+	is_deeply [map{$_->start} @test_array_3], [21,22,23], "... and sorting should result in correct order";
+	is_deeply [map{$_->start} @test_array_4], [31,32,33], "... and sorting should result in correct order";
 	
 	is $self->obj->sorted, 1, "... and sort flag should be set";
 }
@@ -145,10 +145,10 @@ sub entries_overlapping_region  : Test(3) {
 	
 	can_ok $self->obj, 'entries_overlapping_region';
 	
-	my @result = map{$_->get_id} $self->obj->entries_overlapping_region(1,'chr1', 2, 5);
+	my @result = map{$_->id} $self->obj->entries_overlapping_region(1,'chr1', 2, 5);
 	is_deeply [@result], ['chr1:1-10:1','chr1:2-10:1','chr1:3-10:1'], "... and should return the correct entries";
 	
-	@result = map{$_->get_id} $self->obj->entries_overlapping_region(-1,'chr4', 36, 40);
+	@result = map{$_->id} $self->obj->entries_overlapping_region(-1,'chr4', 36, 40);
 	is_deeply [@result], ['chr4:32-40:-1','chr4:33-40:-1'], "... and should return the correct entries";
 }
 
