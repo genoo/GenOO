@@ -125,8 +125,8 @@ sub calculate_and_set_score_sum_and_mean {
 		sub {
 			my ($entry) = @_;
 			
-			if (defined $entry->get_score) {
-				$score_sum += $entry->get_score;
+			if (defined $entry->score) {
+				$score_sum += $entry->score;
 			}
 			else {
 				warn "score is not defined and sum and mean cannot be calculated";
@@ -149,8 +149,8 @@ sub calculate_and_set_score_variance {
 		sub {
 			my ($entry) = @_;
 			
-			if (defined $entry->get_score) {
-				$score_sum_sq_diff += ($entry->get_score - $score_mean) ** 2;
+			if (defined $entry->score) {
+				$score_sum_sq_diff += ($entry->score - $score_mean) ** 2;
 			}
 			else {
 				warn "score is not defined and variance cannot be calculated";

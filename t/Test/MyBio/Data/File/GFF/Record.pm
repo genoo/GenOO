@@ -85,80 +85,50 @@ sub comment : Test(4) {
 	$self->simple_attribute_test('comment', 'This is a comment', 'This is a comment');
 }
 
-sub get_length : Test(2) {
+sub length : Test(2) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_length';
+	can_ok $obj, 'length';
 	
 	$obj->set_start(151518272);
 	$obj->set_stop(151518367);
-	is $obj->get_length, 96, "... and should return the correct value";
+	is $obj->length, 96, "... and should return the correct value";
 }
 
-sub get_strand_symbol : Test(5) {
+sub strand_symbol : Test(5) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_strand_symbol';
+	can_ok $obj, 'strand_symbol';
 	
-	is $obj->get_strand_symbol, undef, "... and should return the correct value";
+	is $obj->strand_symbol, undef, "... and should return the correct value";
 	
 	$obj->set_strand('+');
-	is $obj->get_strand_symbol, '+', "... and should return the correct value again";
+	is $obj->strand_symbol, '+', "... and should return the correct value again";
 	
 	$obj->set_strand('-');
-	is $obj->get_strand_symbol, '-', "... and again";
+	is $obj->strand_symbol, '-', "... and again";
 	
 	$obj->set_strand('.');
-	is $obj->get_strand_symbol, '.', "... and again";
+	is $obj->strand_symbol, '.', "... and again";
 }
 
-sub get_attribute : Test(4) {
+sub attribute : Test(4) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_attribute';
+	can_ok $obj, 'attribute';
 	
 	$obj->set_attributes(['ACC="MI0003559"','ID="hsa-mir-554"']);
-	is $obj->get_attribute(), undef, "... and should return the correct value";
-	is $obj->get_attribute('ACC'), 'MI0003559', "... and should return the correct value again";
-	is $obj->get_attribute('ID'), 'hsa-mir-554', "... and again";
+	is $obj->attribute(), undef, "... and should return the correct value";
+	is $obj->attribute('ACC'), 'MI0003559', "... and should return the correct value again";
+	is $obj->attribute('ID'), 'hsa-mir-554', "... and again";
 }
 
 #######################################################################
 ##########################   Helper Methods   #########################
 #######################################################################
-sub simple_attribute_test {
-	my ($self,$attribute,$value,$expected) = @_;
-	
-	my $get = 'get_'.$attribute;
-	my $set = 'set_'.$attribute;
-	
-	my $obj = $self->class->new;
-	
-	can_ok $obj, $get;
-	ok !defined $obj->$get, "... and $attribute should start as undefined";
-	
-	can_ok $obj, $set;
-	$obj->$set($value);
-	is $obj->$get, $expected, "... and setting its value should succeed";
-}
 
-sub deep_attribute_test {
-	my ($self,$attribute,$value,$expected) = @_;
-	
-	my $get = 'get_'.$attribute;
-	my $set = 'set_'.$attribute;
-	
-	my $obj = $self->class->new;
-	
-	can_ok $obj, $get;
-	ok !defined $obj->$get, "... and $attribute should start as undefined";
-	
-	can_ok $obj, $set;
-	$obj->$set($value);
-	is_deeply $obj->$get, $expected, "... and setting its value should succeed";
-}
 
 1;

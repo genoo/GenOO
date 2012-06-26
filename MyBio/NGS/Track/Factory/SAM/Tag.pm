@@ -22,7 +22,7 @@ MyBio::NGS::Track::Factory::SAM::Tag - Object that offers a MyBio::NGS::Tag inte
 =head1 EXAMPLES
 
     # Return 1 or -1 for the strand
-    my $strand = $sam_record_tag->get_strand();
+    my $strand = $sam_record_tag->strand();
 
 =cut
 
@@ -64,31 +64,31 @@ sub record {
 #######################################################################
 sub strand {
 	my ($self) = @_;
-	return $self->record->get_strand;
+	return $self->record->strand;
 }
 sub chr {
 	my ($self) = @_;
-	return $self->record->get_rname;
+	return $self->record->rname;
 }
 sub start {
 	my ($self) = @_;
-	return $self->record->get_start;
+	return $self->record->start;
 }
 sub stop {
 	my ($self) = @_;
-	return $self->record->get_stop;
+	return $self->record->stop;
 }
 sub name {
 	my ($self) = @_;
-	return $self->record->get_qname;
+	return $self->record->qname;
 }
 sub score {
 	my ($self) = @_;
-	return $self->record->get_mapq;
+	return $self->record->mapq;
 }
 sub length {
 	my ($self) = @_;
-	return $self->record->get_length;
+	return $self->record->length;
 }
 
 1;
