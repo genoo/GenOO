@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-MyBio::Data::File::FASTQ - Object implementing mehtods for accessing bed formatted files
+MyBio::Data::File::FASTQ - Object implementing mehtods for accessing fastq formatted files
 
 =head1 SYNOPSIS
 
-    # Object that manages a bed file. 
+    # Object that manages a fastq file. 
 
     # To initialize 
     my $file = MyBio::Data::File::FASTQ->new({
