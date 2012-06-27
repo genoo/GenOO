@@ -92,7 +92,7 @@ sub get_scores_for_all_entries {
 	my @out = ();
 	$self->foreach_entry_do( sub {
 		my ($entry) = @_;
-		push @out, $entry->get_score;
+		push @out, $entry->score;
 	});
 	return @out;
 }
@@ -135,8 +135,8 @@ sub collapse {
 				$collapsed_hash{$strand}{$chr} = [];
 				my %count;
 				foreach my $entry (@{$$entries_ref{$strand}{$chr}}) {
-					my $start = $entry->get_start;
-					my $stop = $entry->get_stop;
+					my $start = $entry->start;
+					my $stop = $entry->stop;
 					$count{"$start|$stop"}++;
 				}
 				foreach my $pos (keys %count) {

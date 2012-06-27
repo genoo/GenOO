@@ -32,7 +32,7 @@ MyBio::Data::File::GFF::Record - Object representing a record of a gff file
 =head1 EXAMPLES
 
     # Return 1 or -1 for the strand
-    my $strand = $record->get_strand();
+    my $strand = $record->strand();
 
 =head1 AUTHOR - Manolis Maragkakis
 
@@ -113,7 +113,7 @@ sub set_attributes {
 		}
 		foreach my $attribute_var (@$value) {
 			$attribute_var =~ /(.+)="(.+)"/;
-			$self->get_attributes->{$1} = $2;
+			$self->attributes->{$1} = $2;
 		}
 	}
 }
@@ -125,43 +125,43 @@ sub set_comment {
 #######################################################################
 ########################   Attribute Getters   ########################
 #######################################################################
-sub get_seqname {
+sub seqname {
 	my ($self) = @_;
 	return $self->{SEQNAME};
 }
-sub get_source {
+sub source {
 	my ($self) = @_;
 	return $self->{SOURCE};
 }
-sub get_feature {
+sub feature {
 	my ($self) = @_;
 	return $self->{FEATURE};
 }
-sub get_start {
+sub start {
 	my ($self) = @_;
 	return $self->{START};
 }
-sub get_stop {
+sub stop {
 	my ($self) = @_;
 	return $self->{STOP};
 }
-sub get_score {
+sub score {
 	my ($self) = @_;
 	return $self->{SCORE};
 }
-sub get_strand {
+sub strand {
 	my ($self) = @_;
 	return $self->{STRAND};
 }
-sub get_frame {
+sub frame {
 	my ($self) = @_;
 	return $self->{FRAME};
 }
-sub get_attributes {
+sub attributes {
 	my ($self) = @_;
 	return $self->{ATTRIBUTES};
 }
-sub get_comment {
+sub comment {
 	my ($self) = @_;
 	return $self->{COMMENT};
 }
@@ -169,14 +169,14 @@ sub get_comment {
 #######################################################################
 ############################   Accessors   ############################
 #######################################################################
-sub get_length {
+sub length {
 	my ($self) = @_;
-	return $self->get_stop - $self->get_start + 1;
+	return $self->stop - $self->start + 1;
 }
-sub get_strand_symbol {
+sub strand_symbol {
 	my ($self) = @_;
 	
-	my $strand = $self->get_strand;
+	my $strand = $self->strand;
 	if (defined $strand) {
 		if ($strand == 1) {
 			return '+';
@@ -192,11 +192,11 @@ sub get_strand_symbol {
 		return undef;
 	}
 }
-sub get_attribute {
+sub attribute {
 	my ($self, $attribute) = @_;
 	
-	if (defined $self->get_attributes) {
-		return $self->get_attributes->{$attribute};
+	if (defined $self->attributes) {
+		return $self->attributes->{$attribute};
 	}
 }
 

@@ -106,96 +106,96 @@ sub tags : Test(4) {
 	$self->deep_attribute_test('tags', $value, $expected);
 }
 
-sub get_length : Test(3) {
+sub length : Test(3) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_length';
+	can_ok $obj, 'length';
 	
 	$obj->set_pos(85867636);
 	$obj->set_seq('ATTCGGCAGGTGAGTTGTTACACACTCCTTAG');
-	is $obj->get_length, 32, "... and should return the correct value";
+	is $obj->length, 32, "... and should return the correct value";
 	
 	$obj->set_cigar('14M1I5M'); # implements an insertion
-	is $obj->get_length, 31, "... and should return the correct value again";
+	is $obj->length, 31, "... and should return the correct value again";
 }
 
-sub get_start : Test(2) {
+sub start : Test(2) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_start';
+	can_ok $obj, 'start';
 	
 	$obj->set_pos(85867636);
-	is $obj->get_start, 85867635, "... and should return the correct value";
+	is $obj->start, 85867635, "... and should return the correct value";
 }
 
-sub get_stop : Test(3) {
+sub stop : Test(3) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_stop';
+	can_ok $obj, 'stop';
 	
 	$obj->set_pos(85867636);
 	$obj->set_seq('ATTCGGCAGGTGAGTTGTTACACACTCCTTAG');
-	is $obj->get_stop, 85867666, "... and should return the correct value";
+	is $obj->stop, 85867666, "... and should return the correct value";
 	
 	$obj->set_cigar('14M1I5M'); # implements an insertion
-	is $obj->get_stop, 85867665, "... and should return the correct value again";
+	is $obj->stop, 85867665, "... and should return the correct value again";
 }
 
-sub get_strand : Test(4) {
+sub strand : Test(4) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_strand';
+	can_ok $obj, 'strand';
 	
 	$obj->set_flag(16); # mapped on reverse complemenent
-	is $obj->get_strand, -1, "... and should return the correct value";
+	is $obj->strand, -1, "... and should return the correct value";
 	
 	$obj->set_flag(0); # mapped on forward
-	is $obj->get_strand, 1, "... and should return the correct value again";
+	is $obj->strand, 1, "... and should return the correct value again";
 	
 	$obj->set_flag(4); # unmapped
-	is $obj->get_strand, undef, "... and again";
+	is $obj->strand, undef, "... and again";
 }
 
-sub get_strand_symbol : Test(4) {
+sub strand_symbol : Test(4) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_strand_symbol';
+	can_ok $obj, 'strand_symbol';
 	
 	$obj->set_flag(16); # mapped on reverse complemenent
-	is $obj->get_strand_symbol, '-', "... and should return the correct value";
+	is $obj->strand_symbol, '-', "... and should return the correct value";
 	
 	$obj->set_flag(0); # mapped on forward
-	is $obj->get_strand_symbol, '+', "... and should return the correct value again";
+	is $obj->strand_symbol, '+', "... and should return the correct value again";
 	
 	$obj->set_flag(4); # unmapped
-	is $obj->get_strand_symbol, undef, "... and again";
+	is $obj->strand_symbol, undef, "... and again";
 }
 
-sub get_tag : Test(4) {
+sub tag : Test(4) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_tag';
+	can_ok $obj, 'tag';
 	
 	$obj->set_tags(['XT:A:R','XA:Z:chr9,+110183777,32M,0;']);
-	is $obj->get_tag(), undef, "... and should return the correct value";
-	is $obj->get_tag('XT:A'), 'R', "... and should return the correct value again";
-	is $obj->get_tag('XA:Z'), 'chr9,+110183777,32M,0;', "... and again";
+	is $obj->tag(), undef, "... and should return the correct value";
+	is $obj->tag('XT:A'), 'R', "... and should return the correct value again";
+	is $obj->tag('XA:Z'), 'chr9,+110183777,32M,0;', "... and again";
 }
 
-sub get_alternative_mappings : Test(3) {
+sub alternative_mappings : Test(3) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
-	can_ok $obj, 'get_alternative_mappings';
+	can_ok $obj, 'alternative_mappings';
 	
 	$obj->set_tags(['XA:Z:chr9,+110183777,32M,0;chr8,+110183756,30M1I,0;']);
-	my @values = $obj->get_alternative_mappings;
+	my @values = $obj->alternative_mappings;
 	is $values[0], 'chr9,+110183777,32M,0', "... and should return the correct value";
 	is $values[1], 'chr8,+110183756,30M1I,0', "... and again";
 }
@@ -248,36 +248,5 @@ sub is_unmapped : Test(4) {
 #######################################################################
 ##########################   Helper Methods   #########################
 #######################################################################
-sub simple_attribute_test {
-	my ($self,$attribute,$value,$expected) = @_;
-	
-	my $get = 'get_'.$attribute;
-	my $set = 'set_'.$attribute;
-	
-	my $obj = $self->class->new;
-	
-	can_ok $obj, $get;
-	ok !defined $obj->$get, "... and $attribute should start as undefined";
-	
-	can_ok $obj, $set;
-	$obj->$set($value);
-	is $obj->$get, $expected, "... and setting its value should succeed";
-}
-
-sub deep_attribute_test {
-	my ($self,$attribute,$value,$expected) = @_;
-	
-	my $get = 'get_'.$attribute;
-	my $set = 'set_'.$attribute;
-	
-	my $obj = $self->class->new;
-	
-	can_ok $obj, $get;
-	ok !defined $obj->$get, "... and $attribute should start as undefined";
-	
-	can_ok $obj, $set;
-	$obj->$set($value);
-	is_deeply $obj->$get, $expected, "... and setting its value should succeed";
-}
 
 1;

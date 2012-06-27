@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-MyBio::Data::File::FASTQ - Object implementing mehtods for accessing bed formatted files
+MyBio::Data::File::FASTQ - Object implementing mehtods for accessing fastq formatted files
 
 =head1 SYNOPSIS
 
-    # Object that manages a bed file. 
+    # Object that manages a fastq file. 
 
     # To initialize 
     my $file = MyBio::Data::File::FASTQ->new({
@@ -47,24 +47,24 @@ sub _init {
 	$self->set_extra($$data{EXTRA_INFO});
 	
 	my $read_mode = "<";
-	if ($self->get_file =~ /\.gz$/) {
+	if ($self->file =~ /\.gz$/) {
 		$read_mode = "<:gzip";
 	}
 	
-	my $filehandle = FileHandle->new($self->get_file, $read_mode) or die "Cannot open file \"".$self->get_file."\"  $!";
+	my $filehandle = FileHandle->new($self->file, $read_mode) or die "Cannot open file \"".$self->file."\"  $!";
 	$self->_set_filehandle($filehandle);
 }
 
 #######################################################################
 #############################   Getters   #############################
 #######################################################################
-sub get_file {
+sub file {
 	return $_[0]->{FILE};
 }
-sub get_extra {
+sub extra {
 	return $_[0]->{EXTRA_INFO};
 }
-sub _get_filehandle {
+sub _filehandle {
 	return $_[0]->{FILEHANDLE};
 }
 
@@ -89,7 +89,7 @@ sub _set_filehandle {
 sub next {
 	my ($self) = @_;
 	
-	my $filehandle = $self->_get_filehandle;
+	my $filehandle = $self->_filehandle;
 	while (my $line = <$filehandle>) {
 		if ($line =~ /^\@/) {
 			my $id = substr($line,1); chomp($id);

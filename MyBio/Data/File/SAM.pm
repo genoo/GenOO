@@ -53,7 +53,7 @@ sub _init {
 	$self->set_file($$data{FILE});
 	$self->set_extra($$data{EXTRA_INFO});
 	
-	$self->open($self->get_file);
+	$self->open($self->file);
 	
 	$self->init_header_cache;
 	$self->init_records_cache;
@@ -84,12 +84,12 @@ sub set_eof {
 #######################################################################
 ########################   Attribute Getters   ########################
 #######################################################################
-sub get_file {
+sub file {
 	my ($self) = @_;
 	return $self->{FILE};
 }
 
-sub get_eof {
+sub eof {
 	my ($self) = @_;
 	return $self->{EOF};
 }
@@ -170,10 +170,10 @@ sub next_record {
 	
 	my $record;
 	if ($self->record_cache_not_empty) {
-		$record = $self->get_next_record_from_cache;
+		$record = $self->next_record_from_cache;
 	}
 	else {
-		$record = $self->get_next_record_from_file;
+		$record = $self->next_record_from_file;
 	}
 	
 	if (defined $record) {
@@ -182,7 +182,7 @@ sub next_record {
 	return $record;
 }
 
-sub get_next_record_from_file {
+sub next_record_from_file {
 	my ($self) = @_;
 	
 	my $line = $self->filehandle->getline;
@@ -200,7 +200,7 @@ sub get_next_record_from_file {
 	}
 }
 
-sub get_next_record_from_cache {
+sub next_record_from_cache {
 	my ($self) = @_;
 	
 	my $line = shift @{$self->{RECORDS_CACHE}};

@@ -41,7 +41,7 @@ MyBio::Data::File::SAM::Record - Object representing a record of a sam file
     my $unmapped = $sam_record->is_unmapped();
     
     # Parse the FLAG attribute and return 1 or -1 for the strand
-    my $strand = $sam_record->get_strand();
+    my $strand = $sam_record->strand();
 
 =head1 AUTHOR - Manolis Maragkakis
 
@@ -136,51 +136,51 @@ sub set_tags {
 #######################################################################
 ########################   Attribute Getters   ########################
 #######################################################################
-sub get_qname {
+sub qname {
 	my ($self) = @_;
 	return $self->{QNAME};
 }
-sub get_flag {
+sub flag {
 	my ($self) = @_;
 	return $self->{FLAG};
 }
-sub get_rname {
+sub rname {
 	my ($self) = @_;
 	return $self->{RNAME};
 }
-sub get_pos {
+sub pos {
 	my ($self) = @_;
 	return $self->{POS};
 }
-sub get_mapq {
+sub mapq {
 	my ($self) = @_;
 	return $self->{MAPQ};
 }
-sub get_cigar {
+sub cigar {
 	my ($self) = @_;
 	return $self->{CIGAR};
 }
-sub get_rnext {
+sub rnext {
 	my ($self) = @_;
 	return $self->{RNEXT};
 }
-sub get_pnext {
+sub pnext {
 	my ($self) = @_;
 	return $self->{PNEXT};
 }
-sub get_tlen {
+sub tlen {
 	my ($self) = @_;
 	return $self->{TLEN};
 }
-sub get_seq {
+sub seq {
 	my ($self) = @_;
 	return $self->{SEQ};
 }
-sub get_qual {
+sub qual {
 	my ($self) = @_;
 	return $self->{QUAL};
 }
-sub get_tags {
+sub tags {
 	my ($self) = @_;
 	return $self->{TAGS};
 }
@@ -188,22 +188,22 @@ sub get_tags {
 #######################################################################
 ############################   Accessors   ############################
 #######################################################################
-sub get_length {
+sub length {
 	my ($self) = @_;
-	return $self->get_stop - $self->get_start + 1;
+	return $self->stop - $self->start + 1;
 }
-sub get_start {
+sub start {
 	my ($self) = @_;
-	return $self->get_pos - 1;
+	return $self->pos - 1;
 }
-sub get_stop {
+sub stop {
 	my ($self) = @_;
-	return $self->get_start + length($self->get_seq) - 1 - $self->insertion_count;
+	return $self->start + length($self->seq) - 1 - $self->insertion_count;
 }
-sub get_strand {
+sub strand {
 	my ($self) = @_;
 	
-	if ($self->get_flag & 16) {
+	if ($self->flag & 16) {
 		return -1;
 	}
 	elsif ($self->is_mapped) {
@@ -213,10 +213,10 @@ sub get_strand {
 		return undef;
 	}
 }
-sub get_strand_symbol {
+sub strand_symbol {
 	my ($self) = @_;
 	
-	my $strand = $self->get_strand;
+	my $strand = $self->strand;
 	if ($strand == 1) {
 		return '+';
 	}
@@ -227,18 +227,18 @@ sub get_strand_symbol {
 		return undef;
 	}
 }
-sub get_tag {
+sub tag {
 	my ($self, $tag_id) = @_;
 	
-	if (defined $self->get_tags) {
-		return $self->get_tags->{$tag_id};
+	if (defined $self->tags) {
+		return $self->tags->{$tag_id};
 	}
 }
-sub get_alternative_mappings {
+sub alternative_mappings {
 	my ($self) = @_;
 	
 	my $tag = 'XA:Z';
-	my $value = $self->get_tag($tag);
+	my $value = $self->tag($tag);
 	if (defined $value) {
 		my @alternative_mappings = split(/;/,$value);
 		return @alternative_mappings;
@@ -252,7 +252,7 @@ sub insertion_count {
 	my ($self) = @_;
 	
 	my $insertion_count = 0;
-	my $cigar = $self->get_cigar;
+	my $cigar = $self->cigar;
 	while ($cigar =~ /(\d)I/g) {
 		$insertion_count += $1;
 	}
@@ -262,7 +262,7 @@ sub insertion_count {
 sub is_mapped {
 	my ($self) = @_;
 	
-	if ($self->get_flag & 4) {
+	if ($self->flag & 4) {
 		return 0;
 	}
 	else {
@@ -273,7 +273,7 @@ sub is_mapped {
 sub is_unmapped {
 	my ($self) = @_;
 	
-	if ($self->get_flag & 4) {
+	if ($self->flag & 4) {
 		return 1;
 	}
 	else {
@@ -294,7 +294,7 @@ sub is_unmapped {
 # # 	Positive strand match AGTGATGGGAGGATGTCTCGTCTGTGAGTTACAGCA
 # # 	Reference genome = AGGCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA
 # 	
-# 	my $query = $self->get_seq;
+# 	my $query = $self->seq;
 # 	my $target = '';
 # 	my $pos = 0;
 # 	my $deletion_string_flag = 0;
