@@ -68,7 +68,7 @@ sub merge {
 	foreach my $locus (@sorted_loci) {
 		if ($locus->isa('MyBio::Locus')) {
 			my $merged_locus = $merged_loci[-1];
-			if (defined $merged_locus and $merged_locus->overlaps($locus,$offset,$use_strand)) {
+			if (defined $merged_locus and $merged_locus->overlaps($locus,{OFFSET=>$offset, USE_STRAND=>$use_strand})) {
 				if (wantarray) {
 					push @{$included_loci[-1]}, $locus;
 				}
