@@ -198,7 +198,7 @@ sub start {
 }
 sub stop {
 	my ($self) = @_;
-	return $self->start + length($self->seq) - 1 - $self->insertion_count;
+	return $self->start + length($self->seq) - 1 - $self->insertion_count + $self->deletion_count;
 }
 sub strand {
 	my ($self) = @_;
@@ -257,6 +257,17 @@ sub insertion_count {
 		$insertion_count += $1;
 	}
 	return $insertion_count;
+}
+
+sub deletion_count {
+	my ($self) = @_;
+	
+	my $deletion_count = 0;
+	my $cigar = $self->cigar;
+	while ($cigar =~ /(\d)D/g) {
+		$deletion_count += $1;
+	}
+	return $deletion_count;
 }
 
 sub is_mapped {

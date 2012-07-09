@@ -130,7 +130,7 @@ sub start : Test(2) {
 	is $obj->start, 85867635, "... and should return the correct value";
 }
 
-sub stop : Test(3) {
+sub stop : Test(4) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
@@ -142,6 +142,9 @@ sub stop : Test(3) {
 	
 	$obj->set_cigar('14M1I5M'); # implements an insertion
 	is $obj->stop, 85867665, "... and should return the correct value again";
+	
+	$obj->set_cigar('7M1D7M1I5M'); # implements a deletion
+	is $obj->stop, 85867666, "... and should return the correct value again";
 }
 
 sub strand : Test(4) {
@@ -211,6 +214,19 @@ sub insertion_count : Test(3) {
 	
 	$obj->set_cigar('14M1I5M2I5M');
 	is $obj->insertion_count, 3, "... and should return the correct value again";
+}
+
+sub deletion_count : Test(3) {
+	my ($self) = @_;
+	
+	my $obj = $self->class->new;
+	can_ok $obj, 'deletion_count';
+	
+	$obj->set_cigar('14M1D5M');
+	is $obj->deletion_count, 1, "... and should return the correct value";
+	
+	$obj->set_cigar('14M1D5M2D5M');
+	is $obj->deletion_count, 3, "... and should return the correct value again";
 }
 
 sub is_mapped : Test(4) {
