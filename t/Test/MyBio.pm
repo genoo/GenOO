@@ -6,8 +6,6 @@ INIT { Test::Class->runtests }
 use base qw(Test::Class);
 use Test::More;
 
-# our $data = {};
-
 sub class {
 	my ($self) = @_;
 	(my $class = ref($self) || $self) =~ s/^Test:://;

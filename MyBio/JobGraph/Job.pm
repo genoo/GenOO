@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-MyBio::JobGraph::Job - Interface of a concrete factory for creating Job objects
+MyBio::JobGraph::Job - Abstract class for a job
 
 =head1 SYNOPSIS
 
@@ -19,80 +19,124 @@ MyBio::JobGraph::Job - Interface of a concrete factory for creating Job objects
 package MyBio::JobGraph::Job;
 use strict;
 
-our $VERSION = '1.0';
-
-sub new {
-	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
-}
+use base qw(MyBio::_Initializable);
 
 sub _init {
-	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	my ($self, $data) = @_;
+	
+	$self->is_input_appropriate($$data{INPUT});
+	$self->is_output_appropriate($$data{OUTPUT});
+	
+	$self->set_input($$data{INPUT});
+	$self->set_output($$data{OUTPUT});
+	$self->set_log($$data{LOG});
+	
+	return $self;
 }
 
 #######################################################################
 ########################   Attribute Setters   ########################
 #######################################################################
 sub set_input {
-	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	my ($self, $value) = @_;
+	$self->{INPUT} = $value if defined $value;
 }
+
 sub set_output {
-	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	my ($self, $value) = @_;
+	$self->{OUTPUT} = $value if defined $value;
 }
-sub set_description {
-	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
-}
+
 sub set_log {
-	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	my ($self, $value) = @_;
+	$self->{LOG} = $value if defined $value;
 }
+
 #######################################################################
-########################   Attribute Getters   ########################
+############################   Accessors  #############################
 #######################################################################
-sub get_input {
+sub input {
 	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	return $self->{INPUT};
 }
-sub get_output {
+
+sub output {
 	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	return $self->{OUTPUT};
 }
-sub get_description {
+
+sub log {
 	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	return $self->{LOG};
 }
-sub get_log {
-	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
-}
+
 #######################################################################
 #########################   General Methods   #########################
+#######################################################################
+sub is_input_appropriate {
+	my ($self, $value) = @_;
+	
+	return $self->is_io_appropriate($value, 'MyBio::JobGraph::Job::Input')
+}
+
+sub is_output_appropriate {
+	my ($self, $value) = @_;
+	
+	return $self->is_io_appropriate($value, 'MyBio::JobGraph::Job::Output')
+}
+
+sub is_io_appropriate {
+	my ($self, $value, $type) = @_;
+	
+	if (defined $value) {
+		if (ref($value) eq 'ARRAY') {
+			foreach my $element (@$value) {
+				unless ($element->isa($type)) {
+					die "IO object $element should be of the correct type $type\n";
+				}
+			}
+		}
+		else {
+			die "An array reference should be provided";
+		}
+		return 1;
+	}
+}
+
+#######################################################################
+########################   Abstract Methods   #########################
 #######################################################################
 sub clean {
 	my ($self) = @_;
 	my $class = ref($self) || $self;
 	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
 }
-sub develop {
+
+sub start_devel_mode {
 	my ($self) = @_;
 	my $class = ref($self) || $self;
 	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
 }
+
+sub stop_devel_mode {
+	my ($self) = @_;
+	my $class = ref($self) || $self;
+	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+}
+
+sub is_devel_mode_on {
+	my ($self) = @_;
+	my $class = ref($self) || $self;
+	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+}
+
 sub run {
+	my ($self) = @_;
+	my $class = ref($self) || $self;
+	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+}
+
+sub description {
 	my ($self) = @_;
 	my $class = ref($self) || $self;
 	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
