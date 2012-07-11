@@ -47,34 +47,6 @@ sub _init {
 	
 	return $self;
 }
- 
-#######################################################################
-########################   Attribute Getters   ########################
-#######################################################################
-sub get_input {
-	my ($self) = @_;
-	return $self->{INPUT};
-}
-
-sub get_output {
-	my ($self) = @_;
-	return $self->{OUTPUT};
-}
-
-sub get_description {
-	my ($self) = @_;
-	return $self->{DESCRIPTION};
-}
-
-sub get_log {
-	my ($self) = @_;
-	return $self->{LOG};
-}
-
-sub get_code {
-	my ($self) = @_;
-	return $self->{CODE};
-}
 
 #######################################################################
 ########################   Attribute Setters   ########################
@@ -140,10 +112,42 @@ sub set_code {
 }
 
 #######################################################################
+########################   Attribute Getters   ########################
+#######################################################################
+sub input {
+	my ($self) = @_;
+	return $self->{INPUT};
+}
+
+sub output {
+	my ($self) = @_;
+	return $self->{OUTPUT};
+}
+
+sub description {
+	my ($self) = @_;
+	return $self->{DESCRIPTION};
+}
+
+sub log {
+	my ($self) = @_;
+	return $self->{LOG};
+}
+
+sub code {
+	my ($self) = @_;
+	return $self->{CODE};
+}
+
+#######################################################################
 #############################   Methods   #############################
 #######################################################################
-sub clean { #this method will clean-up all the outputs
-
+sub clean {
+	my ($self) = @_;
+	
+	foreach my $output (@{$self->output}) {
+		$output->clean;
+	}
 }
 
 =head2 use_develop
@@ -158,8 +162,7 @@ sub clean { #this method will clean-up all the outputs
 =cut
 sub use_develop {
 	my ($self) = @_;
-	foreach my $io_obj ($self->get_input, $self->get_output)
-	{
+	foreach my $io_obj ($self->input, $self->output) {
 		$io_obj->set_to_development;
 	}
 }
@@ -176,7 +179,7 @@ sub use_develop {
 =cut
 sub run {
 	my ($self) = @_;
-	return $self->get_code->($self->get_input,$self->get_output);
+	return $self->code->($self->input,$self->output);
 }
 
 =head2 add_default_variables_to_description
@@ -195,29 +198,24 @@ sub run {
 sub add_default_variables_to_description {
 	my ($self) = @_;
 	
-	my %description_attr_obj = $self->get_description->get_variables;
+	my %description_attr_obj = $self->description->placeholders;
 	
 	my @inputnames;
-	my $i=0;
-	foreach my $inputobj (@{$self->get_input})
-	{
-		$description_attr_obj{"INPUT$i"} = $inputobj->get_name;
-		$i++;
-		push (@inputnames, $inputobj->get_name);
+	for (my $i=0;$i<@{$self->input};$i++) {
+		my $inputobj = $self->input->[$i];
+		$self->description->add_placeholder("INPUT$i",$inputobj->name);
+		push @inputnames, $inputobj->name;
 	}
-	$description_attr_obj{"INPUT"} = join(",", @inputnames);
+	$self->description->add_placeholder("INPUT", join(",", @inputnames));
 	
 	my @outputnames;
-	my $i=0;
-	foreach my $outputobj (@{$self->get_output})
-	{
-		$description_attr_obj{"OUTPUT$i"} = $outputobj->get_name;
-		$i++;
-		push (@outputnames, $outputobj->get_name);
+	for (my $i=0;$i<@{$self->output};$i++) {
+		my $outputobj = $self->output->[$i];
+		$self->description->add_placeholder("OUTPUT$i",$outputobj->name);
+		push @outputnames, $outputobj->name;
 	}
-	$description_attr_obj{"OUTPUT"} = join(",", @outputnames);
-	
-	$self->get_description->set_variables(\%description_attr_obj);
+	$self->description->add_placeholder("OUTPUT", join(",", @outputnames));
+
 	return 1;
 }
 

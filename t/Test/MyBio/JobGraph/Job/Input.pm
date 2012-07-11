@@ -1,4 +1,4 @@
-package Test::MyBio::JobGraph::Output;
+package Test::MyBio::JobGraph::Job::Input;
 use strict;
 
 use base qw(Test::MyBio);
@@ -13,10 +13,12 @@ use Test::TestObjects;
 ###########################   Test Data     ###########################
 #######################################################################
 sub sample_object {
-	return Test::TestObjects->get_testobject_MyBio_JobGraph_Output;
+	return Test::TestObjects->get_testobject_MyBio_JobGraph_Input;
 }
 sub data {
-	{}
+	return {
+		
+	};
 }
 
 #######################################################################
@@ -30,13 +32,5 @@ sub _loading_test : Test(4) {
  	ok my $obj = $self->class->new($self->sample_object->[0]), '... and the constructor succeeds';
  	isa_ok $obj, $self->class, '... and the object';
 }
-
-# #######################################################################
-# #########################   Attributes Tests   ########################
-# #######################################################################
-
-#######################################################################
-#############################   Methods   #############################
-#######################################################################
 
 1;

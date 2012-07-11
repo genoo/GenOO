@@ -1,92 +1,85 @@
 package Test::TestObjects;
 use strict;
 
-use MyBio::JobGraph::Input;
-use MyBio::JobGraph::Output;
-use MyBio::JobGraph::Description;
+use MyBio::JobGraph::Job::Input;
+use MyBio::JobGraph::Job::Output;
+use MyBio::JobGraph::Job::Description;
 
 	################################################
 	################ JobGraph ######################
 	################################################
 	
-sub get_testobject_MyBio_JobGraph_Job_Generic
-{
+sub get_testobject_MyBio_JobGraph_Job_Generic {
 	return [
 		{
-			#this is a generic object of the class
-			INPUT        => [
-						MyBio::JobGraph::Input->new({Test::TestObjects->get_testobject_MyBio_JobGraph_Input->[0]}),
-						MyBio::JobGraph::Input->new({Test::TestObjects->get_testobject_MyBio_JobGraph_Input->[0]})
-					],
-			OUTPUT        => [
-						MyBio::JobGraph::Output->new({Test::TestObjects->get_testobject_MyBio_JobGraph_Output->[0]}),
-						MyBio::JobGraph::Output->new({Test::TestObjects->get_testobject_MyBio_JobGraph_Output->[0]})
-					],
-			DESCRIPTION  => MyBio::JobGraph::Description->new({
-						Test::TestObjects->get_testobject_MyBio_JobGraph_Description->[0]
-					}),
-			LOG          => 'anything',
-			CODE         => sub {return 'anything';}
+			INPUT => [
+				MyBio::JobGraph::Job::Input->new({Test::TestObjects->get_testobject_MyBio_JobGraph_Input->[0]}),
+				MyBio::JobGraph::Job::Input->new({Test::TestObjects->get_testobject_MyBio_JobGraph_Input->[0]})
+			],
+			
+			OUTPUT => [
+				MyBio::JobGraph::Job::Output->new({Test::TestObjects->get_testobject_MyBio_JobGraph_Output->[0]}),
+				MyBio::JobGraph::Job::Output->new({Test::TestObjects->get_testobject_MyBio_JobGraph_Output->[0]})
+			],
+			
+			DESCRIPTION => MyBio::JobGraph::Job::Description->new({
+				Test::TestObjects->get_testobject_MyBio_JobGraph_Description->[0]
+			}),
+			
+			LOG => 'anything',
+			
+			CODE => sub {
+				return 'anything';
+			}
 		},
 	];
 }
-sub get_testobject_MyBio_JobGraph_IO
-{
+
+sub get_testobject_MyBio_JobGraph_IO {
 	return [
 		{
-			#this is a generic object of the class
 			NAME         => 'anything',
 			SOURCE       => 'anything',
-			TYPE 	     => 'anything',
-			DEVEL_SOURCE => 'anything_devel',
 		},
 	];
 }
-sub get_testobject_MyBio_JobGraph_Input
-{
+
+sub get_testobject_MyBio_JobGraph_Input {
 	return [
 		{
-			#this is a generic object of the class
-			NAME       => 'anything',
-			SOURCE     => 'anything',
-			TYPE 	   => 'anything',
-			DEVEL_SOURCE => 'anything_devel',
+			NAME         => 'anything',
+			SOURCE       => 'anything',
 		},
 	];
 }
+
 sub get_testobject_MyBio_JobGraph_Output {
 	return [
 		{
-			#this is a generic object of the class
-			NAME       => 'anything',
-			SOURCE     => 'anything',
-			TYPE 	   => 'anything',
-			DEVEL_SOURCE => 'anything_devel',
+			NAME         => 'anything',
+			SOURCE       => 'anything',
 		},
 	];
 }
 
 sub get_testobject_MyBio_JobGraph_Description {
-return [
+	return [
 		{
-			#this is a generic object of the class
 			HEADER     => 'anything {{var1}} anything {{var2}}',
 			ABSTRACT   => 'anything',
-			TEXT 	   => 'anything',
+			TEXT       => 'anything',
 			VARIABLES  => {
-					'var1' => 'value for var1',
-					'var2' => 'value for var2',
-				      },
+				'var1' => 'value for var1',
+				'var2' => 'value for var2',
+			},
 		},
 	];
 }
 
-	################################################
-	################### Locus ######################
-	################################################
-
-sub get_testobject_MyBio_Locus
-{
+################################################
+################### Locus ######################
+################################################
+sub get_testobject_MyBio_Locus {
 	return [
 		{
 			#this is a generic object of the class
