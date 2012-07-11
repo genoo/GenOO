@@ -114,35 +114,13 @@ sub get_spliced_relative_3p {
 
 sub get_spliced_relative_start {
 	my ($self) = @_;
-	return $self->to_spliced_relative($self->get_start);
+	return $self->get_slice->to_spliced_relative($self->get_start);
 }
 
 sub get_spliced_relative_stop {
 	my ($self) = @_;
-	return $self->to_spliced_relative($self->get_stop);
+	return $self->get_slice->to_spliced_relative($self->get_stop);
 }
-
-sub to_spliced_relative {
-	my ($self, $abs_pos) = @_;
-	
-	if (defined $self->get_slice and $self->get_slice->is_position_within_exon($abs_pos)) {
-		my $relative_pos = $abs_pos - $self->get_slice->get_start;
-		my $introns = $self->get_slice->get_introns;
-		foreach my $intron (@$introns) {
-			if ($intron->get_stop < $abs_pos) {
-				$relative_pos -= $intron->get_length;
-			}
-			else {
-				last;
-			}
-		}
-		return $relative_pos;
-	}
-	else {
-		return undef;
-	}
-}
-
 
 ### TO HERE
 ##############################################

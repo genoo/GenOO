@@ -244,6 +244,23 @@ sub alternative_mappings {
 		return @alternative_mappings;
 	}
 }
+sub query_seq {
+	my ($self) = @_;
+	if ($self->strand == 1){
+		return $self->seq;
+	}
+	elsif ($self->strand == -1){
+		my $seq = reverse($self->seq);
+		$seq =~ tr/ATGCUatgcu/TACGAtacga/;
+		return $seq;
+	}
+	elsif ($self->is_unmapped) {
+		return $self->seq;
+	}
+	else{
+		return undef;
+	}
+}
 
 #######################################################################
 #########################   General Methods   #########################

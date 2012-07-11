@@ -605,10 +605,10 @@ sub create_utr3 {
 					$transcriptObj->{TEMP_DESCRIPTION} = $description;
 				}
 				
-				if (!defined $transcriptObj->get_start or ($start < $transcriptObj->get_start)) {
+				if (!defined $transcriptObj->start or ($start < $transcriptObj->start)) {
 					$transcriptObj->set_start($start);
 				}
-				if (!defined $transcriptObj->get_stop or ($stop > $transcriptObj->get_stop)) {
+				if (!defined $transcriptObj->stop or ($stop > $transcriptObj->stop)) {
 					$transcriptObj->set_stop($stop);
 				}
 				$transcriptObj->push_splice_start_stop_pair($start,$stop);

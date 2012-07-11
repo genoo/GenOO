@@ -136,7 +136,6 @@ sub entries_overlapping_region {
 	my ($self, $strand, $chr, $start, $stop) = @_;
 	
 	my $entries_ref = $self->entries_ref_for_strand_and_chromosome($strand, $chr) or return ();
-	
 	$self->sort_entries unless $self->sorted;
 	
 	my $target_value = $start - $self->get_or_find_longest_entry_length;
