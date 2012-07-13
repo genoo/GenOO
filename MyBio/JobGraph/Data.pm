@@ -2,26 +2,22 @@
 
 =head1 NAME
 
-MyBio::JobGraph::Job::Output - Abstract class for the output of a job
+MyBio::JobGraph::Data - Abstract class for jobgraph data management
 
 =head1 SYNOPSIS
 
-    # Should not be instantiated but if it was the fields it supports are 
-    my $output = MyBio::JobGraph::Job::Output->new({
-        NAME      => 'A name',
-        SOURCE    => 'An output source eg. file, database table, etc',
-    });
+    # Should not be instantiated
 
 =head1 DESCRIPTION
 
-    Implements and defines methods that need to be present in all derived classes that handle the output
-    of a job
+    This abstact class defines the methods and attibutes that derived classes which handle data
+    management should implement. Example of derived classses is a File or a Database.
 
 =cut
 
 # Let the code begin...
 
-package MyBio::JobGraph::Job::Output;
+package MyBio::JobGraph::Data;
 use strict;
 
 use base qw(MyBio::_Initializable);
@@ -29,8 +25,7 @@ use base qw(MyBio::_Initializable);
 sub _init {
 	my ($self,$data) = @_;
 	
-	$self->set_name($$data{NAME});
-	$self->check_and_set_source($$data{SOURCE});
+	$self->set_devel_mode($$data{DEVEL_MODE});
 	
 	return $self;
 }
@@ -38,41 +33,25 @@ sub _init {
 #######################################################################
 ########################   Attribute Setters   ########################
 #######################################################################
-sub set_name {
+sub set_devel_mode {
 	my ($self,$value) = @_;
-	$self->{NAME} = $value if defined $value;
-}
-
-sub check_and_set_source {
-	my ($self, $value) = @_;
-	
-	if (defined $value and $self->source_is_appropriate($value)) {
-		$self->{SOURCE} = $value;
-	}
+	$self->{DEVEL_MODE} = $value if defined $value;
 }
 
 #######################################################################
 ############################   Accessors  #############################
 #######################################################################
-sub name {
+sub devel_mode {
 	my ($self) = @_;
-	return $self->{NAME};
-}
-
-sub source {
-	my ($self) = @_;
-	return $self->{SOURCE};
+	return $self->{DEVEL_MODE};
 }
 
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
-sub source_is_appropriate {
-	my ($self, $value) = @_;
-	
-	unless ($value->isa('MyBio::JobGraph::Data')) {
-		die "Data source object $value does not implement MyBio::JobGraph::Data\n";
-	}
+sub is_devel_mode_on {
+	my ($self) = @_;
+	return $self->devel_mode == 1 ? 1 : 0;
 }
 
 #######################################################################
@@ -126,16 +105,8 @@ sub stop_devel_mode {
 	}
 }
 
-sub is_devel_mode_on {
-	my ($self) = @_;
-	
-	my $class = ref($self) || $self;
-	if ($class eq __PACKAGE__) {
-		return undef;
-	}
-	else {
-		die "Error: Undefined Abstract Method \"".(caller(0))[3]."\" used by $class\n";
-	}
-}
+
+
+
 
 1;

@@ -2,31 +2,37 @@
 
 =head1 NAME
 
-MyBio::JobGraph::Job::Input::File - Input file object that implements MyBio::JobGraph::Job::Input interface
+MyBio::JobGraph::Job::Input::File - Input interface between L<MyBio::JobGraph::Job> and L<MyBio::JobGraph::Data::File>
 
 =head1 SYNOPSIS
 
     # Instantiate
     my $input = MyBio::JobGraph::Job::Input::File->new({
-        NAME       => 'An identifier',
-        SOURCE     => '/path/to/input/file',
+        NAME     => A name for the input/output object,
+        SOURCE   => MyBio::JobGraph::Data::File,
     });
 
 =head1 DESCRIPTION
 
-    This class handles a file as an input for a job.
+    This class serves as an input interface between L<MyBio::JobGraph::Job> and L<MyBio::JobGraph::Data::File>
+    It implements MyBio::JobGraph::Job::Input.
 
 =head1 EXAMPLES
 
     # Get the input type
     $input->type
-
+    
+    # Get the filename
+    $input->filename
+    
 =cut
 
 # Let the code begin...
 
 package MyBio::JobGraph::Job::Input::File;
 use strict;
+
+use MyBio::JobGraph::Data::File;
 
 use base qw(MyBio::JobGraph::Job::Input);
 
@@ -39,11 +45,24 @@ sub _init {
 }
 
 #######################################################################
-############################   Accessors  #############################
+#########################   General Methods   #########################
 #######################################################################
-sub type {
+sub source_is_appropriate { # Override
+	my ($self, $value) = @_;
+	
+	unless ($value->isa('MyBio::JobGraph::Data::File')) {
+		die "Data source object $value does not implement MyBio::JobGraph::Data::File\n";
+	}
+}
+
+sub filename {
 	my ($self) = @_;
-	return 'File';
+	return $self->source->filename;
+}
+
+sub type { # Override
+	my ($self) = @_;
+	return $self->source->type;
 }
 
 1;
