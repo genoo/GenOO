@@ -61,19 +61,19 @@ sub merge {
 	my $offset = exists $params->{'OFFSET'} ? $params->{'OFFSET'} : 0;
 	my $use_strand = exists $params->{'USE_STRAND'} ? $params->{'USE_STRAND'} : 1;
 	
-	my @sorted_loci = (@$loci_ref > 1) ? sort{$a->get_start <=> $b->get_start} @$loci_ref : @$loci_ref;
+	my @sorted_loci = (@$loci_ref > 1) ? sort{$a->start <=> $b->start} @$loci_ref : @$loci_ref;
 	
 	my @merged_loci;
 	my @included_loci;
 	foreach my $locus (@sorted_loci) {
 		if ($locus->isa('MyBio::Locus')) {
 			my $merged_locus = $merged_loci[-1];
-			if (defined $merged_locus and $merged_locus->overlaps($locus,$offset,$use_strand)) {
+			if (defined $merged_locus and $merged_locus->overlaps($locus,{OFFSET=>$offset, USE_STRAND=>$use_strand})) {
 				if (wantarray) {
 					push @{$included_loci[-1]}, $locus;
 				}
-				if ($locus->get_stop() > $merged_locus->get_stop) {
-					$merged_locus->set_stop($locus->get_stop);
+				if ($locus->stop() > $merged_locus->stop) {
+					$merged_locus->set_stop($locus->stop);
 				}
 			}
 			else {
