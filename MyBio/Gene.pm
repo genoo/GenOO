@@ -174,34 +174,33 @@ sub set_refseq {
 sub update_info_from_transcript {
 	my ($self,$transcript) = @_;
 	
-	if (!defined $self->get_species) {
-		$self->set_species($transcript->get_species);
+	if (!defined $self->species) {
+		$self->set_species($transcript->species);
 	}
-	elsif ($self->get_species ne $transcript->get_species) {
-		die "Inconsistency found when trying to update gene info from transcript. Gene species: ".$self->get_species."\tTranscript species: ".$transcript->get_species."\n";
-	}
-	
-	
-	if (!defined $self->get_strand) {
-		$self->set_strand($transcript->get_strand);
-	}
-	elsif ($self->get_strand ne $transcript->get_strand) {
-		die "Inconsistency found when trying to update gene info from transcript. Gene strand: ".$self->get_strand."\tTranscript strand: ".$transcript->get_strand."\n";
+	elsif ($self->species ne $transcript->species) {
+		die "Inconsistency found when trying to update gene info from transcript. Gene species: ".$self->species."\tTranscript species: ".$transcript->species."\n";
 	}
 	
-	if (!defined $self->get_chr) {
-		$self->set_chr($transcript->get_chr);
+	if (!defined $self->strand) {
+		$self->set_strand($transcript->strand);
 	}
-	elsif ($self->get_chr ne $transcript->get_chr) {
-		die "Inconsistency found when trying to update gene info from transcript. Gene chr: ".$self->get_chr."\tTranscript chr: ".$transcript->get_chr."\n";
-	}
-	
-	if (!defined $self->get_start or $transcript->get_start < $self->get_start) {
-		$self->set_start($transcript->get_start);
+	elsif ($self->strand ne $transcript->strand) {
+		die "Inconsistency found when trying to update gene info from transcript. Gene strand: ".$self->strand."\tTranscript strand: ".$transcript->strand."\n";
 	}
 	
-	if (!defined $self->get_stop or $transcript->get_stop > $self->get_stop) {
-		$self->set_stop($transcript->get_stop);
+	if (!defined $self->chr) {
+		$self->set_chr($transcript->chr);
+	}
+	elsif ($self->chr ne $transcript->chr) {
+		die "Inconsistency found when trying to update gene info from transcript. Gene chr: ".$self->chr."\tTranscript chr: ".$transcript->chr."\n";
+	}
+	
+	if (!defined $self->start or $transcript->start < $self->start) {
+		$self->set_start($transcript->start);
+	}
+	
+	if (!defined $self->stop or $transcript->stop > $self->stop) {
+		$self->set_stop($transcript->stop);
 	}
 }
 sub add_refseq {

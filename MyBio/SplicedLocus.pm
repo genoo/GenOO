@@ -152,17 +152,17 @@ sub get_exon_exon_junctions {
 	my $exons = $self->get_exons();
 	if (@$exons > 1) {
 		for (my $i=0;$i<@$exons-1;$i++) {
-			push @junction_starts, $$exons[$i]->get_stop;
-			push @junction_stops, $$exons[$i+1]->get_start;
+			push @junction_starts, $$exons[$i]->stop;
+			push @junction_stops, $$exons[$i+1]->start;
 		}
 	}
 	
 	my $junctions_count = @junction_starts == @junction_stops ? @junction_starts : die "Junctions starts are not of the same size as junction stops\n";
 	for (my $i=0;$i<$junctions_count;$i++) {
 		push @junctions, MyBio::Junction->new({
-			SPECIES      => $self->get_species,
-			STRAND       => $self->get_strand,
-			CHR          => $self->get_chr,
+			SPECIES      => $self->species,
+			STRAND       => $self->strand,
+			CHR          => $self->chr,
 			START        => $junction_starts[$i],
 			STOP         => $junction_stops[$i],
 			SLICE        => $self,
@@ -175,14 +175,14 @@ sub get_exonic_sequence {
 	my ($self) = @_;
 	
 	my $exonic_sequence = '';
-	my $locus_seq = $self->get_strand == 1 ? $self->get_sequence : reverse($self->get_sequence);
+	my $locus_seq = $self->strand == 1 ? $self->sequence : reverse($self->sequence);
 	if (defined $locus_seq) {
 		foreach my $exon (@{$self->get_exons}) {
-			$exonic_sequence .= substr($locus_seq,($exon->get_start - $self->get_start),$exon->get_length);
+			$exonic_sequence .= substr($locus_seq,($exon->start - $self->start),$exon->length);
 		}
 	}
 	
-	if ($self->get_strand == 1) {
+	if ($self->strand == 1) {
 		return $exonic_sequence;
 	}
 	else {
@@ -211,11 +211,12 @@ sub get_exons {
 		return [];
 	}
 }
+
 sub set_exons {
 	my ($self,$value) = @_;
 	
 	if (defined $value) {
-		$self->{EXONS} = [sort {$a->get_start <=> $b->get_start} @$value];
+		$self->{EXONS} = [sort {$a->start <=> $b->start} @$value];
 		return 0;
 	}
 	elsif (@{$self->get_splice_starts} > 0 and @{$self->get_splice_stops} > 0) {
@@ -248,10 +249,11 @@ sub get_introns {
 		return [];
 	}
 }
+
 sub set_introns {
 	my ($self,$value) = @_;
 	if (defined $value) {
-		$self->{INTRONS} = [sort {$a->get_start <=> $b->get_start} @$value];
+		$self->{INTRONS} = [sort {$a->start <=> $b->start} @$value];
 		return 0;
 	}
 	elsif (@{$self->get_splice_starts} > 0 and @{$self->get_splice_stops} > 0) {
@@ -262,37 +264,39 @@ sub set_introns {
 		return 1;
 	}
 }
+
 sub get_intron_exon_junctions {
 	my ($self) = @_;
 	if (@{$self->get_exons} < 1) {
 		return [];
 	}
-	elsif (!defined $self->get_start or !defined $self->get_stop) {
-		warn "$self undefined start: $self->get_start or stop: $self->get_stop!\n";
+	elsif (!defined $self->start or !defined $self->stop) {
+		warn "$self undefined start: $self->start or stop: $self->stop!\n";
 		return []; 
 	}
 	
 	my @junctions = ();
 	foreach my $exon (@{$self->get_exons}) {
-		if ($self->get_start < $exon->get_start) {
+		if ($self->start < $exon->start) {
 			push @junctions,MyBio::Locus->new({
-				STRAND       => $exon->get_strand,
-				CHR          => $exon->get_chr,
-				START        => $exon->get_start-1,
-				STOP         => $exon->get_start,
+				STRAND       => $exon->strand,
+				CHR          => $exon->chr,
+				START        => $exon->start-1,
+				STOP         => $exon->start,
 			});
 		}
-		if ($self->get_stop > $exon->get_stop) {
+		if ($self->stop > $exon->stop) {
 			push @junctions,MyBio::Locus->new({
-				STRAND       => $exon->get_strand,
-				CHR          => $exon->get_chr,
-				START        => $exon->get_stop,
-				STOP         => $exon->get_stop,
+				STRAND       => $exon->strand,
+				CHR          => $exon->chr,
+				START        => $exon->stop,
+				STOP         => $exon->stop,
 			});
 		}
 	}
 	return \@junctions;
 }
+
 sub get_exonic_length {
 	my ($self) = @_;
 	
@@ -302,6 +306,7 @@ sub get_exonic_length {
 	}
 	return $length;
 }
+
 sub push_splice_start_stop_pair {
 	my ($self,$start,$stop) = @_;
 	if (defined $start and defined $stop) {
@@ -348,13 +353,14 @@ sub push_splice_start_stop_pair {
 		}
 	}
 }
+
 sub set_splicing_info {
 	my ($self, $pre_splice_starts, $pre_splice_stops, $start, $stop) = @_;
 	my @splice_starts;
 	my @splice_stops;
 	if (!defined $start and !defined $stop) {
 		$start = $self->get_start;
-		$stop = $self->get_stop;
+		$stop = $self->stop;
 	}
 	for (my $i=0;$i<@$pre_splice_starts;$i++) {
 		if ($$pre_splice_stops[$i] < $start) {
@@ -381,6 +387,7 @@ sub set_splicing_info {
 	$self->set_splice_starts(\@splice_starts);
 	$self->set_splice_stops(\@splice_stops);
 }
+
 sub _set_exons_from_splicing {
 	my ($self) = @_;
 # 	warn "Method ".(caller(0))[3]." has not been tested for bugs. Please check and remove warning";
@@ -388,51 +395,53 @@ sub _set_exons_from_splicing {
 	my $exon_stops = $self->get_splice_stops;
 	for (my $i=0;$i<@{$exon_starts};$i++) {
 		$self->push_exon(MyBio::Transcript::Exon->new({
-			SPECIES    => $self->get_species,
-			STRAND     => $self->get_strand,
-			CHR        => $self->get_chr,
+			SPECIES    => $self->species,
+			STRAND     => $self->strand,
+			CHR        => $self->chr,
 			START      => $$exon_starts[$i],
 			STOP       => $$exon_stops[$i],
 			WHERE      => $self,
 		}));
 	}
 }
+
 sub _set_introns_from_splicing {
 	my ($self) = @_;
 # 	warn "Method ".(caller(0))[3]." has not been tested for bugs. Please check and remove warning";
 	my $exon_starts = $self->get_splice_starts;
 	my $exon_stops = $self->get_splice_stops;
-	if ($self->get_start < $$exon_starts[0]) {
+	if ($self->start < $$exon_starts[0]) {
 		$self->push_intron(MyBio::Transcript::Intron->new({
-			SPECIES    => $self->get_species,
-			STRAND     => $self->get_strand,
-			CHR        => $self->get_chr,
-			START      => $self->get_start,
+			SPECIES    => $self->species,
+			STRAND     => $self->strand,
+			CHR        => $self->chr,
+			START      => $self->start,
 			STOP       => $$exon_starts[0] - 1,
 			WHERE      => $self,
 		}));
 	}
 	for (my $i=1;$i<@{$exon_starts};$i++) {
 		$self->push_intron(MyBio::Transcript::Intron->new({
-			SPECIES    => $self->get_species,
-			STRAND     => $self->get_strand,
-			CHR        => $self->get_chr,
+			SPECIES    => $self->species,
+			STRAND     => $self->strand,
+			CHR        => $self->chr,
 			START      => ${$exon_stops}[$i-1] + 1,
 			STOP       => ${$exon_starts}[$i] - 1,
 			WHERE      => $self,
 		}));
 	}
-	if ($self->get_stop > $$exon_stops[-1]) {
+	if ($self->stop > $$exon_stops[-1]) {
 		$self->push_intron(MyBio::Transcript::Intron->new({
-			SPECIES    => $self->get_species,
-			STRAND     => $self->get_strand,
-			CHR        => $self->get_chr,
+			SPECIES    => $self->species,
+			STRAND     => $self->strand,
+			CHR        => $self->chr,
 			START      => $$exon_stops[-1] + 1,
-			STOP       => $self->get_stop,
+			STOP       => $self->stop,
 			WHERE      => $self,
 		}));
 	}
 }
+
 sub push_exon {
 	my ($self, $exon) = @_;
 	unless (defined $self->{EXONS}) {
@@ -441,6 +450,7 @@ sub push_exon {
 	$exon->set_where($self);
 	push @{$self->{EXONS}}, $exon;
 }
+
 sub push_intron {
 	my ($self, $intron) = @_;
 	unless (defined $self->{INTRONS}) {
@@ -448,6 +458,27 @@ sub push_intron {
 	}
 	$intron->set_where($self);
 	push @{$self->{INTRONS}}, $intron;
+}
+
+sub to_spliced_relative {
+	my ($self, $abs_pos) = @_;
+	
+	if ($self->is_position_within_exon($abs_pos)) {
+		my $relative_pos = $abs_pos - $self->start;
+		my $introns = $self->get_introns;
+		foreach my $intron (@$introns) {
+			if ($intron->stop < $abs_pos) {
+				$relative_pos -= $intron->length;
+			}
+			else {
+				last;
+			}
+		}
+		return $relative_pos;
+	}
+	else {
+		return undef;
+	}
 }
 
 1;
