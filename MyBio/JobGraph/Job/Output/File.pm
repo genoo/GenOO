@@ -40,6 +40,7 @@ package MyBio::JobGraph::Job::Output::File;
 use strict;
 
 use MyBio::JobGraph::Data::File;
+use MyBio::JobGraph::Job::Input::File;
 
 use base qw(MyBio::JobGraph::Job::Output);
 
@@ -47,6 +48,7 @@ sub _init {
 	my ($self,$data) = @_;
 	
 	$self->SUPER::_init($data);
+	$self->create_source_from_filename($$data{FILENAME});
 	
 	return $self;
 }
@@ -60,6 +62,24 @@ sub source_is_appropriate { # Override
 	unless ($value->isa('MyBio::JobGraph::Data::File')) {
 		die "Data source object $value does not implement MyBio::JobGraph::Data::File\n";
 	}
+}
+
+sub create_source_from_filename {
+	my ($self, $value) = @_;
+	
+	if (defined $value) {
+		$self->{SOURCE} = MyBio::JobGraph::Data::File->new({
+			FILENAME => $value,
+		});
+	}
+}
+
+sub to_input {
+	my ($self) = @_;
+	
+	return MyBio::JobGraph::Job::Input::File->new({
+		SOURCE => $self->source,
+	});
 }
 
 sub filename {

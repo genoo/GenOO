@@ -42,7 +42,7 @@ sub check_init : Test(3) { # Override
 	});
 	
 	is $self->obj->name, 'Any_name', '... and should set correct value';
-	isa_ok $self->obj->source, 'MyBio::JobGraph::Data', '... and source';
+	isa_ok $self->obj->source, 'MyBio::JobGraph::Data::File', '... and source';
 }
 
 sub source : Test(7) { # Override
@@ -65,6 +65,21 @@ sub source_is_appropriate : Test(4) { # Override
 	dies_ok {$self->obj->source_is_appropriate('Wrong source')} '... and should fail for a wrong value';
 	dies_ok {$self->obj->source_is_appropriate(MyBio::JobGraph::Data->new)} '... and should fail for a wrong value again';
 	ok $self->obj->source_is_appropriate(MyBio::JobGraph::Data::File->new), '... and should succeed for a legitimate value';
+}
+
+sub create_source_from_filename : Test(3) {
+	my ($self) = @_;
+	
+	can_ok $self->obj, 'create_source_from_filename';
+	ok $self->obj->create_source_from_filename('/path/to/output/file'), '... and should create source';
+	isa_ok $self->obj->source, 'MyBio::JobGraph::Data::File', '... and source';
+}
+
+sub to_input : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj, 'to_input';
+	isa_ok $self->obj->to_input, 'MyBio::JobGraph::Job::Input::File', '... and returned object';
 }
 
 sub filename : Test(2) {

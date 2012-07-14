@@ -67,6 +67,21 @@ sub source_is_appropriate : Test(4) { # Override
 	ok $self->obj->source_is_appropriate(MyBio::JobGraph::Data::File->new), '... and should succeed for a legitimate value';
 }
 
+sub create_source_from_filename : Test(3) {
+	my ($self) = @_;
+	
+	can_ok $self->obj, 'create_source_from_filename';
+	ok $self->obj->create_source_from_filename('/path/to/output/file'), '... and should create source';
+	isa_ok $self->obj->source, 'MyBio::JobGraph::Data::File', '... and source';
+}
+
+sub to_output : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj, 'to_output';
+	isa_ok $self->obj->to_output, 'MyBio::JobGraph::Job::Output::File', '... and returned object';
+}
+
 sub filename : Test(2) {
 	my ($self) = @_;
 	

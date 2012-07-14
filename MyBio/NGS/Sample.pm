@@ -97,7 +97,7 @@ sub contaminants {
 		return @{$self->xml_data->{'contaminant'}};
 	}
 	else {
-		return ();
+		return @{[]};
 	}
 }
 
