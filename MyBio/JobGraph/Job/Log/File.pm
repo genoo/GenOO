@@ -9,8 +9,7 @@ MyBio::JobGraph::Job::Log::File - Class that implements MyBio::JobGraph::Job::Lo
     # Instantiate
     my $log = MyBio::JobGraph::Job::Log::File->new({
         NAME       => 'An identifier',
-        SOURCE     => '/path/to/log/file',
-        DEVEL      => BOOLEAN
+        FILENAME   => '/path/to/log/file',
     });
 
 =head1 DESCRIPTION
@@ -43,12 +42,15 @@ package MyBio::JobGraph::Job::Log::File;
 use strict;
 use FileHandle;
 
-use base qw(MyBio::JobGraph::Job::Log);
+use MyBio::JobGraph::Data::File;
+
+use base qw(MyBio::_Initializable);
 
 sub _init {
 	my ($self,$data) = @_;
 	
-	$self->SUPER::_init($data);
+	$self->set_name($$data{NAME});
+	$self->create_source_from_filename($$data{FILENAME});
 	$self->open;
 	
 	return $self;
@@ -60,25 +62,49 @@ sub DESTROY {
 }
 
 #######################################################################
+########################   Attribute Setters   ########################
+#######################################################################
+sub set_name {
+	my ($self,$value) = @_;
+	$self->{NAME} = $value if defined $value;
+}
+
+
+#######################################################################
 ############################   Accessors  #############################
 #######################################################################
+sub name {
+	my ($self) = @_;
+	return $self->{NAME};
+}
+
+sub source {
+	my ($self) = @_;
+	return $self->{SOURCE};
+}
+
 sub filehandle {
 	my ($self) = @_;
 	return $self->{FILEHANDLE};
 }
 
-sub type {
-	my ($self) = @_;
-	return 'File';
-}
-
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub create_source_from_filename {
+	my ($self, $value) = @_;
+	
+	if (defined $value) {
+		$self->{SOURCE} = MyBio::JobGraph::Data::File->new({
+			FILENAME => $value,
+		});
+	}
+}
+
 sub open {
 	my ($self) = @_;
 	
-	my $filename = $self->source;
+	my $filename = $self->filename;
 	my $read_mode = ($filename !~ /\.gz$/) ? '>>' : '>>:gzip';
 	$self->{FILEHANDLE} = FileHandle->new($filename, $read_mode) or die "Cannot open file \"$filename\". $!";
 }
@@ -99,15 +125,24 @@ sub clean {
 	my ($self) = @_;
 	
 	$self->close;
-	unlink $self->source or warn "Source file ".$self->source." can not be deleted. $!";
+	unlink $self->filename or warn "Source file ".$self->filename." can not be deleted. $!";
+}
+
+sub filename {
+	my ($self) = @_;
+	return $self->source->filename;
+}
+
+sub type {
+	my ($self) = @_;
+	return $self->source->type;
 }
 
 sub start_devel_mode {
 	my ($self) = @_;
 	
 	$self->close;
-	$self->set_source_to_devel;
-	$self->{DEVEL} = 1;
+	$self->source->start_devel_mode;
 	$self->open;
 }
 
@@ -115,29 +150,13 @@ sub stop_devel_mode {
 	my ($self) = @_;
 	
 	$self->close;
-	$self->set_source_to_original;
-	$self->{DEVEL} = 0;
+	$self->source->stop_devel_mode;
 	$self->open;
 }
 
-sub set_source_to_devel {
+sub is_devel_mode_on { # Override
 	my ($self) = @_;
-	
-	my ($volume, $directories, $file) = File::Spec->splitpath($self->original_source);
-	
-	my $dev_file = 'dev_'.$file;
-	my $dev_source = File::Spec->catpath($volume, $directories, $dev_file);
-	$self->set_source($dev_source);
-}
-
-sub set_source_to_original {
-	my ($self) = @_;
-	$self->set_source($self->original_source);
-}
-
-sub is_devel_mode_on {
-	my ($self) = @_;
-	return $self->{DEVEL} == 1 ? 1 : 0;
+	return $self->source->is_devel_mode_on;
 }
 
 1;
