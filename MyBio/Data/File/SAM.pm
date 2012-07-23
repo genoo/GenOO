@@ -65,8 +65,17 @@ sub _init {
 sub open {
 	my ($self, $filename) = @_;
 	
-	my $read_mode = ($filename !~ /\.gz$/) ? '<' : '<:gzip';
-	$self->{FILEHANDLE} = FileHandle->new($filename, $read_mode) or die "Cannot open file \"$filename\". $!";
+	my @open_args;
+	if (!defined $filename or $filename eq '-') {
+		@open_args = ('<-'); # opens the STDIN see http://perldoc.perl.org/functions/open.html
+	}
+	elsif ($filename =~ /\.gz$/) {
+		@open_args = ($filename, '<:gzip');
+	}
+	else {
+		@open_args = ($filename, '<');
+	}
+	$self->{FILEHANDLE} = FileHandle->new(@open_args) or die "Cannot open file \"$filename\". $!";
 }
 
 #######################################################################
@@ -232,6 +241,26 @@ sub parse_record_line {
 		QUAL       => $qual,
 		TAGS       => \@tags,
 	});
+}
+
+sub next_header_line {
+	my ($self) = @_;
+	
+	my $record;
+	if ($self->header_cache_not_empty) {
+		return $self->next_header_line_from_cache;
+	}
+	else {
+		return undef;
+	}
+}
+
+sub next_header_line_from_cache {
+	my ($self) = @_;
+	
+	my $line = shift @{$self->header_cache};
+	chomp ($line);
+	return $line;
 }
 
 sub record_cache_not_empty {

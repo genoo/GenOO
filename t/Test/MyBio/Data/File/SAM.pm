@@ -86,13 +86,53 @@ sub next_record_from_cache : Test(1) {
 	isa_ok $self->obj->next_record_from_cache, 'MyBio::Data::File::SAM::Record', 'object returned by next_record_from_cache';
 }
 
-sub parse_record_line : Test(2) {
+sub parse_record_line : Test(22) {
 	my ($self) = @_;
 	
+	can_ok $self->obj, 'parse_record_line';
+	
 	my $record = $self->obj->parse_record_line($self->sample_line);
-	isa_ok $record, 'MyBio::Data::File::SAM::Record', 'object returned by parse_record_line';
-	local $TODO = "sam record object check currently unimplemented";
-# 	is_deeply($record, $record);
+	isa_ok $record, 'MyBio::Data::File::SAM::Record', '... and object returned';
+	is $record->qname, 'HWI-EAS235_25:1:1:4282:1093', '... and should contain correct value';
+	is $record->flag, '16', '... and should contain correct value again';
+	is $record->rname, 'chr18', '... and again';
+	is $record->pos, 85867636, '... and again';
+	is $record->mapq, '0', '... and again';
+	is $record->cigar, '32M', '... and again';
+	is $record->rnext, '*', '... and again';
+	is $record->pnext, 0, '... and again';
+	is $record->tlen, 0, '... and again';
+	is $record->seq, 'ATTCGGCAGGTGAGTTGTTACACACTCCTTAG', '... and again';
+	is $record->qual, 'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG', '... and again';
+	is $record->tag('XT:A'), 'R', '... and again';
+	is $record->tag('NM:i'), '0', '... and again';
+	is $record->tag('X0:i'), '2', '... and again';
+	is $record->tag('X1:i'), '0', '... and again';
+	is $record->tag('XM:i'), '0', '... and again';
+	is $record->tag('XO:i'), '0', '... and again';
+	is $record->tag('XG:i'), '0', '... and again';
+	is $record->tag('MD:Z'), '32', '... and again';
+	is $record->tag('XA:Z'), 'chr9,+110183777,32M,0;', '... and again';
+}
+
+sub next_header_line : Test(3) {
+	my ($self) = @_;
+	
+	can_ok $self->obj, 'next_header_line';
+	is $self->obj->next_header_line, join("\t",'@SQ','SN:chr1','LN:197195432'), '... and should return the correct value';
+	
+	my $header_line_count = 0;
+	while ($self->obj->next_header_line) {
+		$header_line_count++
+	}
+	is $header_line_count, 21, "... and should be able to gracefully read all remaining";
+}
+
+sub next_header_line_from_cache : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj, 'next_header_line_from_cache';
+	is $self->obj->next_header_line_from_cache, join("\t",'@SQ','SN:chr1','LN:197195432'), '... and should return the correct value';
 }
 
 sub record_cache_not_empty : Test(2) {
