@@ -2,21 +2,21 @@
 
 =head1 NAME
 
-MyBio::JobGraph::Job::Output::File - Output file object that implements MyBio::JobGraph::Job::Output interface
+MyBio::JobGraph::Job::Output::File - Output interface between L<MyBio::JobGraph::Job> and L<MyBio::JobGraph::Data::File>
 
 =head1 SYNOPSIS
 
     # Instantiate
     my $output = MyBio::JobGraph::Job::Output::File->new({
-        NAME       => 'An identifier',
-        SOURCE     => '/path/to/output/file',
-        DEVEL      => BOOLEAN
+        NAME       => A name for the input/output object,
+        SOURCE     => MyBio::JobGraph::Data::File,
     });
 
 =head1 DESCRIPTION
 
-    This class handles a file as an output for a job. It offers methods for transforming the into
-    a temporary development output file and for cleaning the file when done.
+    This class serves as an output interface between L<MyBio::JobGraph::Job> and L<MyBio::JobGraph::Data::File>
+    It implements MyBio::JobGraph::Job::Output. It also interfaces the methods for transition to development
+    mode and for cleaning the file when done.
 
 =head1 EXAMPLES
 
@@ -39,64 +39,77 @@ MyBio::JobGraph::Job::Output::File - Output file object that implements MyBio::J
 package MyBio::JobGraph::Job::Output::File;
 use strict;
 
+use MyBio::JobGraph::Data::File;
+use MyBio::JobGraph::Job::Input::File;
+
 use base qw(MyBio::JobGraph::Job::Output);
 
 sub _init {
 	my ($self,$data) = @_;
 	
 	$self->SUPER::_init($data);
+	$self->create_source_from_filename($$data{FILENAME});
 	
 	return $self;
 }
 
 #######################################################################
-############################   Accessors  #############################
-#######################################################################
-sub type {
-	my ($self) = @_;
-	return 'File';
-}
-
-#######################################################################
 #########################   General Methods   #########################
 #######################################################################
-sub clean {
-	my ($self) = @_;
-	unlink $self->source or warn "Source file can not be deleted. $!";
+sub source_is_appropriate { # Override
+	my ($self, $value) = @_;
+	
+	unless ($value->isa('MyBio::JobGraph::Data::File')) {
+		die "Data source object $value does not implement MyBio::JobGraph::Data::File\n";
+	}
 }
 
-sub start_devel_mode {
+sub create_source_from_filename {
+	my ($self, $value) = @_;
+	
+	if (defined $value) {
+		$self->{SOURCE} = MyBio::JobGraph::Data::File->new({
+			FILENAME => $value,
+		});
+	}
+}
+
+sub to_input {
 	my ($self) = @_;
 	
-	$self->set_source_to_devel;
-	$self->{DEVEL} = 1;
+	return MyBio::JobGraph::Job::Input::File->new({
+		SOURCE => $self->source,
+	});
 }
 
-sub stop_devel_mode {
+sub filename {
 	my ($self) = @_;
-	
-	$self->set_source_to_original;
-	$self->{DEVEL} = 0;
+	return $self->source->filename;
 }
 
-sub set_source_to_devel {
+sub type { # Override
 	my ($self) = @_;
-	
-	my ($volume, $directories, $file) = File::Spec->splitpath($self->original_source);
-	
-	my $dev_file = 'dev_'.$file;
-	my $dev_source = File::Spec->catpath($volume, $directories, $dev_file);
-	$self->set_source($dev_source);
+	return $self->source->type;
 }
 
-sub set_source_to_original {
+sub clean { # Override
 	my ($self) = @_;
-	$self->set_source($self->original_source);
+	return $self->source->clean;
 }
 
-sub is_devel_mode_on {
+sub start_devel_mode { # Override
 	my ($self) = @_;
-	return $self->{DEVEL} == 1 ? 1 : 0;
+	return $self->source->start_devel_mode;
+}
+
+sub stop_devel_mode { # Override
+	my ($self) = @_;
+	return $self->source->stop_devel_mode;
+}
+
+sub is_devel_mode_on { # Override
+	my ($self) = @_;
+	return $self->source->is_devel_mode_on;
 }
 
 1;

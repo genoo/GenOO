@@ -19,17 +19,23 @@ MyBio::JobGraph::Job - Abstract class for a job
 package MyBio::JobGraph::Job;
 use strict;
 
+use MyBio::JobGraph::Job::Input;
+use MyBio::JobGraph::Job::Output;
+use MyBio::JobGraph::Job::Log::File;
+use MyBio::JobGraph::Job::Description;
+
 use base qw(MyBio::_Initializable);
 
 sub _init {
 	my ($self, $data) = @_;
 	
-	$self->is_input_appropriate($$data{INPUT});
-	$self->is_output_appropriate($$data{OUTPUT});
-	
 	$self->set_input($$data{INPUT});
 	$self->set_output($$data{OUTPUT});
 	$self->set_log($$data{LOG});
+	$self->set_options($$data{OPTIONS});
+	$self->set_devel($$data{DEVEL});
+	
+	$self->check_initialization;
 	
 	return $self;
 }
@@ -52,6 +58,27 @@ sub set_log {
 	$self->{LOG} = $value if defined $value;
 }
 
+sub set_options {
+	my ($self,$value) = @_;
+	$self->{OPTIONS} = $value if defined $value;
+}
+
+sub set_devel {
+	my ($self,$value) = @_;
+	
+	if (defined $value and ($value == 1)) {
+		$self->start_devel_mode;
+	}
+	else {
+		$self->stop_devel_mode;
+	}
+}
+
+sub set_return_string {
+	my ($self,$value) = @_;
+	$self->{RETURN_STRING} = $value if defined $value;
+}
+
 #######################################################################
 ############################   Accessors  #############################
 #######################################################################
@@ -70,19 +97,37 @@ sub log {
 	return $self->{LOG};
 }
 
+sub options {
+	my ($self) = @_;
+	return $self->{OPTIONS};
+}
+
+sub return_string {
+	my ($self) = @_;
+	return $self->{RETURN_STRING};
+}
+
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
-sub is_input_appropriate {
-	my ($self, $value) = @_;
+sub check_initialization {
+	my ($self) = @_;
 	
-	return $self->is_io_appropriate($value, 'MyBio::JobGraph::Job::Input')
+	my $test1 = $self->is_input_appropriate;
+	my $test2 = $self->is_output_appropriate;
+	return $test1 and $test2;
+}
+
+sub is_input_appropriate {
+	my ($self) = @_;
+	
+	return $self->is_io_appropriate($self->input, 'MyBio::JobGraph::Job::Input')
 }
 
 sub is_output_appropriate {
-	my ($self, $value) = @_;
+	my ($self) = @_;
 	
-	return $self->is_io_appropriate($value, 'MyBio::JobGraph::Job::Output')
+	return $self->is_io_appropriate($self->output, 'MyBio::JobGraph::Job::Output')
 }
 
 sub is_io_appropriate {
@@ -103,43 +148,55 @@ sub is_io_appropriate {
 	}
 }
 
-#######################################################################
-########################   Abstract Methods   #########################
-#######################################################################
 sub clean {
 	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	$_->clean for @{$self->output};
 }
 
 sub start_devel_mode {
 	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	
+	$_->start_devel_mode for @{$self->output};
+	$self->{DEVEL} = 1;
 }
 
 sub stop_devel_mode {
 	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	
+	$_->stop_devel_mode for @{$self->output};
+	$self->{DEVEL} = 0;
 }
 
 sub is_devel_mode_on {
 	my ($self) = @_;
-	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	return $self->{DEVEL} == 1 ? 1 : 0;
 }
 
+#######################################################################
+########################   Abstract Methods   #########################
+#######################################################################
 sub run {
 	my ($self) = @_;
+	
 	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	if ($class eq __PACKAGE__) {
+		return undef;
+	}
+	else {
+		die "Error: Undefined Abstract Method \"".(caller(0))[3]."\" used by $class\n";
+	}
 }
 
 sub description {
 	my ($self) = @_;
+	
 	my $class = ref($self) || $self;
-	die "Error:  Use of undefined Abstract Method \"".(caller(0))[3]."\" by $class\n";
+	if ($class eq __PACKAGE__) {
+		return undef;
+	}
+	else {
+		die "Error: Undefined Abstract Method \"".(caller(0))[3]."\" used by $class\n";
+	}
 }
 
 

@@ -33,7 +33,7 @@ MyBio::JobGraph::Job::Generic - Generic Job object, with features
 package MyBio::JobGraph::Job::Generic;
 use strict;
 
-use base qw(MyBio::_Initializable MyBio::JobGraph::Job);
+use base qw(MyBio::JobGraph::Job);
 
 sub _init {
 	my ($self,$data) = @_;

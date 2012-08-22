@@ -97,8 +97,13 @@ sub contaminants {
 		return @{$self->xml_data->{'contaminant'}};
 	}
 	else {
-		return ();
+		return @{[]};
 	}
+}
+
+sub align {
+	my ($self) = @_;
+	return $self->xml_data->{'align'};
 }
 
 #######################################################################

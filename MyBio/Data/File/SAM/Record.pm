@@ -237,19 +237,20 @@ sub tag {
 sub alternative_mappings {
 	my ($self) = @_;
 	
+	my @alternative_mappings;
 	my $tag = 'XA:Z';
 	my $value = $self->tag($tag);
 	if (defined $value) {
-		my @alternative_mappings = split(/;/,$value);
-		return @alternative_mappings;
+		@alternative_mappings = split(/;/,$value);
 	}
+	return @alternative_mappings;
 }
 sub query_seq {
 	my ($self) = @_;
-	if ($self->strand == 1){
+	if ($self->strand == 1) {
 		return $self->seq;
 	}
-	elsif ($self->strand == -1){
+	elsif ($self->strand == -1) {
 		my $seq = reverse($self->seq);
 		$seq =~ tr/ATGCUatgcu/TACGAtacga/;
 		return $seq;
@@ -257,7 +258,7 @@ sub query_seq {
 	elsif ($self->is_unmapped) {
 		return $self->seq;
 	}
-	else{
+	else {
 		return undef;
 	}
 }
@@ -265,6 +266,13 @@ sub query_seq {
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub to_string {
+	my ($self) = @_;
+	
+	my $tags_string = join("\t", map{$_.':'.$self->tag($_)} keys %{$self->tags});
+	return join("\t",$self->qname, $self->flag, $self->rname, $self->pos, $self->mapq, $self->cigar, $self->rnext, $self->pnext, $self->tlen, $self->seq, $self->qual, $tags_string);
+}
+
 sub insertion_count {
 	my ($self) = @_;
 	

@@ -203,6 +203,13 @@ sub alternative_mappings : Test(3) {
 	is $values[1], 'chr8,+110183756,30M1I,0', "... and again";
 }
 
+sub to_string : Test(1) {
+	my ($self) = @_;
+	
+	my $obj = $self->class->new;
+	can_ok $obj, 'to_string';
+}
+
 sub insertion_count : Test(3) {
 	my ($self) = @_;
 	
