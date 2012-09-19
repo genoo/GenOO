@@ -75,27 +75,6 @@ sub set_description {
 }
 
 #######################################################################
-#############################   Getters   #############################
-#######################################################################
-sub get_entries {
-	my ($self) = @_;
-	warn 'Deprecated method "get_entries". Use the iterator instead';
-	return $self->container->structure;
-}
-
-sub get_name {
-	my ($self) = @_;
-	warn 'Deprecated method "get_name". Consider using "name" instead';
-	return $self->name;
-}
-
-sub get_species {
-	my ($self) = @_;
-	warn 'Deprecated method "get_species". Consider using "species" instead';
-	return $self->species;
-}
-
-#######################################################################
 ########################   Accessor Methods   #########################
 #######################################################################
 sub name {
@@ -191,91 +170,14 @@ sub entries_overlapping_region {
 #######################################################################
 ##################   Methods that modify the object  ##################
 #######################################################################
-# TODO fix to not use data structure
-=head2 annotate_entries_contained_in_collection
-  Arg [1]    : MyBio::LocusCollection. A locus collection against which $self is compared.
-  Example    : $locus_collection->annotate_entries_contained_in_collection($locus_collection2)
-  Description: Sets for all entries in the $self locus collection the overlap attribute.
-               This attribute indicates whether the entry overlaps with any of the entries on the reference locus collection.
-               A entry is said to overlap with another entry if it is contained within (both start and end position) the other entry.
-  Returntype : NULL
-  Caller     : ?
-  Status     : Experimental / Unstable
-=cut
-sub annotate_entries_contained_in_collection {
-	my ($self, $locus_collection2) = @_;
-	
-	my $entries_ref = $self->entries;
-	my $entries2_ref = $locus_collection2->entries;
-	foreach my $strand (keys %{$entries_ref}) {
-		foreach my $chr (keys %{$$entries_ref{$strand}}) {
-			if (exists $$entries_ref{$strand}{$chr}) {
-				if (exists $$entries2_ref{$strand}{$chr}) {
-					foreach my $entry (@{$$entries_ref{$strand}{$chr}}) {
-						foreach my $entry2 (@{$$entries2_ref{$strand}{$chr}}) {
-							if ($entry->get_stop < $entry2->get_start) {
-								last;
-							}
-							elsif ($entry2->contains($entry)) {
-								$entry->set_overlap($locus_collection2->get_id,1);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-=head2 annotate_entries_overlapping_with_collection
-  Arg [1]    : MyBio::LocusCollection. A locus collection against which $self is compared. 
-  Arg [2]    : hash reference. Defines parameters for the overlap.
-  Example    : $locus_collection->annotate_entries_overlapping_with_collection($locus_collection2, {OFFSET  => 0})
-  Description: Sets the overlap attribute for entries. This indicates if the entry overlaps with any entry on the reference locus collection.
-               A entry is said to overlap with another entry if it is located within OFFSET distance from the other entry.
-  Returntype : NULL
-=cut
-sub annotate_entries_overlapping_with_collection {
-	my ($self, $locus_collection2, $params) = @_;
-	
-	my $offset = exists $params->{'OFFSET'} ? $params->{'OFFSET'} : 0;
-	
-	my $entries_ref = $self->entries;
-	my $entries2_ref = $locus_collection2->entries;
-	foreach my $strand (keys %{$entries_ref}) {
-		foreach my $chr (keys %{$$entries_ref{$strand}}) {
-			if (exists $$entries_ref{$strand}{$chr}) {
-				if (exists $$entries2_ref{$strand}{$chr}) {
-					foreach my $entry (@{$$entries_ref{$strand}{$chr}}) {
-						foreach my $entry2 (@{$$entries2_ref{$strand}{$chr}}) {
-							if ($entry->get_stop < $entry2->get_start) {
-								last;
-							}
-							elsif ($entry2->overlaps($entry, $offset)) {
-								$entry->set_overlap($locus_collection2->get_id,1);
-								$entry2->set_overlap($self->get_id,1);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
 =head2 set_sequence_for_all_entries
-  Arg [1]    : hash reference
-               A hash reference containing the parameters for the output.
-               Required parameters are:
-                  1/ CHR_FOLDER: The folder containing the fasta files of the chromosomes
+  Arg [1]    : Hash reference containing parameters.
+               Required parameters:
+                  1/ CHR_FOLDER: The folder that contains fasta files with the chromosome sequences
   Example    : set_sequence_for_all_entries({
                  CHR_FOLDER       => "/chromosomes/hg19/"
                })
-  Description: Sets the SEQUENCE for all entries in the LocusCollection.
-  Returntype : NULL
-  Caller     : ?
-  Status     : Stable
-
+  Description: Sets the sequence attribute for all entries in the LocusCollection.
 =cut
 sub set_sequence_for_all_entries {
 	my ($self, $params) = @_;
@@ -285,39 +187,35 @@ sub set_sequence_for_all_entries {
 		die "Error. The CHR_FOLDER must be specified in ".(caller(0))[3]."\n";
 	}
 	
-	my $entries_ref = $self->entries;
-	my @chromosomes_for_all_strands = $self->chromosomes_for_all_strands;
-	foreach my $chr (@chromosomes_for_all_strands) {
-		my $chr_file = $chr_folder."/chr$chr.fa";
-		if (-e $chr_file) {
-			my $chr_seq = MyBio::MySub::read_fasta($chr_file,"chr$chr");
-			unless (defined $chr_seq){die "No Chromosome Sequence chr$chr\n";}
-			
-			foreach my $strand (keys %{$entries_ref}) {
-				if (exists $$entries_ref{$strand}{$chr}) {
-					my $entries_array_ref = $$entries_ref{$strand}{$chr};
-					foreach my $entry (@$entries_array_ref) {
-						my $entry_seq = substr($chr_seq,$entry->get_start,$entry->get_length);
-						if ($strand == -1) {
-							$entry_seq = reverse($entry_seq);
-							if ($entry_seq =~ /U/i) {
-								$entry_seq =~ tr/ATGCUatgcu/UACGAuacga/;
-							}
-							else {
-								$entry_seq =~ tr/ATGCUatgcu/TACGAtacga/;
-							}
-						}
-						$entry->set_sequence($entry_seq);
-					}
-				}
+	my $current_chr;
+	my $current_chr_seq;
+	$self->foreach_entry_do( sub {
+		my ($entry) = @_;
+		
+		if ($entry->chr ne $current_chr) {
+			my $chr_file = $chr_folder.'/'.$entry->chr.'.fa';
+			if (-e $chr_file) {
+				$current_chr_seq = MyBio::MySub::read_fasta($chr_file, $entry->chr);
+				$current_chr = $entry->chr;
+			}
+			else {
+				warn "Skipping chromosome. File $chr_file does not exist";
+				next;
 			}
 		}
-		else {
-			warn "Skipping chromosome. File $chr_file does not exist";
-			next;
+		
+		my $entry_seq = substr($current_chr_seq, $entry->start, $entry->length);
+		if ($entry->strand == -1) {
+			$entry_seq = reverse($entry_seq);
+			if ($entry_seq =~ /U/i) {
+				$entry_seq =~ tr/ATGCUatgcu/UACGAuacga/;
+			}
+			else {
+				$entry_seq =~ tr/ATGCUatgcu/TACGAtacga/;
+			}
 		}
-	}
-	return 0;
+		$entry->set_sequence($entry_seq);
+	});
 }
 
 =head2 collapse
@@ -645,6 +543,27 @@ sub print_in_wiggle_format {
 		}
 	}
 	return 0;
+}
+
+#######################################################################
+############################   Deprecated   ###########################
+#######################################################################
+sub get_entries {
+	my ($self) = @_;
+	warn 'Deprecated method "get_entries". Use the iterator instead';
+	return $self->container->structure;
+}
+
+sub get_name {
+	my ($self) = @_;
+	warn 'Deprecated method "get_name". Consider using "name" instead';
+	return $self->name;
+}
+
+sub get_species {
+	my ($self) = @_;
+	warn 'Deprecated method "get_species". Consider using "species" instead';
+	return $self->species;
 }
 
 1;
