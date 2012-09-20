@@ -61,7 +61,6 @@ sub _init {
 	$self->SUPER::_init($data);
 	$self->set_internalID($$data{INTERNAL_ID});
 	$self->set_ensgid($$data{ENSGID});
-	$self->set_name($$data{NAME});
 	$self->set_refseq($$data{REFSEQ}); # [] reference to array of refseqs
 	$self->set_transcripts($$data{TRANSCRIPTS}); # [] reference to array of transcripts
 	$self->set_description($$data{DESCRIPTION});
@@ -99,9 +98,6 @@ sub get_refseq {
 	else {
 		return [];
 	}
-}
-sub get_name {
-	return $_[0]->{NAME};
 }
 sub get_transcripts {
 	if (defined $_[0]->{TRANSCRIPTS}) {
@@ -150,9 +146,6 @@ sub set_internalID {
 }
 sub set_description {
 	$_[0]->{DESCRIPTION} = $_[1] if defined $_[1];
-}
-sub set_name {
-	$_[0]->{NAME} = $_[1] if defined $_[1];
 }
 sub set_transcripts {
 	my ($self,$transcripts_ref) = @_;
@@ -228,13 +221,13 @@ sub annotate_constitutive_exons {
 	my %counts;
 	foreach my $transcript (@{$self->get_transcripts}) {
 		foreach my $exon (@{$transcript->get_exons}) {
-			$counts{$exon->get_id}++;
+			$counts{$exon->id}++;
 		}
 	}
 	
 	foreach my $transcript (@{$self->get_transcripts}) {
 		foreach my $exon (@{$transcript->get_exons}) {
-			if ($counts{$exon->get_id} == @{$self->get_transcripts}) {
+			if ($counts{$exon->id} == @{$self->get_transcripts}) {
 				$exon->is_constitutive(1);
 			}
 			else {
@@ -252,13 +245,13 @@ sub annotate_constitutive_coding_exons {
 	my $non_coding_transcripts = $self->get_non_coding_transcripts;
 	foreach my $transcript (@$coding_transcripts) {
 		foreach my $exon (@{$transcript->get_exons}) {
-			$counts{$exon->get_id}++;
+			$counts{$exon->id}++;
 		}
 	}
 	
 	foreach my $transcript (@$coding_transcripts) {
 		foreach my $exon (@{$transcript->get_exons}) {
-			if ($counts{$exon->get_id} == @$coding_transcripts) {
+			if ($counts{$exon->id} == @$coding_transcripts) {
 				$exon->is_constitutive(1);
 			}
 			else {
@@ -282,11 +275,11 @@ sub get_constitutive_exons {
 	my %already_found;
 	foreach my $transcript (@{$self->get_transcripts}) {
 		foreach my $exon (@{$transcript->get_exons}) {
-			if ($exon->is_constitutive() and !exists $already_found{$exon->get_id}) {
+			if ($exon->is_constitutive() and !exists $already_found{$exon->id}) {
 				my $new_exon = $exon->clone();
 				$new_exon->set_where($self);
 				push @constitutive_exons, $new_exon;
-				$already_found{$exon->get_id} = 1;
+				$already_found{$exon->id} = 1;
 			}
 		}
 	}
@@ -301,11 +294,11 @@ sub get_constitutive_coding_exons {
 	my %already_found;
 	foreach my $transcript (@{$self->get_transcripts}) {
 		foreach my $exon (@{$transcript->get_exons}) {
-			if ($exon->is_constitutive() and !exists $already_found{$exon->get_id}) {
+			if ($exon->is_constitutive() and !exists $already_found{$exon->id}) {
 				my $new_exon = $exon->clone();
 				$new_exon->set_where($self);
 				push @constitutive_exons, $new_exon;
-				$already_found{$exon->get_id} = 1;
+				$already_found{$exon->id} = 1;
 			}
 		}
 	}
@@ -370,11 +363,11 @@ sub has_coding_transcript {
 		if (defined $obj->get_ensgid) {
 			$all_gene_ensgids{$obj->get_ensgid} = $obj;
 		}
-		if (defined $obj->get_name) {
-			unless (exists $all_gene_names{$obj->get_name}) {
-				$all_gene_names{$obj->get_name} = [];
+		if (defined $obj->name) {
+			unless (exists $all_gene_names{$obj->name}) {
+				$all_gene_names{$obj->name} = [];
 			}
-			push @{$all_gene_names{$obj->get_name}}, $obj;
+			push @{$all_gene_names{$obj->name}}, $obj;
 		}
 	}
 	sub _delete_from_all {
