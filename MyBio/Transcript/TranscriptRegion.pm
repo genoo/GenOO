@@ -66,7 +66,7 @@ sub _init {
 #######################################################################
 #############################   Getters   #############################
 #######################################################################
-sub get_species { #overide
+sub species { #overide
 	if (defined $_[0]->get_transcript) {
 		return $_[0]->get_transcript->get_species;
 	}
@@ -74,7 +74,8 @@ sub get_species { #overide
 		return $_[0]->{SPECIES};
 	}
 }
-sub get_strand { #overide
+
+sub strand { #overide
 	if (defined $_[0]->get_transcript) {
 		return $_[0]->get_transcript->get_strand;
 	}
@@ -82,7 +83,7 @@ sub get_strand { #overide
 		return $_[0]->{STRAND};
 	}
 }
-sub get_chr { #overide
+sub chr { #overide
 	if (defined $_[0]->get_transcript) {
 		return $_[0]->get_transcript->get_chr;
 	}
@@ -90,9 +91,10 @@ sub get_chr { #overide
 		return $_[0]->{CHR};
 	}
 }
-sub get_transcript {
+sub transcript {
 	return $_[0]->{TRANSCRIPT};
 }
+
 
 #######################################################################
 #############################   Setters   #############################
@@ -157,6 +159,34 @@ sub _set_introns_from_transcript_introns {
 			WHERE      => $self,
 		}));
 	}
+}
+
+#######################################################################
+#######################   Deprecated Methods   ########################
+#######################################################################
+
+sub get_species {
+	my ($self) = @_;
+	warn 'Deprecated method "get_species". Consider using "species" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->species;
+}
+
+sub get_strand {
+	my ($self) = @_;
+	warn 'Deprecated method "get_strand". Consider using "strand" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->strand;
+}
+
+sub get_chr {
+	my ($self) = @_;
+	warn 'Deprecated method "get_chr". Consider using "chr" instead '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->chr;
+}
+
+sub get_transcript {
+	my ($self) = @_;
+	warn 'Deprecated method "get_transcript". Consider using "transcript" instead '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->transcript;
 }
 
 1;

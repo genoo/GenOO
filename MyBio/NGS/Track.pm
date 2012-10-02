@@ -127,37 +127,27 @@ sub score_stdv {
 sub collapse {
 	my ($self) = @_;
 	
-	my $entries_ref = $self->get_entries;
-	my %collapsed_hash;
-	foreach my $strand (keys %{$entries_ref}) {
-		foreach my $chr (keys %{$$entries_ref{$strand}}) {
-			if (exists $$entries_ref{$strand}{$chr}) {
-				$collapsed_hash{$strand}{$chr} = [];
-				my %count;
-				foreach my $entry (@{$$entries_ref{$strand}{$chr}}) {
-					my $start = $entry->start;
-					my $stop = $entry->stop;
-					$count{"$start|$stop"}++;
-				}
-				foreach my $pos (keys %count) {
-					my ($start, $stop) = split(/\|/,$pos);
-					my $entryObj = MyBio::NGS::Tag->new({
-						CHR           => $chr,
-						START         => $start,
-						STOP          => $stop,
-						STRAND        => $strand,
-						NAME          => $count{$pos},
-						SCORE         => $count{$pos},
-					});
-					push (@{$collapsed_hash{$strand}{$chr}}, $entryObj);
-					
-				}
-			}
-		}
+	my %count;
+	$self->foreach_entry_do( sub{
+		my ($entry) = @_;
+		my $id = join("|",($entry->chr, $entry->strand, $entry->start, $entry->stop));
+		$count{$id}++;
+	});
+	
+	$self->init;
+	foreach my $id (keys %count) {
+		my ($chr, $strand, $start, $stop) = split(/\|/,$id);
+		my $entry = MyBio::NGS::Tag->new({
+			CHR           => $chr,
+			START         => $start,
+			STOP          => $stop,
+			STRAND        => $strand,
+			NAME          => $count{$id},
+			SCORE         => $count{$id},
+		});
+		$self->add_entry($entry);
 	}
-	$self->set_entries(\%collapsed_hash);
 }
-
 
 =head2 merge
 
@@ -177,20 +167,26 @@ sub collapse {
 
 =cut
 sub merge {
+
 	my ($self,$method,@attributes) = @_;
 	
-	
 	my $entries_ref = $self->get_entries;
+		
 	my %merged_hash;
+	my @temp_array_of_entries;
 	foreach my $strand (keys %{$entries_ref}) {
 		foreach my $chr (keys %{$$entries_ref{$strand}}) {
 			if (exists $$entries_ref{$strand}{$chr}) {
 				$merged_hash{$strand}{$chr} = [];
 				@{$merged_hash{$strand}{$chr}} = $self->merge_entries_in_array($$entries_ref{$strand}{$chr},$method,@attributes);
 			}
+			push (@temp_array_of_entries, @{$merged_hash{$strand}{$chr}});
 		}
 	}
-	$self->set_entries(\%merged_hash);
+	$self->init;
+	foreach my $entry (@temp_array_of_entries) {
+		$self->add_entry($entry);
+	}
 }
 
 sub merge_entries_in_array {
@@ -209,12 +205,12 @@ sub merge_entries_in_array {
 			$region_of_overlap = $entry->clone(); 
 			push(@temp, $entry);
 		}
-		elsif ($region_of_overlap->overlaps($entry,$offset)) {
+		elsif ($region_of_overlap->overlaps($entry,{OFFSET => $offset})) {
 			push(@temp, $entry);
 			my $start = $region_of_overlap->get_start < $entry->get_start ? $region_of_overlap->get_start : $entry->get_start;
 			my $stop = $region_of_overlap->get_stop > $entry->get_stop ? $region_of_overlap->get_stop : $entry->get_stop;
-			$region_of_overlap->set_start($start);
-			$region_of_overlap->set_stop($stop);
+			$region_of_overlap->start($start);
+			$region_of_overlap->stop($stop);
 		}
 		else {
 			$region_of_overlap = $entry->clone();
@@ -258,15 +254,15 @@ sub merge_overlaping_entries {
 	my @out = ();
 	my $newentry = $entryobjects[0];
 	for (my $i = 1; $i < @entryobjects; $i++) {
-		if ($entryobjects[$i]->get_start() < $newentry->get_start()) {
-			$newentry->set_start($entryobjects[$i]->get_start());
+		if ($entryobjects[$i]->start() < $newentry->get_start()) {
+			$newentry->start($entryobjects[$i]->start());
 		}
-		if ($entryobjects[$i]->get_stop() > $newentry->get_stop()) {
-			$newentry->set_stop($entryobjects[$i]->get_stop());
+		if ($entryobjects[$i]->stop() > $newentry->get_stop()) {
+			$newentry->stop($entryobjects[$i]->stop());
 		}
 		
-		if ($newentry->can("get_score") and $entryobjects[$i]->can("get_score")) {
-			my $tempscore = $newentry->get_score() + $entryobjects[$i]->get_score();
+		if ($newentry->can("score") and $entryobjects[$i]->can("score")) {
+			my $tempscore = $newentry->get_score() + $entryobjects[$i]->score();
 			$newentry->set_score($tempscore);
 			$newentry->set_name($tempscore);
 		}
@@ -389,7 +385,7 @@ sub normalize {
 				foreach my $entry (@{$$entries_ref{$strand}{$chr}})
 				{
 					my $normal_score = ($entry->get_score / $normalization_factor) * $scaling_factor;
-					$entry->set_score($normal_score);
+					$entry->score($normal_score);
 				}
 			}
 		}
@@ -605,7 +601,7 @@ sub print_all_entries_FASTA {
 								$entry_seq =~ tr/ATGCUatgcu/TACGAtacga/;
 							}
 						}
-						if (exists $params->{'UPDATE_SEQUENCE'}){$entry->set_sequence($entry_seq);}
+						if (exists $params->{'UPDATE_SEQUENCE'}){$entry->sequence($entry_seq);}
 						my $header = $entry->to_string("BED");
 						$header =~ s/\t/|/g;
 						print $OUT ">$header\n$entry_seq\n";
@@ -623,7 +619,7 @@ sub print_all_entries_FASTA {
 								$entry_seq =~ tr/ATGCUatgcu/TACGAtacga/;
 							}
 						}
-						if (exists $params->{'UPDATE_SEQUENCE'}){$entry->set_sequence($entry_seq);}
+						if (exists $params->{'UPDATE_SEQUENCE'}){$entry->sequence($entry_seq);}
 						my $header = $entry->to_string("BED");
 						$header =~ s/\t/|/g;
 						print $OUT ">$header\n$entry_seq\n";

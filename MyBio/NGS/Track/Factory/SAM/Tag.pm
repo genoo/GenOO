@@ -90,5 +90,9 @@ sub length {
 	my ($self) = @_;
 	return $self->record->length;
 }
+sub sequence {
+	my ($self) = @_;
+	return $self->record->query_seq;
+}
 
 1;
