@@ -1,3 +1,41 @@
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+MyBio::NGS::Tag - Object that represents an area in the genome
+
+=head1 SYNOPSIS
+
+    # Instantiate 
+    my $tag = MyBio::NGS::Tag->new({
+        SPECIES      => undef,
+        STRAND       => undef,
+        CHR          => undef,
+        START        => undef,
+        STOP         => undef,
+        SEQUENCE     => undef,
+        NAME         => undef,
+        SCORE        => undef,
+        EXTRA_INFO   => undef,
+    });
+
+
+=head1 DESCRIPTION
+
+    This class corresponds to an area in the genome together with a score for this area.
+
+=head1 EXAMPLES
+
+    # Get tag start
+    $tag->start;
+    
+    # Get tag score
+    $tag->score;
+
+=cut
+
+# Let the code begin...
+
 package MyBio::NGS::Tag;
 use strict;
 
@@ -27,123 +65,79 @@ sub _init {
 	my ($self,$data) = @_;
 	
 	$self->SUPER::_init($data);
-	
-	$self->set_name($$data{NAME});
 	$self->set_score($$data{SCORE});
-	$self->set_thick_start($$data{THICK_START});
-	$self->set_thick_stop($$data{THICK_STOP});
-	$self->set_rgb($$data{RGB});
-	$self->set_block_count($$data{BLOCK_COUNT});
-	$self->set_block_sizes($$data{BLOCK_SIZES});
-	$self->set_block_starts($$data{BLOCK_STARTS});
-	$self->set_overlap($$data{OVERLAP});
 	
 	return $self;
 }
 
 #######################################################################
-#############################   Getters   #############################
-#######################################################################
-sub get_name {
-	return $_[0]->{NAME};
-}
-sub get_score {
-	return $_[0]->{SCORE};
-}
-sub get_thick_start {
-	return $_[0]->{THICK_START};
-}
-sub get_thick_stop {
-	return $_[0]->{THICK_STOP};
-}
-sub get_rgb {
-	return $_[0]->{RGB};
-}
-sub get_block_count {
-	return $_[0]->{BLOCK_COUNT};
-}
-sub get_block_sizes {
-	return $_[0]->{BLOCK_SIZES};
-}
-sub get_block_starts {
-	return $_[0]->{BLOCK_STARTS};
-}
-sub get_overlap {
-	return $_[0]->{OVERLAP} ;
-}
-#######################################################################
 #############################   Setters   #############################
 #######################################################################
-sub set_name {
-	$_[0]->{NAME}=$_[1] if defined $_[1];
-}
 sub set_score {
-	$_[0]->{SCORE}=$_[1] if defined $_[1];
+	my ($self, $value) = @_;
+	$self->{SCORE} = $value if defined $value;
 }
-sub set_thick_start {
-	$_[0]->{THICK_START}=$_[1] if defined $_[1];
+
+#######################################################################
+############################   Accessors   ############################
+#######################################################################
+sub score {
+	my ($self) = @_;
+	return $self->{SCORE};
 }
-sub set_thick_stop {
-	$_[0]->{THICK_STOP}=$_[1] if defined $_[1];
-}
-sub set_rgb {
-	if (defined $_[1]){
-		my $color = $_[1];
-		if (lc($color) eq "red"){$color = "205,0,0";}
-		elsif (lc($color) eq "black"){$color = "0,0,0";}
-		elsif (lc($color) eq "blue"){$color = "0,0,128";}
-		elsif (lc($color) eq "green"){$color = "0,100,0";}
-		elsif (lc($color) eq "orange"){$color = "255,140,0";}
-		elsif (lc($color) eq "magenta"){$color = "205;0;205";}
-		$_[0]->{RGB}=$color;
-	}
-}
-sub set_block_count {
-	$_[0]->{BLOCK_COUNT}=$_[1] if defined $_[1];
-}
-sub set_block_sizes {
-	$_[0]->{BLOCK_SIZES}=$_[1] if defined $_[1];
-}
-sub set_block_starts {
-	$_[0]->{BLOCK_STARTS}=$_[1] if defined $_[1];
-}
-sub set_overlap {
-	my ($self, $key, $value) = @_;
-	if ((defined $key) and (defined $value)){$self->{OVERLAP}->{$key} = $value;}
-	else {$self->{OVERLAP} = {};}
-}
+
 
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
-sub output_tag {
-	my ($self,$method,@attributes) = @_;
-	$self->to_string($method,@attributes);
-}
 sub to_string {
-	my ($self,$method,@attributes) = @_;
-		
-	my $print_tag;
-	if ($method eq "BED") {
-		my $strand;
-		if    ($self->get_strand == 1){$strand = "+";}
-		elsif ($self->get_strand == -1){$strand = "-";}
-		else {$strand = ".";}
-		
-		my $name = defined $self->get_name ? $self->get_name : ".";
-		my $score = defined $self->get_score ? $self->get_score : 0;
-		
-		$print_tag = "chr".$self->get_chr."\t".$self->get_start."\t".($self->get_stop+1)."\t".$name."\t".$score."\t".$strand;
-		
-		$print_tag .= defined $self->get_thick_start ? "\t".$self->get_thick_start : "\t";
-		$print_tag .= defined $self->get_thick_stop ? "\t".$self->get_thick_stop : "\t";
-		$print_tag .= defined $self->get_rgb ? "\t".$self->get_rgb : "\t";
-		$print_tag .= defined $self->get_block_count ? "\t".$self->get_block_count : "\t";
-		$print_tag .= defined $self->get_block_sizes ? "\t".$self->get_block_sizes : "\t";
-		$print_tag .= defined $self->get_block_starts ? "\t".$self->get_block_starts : "\t";
+	my ($self, $params) = @_;
+	
+	my $method;
+	if ($params eq 'BED'){
+		warn "Don't panic - Just use hash notation when calling ".(caller(0))[3]." in script $0 - Your output is ok.\n";
+		$method = 'BED';
 	}
-	$print_tag =~ s/\t+$//g;
-	return $print_tag;
+	else {
+		$method = exists $params->{'METHOD'} ? $params->{'METHOD'} : undef;
+	}
+	
+	if ($method eq 'BED') {
+		return $self->to_string_bed;
+	}
+	else {
+		die "\n\nUnknown or no method provided when calling ".(caller(0))[3]." in script $0\n\n";
+	}
+}
+
+sub to_string_bed {
+	my ($self) = @_;
+	
+	my $strand = defined $self->strand_symbol ? $self->strand_symbol : ".";
+	my $name = defined $self->name ? $self->name : ".";
+	return $self->chr."\t".$self->start."\t".($self->stop+1)."\t".$name."\t".$self->score."\t".$strand;
+}
+
+#######################################################################
+#############################   Deprecated   ##########################
+#######################################################################
+sub get_score {
+	my ($self) = @_;
+	warn 'Deprecated method "get_score". Consider using "score" instead';
+	return $self->score;
+}
+
+sub get_overlap {
+	warn 'Deprecated method "get_overlap".';
+	return $_[0]->{OVERLAP} ;
+}
+
+
+sub set_overlap {
+	my ($self, $key, $value) = @_;
+	warn 'Deprecated method "set_overlap".';
+	if ((defined $key) and (defined $value)){$self->{OVERLAP}->{$key} = $value;}
+	else {$self->{OVERLAP} = {};}
 }
 
 1;
