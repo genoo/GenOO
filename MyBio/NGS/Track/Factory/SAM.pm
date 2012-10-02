@@ -10,7 +10,7 @@ MyBio::NGS::Track::Factory::SAM - Factory for creating MyBio::NGS::Track object 
 
     # It should not be used directly but through the generic MyBio::NGS::Track::Factory as follows
     my $factory = MyBio::NGS::Track::Factory->new({
-        TYPE => 'SAM'
+        TYPE => 'SAM',
         FILE => 'sample.sam'
     });
 
