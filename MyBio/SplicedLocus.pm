@@ -359,7 +359,7 @@ sub set_splicing_info {
 	my @splice_starts;
 	my @splice_stops;
 	if (!defined $start and !defined $stop) {
-		$start = $self->get_start;
+		$start = $self->start;
 		$stop = $self->stop;
 	}
 	for (my $i=0;$i<@$pre_splice_starts;$i++) {

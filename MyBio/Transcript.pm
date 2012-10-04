@@ -378,8 +378,8 @@ sub create_cds {
 sub create_utr3 {
 	my ($self) = @_;
 	if (defined $self->get_coding_start and defined $self->get_coding_stop) {
-		my $utr3_start = ($self->get_strand == 1) ? $self->get_coding_stop + 1 : $self->get_start;
-		my $utr3_stop = ($self->get_strand == 1) ? $self->get_stop : $self->get_coding_start - 1;
+		my $utr3_start = ($self->strand == 1) ? $self->get_coding_stop + 1 : $self->start;
+		my $utr3_stop = ($self->strand == 1) ? $self->stop : $self->get_coding_start - 1;
 		$self->{UTR3} = MyBio::Transcript::UTR3->new({
 			START      => $utr3_start,
 			STOP       => $utr3_stop,
