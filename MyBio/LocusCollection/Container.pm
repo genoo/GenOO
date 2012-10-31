@@ -19,7 +19,7 @@ MyBio::LocusCollection::Container - Container for the data of MyBio::LocusCollec
 =head1 EXAMPLES
 
     # Add an entry to the structure
-    $structure->add_entry($key1, $key2, $entry);
+    $structure->add_entry($entry);
 
 =cut
 

@@ -262,6 +262,10 @@ sub query_seq {
 		return undef;
 	}
 }
+sub query_length {
+	my ($self) = @_;
+	return length($self->query_seq);
+}
 
 #######################################################################
 #########################   General Methods   #########################
@@ -295,6 +299,79 @@ sub deletion_count {
 	return $deletion_count;
 }
 
+sub deletion_positions_on_query {
+	my ($self) = @_;
+	
+	# CIGAR: 2M1I7M6D26M
+	# MD:Z:3C3T1^GCTCAG26
+	# Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA
+	#             -   -
+	# Genome: AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA
+	
+	my @deletion_positions;
+	my $cigar = $self->cigar;
+	
+	if ($cigar =~ /D/) {
+		# if negative strand -> reverse the cigar string
+		if ($self->strand == -1) {
+			my $new_cigar = '';
+			while ($cigar =~ /(\d+)([A-Z])/g) {
+				$new_cigar = $1.$2.$new_cigar;
+			}
+			$cigar = $new_cigar;
+		}
+		
+		my $relative_position = 0;
+		while ($cigar =~ /(\d+)([A-Z])/g) {
+			my $count = $1;
+			my $identifier = $2;
+			
+			if ($identifier eq 'D') {
+				push @deletion_positions, $relative_position;
+			}
+			else {
+				$relative_position += $count;
+			}
+		}
+	}
+	
+	return @deletion_positions;
+}
+
+sub deletion_positions_on_reference {
+	my ($self) = @_;
+	
+	# CIGAR: 2M1I7M6D26M
+	# MD:Z:3C3T1^GCTCAG26
+	# Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA
+	#             -   -
+	# Genome: AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA
+	
+	my @deletion_positions;
+	my $mdz = $self->tag('MD:Z');
+	
+	if ($mdz =~ /\^/) {
+		my $relative_position = 0;
+		while ($mdz ne '') {
+			if ($mdz =~ s/^(\d+)//) {
+				$relative_position += $1;
+			}
+			elsif ($mdz =~ s/^\^([A-Z]+)//) {
+				my $deletion_length = length($1);
+				for (my $i=0;$i<$deletion_length;$i++) {
+					push @deletion_positions, $self->start + $relative_position + $i;
+				}
+				$relative_position += $deletion_length;
+			}
+			elsif ($mdz =~ s/^\w//) {
+				$relative_position += 1;
+			}
+		}
+	}
+	
+	return @deletion_positions;
+}
+
 sub is_mapped {
 	my ($self) = @_;
 	
@@ -317,14 +394,14 @@ sub is_unmapped {
 	}
 }
 
-# TODO 
+# # TODO 
 # sub parse_cigar_and_mdz_tag {
 # 	my ($self, $tag, $cigar) = @_
 # 	
 # # 	CIGAR: 2M1I7M6D26M
 # # 	MD:Z:3C3T1^GCTCAG26
 # # 	AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA
-# # 	-   -
+# # 	    -   -
 # # 	AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA
 # # 
 # # 	Positive strand match AGTGATGGGAGGATGTCTCGTCTGTGAGTTACAGCA
@@ -375,11 +452,5 @@ sub is_unmapped {
 # 		}
 # 	}
 # }
-
-
-
-
-
-
 
 1;
