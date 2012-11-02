@@ -33,6 +33,7 @@ use base qw(MyBio::_Initializable);
 sub _init {
 	my ($self,$data) = @_;
 	
+	$self->set_sorting_code_block($$data{SORTING_CODE_BLOCK});
 	$self->init;
 	
 	return $self;
@@ -41,6 +42,11 @@ sub _init {
 #######################################################################
 ########################   Accessor Methods   #########################
 #######################################################################
+sub sorting_code_block {
+	my ($self) = @_;
+	return $self->{SORTING_CODE_BLOCK};
+}
+
 sub structure {
 	my ($self) = @_;
 	return $self->{STRUCTURE};
@@ -51,12 +57,27 @@ sub entries_count {
 	return $self->{ENTRY_COUNT};
 }
 
+sub sorted {
+	my ($self) = @_;
+	return $self->{SORTED};
+}
+
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub set_sorting_code_block {
+	my ($self, $block) = @_;
+	$self->{SORTING_CODE_BLOCK} = $block;
+}
+
 sub init {
 	my ($self) = @_;
 	$self->{STRUCTURE} = {};
+}
+
+sub reset {
+	my ($self) = @_;
+	delete $self->{SORTED};
 }
 
 sub foreach_entry_do {
@@ -79,6 +100,7 @@ sub add_entry {
 	}
 	push @{$self->structure->{$primary_key}->{$secondary_key}},$entry;
 	$self->increment_entries_count;
+	$self->reset;
 }
 
 sub increment_entries_count {
@@ -139,6 +161,25 @@ sub is_not_empty {
 	else {
 		return 0;
 	}
+}
+
+sub sort_entries {
+	my ($self) = @_;
+	
+	if (not $self->sorted) {
+		foreach my $primary_key (keys %{$self->structure}) {
+			foreach my $secondary_key (keys %{$self->structure->{$primary_key}}) {
+				my $entries_ref = $self->structure->{$primary_key}->{$secondary_key};
+				@$entries_ref = sort {$self->sorting_code_block->($a,$b)} @$entries_ref;
+			}
+		}
+		$self->set_sorted();
+	}
+}
+
+sub set_sorted {
+	my ($self) = @_;
+	$self->{SORTED} = 1;
 }
 
 1;
