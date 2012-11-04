@@ -40,7 +40,7 @@ MyBio::NGS::Track::Factory::GFF - Factory for creating MyBio::NGS::Track object 
 package MyBio::NGS::Track::Factory::GFF;
 use strict;
 
-use MyBio::NGS::Track;
+use MyBio::NGS::Track::Type::DoubleHashArray;
 use MyBio::Data::File::GFF;
 use MyBio::NGS::Track::Factory::GFF::Tag;
 
@@ -77,7 +77,7 @@ sub get_file {
 sub read_track {
 	my ($self) = @_;
 	
-	my $track = MyBio::NGS::Track->new;
+	my $track = MyBio::NGS::Track::Type::DoubleHashArray->new;
 	
 	my $gff = MyBio::Data::File::GFF->new({
 		FILE => $self->get_file,

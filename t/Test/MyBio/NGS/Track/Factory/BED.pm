@@ -3,6 +3,7 @@ use strict;
 
 use base qw(Test::MyBio);
 use Test::Most;
+use Test::Moose;
 
 #######################################################################
 ############################   Accessors   ############################
@@ -53,7 +54,7 @@ sub read_track : Test(3) {
 	can_ok $self->obj, 'read_track';
 	
 	my $track = $self->obj->read_track;
-	isa_ok $track, 'MyBio::NGS::Track', "... and the returned object";
+	does_ok($track, 'MyBio::NGS::Track', "... and the returned object does the MyBio::NGS::Track role");
 	is $track->entries_count, 9, "... and it contains the correct number of tags";
 }
 

@@ -40,7 +40,7 @@ MyBio::NGS::Track::Factory::SAM - Factory for creating MyBio::NGS::Track object 
 package MyBio::NGS::Track::Factory::SAM;
 use strict;
 
-use MyBio::NGS::Track;
+use MyBio::NGS::Track::Type::DoubleHashArray;
 use MyBio::Data::File::SAM;
 use MyBio::NGS::Track::Factory::SAM::Tag;
 
@@ -77,7 +77,7 @@ sub get_file {
 sub read_track {
 	my ($self) = @_;
 	
-	my $track = MyBio::NGS::Track->new;
+	my $track = MyBio::NGS::Track::Type::DoubleHashArray->new;
 	
 	my $parser = MyBio::Data::File::SAM->new({
 		FILE => $self->get_file,

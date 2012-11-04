@@ -37,6 +37,7 @@ MyBio::LocusCollection::DoubleHashArray - Object for a collection of MyBio::Locu
 
 package MyBio::LocusCollection::DoubleHashArray;
 use Moose;
+use namespace::autoclean;
 
 use MyBio::Locus;
 use MyBio::MySub;
@@ -48,12 +49,6 @@ has 'name' => (isa => 'Str', is => 'rw');
 has 'species' => (isa => 'Str', is => 'rw');
 has 'description' => (isa => 'Str', is => 'rw');
 has 'extra' => (is => 'rw');
-has 'container' => (
-	is => 'ro',
-	builder => '_build_container',
-	init_arg => undef,
-	lazy => 1
-);
 has 'longest_entry' => (
 	is        => 'ro',
 	builder   => '_find_longest_entry',
@@ -62,39 +57,47 @@ has 'longest_entry' => (
 	init_arg  => undef,
 	lazy      => 1,
 );
+has '_container' => (
+	is => 'ro',
+	builder => '_build_container',
+	init_arg => undef,
+	lazy => 1
+);
+
+with 'MyBio::LocusCollection';
 
 #######################################################################
 ########################   Interface Methods   ########################
 #######################################################################
 sub add_entry {
 	my ($self, $entry) = @_;
-	$self->container->add_entry($entry->strand, $entry->chr, $entry);
+	$self->_container->add_entry($entry->strand, $entry->chr, $entry);
 	$self->_reset;
 }
 
 sub foreach_entry_do {
 	my ($self, $block) = @_;
-	$self->container->foreach_entry_do($block);
+	$self->_container->foreach_entry_do($block);
 }
 
 sub entries_count {
 	my ($self) = @_;
-	return $self->container->entries_count;
+	return $self->_container->entries_count;
 }
 
 sub strands {
 	my ($self) = @_;
-	return $self->container->primary_keys();
+	return $self->_container->primary_keys();
 }
 
 sub chromosomes_for_strand {
 	my ($self, $strand) = @_;
-	return $self->container->secondary_keys_for_primary_key($strand);
+	return $self->_container->secondary_keys_for_primary_key($strand);
 }
 
 sub chromosomes_for_all_strands {
 	my ($self) = @_;
-	return $self->container->secondary_keys_for_all_primary_keys();
+	return $self->_container->secondary_keys_for_all_primary_keys();
 }
 
 sub longest_entry_length {
@@ -104,18 +107,18 @@ sub longest_entry_length {
 
 sub is_empty {
 	my ($self) = @_;
-	return $self->container->is_empty;
+	return $self->_container->is_empty;
 }
 
 sub is_not_empty {
 	my ($self) = @_;
-	return $self->container->is_not_empty;
+	return $self->_container->is_not_empty;
 }
 
 sub entries_overlapping_region {
 	my ($self, $strand, $chr, $start, $stop) = @_;
 	
-	$self->container->sort_entries;
+	$self->_container->sort_entries;
 	my $entries_ref = $self->_entries_ref_for_strand_and_chromosome($strand, $chr) or return ();
 	
 	my $target_value = $start - $self->longest_entry->length;
@@ -169,7 +172,7 @@ sub _find_longest_entry {
 
 sub _entries_ref_for_strand_and_chromosome {
 	my ($self, $strand, $chr) = @_;
-	return $self->container->entries_ref_for_keys($strand, $chr);
+	return $self->_container->entries_ref_for_keys($strand, $chr);
 }
 
 sub _reset {
@@ -228,4 +231,5 @@ sub set_sequence_for_all_entries {
 	});
 }
 
+__PACKAGE__->meta->make_immutable;
 1;
