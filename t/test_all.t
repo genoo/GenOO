@@ -3,3 +3,4 @@ use warnings;
 use strict;
 
 use Test::Class::Load qw<t/Test/MyBio/>;
+Test::Class->runtests;

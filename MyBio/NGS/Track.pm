@@ -34,7 +34,7 @@ requires qw (
 	score_variance
 	score_stdv
 	normalize
-	get_quantile
+	quantile
 );
 
 1;

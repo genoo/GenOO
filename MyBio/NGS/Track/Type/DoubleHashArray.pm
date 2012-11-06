@@ -38,7 +38,7 @@ use namespace::autoclean;
 use MyBio::NGS::Tag;
 use MyBio::NGS::Track::Stats;
 
-extends 'MyBio::LocusCollection::DoubleHashArray';
+extends 'MyBio::LocusCollection::Type::DoubleHashArray';
 
 has '_stats' => (
 	is => 'ro',
@@ -111,7 +111,7 @@ sub normalize {
 	}
 }
 
-sub get_quantile {
+sub quantile {
 	my ($self, $params) = @_;
 	
 	my $quantile = 25;

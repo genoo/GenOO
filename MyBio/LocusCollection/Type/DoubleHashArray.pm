@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-MyBio::LocusCollection::DoubleHashArray - Object for a collection of MyBio::Locus objects, with features
+MyBio::LocusCollection::Type::DoubleHashArray - Object for a collection of MyBio::Locus objects, with features
 
 =head1 SYNOPSIS
 
@@ -35,11 +35,11 @@ MyBio::LocusCollection::DoubleHashArray - Object for a collection of MyBio::Locu
 
 # Let the code begin...
 
-package MyBio::LocusCollection::DoubleHashArray;
+package MyBio::LocusCollection::Type::DoubleHashArray;
+
 use Moose;
 use namespace::autoclean;
 
-use MyBio::Locus;
 use MyBio::MySub;
 use MyBio::Module::Search::Binary;
 use MyBio::Data::Structure::DoubleHashArray;
@@ -53,7 +53,6 @@ has 'longest_entry' => (
 	is        => 'ro',
 	builder   => '_find_longest_entry',
 	clearer   => '_clear_longest_entry',
-	predicate => '_is_longest_entry_found',
 	init_arg  => undef,
 	lazy      => 1,
 );

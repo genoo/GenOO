@@ -483,4 +483,29 @@ sub get_touching_locuses : Test(3) {
 	is @{$returned_array}, $self->get_output_for('get_touching_locuses')->[1] , "... and should have the right length";
 }
 
+#######################################################################
+###############   Class method to create test objects   ###############
+#######################################################################
+sub test_objects {
+	my ($test_class) = @_;
+	
+	my @test_objects;
+	
+	push @test_objects, $test_class->class->new({STRAND => '+', CHR => 'chr1', START => 3, STOP => 10});
+	push @test_objects, $test_class->class->new({STRAND => '+', CHR => 'chr1', START => 2, STOP => 10});
+	push @test_objects, $test_class->class->new({STRAND => '+', CHR => 'chr1', START => 1, STOP => 10});
+	push @test_objects, $test_class->class->new({STRAND => '+', CHR => 'chr2', START => 11, STOP => 20});
+	push @test_objects, $test_class->class->new({STRAND => '+', CHR => 'chr2', START => 12, STOP => 20});
+	push @test_objects, $test_class->class->new({STRAND => '+', CHR => 'chr2', START => 13, STOP => 20});
+	push @test_objects, $test_class->class->new({STRAND => '-', CHR => 'chr3', START => 21, STOP => 30});
+	push @test_objects, $test_class->class->new({STRAND => '-', CHR => 'chr3', START => 22, STOP => 30});
+	push @test_objects, $test_class->class->new({STRAND => '-', CHR => 'chr3', START => 23, STOP => 30});
+	push @test_objects, $test_class->class->new({STRAND => '-', CHR => 'chr4', START => 31, STOP => 35});
+	push @test_objects, $test_class->class->new({STRAND => '-', CHR => 'chr4', START => 33, STOP => 40});
+	push @test_objects, $test_class->class->new({STRAND => '-', CHR => 'chr4', START => 32, STOP => 40});
+	
+	
+	return \@test_objects;
+}
+
 1;

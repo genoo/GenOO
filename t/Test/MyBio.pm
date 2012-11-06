@@ -1,7 +1,7 @@
 package Test::MyBio;
 use strict;
 
-INIT { Test::Class->runtests }
+# INIT { Test::Class->runtests }
 
 use base qw(Test::Class);
 use Test::More;
