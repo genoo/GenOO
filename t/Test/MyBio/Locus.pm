@@ -243,7 +243,7 @@ sub location : Test(2) {
 	is $obj->location, $self->get_output_for('location')->[0], "... and should return the correct value";
 }
 
-sub to_string : Test(4) {
+sub to_string : Test(3) {
 	my ($self) = @_;
 	
 	my $obj = $self->class->new;
@@ -251,8 +251,6 @@ sub to_string : Test(4) {
 	
 	$obj = $self->class->new($self->get_input_for('to_string')->[0]);
 	is $obj->to_string({'METHOD'=>'BED'}), $self->get_output_for('to_string')->[0], "... and should return the correct value";
-	
-	is $obj->to_string('BED'), $self->get_output_for('to_string')->[0], "... and should return the correct value again with warning";
 	
 	eval {$obj->to_string()};
 	ok($@, "... and should die");
