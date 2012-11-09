@@ -270,6 +270,24 @@ sub query_length {
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
+sub cigar_relative_to_query {
+	my ($self) = @_;
+	
+	my $cigar = $self->cigar;
+	
+	# if negative strand -> reverse the cigar string
+	if ($self->strand == -1) {
+		my $reverse_cigar = '';
+		while ($cigar =~ /(\d+)([A-Z])/g) {
+			$reverse_cigar = $1.$2.$reverse_cigar;
+		}
+		return $reverse_cigar;
+	}
+	else {
+		return $cigar;
+	}
+}
+
 sub to_string {
 	my ($self) = @_;
 	
@@ -301,25 +319,13 @@ sub deletion_count {
 
 sub deletion_positions_on_query {
 	my ($self) = @_;
-	
-	# CIGAR: 2M1I7M6D26M
-	# MD:Z:3C3T1^GCTCAG26
-	# Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA
-	#             -   -
-	# Genome: AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA
+	#Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA -> CIGAR: 2M1I7M6D26M
+	#            -   -
+	#Genome: AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA -> MD:Z:  3C3T1^GCTCAG26
 	
 	my @deletion_positions;
-	my $cigar = $self->cigar;
-	
-	if ($cigar =~ /D/) {
-		# if negative strand -> reverse the cigar string
-		if ($self->strand == -1) {
-			my $new_cigar = '';
-			while ($cigar =~ /(\d+)([A-Z])/g) {
-				$new_cigar = $1.$2.$new_cigar;
-			}
-			$cigar = $new_cigar;
-		}
+	if ($self->cigar =~ /D/) {
+		my $cigar = $self->cigar_relative_to_query;
 		
 		my $relative_position = 0;
 		while ($cigar =~ /(\d+)([A-Z])/g) {
@@ -340,12 +346,9 @@ sub deletion_positions_on_query {
 
 sub deletion_positions_on_reference {
 	my ($self) = @_;
-	
-	# CIGAR: 2M1I7M6D26M
-	# MD:Z:3C3T1^GCTCAG26
-	# Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA
-	#             -   -
-	# Genome: AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA
+	#Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA -> CIGAR: 2M1I7M6D26M
+	#            -   -
+	#Genome: AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA -> MD:Z:  3C3T1^GCTCAG26
 	
 	my @deletion_positions;
 	my $mdz = $self->tag('MD:Z');
@@ -370,6 +373,92 @@ sub deletion_positions_on_reference {
 	}
 	
 	return @deletion_positions;
+}
+
+sub mismatch_positions_on_reference {
+	my ($self) = @_;
+	#Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA -> CIGAR: 2M1I7M6D26M
+	#            -   -
+	#Genome: AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA -> MD:Z:  3C3T1^GCTCAG26
+
+	my @mismatch_positions;
+	my $mdz = $self->tag('MD:Z');
+	
+	if ($mdz =~ /\^/) {
+		my $relative_position = 0;
+		while ($mdz ne '') {
+			if ($mdz =~ s/^(\d+)//) {
+				$relative_position += $1;
+			}
+			elsif ($mdz =~ s/^\^([A-Z]+)//) {
+				my $deletion_length = length($1);
+				$relative_position += $deletion_length;
+			}
+			elsif ($mdz =~ s/^\w//) {
+				push @mismatch_positions, $self->start + $relative_position;
+				$relative_position += 1;
+			}
+		}
+	}
+	
+	return @mismatch_positions;
+}
+
+sub mismatch_positions_on_query {
+	my ($self) = @_;
+	#Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA -> CIGAR: 2M1I7M6D26M
+	#            -   -
+	#Genome: AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA -> MD:Z:  3C3T1^GCTCAG26
+	
+	my $cigar = $self->cigar;
+	
+	# Find positions of insertions and deletions (dashes) on the query sequence
+	my @deletion_positions;
+	my @insertion_positions;
+	my $position = 0;
+	while ($cigar =~ /(\d+)([A-Z])/g) {
+		my $count = $1;
+		my $identifier = $2;
+		
+		if ($identifier eq 'D') {
+			push (@deletion_positions, $position + $_) for (0..$count-1)
+		}
+		elsif ($identifier eq 'I') {
+			push (@insertion_positions, $position + $_) for (0..$count-1)
+		}
+		$position += $count;
+	}
+	
+	my @mismatch_positions_on_reference = $self->mismatch_positions_on_reference;
+	my @relative_mismatch_positions_on_reference = map {$_ - $self->start} @mismatch_positions_on_reference;
+	
+	my @mismatch_positions;
+	foreach my $relative_mismatch_position_on_reference (@relative_mismatch_positions_on_reference) {
+		my $deletion_adjustment = $self->_how_many_are_smaller($relative_mismatch_position_on_reference, \@deletion_positions);
+		my $insertion_adjustment = $self->_how_many_are_smaller($relative_mismatch_position_on_reference, \@insertion_positions);
+		
+		my $mismatch_position_on_query = $relative_mismatch_position_on_reference - $deletion_adjustment + $insertion_adjustment;
+		
+		if ($self->strand == -1) {
+			$mismatch_position_on_query = (length($self->seq) - 1) - $mismatch_position_on_query;
+		}
+		
+		push @mismatch_positions, $mismatch_position_on_query;
+	}
+	
+	return @mismatch_positions;
+}
+
+sub _how_many_are_smaller {
+	my ($self, $value, $array) = @_;
+	
+	my $count = 0;
+	foreach my $array_value (@$array) {
+		if ($array_value < $value) {
+			$count++;
+		}
+	}
+	return $count;
 }
 
 sub is_mapped {
@@ -398,30 +487,30 @@ sub is_unmapped {
 # sub parse_cigar_and_mdz_tag {
 # 	my ($self, $tag, $cigar) = @_
 # 	
-# # 	CIGAR: 2M1I7M6D26M
-# # 	MD:Z:3C3T1^GCTCAG26
-# # 	AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA
-# # 	    -   -
-# # 	AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA
-# # 
-# # 	Positive strand match AGTGATGGGAGGATGTCTCGTCTGTGAGTTACAGCA
-# # 	Reference genome = AGGCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA
+# 	# CIGAR: 2M1I7M6D26M
+# 	# MD:Z:3C3T1^GCTCAG26
+# 	# Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA
+# 	#             -   -
+# 	# Genome: AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA
+# 	
+# 	my $cigar = $self->cigar;
+# 	my $mdz = $self->tag('MD:Z');
 # 	
 # 	my $query = $self->seq;
 # 	my $target = '';
 # 	my $pos = 0;
 # 	my $deletion_string_flag = 0;
-# 	while ($tag ne '') {
-# 		if ($tag =~ s/^(\d+)//) {
+# 	while ($mdz ne '') {
+# 		if ($mdz =~ s/^(\d+)//) {
 # 			
 # 			$deletion_string_flag = 0;
 # 			$target .= substr($query,$pos,$1);
 # 			$pos += $1;
 # 		}
-# 		elsif ($tag =~ s/^(\^)//) {
+# 		elsif ($mdz =~ s/^(\^)//) {
 # 			$deletion_string_flag = 1;
 # 		}
-# 		elsif ($tag =~ s/^([ATGCN])//) {
+# 		elsif ($mdz =~ s/^([ATGCN])//) {
 # 			if ($deletion_string_flag == 1) {
 # 				$target .= $1;
 # 				substr($query,$pos,0,"-");

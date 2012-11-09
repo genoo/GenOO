@@ -139,7 +139,7 @@ sub entries_overlapping_region {
 			$index++;
 		}
 		return @overlapping_entries;
-		}
+	}
 	else {
 		return ();
 	}
