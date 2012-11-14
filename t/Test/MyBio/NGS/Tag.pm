@@ -135,6 +135,8 @@ sub score : Test(4) {
 sub test_objects {
 	my ($test_class) = @_;
 	
+	eval "require ".$test_class->class;
+	
 	my @test_objects;
 	
 	my @test_loci = @{Test::MyBio::Locus->test_objects()};

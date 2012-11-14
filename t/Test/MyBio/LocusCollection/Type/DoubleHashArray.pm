@@ -184,6 +184,8 @@ sub objs {
 sub test_objects {
 	my ($test_class) = @_;
 	
+	eval "require ".$test_class->class;
+	
 	my @test_locuses = @{Test::MyBio::Locus->test_objects()};
 	
 	my $test_object_1 = $test_class->class->new({

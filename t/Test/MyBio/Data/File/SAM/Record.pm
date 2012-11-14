@@ -298,6 +298,8 @@ sub objs {
 sub test_objects {
 	my ($test_class) = @_;
 	
+	eval "require ".$test_class->class;
+	
 	my @test_objects;
 	
 	push @test_objects, $test_class->class->new({
