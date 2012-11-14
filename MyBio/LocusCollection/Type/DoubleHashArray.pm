@@ -123,21 +123,26 @@ sub entries_overlapping_region {
 	my $target_value = $start - $self->longest_entry->length;
 	my $index = MyBio::Module::Search::Binary->binary_search_for_value_greater_or_equal($target_value, $entries_ref, sub {return $_[0]->start});
 	
-	my @overlapping_entries;
-	while ($index < @$entries_ref) {
-		my $entry = $entries_ref->[$index];
-		if ($entry->start <= $stop) {
-			if ($start <= $entry->stop) {
-				push @overlapping_entries, $entry;
+	if (defined $index) {
+		my @overlapping_entries;
+		while ($index < @$entries_ref) {
+			my $entry = $entries_ref->[$index];
+			if ($entry->start <= $stop) {
+				if ($start <= $entry->stop) {
+					push @overlapping_entries, $entry;
+				}
 			}
+			else {
+				last;
+			}
+			
+			$index++;
 		}
-		else {
-			last;
-		}
-		
-		$index++;
+		return @overlapping_entries;
 	}
-	return @overlapping_entries;
+	else {
+		return ();
+	}
 }
 
 
