@@ -86,7 +86,7 @@ sub qual : Test(1) {
 	is $self->obj(0)->qual, 'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG', "... and returns the correct value";
 }
 
-sub tags : Test(9) {
+sub tags : Test(10) {
 	my ($self) = @_;
 	
 	is $self->obj(0)->tag('XT:A'), 'R', "... and returns the correct value";
@@ -98,6 +98,8 @@ sub tags : Test(9) {
 	is $self->obj(0)->tag('XG:i'), 0, "... and returns the correct value";
 	is $self->obj(0)->tag('MD:Z'), 32, "... and returns the correct value";
 	is $self->obj(0)->tag('XA:Z'), 'chr9,+110183777,32M,0;chr8,+110183756,30M1I,0;',  "... and returns the correct value";
+	
+	is $self->obj(3)->tag('XT:A'), 'U',  "... and returns the correct value";
 	
 }
 
@@ -143,7 +145,7 @@ sub strand : Test(6) {
 	is $self->obj(2)->strand, 1, "... and returns the correct value";
 	is $self->obj(3)->strand, 1, "... and returns the correct value";
 	
-	$self->obj(0)->set_flag(4); # unmapped
+	$self->obj(0)->flag(4); # unmapped
 	is $self->obj(0)->strand, undef, "... and returns the correct value";
 }
 
@@ -157,7 +159,7 @@ sub strand_symbol : Test(6) {
 	is $self->obj(2)->strand_symbol, '+', "... and returns the correct value";
 	is $self->obj(3)->strand_symbol, '+', "... and returns the correct value";
 	
-	$self->obj(0)->set_flag(4); # unmapped
+	$self->obj(0)->flag(4); # unmapped
 	is $self->obj(0)->strand_symbol, undef, "... and returns the correct value";
 }
 
@@ -187,7 +189,7 @@ sub insertion_count : Test(6) {
 	is $self->obj(2)->insertion_count, 1, "... and returns the correct value";
 	is $self->obj(3)->insertion_count, 0, "... and returns the correct value";
 	
-	$self->obj(0)->set_cigar('14M1I5M2I5M');
+	$self->obj(0)->cigar('14M1I5M2I5M');
 	is $self->obj(0)->insertion_count, 3, "... and should return the correct value again";
 }
 
@@ -201,7 +203,7 @@ sub deletion_count : Test(6) {
 	is $self->obj(2)->deletion_count, 2, "... and returns the correct value";
 	is $self->obj(3)->deletion_count, 1, "... and returns the correct value";
 	
-	$self->obj(0)->set_cigar('14M1D5M2D5M');
+	$self->obj(0)->cigar('14M1D5M2D5M');
 	is $self->obj(0)->deletion_count, 3, "... and should return the correct value again";
 }
 
@@ -259,7 +261,7 @@ sub is_mapped : Test(6) {
 	is $self->obj(2)->is_mapped, 1, "... and returns the correct value";
 	is $self->obj(3)->is_mapped, 1, "... and returns the correct value";
 	
-	$self->obj(0)->set_flag(4); # unmapped
+	$self->obj(0)->flag(4); # unmapped
 	is $self->obj(0)->is_mapped, 0, "... and again";
 }
 
@@ -273,7 +275,7 @@ sub is_unmapped : Test(6) {
 	is $self->obj(2)->is_unmapped, 0, "... and returns the correct value";
 	is $self->obj(3)->is_unmapped, 0, "... and returns the correct value";
 	
-	$self->obj(0)->set_flag(4); # unmapped
+	$self->obj(0)->flag(4); # unmapped
 	is $self->obj(0)->is_unmapped, 1, "... and again";
 }
 
@@ -303,63 +305,72 @@ sub test_objects {
 	my @test_objects;
 	
 	push @test_objects, $test_class->class->new({
-		QNAME      => 'HWI-EAS235_25:1:1:4282:1093',
-		FLAG       => '16',
-		RNAME      => 'chr18',
-		POS        => '85867636',
-		MAPQ       => '0',
-		CIGAR      => '32M',
-		RNEXT      => '*',
-		PNEXT      => '0',
-		TLEN       => '0',
-		SEQ        => 'ATTCGGCAGGTGAGTTGTTACACACTCCTTAG',
-		QUAL       => 'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG',
-		TAGS       => ['XT:A:R','NM:i:0','X0:i:2','X1:i:0','XM:i:0','XO:i:0','XG:i:0','MD:Z:32','XA:Z:chr9,+110183777,32M,0;chr8,+110183756,30M1I,0;'],
+		qname      => 'HWI-EAS235_25:1:1:4282:1093',
+		flag       => '16',
+		rname      => 'chr18',
+		pos        => '85867636',
+		mapq       => '0',
+		cigar      => '32M',
+		rnext      => '*',
+		pnext      => '0',
+		tlen       => '0',
+		seq        => 'ATTCGGCAGGTGAGTTGTTACACACTCCTTAG',
+		qual       => 'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG',
+		tags       => ['XT:A:R','NM:i:0','X0:i:2','X1:i:0','XM:i:0','XO:i:0','XG:i:0','MD:Z:32','XA:Z:chr9,+110183777,32M,0;chr8,+110183756,30M1I,0;'],
 	});
 	
 	push @test_objects, $test_class->class->new({
-		QNAME      => 'HWI-EAS235_32:2:20:11311:1509',
-		FLAG       => '16',
-		RNAME      => 'chr11',
-		POS        => '22051063',
-		MAPQ       => '37',
-		CIGAR      => '2M1I3M2D95M',
-		RNEXT      => '*',
-		PNEXT      => '0',
-		TLEN       => '0',
-		SEQ        => 'TTGGTTCTTCTGAGTCAGGATCTCCAAATGGATTTAATTCTGTTACATCAGGTTCATCAAATNGATTGGTATTCACAGTGGCCAAGTCCTTTTGTGCTTCA',
-		QUAL       => 'B>D>EEBGHGEGCGGHFCGEEFB@HFFFGFDAEC?C>G@EFBDD@DHHFHHGGB<D8>@@@/#869>EGGEG@<DGBH<EHHHHHHHHHHHDEG@EGGGFG',
-		TAGS       => ['XT:A:U', 'NM:i:5', 'X0:i:1', 'X1:i:0', 'XM:i:4', 'XO:i:1', 'XG:i:1', 'MD:Z:0A4^AC56G38'],
+		qname      => 'HWI-EAS235_32:2:20:11311:1509',
+		flag       => '16',
+		rname      => 'chr11',
+		pos        => '22051063',
+		mapq       => '37',
+		cigar      => '2M1I3M2D95M',
+		rnext      => '*',
+		pnext      => '0',
+		tlen       => '0',
+		seq        => 'TTGGTTCTTCTGAGTCAGGATCTCCAAATGGATTTAATTCTGTTACATCAGGTTCATCAAATNGATTGGTATTCACAGTGGCCAAGTCCTTTTGTGCTTCA',
+		qual       => 'B>D>EEBGHGEGCGGHFCGEEFB@HFFFGFDAEC?C>G@EFBDD@DHHFHHGGB<D8>@@@/#869>EGGEG@<DGBH<EHHHHHHHHHHHDEG@EGGGFG',
+		tags       => ['XT:A:U', 'NM:i:5', 'X0:i:1', 'X1:i:0', 'XM:i:4', 'XO:i:1', 'XG:i:1', 'MD:Z:0A4^AC56G38'],
 	});
 	
 	push @test_objects, $test_class->class->new({
-		QNAME      => 'HWI-EAS235_32:2:20:9009:10694',
-		FLAG       => '0',
-		RNAME      => 'chr1',
-		POS        => '187239350',
-		MAPQ       => '37',
-		CIGAR      => '36M2D2M1I62M',
-		RNEXT      => '*',
-		PNEXT      => '0',
-		TLEN       => '0',
-		SEQ        => 'AGGAGCAGGAGAAAGGGCAACAGTGGAGGAGAGCAGCCTAGGCATGAGCTCTGGGAAGTCTAGCACACAGTTACTCCTGAAAGGGGCTTCCCGGAGCAGGA',
-		QUAL       => '4*24.7*0*9B;B=;9:2=0/531.+*288===>=@BB03=8*==?==/1A8@?@;8BB=8??=@1@688,7@89CCCCCCCCCAC6CC@CC@C@C<<@C9',
-		TAGS       => ['XT:A:U', 'NM:i:5', 'X0:i:1', 'X1:i:0', 'XM:i:4', 'XO:i:1', 'XG:i:1', 'MD:Z:12G23^GT11A52'],
+		qname      => 'HWI-EAS235_32:2:20:9009:10694',
+		flag       => '0',
+		rname      => 'chr1',
+		pos        => '187239350',
+		mapq       => '37',
+		cigar      => '36M2D2M1I62M',
+		rnext      => '*',
+		pnext      => '0',
+		tlen       => '0',
+		seq        => 'AGGAGCAGGAGAAAGGGCAACAGTGGAGGAGAGCAGCCTAGGCATGAGCTCTGGGAAGTCTAGCACACAGTTACTCCTGAAAGGGGCTTCCCGGAGCAGGA',
+		qual       => '4*24.7*0*9B;B=;9:2=0/531.+*288===>=@BB03=8*==?==/1A8@?@;8BB=8??=@1@688,7@89CCCCCCCCCAC6CC@CC@C@C<<@C9',
+		tags       => ['XT:A:U', 'NM:i:5', 'X0:i:1', 'X1:i:0', 'XM:i:4', 'XO:i:1', 'XG:i:1', 'MD:Z:12G23^GT11A52'],
 	});
 	
 	push @test_objects, $test_class->class->new({
-		QNAME      => 'HWI-EAS235_32:2:19:14059:2128',
-		FLAG       => '0',
-		RNAME      => 'chr5',
-		POS        => '22985444',
-		MAPQ       => '37',
-		CIGAR      => '56M1D45M',
-		RNEXT      => '*',
-		PNEXT      => '0',
-		TLEN       => '0',
-		SEQ        => 'CAACACGTAAAGATCTATTTCAACGCTTCTTGCTTGTTTCTATATTGCTGAATACTAAGTAAGCCACATTGAAAAAGTAAAAGCAAGATTGCTTAGCTCTC',
-		QUAL       => 'DDGE<EF8BFFGDDFHBGHHHHHHHGHH@GHHGHHD2@==FEEGEDBGGGGH@GFGDD@,EE8AAAACCCAAC;CA<8AE@;+)9<3:08<===<=*A>@5',
-		TAGS       => ['XT:A:U', 'NM:i:5', 'X0:i:1', 'X1:i:0', 'XM:i:4', 'XO:i:1', 'XG:i:1', 'MD:Z:56^A17C12A11A1A0'],
+		qname      => 'HWI-EAS235_32:2:19:14059:2128',
+		flag       => '0',
+		rname      => 'chr5',
+		pos        => '22985444',
+		mapq       => '37',
+		cigar      => '56M1D45M',
+		rnext      => '*',
+		pnext      => '0',
+		tlen       => '0',
+		seq        => 'CAACACGTAAAGATCTATTTCAACGCTTCTTGCTTGTTTCTATATTGCTGAATACTAAGTAAGCCACATTGAAAAAGTAAAAGCAAGATTGCTTAGCTCTC',
+		qual       => 'DDGE<EF8BFFGDDFHBGHHHHHHHGHH@GHHGHHD2@==FEEGEDBGGGGH@GFGDD@,EE8AAAACCCAAC;CA<8AE@;+)9<3:08<===<=*A>@5',
+		tags       => {
+			'XT:A' => 'U',
+			'NM:i' => '5',
+			'X0:i' => '1',
+			'X1:i' => '0',
+			'XM:i' => '4',
+			'XO:i' => '1',
+			'XG:i' => '1',
+			'MD:Z' => '56^A17C12A11A1A0'
+		},
 	});
 	
 	return \@test_objects;

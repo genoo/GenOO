@@ -27,18 +27,18 @@ sub new_object : Test(setup) {
 	my ($self) = @_;
 	
 	my $record_data = {
-		QNAME      => 'HWI-EAS235_25:1:1:4282:1093',
-		FLAG       => '16',
-		RNAME      => 'chr18',
-		POS        => '85867636',
-		MAPQ       => '0',
-		CIGAR      => '32M',
-		RNEXT      => '*',
-		PNEXT      => '0',
-		TLEN       => '0',
-		SEQ        => 'ATTCGGCAGGTGAGTTGTTACACACTCCTTAG',
-		QUAL       => 'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG',
-		TAGS       => ['XT:A:R','NM:i:0','X0:i:2','X1:i:0','XM:i:0',
+		qname      => 'HWI-EAS235_25:1:1:4282:1093',
+		flag       => '16',
+		rname      => 'chr18',
+		'pos'        => '85867636',
+		mapq       => '0',
+		cigar      => '32M',
+		rnext      => '*',
+		pnext      => '0',
+		tlen       => '0',
+		seq        => 'ATTCGGCAGGTGAGTTGTTACACACTCCTTAG',
+		qual       => 'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG',
+		tags       => ['XT:A:R','NM:i:0','X0:i:2','X1:i:0','XM:i:0',
 		               'XO:i:0','XG:i:0','MD:Z:32','XA:Z:chr9,+110183777,32M,0;'],
 	};
 	

@@ -228,18 +228,18 @@ sub parse_record_line {
 	my ($qname, $flag, $rname, $pos, $mapq, $cigar, $rnext, $pnext, $tlen, $seq, $qual, @tags) = split(/\t/,$line);
 	
 	return MyBio::Data::File::SAM::Record->new({
-		QNAME      => $qname,
-		FLAG       => $flag,
-		RNAME      => $rname,
-		POS        => $pos,
-		MAPQ       => $mapq,
-		CIGAR      => $cigar,
-		RNEXT      => $rnext,
-		PNEXT      => $pnext,
-		TLEN       => $tlen,
-		SEQ        => $seq,
-		QUAL       => $qual,
-		TAGS       => \@tags,
+		qname      => $qname,
+		flag       => $flag,
+		rname      => $rname,
+		'pos'        => $pos,
+		mapq       => $mapq,
+		cigar      => $cigar,
+		rnext      => $rnext,
+		pnext      => $pnext,
+		tlen       => $tlen,
+		seq        => $seq,
+		qual       => $qual,
+		tags       => \@tags,
 	});
 }
 
