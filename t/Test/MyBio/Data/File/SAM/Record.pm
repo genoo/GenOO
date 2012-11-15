@@ -214,6 +214,30 @@ sub tag : Test(4) {
 	is $self->obj(3)->tag('XT:A'), 'U',  "... and returns the correct value";
 }
 
+sub number_of_best_hits : Test(6) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'number_of_best_hits';
+	
+	is $self->obj(0)->number_of_best_hits, 2, "... and returns the correct value";
+	is $self->obj(1)->number_of_best_hits, 1, "... and returns the correct value";
+	is $self->obj(2)->number_of_best_hits, 1, "... and returns the correct value";
+	is $self->obj(3)->number_of_best_hits, 1, "... and returns the correct value";
+	is $self->obj(4)->number_of_best_hits, undef, "... and returns the correct value";
+}
+
+sub number_of_suboptimal_hits : Test(6) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'number_of_suboptimal_hits';
+	
+	is $self->obj(0)->number_of_suboptimal_hits, 0, "... and returns the correct value";
+	is $self->obj(1)->number_of_suboptimal_hits, 0, "... and returns the correct value";
+	is $self->obj(2)->number_of_suboptimal_hits, 0, "... and returns the correct value";
+	is $self->obj(3)->number_of_suboptimal_hits, 0, "... and returns the correct value";
+	is $self->obj(4)->number_of_suboptimal_hits, undef, "... and returns the correct value";
+}
+
 sub alternative_mappings : Test(3) {
 	my ($self) = @_;
 	

@@ -150,12 +150,21 @@ sub tag {
 	}
 }
 
+sub number_of_best_hits {
+	my ($self) = @_;
+	return $self->tag('X0:i');
+}
+
+sub number_of_suboptimal_hits {
+	my ($self) = @_;
+	return $self->tag('X1:i');
+}
+
 sub alternative_mappings {
 	my ($self) = @_;
 	
 	my @alternative_mappings;
-	my $tag = 'XA:Z';
-	my $value = $self->tag($tag);
+	my $value = $self->tag('XA:Z');
 	if (defined $value) {
 		@alternative_mappings = split(/;/,$value);
 	}
@@ -322,7 +331,7 @@ sub cigar_relative_to_query {
 	my $cigar = $self->cigar;
 	
 	# if negative strand -> reverse the cigar string
-	if ($self->strand == -1) {
+	if (defined $self->strand and ($self->strand == -1)) {
 		my $reverse_cigar = '';
 		while ($cigar =~ /(\d+)([A-Z])/g) {
 			$reverse_cigar = $1.$2.$reverse_cigar;
