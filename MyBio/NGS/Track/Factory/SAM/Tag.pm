@@ -88,7 +88,7 @@ sub score {
 }
 sub length {
 	my ($self) = @_;
-	return $self->record->length;
+	return $self->record->alignment_length;
 }
 sub sequence {
 	my ($self) = @_;

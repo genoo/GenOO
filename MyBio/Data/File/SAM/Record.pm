@@ -70,38 +70,37 @@ has 'qual' => (isa => 'Str', is => 'rw');  # String [!-~]+ ASCII of Phred-scaled
 has 'tags' => (isa => 'HashRefOfTags', is => 'rw', coerce => 1,); # Extra tags
 has 'extra' => (is => 'rw');
 
+has 'alignment_length' => (
+	is        => 'ro',
+	builder   => '_calculate_alignment_length',
+	init_arg  => undef,
+	lazy      => 1,
+);
+
+has 'start' => (
+	is        => 'ro',
+	builder   => '_calculate_start',
+	init_arg  => undef,
+	lazy      => 1,
+);
+
+has 'stop' => (
+	is        => 'ro',
+	builder   => '_calculate_stop',
+	init_arg  => undef,
+	lazy      => 1,
+);
+
+has 'strand' => (
+	is        => 'ro',
+	builder   => '_calculate_strand',
+	init_arg  => undef,
+	lazy      => 1,
+);
+
 #######################################################################
 ########################   Interface Methods   ########################
 #######################################################################
-sub length {
-	my ($self) = @_;
-	return $self->stop - $self->start + 1;
-}
-
-sub start {
-	my ($self) = @_;
-	return $self->pos - 1;
-}
-
-sub stop {
-	my ($self) = @_;
-	return $self->start + CORE::length($self->seq) - 1 - $self->insertion_count + $self->deletion_count;
-}
-
-sub strand {
-	my ($self) = @_;
-	
-	if ($self->flag & 16) {
-		return -1;
-	}
-	elsif ($self->is_mapped) {
-		return 1;
-	}
-	else {
-		return undef;
-	}
-}
-
 sub strand_symbol {
 	my ($self) = @_;
 	
@@ -115,6 +114,32 @@ sub strand_symbol {
 		}
 	}
 	return undef;
+}
+
+sub query_seq {
+	my ($self) = @_;
+	
+	if (defined $self->strand) {
+		if ($self->strand == 1) {
+			return $self->seq;
+		}
+		elsif ($self->strand == -1) {
+			my $seq = reverse($self->seq);
+			$seq =~ tr/ATGCUatgcu/TACGAtacga/;
+			return $seq;
+		}
+	}
+	elsif ($self->is_unmapped) {
+		return $self->seq;
+	}
+	else {
+		return undef;
+	}
+}
+
+sub query_length {
+	my ($self) = @_;
+	return CORE::length($self->seq); # using seq to avoid costs of query_seq
 }
 
 sub tag {
@@ -135,54 +160,6 @@ sub alternative_mappings {
 		@alternative_mappings = split(/;/,$value);
 	}
 	return @alternative_mappings;
-}
-
-sub query_seq {
-	my ($self) = @_;
-	if ($self->strand == 1) {
-		return $self->seq;
-	}
-	elsif ($self->strand == -1) {
-		my $seq = reverse($self->seq);
-		$seq =~ tr/ATGCUatgcu/TACGAtacga/;
-		return $seq;
-	}
-	elsif ($self->is_unmapped) {
-		return $self->seq;
-	}
-	else {
-		return undef;
-	}
-}
-
-sub query_length {
-	my ($self) = @_;
-	return CORE::length($self->query_seq);
-}
-
-sub cigar_relative_to_query {
-	my ($self) = @_;
-	
-	my $cigar = $self->cigar;
-	
-	# if negative strand -> reverse the cigar string
-	if ($self->strand == -1) {
-		my $reverse_cigar = '';
-		while ($cigar =~ /(\d+)([A-Z])/g) {
-			$reverse_cigar = $1.$2.$reverse_cigar;
-		}
-		return $reverse_cigar;
-	}
-	else {
-		return $cigar;
-	}
-}
-
-sub to_string {
-	my ($self) = @_;
-	
-	my $tags_string = join("\t", map{$_.':'.$self->tag($_)} keys %{$self->tags});
-	return join("\t",$self->qname, $self->flag, $self->rname, $self->pos, $self->mapq, $self->cigar, $self->rnext, $self->pnext, $self->tlen, $self->seq, $self->qual, $tags_string);
 }
 
 sub insertion_count {
@@ -330,13 +307,38 @@ sub mismatch_positions_on_query {
 		my $mismatch_position_on_query = $relative_mismatch_position_on_reference - $deletion_adjustment + $insertion_adjustment;
 		
 		if ($self->strand == -1) {
-			$mismatch_position_on_query = (CORE::length($self->seq) - 1) - $mismatch_position_on_query;
+			$mismatch_position_on_query = ($self->query_length - 1) - $mismatch_position_on_query;
 		}
 		
 		push @mismatch_positions, $mismatch_position_on_query;
 	}
 	
 	return @mismatch_positions;
+}
+
+sub cigar_relative_to_query {
+	my ($self) = @_;
+	
+	my $cigar = $self->cigar;
+	
+	# if negative strand -> reverse the cigar string
+	if ($self->strand == -1) {
+		my $reverse_cigar = '';
+		while ($cigar =~ /(\d+)([A-Z])/g) {
+			$reverse_cigar = $1.$2.$reverse_cigar;
+		}
+		return $reverse_cigar;
+	}
+	else {
+		return $cigar;
+	}
+}
+
+sub to_string {
+	my ($self) = @_;
+	
+	my $tags_string = join("\t", map{$_.':'.$self->tag($_)} keys %{$self->tags});
+	return join("\t",$self->qname, $self->flag, $self->rname, $self->pos, $self->mapq, $self->cigar, $self->rnext, $self->pnext, $self->tlen, $self->seq, $self->qual, $tags_string);
 }
 
 sub is_mapped {
@@ -364,6 +366,38 @@ sub is_unmapped {
 #######################################################################
 #########################   Private methods  ##########################
 #######################################################################
+sub _calculate_alignment_length {
+	my ($self) = @_;
+	return $self->stop - $self->start + 1;
+}
+
+sub _calculate_start {
+	my ($self) = @_;
+	return $self->pos - 1;
+}
+
+sub _calculate_stop {
+	my ($self) = @_;
+	return $self->start + $self->query_length - 1 - $self->insertion_count + $self->deletion_count;
+}
+
+sub _calculate_strand {
+	my ($self) = @_;
+	
+	if ($self->flag & 16) {
+		return -1;
+	}
+	elsif ($self->is_mapped) {
+		return 1;
+	}
+	else {
+		return undef;
+	}
+}
+
+#######################################################################
+#######################   Private subroutines  ########################
+#######################################################################
 sub _coerce_arrayref_to_hashref_for_tags {
 	my ($value) = @_;
 	
@@ -389,4 +423,14 @@ sub _how_many_are_smaller {
 	return $count;
 }
 
+#######################################################################
+#######################   Deprecated Methods   ########################
+#######################################################################
+sub length {
+	my ($self) = @_;
+	warn 'Deprecated method "length". Consider using "alignment_length" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->alignment_length;
+}
+
+__PACKAGE__->meta->make_immutable;
 1;
