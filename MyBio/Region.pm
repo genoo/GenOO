@@ -37,19 +37,20 @@ use Moose::Role;
 
 requires qw(strand rname start stop copy_number);
 
+has 'length' => (
+	is        => 'ro',
+	builder   => '_calculate_length',
+	init_arg  => undef,
+	lazy      => 1,
+);
+
 #######################################################################
-#########################   General Methods   #########################
+########################   Interface Methods   ########################
 #######################################################################
 sub location {
 	my ($self) = @_;
 	
 	return $self->rname . ':' . $self->start . '-' . $self->stop . ':' . $self->strand;
-}
-
-sub length {
-	my ($self) = @_;
-	
-	return $self->stop - $self->start + 1;
 }
 
 sub strand_symbol {
@@ -121,31 +122,25 @@ sub to_string {
 	
 	my $method = delete $params->{'METHOD'};
 	if ($method eq 'BED') {
-		return $self->to_string_bed;
+		warn 'Deprecated call of "to_string" in '.
+		     (caller)[1].' line '.(caller)[2].'. '.
+		     'Classes implementing the role should '.
+		     'provide their own "to_string" method for advanced calls';
+		return $self->_to_string_bed;
 	}
 	else {
-		die "\n\nUnknown or no method provided when calling ".(caller(0))[3]." in script $0\n\n";
+		return $self->location;
 	}
-}
-
-sub to_string_bed {
-	my ($self) = @_;
-	
-	my $strand_symbol = $self->strand_symbol || '.';
-	my $name = $self->name || '.';
-	my $score = $self->copy_number || 1;
-	
-	return $self->rname."\t".$self->start."\t".($self->stop+1)."\t".$name."\t".$score."\t".$strand_symbol;
 }
 
 sub overlaps {
-	my ($self,$loc2,$params) = @_;
+	my ($self,$region2,$params) = @_;
 	
 	if ((!defined $params) or (UNIVERSAL::isa( $params, "HASH" ))){
 		my $offset = defined $params->{OFFSET} ? $params->{OFFSET} : 0;
 		my $use_strand = defined $params->{USE_STRAND} ? $params->{USE_STRAND} : 0;
 		
-		if ((($use_strand == 0) or ($self->strand eq $loc2->strand)) and ($self->rname eq $loc2->rname) and (($self->start-$offset) <= $loc2->stop) and ($loc2->start <= ($self->stop+$offset))) {
+		if ((($use_strand == 0) or ($self->strand eq $region2->strand)) and ($self->rname eq $region2->rname) and (($self->start-$offset) <= $region2->stop) and ($region2->start <= ($self->stop+$offset))) {
 			return 1; #overlap
 		}
 		else {
@@ -162,42 +157,34 @@ sub overlaps {
   Description: Return the number of nucleotides of self that are covered by provided locus
   Returntype : int
 =cut
-sub get_overlap_length {
-	my ($self, $loc2) = @_;
+sub overlap_length {
+	my ($self, $region2) = @_;
 	
-	if (!$self->overlaps($loc2)) {
+	if ($self->overlaps($region2)) {
+		my $max_start = $self->start > $region2->start ? $self->start : $region2->start;
+		my $min_stop = $self->stop < $region2->stop ? $self->stop : $region2->stop;
+		return $min_stop - $max_start + 1 ;
+	}
+	else {
 		return 0;
 	}
-	
-	my $nt_overlap = $loc2->length;
-	
-	# subtract left overhang
-	if ($loc2->start < $self->start) {
-		$nt_overlap -= ($self->start - $loc2->start);
-	}
-	# subtract right overhang
-	if ($loc2->stop > $self->stop) {
-		$nt_overlap -= ($loc2->stop - $self->stop);
-	}
-	
-	return $nt_overlap;
 }
 
 sub contains {
-	my ($self,$loc2,$params) = @_;
+	my ($self,$region2,$params) = @_;
 	
 	if (!defined $params or UNIVERSAL::isa($params, 'HASH')) {
 		my $percent = defined $params->{PERCENT} ? $params->{PERCENT} : 1;
 		my $overhang = 0;
-		my $left_overhang = ($self->start - $loc2->start);
-		my $right_overhang = ($loc2->stop - $self->stop);
+		my $left_overhang = ($self->start - $region2->start);
+		my $right_overhang = ($region2->stop - $self->stop);
 		if ($left_overhang > 0) {
 			$overhang += $left_overhang;
 		}
 		if ($right_overhang > 0) {
 			$overhang += $right_overhang;
 		}
-		if (($overhang / $loc2->length) <= (1-$percent)) {
+		if (($overhang / $region2->length) <= (1-$percent)) {
 			return 1;
 		}
 		return 0;
@@ -216,6 +203,25 @@ sub contains_position {
 	else {
 		return 0;
 	}
+}
+
+#######################################################################
+#########################   Private methods  ##########################
+#######################################################################
+sub _calculate_length {
+	my ($self) = @_;
+	
+	return $self->stop - $self->start + 1;
+}
+
+sub _to_string_bed {
+	my ($self) = @_;
+	
+	my $strand_symbol = $self->strand_symbol || '.';
+	my $name = $self->name || '.';
+	my $score = $self->copy_number || 1;
+	
+	return $self->rname."\t".$self->start."\t".($self->stop+1)."\t".$name."\t".$score."\t".$strand_symbol;
 }
 
 1;
