@@ -29,7 +29,7 @@ MyBio::DB::Connector - Connector to database object, with features
 
 # Let the code begin...
 
-package MyBio::DB::Connector;
+package MyBio::Data::DB::Connector;
 
 use Moose;
 use namespace::autoclean;
