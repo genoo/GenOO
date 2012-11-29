@@ -40,7 +40,6 @@ package MyBio::NGS::Track::Factory::LocusArray;
 use strict;
 
 use MyBio::NGS::Track::Type::DoubleHashArray;
-use MyBio::NGS::Track::Factory::LocusArray::Tag;
 
 use base qw(MyBio::_Initializable MyBio::NGS::Track::Factory::Interface);
 
@@ -78,11 +77,7 @@ sub read_track {
 	my $track = MyBio::NGS::Track::Type::DoubleHashArray->new;
 	
 	foreach my $record ( @{$self->array} ) {
-		$track->add_entry(
-			MyBio::NGS::Track::Factory::LocusArray::Tag->new({
-				RECORD => $record,
-			})
-		);
+		$track->add_entry($record);
 	}
 	return $track;
 }
