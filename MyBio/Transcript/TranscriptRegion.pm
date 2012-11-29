@@ -67,8 +67,8 @@ sub _init {
 #############################   Getters   #############################
 #######################################################################
 sub species { #overide
-	if (defined $_[0]->get_transcript) {
-		return $_[0]->get_transcript->get_species;
+	if (defined $_[0]->transcript) {
+		return $_[0]->transcript->species;
 	}
 	else {
 		return $_[0]->{SPECIES};
@@ -76,16 +76,16 @@ sub species { #overide
 }
 
 sub strand { #overide
-	if (defined $_[0]->get_transcript) {
-		return $_[0]->get_transcript->get_strand;
+	if (defined $_[0]->transcript) {
+		return $_[0]->transcript->strand;
 	}
 	else {
 		return $_[0]->{STRAND};
 	}
 }
 sub chr { #overide
-	if (defined $_[0]->get_transcript) {
-		return $_[0]->get_transcript->get_chr;
+	if (defined $_[0]->transcript) {
+		return $_[0]->transcript->chr;
 	}
 	else {
 		return $_[0]->{CHR};
@@ -112,7 +112,7 @@ sub set_exons {
 	$self->SUPER::set_exons($value);
 	
 	# If exon set from the parent class has failed try to get information from the transcript
-	if (!defined $self->{EXONS} and (@{$self->get_transcript->get_exons} > 0) and defined $self->get_start and defined $self->get_stop) {
+	if (!defined $self->{EXONS} and (@{$self->transcript->get_exons} > 0) and defined $self->start and defined $self->stop) {
 		$self->_set_exons_from_transcript_exons();
 	}
 }
@@ -123,7 +123,7 @@ sub set_introns {
 	$self->SUPER::set_introns($value);
 	
 	# If intron set from the parent class has failed try to get information from the transcript
-	if (!defined $self->{INTRONS} and (@{$self->get_transcript->get_introns} > 0) and defined $self->get_start and defined $self->get_stop) {
+	if (!defined $self->{INTRONS} and (@{$self->transcript->get_introns} > 0) and defined $self->start and defined $self->stop) {
 		$self->_set_introns_from_transcript_introns();
 	}
 }
@@ -133,14 +133,14 @@ sub set_introns {
 #######################################################################
 sub _set_exons_from_transcript_exons {
 	my ($self) = @_;
-	my $exons = $self->get_contained_locuses($self->get_transcript->get_exons);
+	my $exons = $self->get_contained_locuses($self->transcript->get_exons);
 	foreach my $exon (@$exons) {
 		$self->push_exon(MyBio::Transcript::Exon->new({
-			SPECIES    => $self->get_transcript->get_species,
-			STRAND     => $self->get_transcript->get_strand,
-			CHR        => $self->get_transcript->get_chr,
-			START      => $exon->get_start,
-			STOP       => $exon->get_stop,
+			SPECIES    => $self->transcript->species,
+			STRAND     => $self->transcript->strand,
+			CHR        => $self->transcript->chr,
+			START      => $exon->start,
+			STOP       => $exon->stop,
 			WHERE      => $self,
 		}));
 	}
@@ -148,14 +148,14 @@ sub _set_exons_from_transcript_exons {
 sub _set_introns_from_transcript_introns {
 	my ($self) = @_;
 # 	warn "Method _set_introns_from_transcript_introns has not been tested for bugs. Please check and remove warning";
-	my $introns = $self->get_contained_locuses($self->get_transcript->get_introns);
+	my $introns = $self->get_contained_locuses($self->transcript->get_introns);
 	foreach my $intron (@$introns) {
 		$self->push_intron(MyBio::Transcript::Intron->new({
-			SPECIES    => $self->get_transcript->get_species,
-			STRAND     => $self->get_transcript->get_strand,
-			CHR        => $self->get_transcript->get_chr,
-			START      => $intron->get_start,
-			STOP       => $intron->get_stop,
+			SPECIES    => $self->transcript->species,
+			STRAND     => $self->transcript->strand,
+			CHR        => $self->transcript->chr,
+			START      => $intron->start,
+			STOP       => $intron->stop,
 			WHERE      => $self,
 		}));
 	}
