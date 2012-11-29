@@ -70,6 +70,10 @@ sub chr {
 	my ($self) = @_;
 	return $self->record->chr;
 }
+sub chromosome {
+	my ($self) = @_;
+	return $self->record->chr;
+}
 sub start {
 	my ($self) = @_;
 	return $self->record->start;

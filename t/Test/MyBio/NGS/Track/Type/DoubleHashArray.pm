@@ -5,7 +5,7 @@ use Scalar::Util qw(looks_like_number);
 
 use Test::MyBio::NGS::Tag;
 
-use base qw(Test::MyBio::LocusCollection::Type::DoubleHashArray);
+use base qw(Test::MyBio::RegionCollection::Type::DoubleHashArray);
 use Test::Most;
 use Test::Moose;
 

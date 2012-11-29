@@ -1,7 +1,8 @@
-package Test::MyBio::LocusCollection::Type::DoubleHashArray;
+package Test::MyBio::RegionCollection::Type::DoubleHashArray;
 use strict;
 
-use Test::MyBio::Locus;
+use MyBio::GenomicRegion;
+use Test::MyBio::GenomicRegion;
 
 use base qw(Test::MyBio);
 use Test::Most;
@@ -35,7 +36,7 @@ sub _isa_test : Test(1) {
 
 sub _role_check : Test(1) {
 	my ($self) = @_;
-	does_ok($self->obj(0), 'MyBio::LocusCollection', '... does the MyBio::LocusCollection role');
+	does_ok($self->obj(0), 'MyBio::RegionCollection', '... does the MyBio::RegionCollection role');
 }
 
 sub name : Test(2) {
@@ -65,7 +66,14 @@ sub longest_entry : Test(3) {
 	has_attribute_ok($self->obj(0), 'longest_entry', "... test object has the 'longest_entry' attribute");
 	is $self->obj(0)->longest_entry->length, 10, "... and returns the correct value";
 	
-	$self->obj(0)->add_entry(MyBio::Locus->new({STRAND => '+', CHR => 'chr2', START => 11, STOP => 100}));
+	$self->obj(0)->add_entry(
+		MyBio::GenomicRegion->new(
+			strand => 1,
+			chromosome => 'chr2',
+			start => 11,
+			stop => 100
+		)
+	);
 	is $self->obj(0)->longest_entry->length, 90, "... and returns the correct value again";
 }
 
@@ -74,7 +82,14 @@ sub add_entry : Test(2) {
 	
 	can_ok $self->obj(0), 'add_entry';
 	
-	$self->obj(0)->add_entry(MyBio::Locus->new({STRAND => '-', CHR => 'chr7'}));
+	$self->obj(0)->add_entry(
+		MyBio::GenomicRegion->new(
+			strand => -1,
+			chromosome => 'chr7',
+			start => 100,
+			stop => 150
+		)
+	);
 	is $self->obj(0)->entries_count, 13, "... and should result in the correct number of entries";
 }
 
@@ -84,12 +99,11 @@ sub foreach_entry_do : Test(2) {
 	can_ok $self->obj(0), 'foreach_entry_do';
 	
 	my $iterations = 0;
-	$self->obj(0)->foreach_entry_do(sub{
-		my ($arg) = @_;
-		if ($arg->isa('MyBio::Locus')) {
+	$self->obj(0)->foreach_entry_do(
+		sub {
 			$iterations++;
 		}
-	});
+	);
 	is $iterations, $self->obj(0)->entries_count, "... and should do the correct number of iterations";
 }
 
@@ -186,7 +200,7 @@ sub test_objects {
 	
 	eval "require ".$test_class->class;
 	
-	my @test_locuses = @{Test::MyBio::Locus->test_objects()};
+	my @test_locuses = @{Test::MyBio::GenomicRegion->test_objects()};
 	
 	my $test_object_1 = $test_class->class->new({
 		name        => 'test_object_1',

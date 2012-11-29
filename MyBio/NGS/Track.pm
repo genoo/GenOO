@@ -25,7 +25,7 @@ package MyBio::NGS::Track;
 use Moose::Role;
 use namespace::autoclean;
 
-with 'MyBio::LocusCollection';
+with 'MyBio::RegionCollection';
 
 requires qw ( 
 	get_scores_for_all_entries

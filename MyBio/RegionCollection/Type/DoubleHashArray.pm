@@ -2,14 +2,14 @@
 
 =head1 NAME
 
-MyBio::LocusCollection::Type::DoubleHashArray - Object for a collection of MyBio::Locus objects, with features
+MyBio::RegionCollection::Type::DoubleHashArray - Object for a collection of MyBio::Region objects, with features
 
 =head1 SYNOPSIS
 
-    # Object that manages a collection of MyBio::Locus objects. 
+    # Object that manages a collection of MyBio::Region objects. 
 
     # To initialize 
-    my $locus_collection = MyBio::LocusCollection::DoubleHashArray->new({
+    my $locus_collection = MyBio::RegionCollection::DoubleHashArray->new({
         name          => undef,
         species       => undef,
         description   => undef,
@@ -21,7 +21,7 @@ MyBio::LocusCollection::Type::DoubleHashArray - Object for a collection of MyBio
 
     The primary data structure of this object is a 2D hash whose primary key is the strand 
     and its secondary key is the chromosome name. Each such pair of keys correspond to an
-    array reference which stores objects of the class L<MyBio::Locus> sorted by start position.
+    array reference which stores objects of the class L<MyBio::Region> sorted by start position.
 
 =head1 EXAMPLES
 
@@ -35,7 +35,7 @@ MyBio::LocusCollection::Type::DoubleHashArray - Object for a collection of MyBio
 
 # Let the code begin...
 
-package MyBio::LocusCollection::Type::DoubleHashArray;
+package MyBio::RegionCollection::Type::DoubleHashArray;
 
 use Moose;
 use namespace::autoclean;
@@ -63,14 +63,14 @@ has '_container' => (
 	lazy => 1
 );
 
-with 'MyBio::LocusCollection';
+with 'MyBio::RegionCollection';
 
 #######################################################################
 ########################   Interface Methods   ########################
 #######################################################################
 sub add_entry {
 	my ($self, $entry) = @_;
-	$self->_container->add_entry($entry->strand, $entry->chr, $entry);
+	$self->_container->add_entry($entry->strand, $entry->chromosome, $entry);
 	$self->_reset;
 }
 
@@ -194,7 +194,7 @@ sub _reset {
   Example    : set_sequence_for_all_entries({
                  CHR_FOLDER       => "/chromosomes/hg19/"
                })
-  Description: Sets the sequence attribute for all entries in the LocusCollection.
+  Description: Sets the sequence attribute for all entries in the RegionCollection.
 =cut
 sub set_sequence_for_all_entries {
 	my ($self, $params) = @_;
@@ -209,11 +209,11 @@ sub set_sequence_for_all_entries {
 	$self->foreach_entry_do( sub {
 		my ($entry) = @_;
 		
-		if ($entry->chr ne $current_chr) {
-			my $chr_file = $chr_folder.'/'.$entry->chr.'.fa';
+		if ($entry->chromosome ne $current_chr) {
+			my $chr_file = $chr_folder.'/'.$entry->chromosome.'.fa';
 			if (-e $chr_file) {
-				$current_chr_seq = MyBio::MySub::read_fasta($chr_file, $entry->chr);
-				$current_chr = $entry->chr;
+				$current_chr_seq = MyBio::MySub::read_fasta($chr_file, $entry->chromosome);
+				$current_chr = $entry->chromosome;
 			}
 			else {
 				warn "Skipping chromosome. File $chr_file does not exist";

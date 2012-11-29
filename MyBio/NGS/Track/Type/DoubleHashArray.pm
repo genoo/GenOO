@@ -38,7 +38,7 @@ use namespace::autoclean;
 use MyBio::NGS::Tag;
 use MyBio::NGS::Track::Stats;
 
-extends 'MyBio::LocusCollection::Type::DoubleHashArray';
+extends 'MyBio::RegionCollection::Type::DoubleHashArray';
 
 has '_stats' => (
 	is => 'ro',

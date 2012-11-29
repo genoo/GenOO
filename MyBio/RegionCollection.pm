@@ -2,16 +2,16 @@
 
 =head1 NAME
 
-MyBio::LocusCollection - Role for a collection of MyBio::Locus objects
+MyBio::RegionCollection - Role for a collection of MyBio::Region objects
 
 =head1 SYNOPSIS
 
-    # This role defines the interface for collections of L<MyBio::Locus> objects
+    # This role defines the interface for collections of L<MyBio::Region> objects
     # Cannot be initialized
 
 =head1 DESCRIPTION
 
-    This role defines the interface for collections of L<MyBio::Locus> objects.
+    This role defines the interface for collections of L<MyBio::Region> objects.
     All required attributes and subs must be present in classes that consume
     this role.
 
@@ -19,7 +19,7 @@ MyBio::LocusCollection - Role for a collection of MyBio::Locus objects
 
 # Let the code begin...
 
-package MyBio::LocusCollection;
+package MyBio::RegionCollection;
 use Moose::Role;
 use namespace::autoclean;
 

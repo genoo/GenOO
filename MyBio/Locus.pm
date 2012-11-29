@@ -125,6 +125,11 @@ sub chr {
 	return $self->{CHR};
 }
 
+sub chromosome {
+	my ($self) = @_;
+	return $self->{CHR};
+}
+
 sub start {
 	my ($self) = @_;
 	return $self->{START};
