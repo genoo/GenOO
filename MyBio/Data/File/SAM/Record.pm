@@ -57,17 +57,17 @@ subtype 'HashRefOfTags', as 'HashRef';
 coerce 'HashRefOfTags', from 'ArrayRef',via { _coerce_arrayref_to_hashref_for_tags($_) };
 
 has 'qname' => (isa => 'Str', is => 'rw'); # String [!-?A-~]f1,255g Query template NAME
-has 'flag' => (isa => 'Int', is => 'rw');  # Int [0,216-1] bitwise FLAG
+has 'flag'  => (isa => 'Int', is => 'rw'); # Int [0,216-1] bitwise FLAG
 has 'rname' => (isa => 'Str', is => 'rw'); # String \*|[!-()+-<>-~][!-~]* Reference sequence NAME
-has 'pos' => (isa => 'Int', is => 'rw');   # Int [0,229-1] 1-based leftmost mapping POSition
-has 'mapq' => (isa => 'Int', is => 'rw');  # Int [0,28-1] MAPping Quality
+has 'pos'   => (isa => 'Int', is => 'rw'); # Int [0,229-1] 1-based leftmost mapping POSition
+has 'mapq'  => (isa => 'Int', is => 'rw'); # Int [0,28-1] MAPping Quality
 has 'cigar' => (isa => 'Str', is => 'rw'); # String \*|([0-9]+[MIDNSHPX=])+ CIGAR string
 has 'rnext' => (isa => 'Str', is => 'rw'); # String \*|=|[!-()+-<>-~][!-~]* Ref. name of the mate/next segment
 has 'pnext' => (isa => 'Int', is => 'rw'); # Int [0,229-1] Position of the mate/next segment
-has 'tlen' => (isa => 'Int', is => 'rw');  # Int [-229+1,229-1] observed Template LENgth
-has 'seq' => (isa => 'Str', is => 'rw');   # String \*|[A-Za-z=.]+ segment SEQuence
-has 'qual' => (isa => 'Str', is => 'rw');  # String [!-~]+ ASCII of Phred-scaled base QUALity+33
-has 'tags' => (isa => 'HashRefOfTags', is => 'rw', coerce => 1,); # Extra tags
+has 'tlen'  => (isa => 'Int', is => 'rw'); # Int [-229+1,229-1] observed Template LENgth
+has 'seq'   => (isa => 'Str', is => 'rw'); # String \*|[A-Za-z=.]+ segment SEQuence
+has 'qual'  => (isa => 'Str', is => 'rw'); # String [!-~]+ ASCII of Phred-scaled base QUALity+33
+has 'tags'  => (isa => 'HashRefOfTags', is => 'rw', coerce => 1,); # Extra tags
 has 'extra' => (is => 'rw');
 
 has 'alignment_length' => (
