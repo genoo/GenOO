@@ -33,7 +33,6 @@ requires qw (
 	score_mean
 	score_variance
 	score_stdv
-	normalize
 	quantile
 );
 

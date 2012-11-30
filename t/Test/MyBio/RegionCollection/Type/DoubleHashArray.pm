@@ -60,13 +60,13 @@ sub description : Test(2) {
 	is $self->obj(0)->description, 'just a test object', "... and returns the correct value";
 }
 
-sub longest_entry : Test(3) {
+sub longest_record : Test(3) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'longest_entry', "... test object has the 'longest_entry' attribute");
-	is $self->obj(0)->longest_entry->length, 10, "... and returns the correct value";
+	has_attribute_ok($self->obj(0), 'longest_record', "... test object has the 'longest_record' attribute");
+	is $self->obj(0)->longest_record->length, 10, "... and returns the correct value";
 	
-	$self->obj(0)->add_entry(
+	$self->obj(0)->add_record(
 		MyBio::GenomicRegion->new(
 			strand => 1,
 			chromosome => 'chr2',
@@ -74,15 +74,15 @@ sub longest_entry : Test(3) {
 			stop => 100
 		)
 	);
-	is $self->obj(0)->longest_entry->length, 90, "... and returns the correct value again";
+	is $self->obj(0)->longest_record->length, 90, "... and returns the correct value again";
 }
 
-sub add_entry : Test(2) {
+sub add_record : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'add_entry';
+	can_ok $self->obj(0), 'add_record';
 	
-	$self->obj(0)->add_entry(
+	$self->obj(0)->add_record(
 		MyBio::GenomicRegion->new(
 			strand => -1,
 			chromosome => 'chr7',
@@ -90,28 +90,28 @@ sub add_entry : Test(2) {
 			stop => 150
 		)
 	);
-	is $self->obj(0)->entries_count, 13, "... and should result in the correct number of entries";
+	is $self->obj(0)->records_count, 13, "... and should result in the correct number of records";
 }
 
-sub foreach_entry_do : Test(2) {
+sub foreach_record_do : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'foreach_entry_do';
+	can_ok $self->obj(0), 'foreach_record_do';
 	
 	my $iterations = 0;
-	$self->obj(0)->foreach_entry_do(
+	$self->obj(0)->foreach_record_do(
 		sub {
 			$iterations++;
 		}
 	);
-	is $iterations, $self->obj(0)->entries_count, "... and should do the correct number of iterations";
+	is $iterations, $self->obj(0)->records_count, "... and should do the correct number of iterations";
 }
 
-sub entries_count : Test(2) {
+sub records_count : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'entries_count';
-	is $self->obj(0)->entries_count, 12, "... and should result in the correct number of entries";
+	can_ok $self->obj(0), 'records_count';
+	is $self->obj(0)->records_count, 12, "... and should result in the correct number of records";
 }
 
 sub strands : Test(2) {
@@ -121,27 +121,27 @@ sub strands : Test(2) {
 	is_deeply [$self->obj(0)->strands], [1,-1], "... and should return the correct value";
 }
 
-sub chromosomes_for_strand : Test(3) {
+sub rnames_for_strand : Test(3) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'chromosomes_for_strand';
+	can_ok $self->obj(0), 'rnames_for_strand';
 	
-	is $self->obj(0)->chromosomes_for_strand(1), 2, "... and should return the correct value";
-	is $self->obj(0)->chromosomes_for_strand(-1), 2, "... and should return the correct value";
+	is $self->obj(0)->rnames_for_strand(1), 2, "... and should return the correct value";
+	is $self->obj(0)->rnames_for_strand(-1), 2, "... and should return the correct value";
 }
 
-sub chromosomes_for_all_strands : Test(2) {
+sub rnames_for_all_strands : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'chromosomes_for_all_strands';
-	is_deeply [$self->obj(0)->chromosomes_for_all_strands], ['chr3','chr1','chr4','chr2'], "... and should return the correct value";
+	can_ok $self->obj(0), 'rnames_for_all_strands';
+	is_deeply [$self->obj(0)->rnames_for_all_strands], ['chr3','chr1','chr4','chr2'], "... and should return the correct value";
 }
 
-sub longest_entry_length : Test(2) {
+sub longest_record_length : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'longest_entry_length';
-	is $self->obj(0)->longest_entry_length, 10, "... and should return the correct value";
+	can_ok $self->obj(0), 'longest_record_length';
+	is $self->obj(0)->longest_record_length, 10, "... and should return the correct value";
 }
 
 sub is_empty : Test(2) {
@@ -158,23 +158,38 @@ sub is_not_empty : Test(2) {
 	is $self->obj(0)->is_not_empty, 1, "... and should return the correct value";
 }
 
-sub entries_overlapping_region  : Test(3) {
+sub foreach_overlapping_record_do  : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'entries_overlapping_region';
+	can_ok $self->obj(0), 'foreach_overlapping_record_do';
 	
-	my @result = map{$_->id} $self->obj(0)->entries_overlapping_region(1,'chr1', 2, 5);
-	is_deeply [@result], ['chr1:1-10:1','chr1:2-10:1','chr1:3-10:1'], "... and should return the correct entries";
+	my $count = 0;
+	$self->obj(0)->foreach_overlapping_record_do(1,'chr1', 2, 5, 
+		sub {
+			$count++;
+		}
+	);
 	
-	@result = map{$_->id} $self->obj(0)->entries_overlapping_region(-1,'chr4', 36, 40);
-	is_deeply [@result], ['chr4:32-40:-1','chr4:33-40:-1'], "... and should return the correct entries";
+	is $count, 3, "... and should return the correct number of records";
 }
 
-sub entries_ref_for_strand_and_chromosome : Test(2) {
+sub records_overlapping_region  : Test(3) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), '_entries_ref_for_strand_and_chromosome';
-	is @{$self->obj(0)->_entries_ref_for_strand_and_chromosome(1,'chr1')}, 3, "... and should return the correct value";
+	can_ok $self->obj(0), 'records_overlapping_region';
+	
+	my @result = map{$_->id} $self->obj(0)->records_overlapping_region(1,'chr1', 2, 5);
+	is_deeply [@result], ['chr1:1-10:1','chr1:2-10:1','chr1:3-10:1'], "... and should return the correct records";
+	
+	@result = map{$_->id} $self->obj(0)->records_overlapping_region(-1,'chr4', 36, 40);
+	is_deeply [@result], ['chr4:32-40:-1','chr4:33-40:-1'], "... and should return the correct records";
+}
+
+sub records_ref_for_strand_and_rname : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), '_records_ref_for_strand_and_rname';
+	is @{$self->obj(0)->_records_ref_for_strand_and_rname(1,'chr1')}, 3, "... and should return the correct value";
 }
 
 #######################################################################
@@ -207,7 +222,7 @@ sub test_objects {
 		species     => 'human',
 		description => 'just a test object'
 	});
-	$test_object_1->add_entry($test_locuses[$_]) for (0..11);
+	$test_object_1->add_record($test_locuses[$_]) for (0..11);
 	
 	return [$test_object_1];
 }

@@ -52,18 +52,18 @@ with 'MyBio::NGS::Track';
 #######################################################################
 ########################   Interface Methods   ########################
 #######################################################################
-after 'add_entry' => sub {
+after 'add_record' => sub {
 	my ($self) = @_;
 	$self->_reset_stats;
 };
 
-sub get_scores_for_all_entries {
+sub get_scores_for_all_records {
 	my ($self) = @_;
 	
 	my @out = ();
-	$self->foreach_entry_do( sub {
-		my ($entry) = @_;
-		push @out, $entry->score;
+	$self->foreach_record_do( sub {
+		my ($record) = @_;
+		push @out, $record->score;
 	});
 	return @out;
 }
@@ -88,29 +88,6 @@ sub score_stdv {
 	return $self->_stats->get_or_calculate_score_stdv;
 }
 
-
-#### Normalization Methods ####
-sub normalize {
-	my ($self, $params) = @_;
-	
-	my $scaling_factor = 1;
-	my $normalization_factor = $self->get_entry_score_sum;
-	if (exists $params->{'SCALE'}){$scaling_factor = $params->{'SCALE'};}
-	if (exists $params->{'NORMALIZATION_FACTOR'}){$normalization_factor = $params->{'NORMALIZATION_FACTOR'};}
-	my $entries_ref = $self->get_entries;
-	foreach my $strand (keys %{$entries_ref}) {
-		foreach my $chr (keys %{$$entries_ref{$strand}}) {
-			if (exists $$entries_ref{$strand}{$chr}) {
-				foreach my $entry (@{$$entries_ref{$strand}{$chr}})
-				{
-					my $normal_score = ($entry->get_score / $normalization_factor) * $scaling_factor;
-					$entry->score($normal_score);
-				}
-			}
-		}
-	}
-}
-
 sub quantile {
 	my ($self, $params) = @_;
 	
@@ -118,7 +95,7 @@ sub quantile {
 	my $score_threshold = 0;
 	if (exists $params->{'QUANTILE'}){$quantile = $params->{'QUANTILE'};}
 	if (exists $params->{'THRESHOLD'}){$score_threshold = $params->{'THRESHOLD'};}
-	my @scores = sort {$b <=> $a} $self->get_scores_for_all_entries;
+	my @scores = sort {$b <=> $a} $self->get_scores_for_all_records;
 	my $size;
 	for ($size = 0; $size < @scores; $size++)
 	{
@@ -143,6 +120,15 @@ sub _build_stats {
 sub _reset_stats {
 	my ($self) = @_;
 	$self->_stats->reset; 
+}
+
+#######################################################################
+#######################   Deprecated Methods   ########################
+#######################################################################
+sub get_scores_for_all_entries {
+	my ($self) = @_;
+	warn 'Deprecated method "get_scores_for_all_entries". Use "get_scores_for_all_records" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->get_scores_for_all_records;
 }
 
 

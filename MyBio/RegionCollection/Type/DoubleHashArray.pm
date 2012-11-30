@@ -76,7 +76,7 @@ sub add_record {
 
 sub foreach_record_do {
 	my ($self, $block) = @_;
-	$self->_container->foreach_record_do($block);
+	$self->_container->foreach_entry_do($block);
 }
 
 sub records_count {
@@ -114,35 +114,54 @@ sub is_not_empty {
 	return $self->_container->is_not_empty;
 }
 
-sub records_overlapping_region {
-	my ($self, $strand, $chr, $start, $stop) = @_;
+sub foreach_overlapping_record_do {
+	my ($self, $strand, $chr, $start, $stop, $block) = @_;
 	
-	$self->_container->sort_records;
+	$self->_container->sort_entries;
+	
+	# Get a reference on the array containing the records of the specified strand and rname
 	my $records_ref = $self->_records_ref_for_strand_and_rname($strand, $chr) or return ();
 	
+	# Find the closest but greater value to a target value. Target value is defined such that
+	# any records with smaller values are impossible to overlap with the requested region
+	# This allows us to search only from that point onwards for overlap
 	my $target_value = $start - $self->longest_record->length;
-	my $index = MyBio::Module::Search::Binary->binary_search_for_value_greater_or_equal($target_value, $records_ref, sub {return $_[0]->start});
+	my $index = MyBio::Module::Search::Binary->binary_search_for_value_greater_or_equal(
+		$target_value, $records_ref,
+		sub {
+			return $_[0]->start
+		}
+	);
 	
+	# If a value close and greater than the target value exists scan downstream for overlaps
 	if (defined $index) {
-		my @overlapping_records;
 		while ($index < @$records_ref) {
 			my $record = $records_ref->[$index];
 			if ($record->start <= $stop) {
 				if ($start <= $record->stop) {
-					push @overlapping_records, $record;
+					$block->($record);
 				}
 			}
 			else {
-				last;
+				last; # No chance to find overlap from now on
 			}
-			
 			$index++;
 		}
-		return @overlapping_records;
 	}
-	else {
-		return ();
-	}
+}
+
+sub records_overlapping_region {
+	my ($self, $strand, $chr, $start, $stop) = @_;
+	
+	my @overlapping_records;
+	$self->foreach_overlapping_record_do($strand, $chr, $start, $stop, 
+		sub {
+			my ($record) = @_;
+			push @overlapping_records, $record;
+		}
+	);
+	
+	return @overlapping_records;
 }
 
 
@@ -176,7 +195,7 @@ sub _find_longest_record {
 
 sub _records_ref_for_strand_and_rname {
 	my ($self, $strand, $chr) = @_;
-	return $self->_container->records_ref_for_keys($strand, $chr);
+	return $self->_container->entries_ref_for_keys($strand, $chr);
 }
 
 sub _reset {

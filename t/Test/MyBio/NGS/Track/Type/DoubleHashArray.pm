@@ -40,12 +40,12 @@ sub _role_check : Test(1) {
 	does_ok($self->obj(0), 'MyBio::NGS::Track', '... does the MyBio::NGS::Track role');
 }
 
-sub add_entry : Test(2) {
+sub add_record : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'add_entry';
+	can_ok $self->obj(0), 'add_record';
 	
-	$self->obj(0)->add_entry(
+	$self->obj(0)->add_record(
 		MyBio::NGS::Tag->new({
 			CHR           => 'chrX',
 			START         => 1,
@@ -59,12 +59,12 @@ sub add_entry : Test(2) {
 	is $self->obj(0)->score_sum, 78.1, "... and should return the correct value";
 }
 
-sub get_scores_for_all_entries : Test(3) {
+sub get_scores_for_all_records : Test(3) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'get_scores_for_all_entries';
+	can_ok $self->obj(0), 'get_scores_for_all_records';
 	
-	my @scores = $self->obj(0)->get_scores_for_all_entries;
+	my @scores = $self->obj(0)->get_scores_for_all_records;
 	is scalar @scores, 12, "... and should return the correct number of scores";
 	
 	my $look_like_number_count;
@@ -141,7 +141,7 @@ sub test_objects {
 		species     => 'human',
 		description => 'just a test object'
 	});
-	$test_object_1->add_entry($test_tags[$_]) for (0..11);
+	$test_object_1->add_record($test_tags[$_]) for (0..11);
 	
 	return [$test_object_1];
 }

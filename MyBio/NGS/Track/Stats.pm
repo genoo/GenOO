@@ -121,12 +121,12 @@ sub calculate_and_set_score_sum_and_mean {
 	my ($self) = @_;
 	
 	my $score_sum = 0;
-	$self->track->foreach_entry_do(
+	$self->track->foreach_record_do(
 		sub {
-			my ($entry) = @_;
+			my ($record) = @_;
 			
-			if (defined $entry->score) {
-				$score_sum += $entry->score;
+			if (defined $record->score) {
+				$score_sum += $record->score;
 			}
 			else {
 				warn "score is not defined and sum and mean cannot be calculated";
@@ -137,7 +137,7 @@ sub calculate_and_set_score_sum_and_mean {
 		}
 	);
 	$self->{SCORE_SUM} = $score_sum;
-	$self->{SCORE_MEAN} = $score_sum / $self->track->entries_count;
+	$self->{SCORE_MEAN} = $score_sum / $self->track->records_count;
 }
 
 sub calculate_and_set_score_variance {
@@ -145,12 +145,12 @@ sub calculate_and_set_score_variance {
 	
 	my $score_sum_sq_diff = 0;
 	my $score_mean = $self->get_or_calculate_score_mean;
-	$self->track->foreach_entry_do(
+	$self->track->foreach_record_do(
 		sub {
-			my ($entry) = @_;
+			my ($record) = @_;
 			
-			if (defined $entry->score) {
-				$score_sum_sq_diff += ($entry->score - $score_mean) ** 2;
+			if (defined $record->score) {
+				$score_sum_sq_diff += ($record->score - $score_mean) ** 2;
 			}
 			else {
 				warn "score is not defined and variance cannot be calculated";
@@ -159,7 +159,7 @@ sub calculate_and_set_score_variance {
 			}
 		}
 	);
-	$self->{SCORE_VARIANCE} = $score_sum_sq_diff / $self->track->entries_count;
+	$self->{SCORE_VARIANCE} = $score_sum_sq_diff / $self->track->records_count;
 }
 
 1;

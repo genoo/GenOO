@@ -38,6 +38,7 @@ requires qw (
 	rnames_for_all_strands
 	is_empty
 	is_not_empty
+	foreach_overlapping_record_do
 	records_overlapping_region
 );
 
