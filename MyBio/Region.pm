@@ -121,7 +121,7 @@ sub to_string {
 	my ($self, $params) = @_;
 	
 	my $method = delete $params->{'METHOD'};
-	if ($method eq 'BED') {
+	if (defined $method and ($method eq 'BED')) {
 		warn 'Deprecated call of "to_string" in '.
 		     (caller)[1].' line '.(caller)[2].'. '.
 		     'Classes implementing the role should '.
