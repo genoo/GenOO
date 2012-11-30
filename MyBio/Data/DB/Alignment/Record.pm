@@ -43,7 +43,7 @@ has 'stop'        => (isa => 'Int', is => 'rw', required => 1);
 has 'copy_number' => (isa => 'Int', is => 'rw', required => 1);
 has 'sequence'    => (isa => 'Str', is => 'rw', required => 1);
 has 'cigar'       => (isa => 'Str', is => 'rw', required => 1);
-has 'mdz'         => (isa => 'Int', is => 'rw', required => 1);
+has 'mdz'         => (isa => 'Str', is => 'rw', required => 1);
 has 'extra'       => (is => 'rw');
 
 with 'MyBio::Region';
