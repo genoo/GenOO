@@ -20,12 +20,12 @@ MyBio::RegionCollection::Type::DoubleHashArray - Object for a collection of MyBi
 =head1 DESCRIPTION
 
     The primary data structure of this object is a 2D hash whose primary key is the strand 
-    and its secondary key is the chromosome name. Each such pair of keys correspond to an
+    and its secondary key is the reference sequence name. Each such pair of keys correspond to an
     array reference which stores objects of the class L<MyBio::Region> sorted by start position.
 
 =head1 EXAMPLES
 
-    # Print entries in FASTA format
+    # Print records in FASTA format
     $locus_collection->print("FASTA",'STDOUT',"/data1/data/UCSC/hg19/chromosomes/");
     
     # ditto
@@ -49,10 +49,10 @@ has 'name' => (isa => 'Str', is => 'rw');
 has 'species' => (isa => 'Str', is => 'rw');
 has 'description' => (isa => 'Str', is => 'rw');
 has 'extra' => (is => 'rw');
-has 'longest_entry' => (
+has 'longest_record' => (
 	is        => 'ro',
-	builder   => '_find_longest_entry',
-	clearer   => '_clear_longest_entry',
+	builder   => '_find_longest_record',
+	clearer   => '_clear_longest_record',
 	init_arg  => undef,
 	lazy      => 1,
 );
@@ -68,18 +68,18 @@ with 'MyBio::RegionCollection';
 #######################################################################
 ########################   Interface Methods   ########################
 #######################################################################
-sub add_entry {
-	my ($self, $entry) = @_;
-	$self->_container->add_entry($entry->strand, $entry->chromosome, $entry);
+sub add_record {
+	my ($self, $record) = @_;
+	$self->_container->add_entry($record->strand, $record->chromosome, $record);
 	$self->_reset;
 }
 
-sub foreach_entry_do {
+sub foreach_record_do {
 	my ($self, $block) = @_;
-	$self->_container->foreach_entry_do($block);
+	$self->_container->foreach_record_do($block);
 }
 
-sub entries_count {
+sub records_count {
 	my ($self) = @_;
 	return $self->_container->entries_count;
 }
@@ -89,19 +89,19 @@ sub strands {
 	return $self->_container->primary_keys();
 }
 
-sub chromosomes_for_strand {
+sub rnames_for_strand {
 	my ($self, $strand) = @_;
 	return $self->_container->secondary_keys_for_primary_key($strand);
 }
 
-sub chromosomes_for_all_strands {
+sub rnames_for_all_strands {
 	my ($self) = @_;
 	return $self->_container->secondary_keys_for_all_primary_keys();
 }
 
-sub longest_entry_length {
+sub longest_record_length {
 	my ($self) = @_;
-	return $self->longest_entry->length;
+	return $self->longest_record->length;
 }
 
 sub is_empty {
@@ -114,22 +114,22 @@ sub is_not_empty {
 	return $self->_container->is_not_empty;
 }
 
-sub entries_overlapping_region {
+sub records_overlapping_region {
 	my ($self, $strand, $chr, $start, $stop) = @_;
 	
-	$self->_container->sort_entries;
-	my $entries_ref = $self->_entries_ref_for_strand_and_chromosome($strand, $chr) or return ();
+	$self->_container->sort_records;
+	my $records_ref = $self->_records_ref_for_strand_and_rname($strand, $chr) or return ();
 	
-	my $target_value = $start - $self->longest_entry->length;
-	my $index = MyBio::Module::Search::Binary->binary_search_for_value_greater_or_equal($target_value, $entries_ref, sub {return $_[0]->start});
+	my $target_value = $start - $self->longest_record->length;
+	my $index = MyBio::Module::Search::Binary->binary_search_for_value_greater_or_equal($target_value, $records_ref, sub {return $_[0]->start});
 	
 	if (defined $index) {
-		my @overlapping_entries;
-		while ($index < @$entries_ref) {
-			my $entry = $entries_ref->[$index];
-			if ($entry->start <= $stop) {
-				if ($start <= $entry->stop) {
-					push @overlapping_entries, $entry;
+		my @overlapping_records;
+		while ($index < @$records_ref) {
+			my $record = $records_ref->[$index];
+			if ($record->start <= $stop) {
+				if ($start <= $record->stop) {
+					push @overlapping_records, $record;
 				}
 			}
 			else {
@@ -138,7 +138,7 @@ sub entries_overlapping_region {
 			
 			$index++;
 		}
-		return @overlapping_entries;
+		return @overlapping_records;
 	}
 	else {
 		return ();
@@ -155,48 +155,48 @@ sub _build_container {
 	});
 }
 
-sub _find_longest_entry {
+sub _find_longest_record {
 	my ($self) = @_;
 	
-	my $longest_entry;
-	my $longest_entry_length = 0;
-	$self->foreach_entry_do(
+	my $longest_record;
+	my $longest_record_length = 0;
+	$self->foreach_record_do(
 		sub {
-			my ($entry) = @_;
+			my ($record) = @_;
 			
-			if ($entry->length > $longest_entry_length) {
-				$longest_entry_length = $entry->length;
-				$longest_entry = $entry;
+			if ($record->length > $longest_record_length) {
+				$longest_record_length = $record->length;
+				$longest_record = $record;
 			}
 		}
 	);
 	
-	return $longest_entry;
+	return $longest_record;
 }
 
-sub _entries_ref_for_strand_and_chromosome {
+sub _records_ref_for_strand_and_rname {
 	my ($self, $strand, $chr) = @_;
-	return $self->_container->entries_ref_for_keys($strand, $chr);
+	return $self->_container->records_ref_for_keys($strand, $chr);
 }
 
 sub _reset {
 	my ($self) = @_;
-	$self->_clear_longest_entry;
+	$self->_clear_longest_record;
 }
 
 #######################################################################
 ##################   Methods that modify the object  ##################
 #######################################################################
-=head2 set_sequence_for_all_entries
+=head2 set_sequence_for_all_records
   Arg [1]    : Hash reference containing parameters.
                Required parameters:
                   1/ CHR_FOLDER: The folder that contains fasta files with the chromosome sequences
-  Example    : set_sequence_for_all_entries({
+  Example    : set_sequence_for_all_records({
                  CHR_FOLDER       => "/chromosomes/hg19/"
                })
-  Description: Sets the sequence attribute for all entries in the RegionCollection.
+  Description: Sets the sequence attribute for all records in the RegionCollection.
 =cut
-sub set_sequence_for_all_entries {
+sub set_sequence_for_all_records {
 	my ($self, $params) = @_;
 	
 	my $chr_folder = delete $params->{'CHR_FOLDER'};
@@ -206,14 +206,14 @@ sub set_sequence_for_all_entries {
 	
 	my $current_chr;
 	my $current_chr_seq;
-	$self->foreach_entry_do( sub {
-		my ($entry) = @_;
+	$self->foreach_record_do( sub {
+		my ($record) = @_;
 		
-		if ($entry->chromosome ne $current_chr) {
-			my $chr_file = $chr_folder.'/'.$entry->chromosome.'.fa';
+		if ($record->chromosome ne $current_chr) {
+			my $chr_file = $chr_folder.'/'.$record->chromosome.'.fa';
 			if (-e $chr_file) {
-				$current_chr_seq = MyBio::MySub::read_fasta($chr_file, $entry->chromosome);
-				$current_chr = $entry->chromosome;
+				$current_chr_seq = MyBio::MySub::read_fasta($chr_file, $record->chromosome);
+				$current_chr = $record->chromosome;
 			}
 			else {
 				warn "Skipping chromosome. File $chr_file does not exist";
@@ -221,19 +221,71 @@ sub set_sequence_for_all_entries {
 			}
 		}
 		
-		my $entry_seq = substr($current_chr_seq, $entry->start, $entry->length);
-		if ($entry->strand == -1) {
-			$entry_seq = reverse($entry_seq);
-			if ($entry_seq =~ /U/i) {
-				$entry_seq =~ tr/ATGCUatgcu/UACGAuacga/;
+		my $record_seq = substr($current_chr_seq, $record->start, $record->length);
+		if ($record->strand == -1) {
+			$record_seq = reverse($record_seq);
+			if ($record_seq =~ /U/i) {
+				$record_seq =~ tr/ATGCUatgcu/UACGAuacga/;
 			}
 			else {
-				$entry_seq =~ tr/ATGCUatgcu/TACGAtacga/;
+				$record_seq =~ tr/ATGCUatgcu/TACGAtacga/;
 			}
 		}
-		$entry->set_sequence($entry_seq);
+		$record->set_sequence($record_seq);
 	});
 }
+
+#######################################################################
+#######################   Deprecated Methods   ########################
+#######################################################################
+sub longest_entry {
+	my ($self) = @_;
+	warn 'Deprecated method "longest_entry". Use "longest_record" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->longest_record;
+}
+
+sub add_entry {
+	my ($self, $record) = @_;
+	warn 'Deprecated method "add_entry". Use "add_record" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->add_record($record);
+}
+
+sub foreach_entry_do {
+	my ($self, $block) = @_;
+	warn 'Deprecated method "foreach_entry_do". Use "foreach_record_do" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->foreach_record_do($block);
+}
+
+sub longest_entry_length {
+	my ($self) = @_;
+	warn 'Deprecated method "longest_entry_length". Use "longest_record->length" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->longest_record->length;
+}
+
+sub entries_count {
+	my ($self) = @_;
+	warn 'Deprecated method "entries_count". Use "records_count" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->records_count;
+}
+
+sub entries_overlapping_region {
+	my ($self, $strand, $chr, $start, $stop) = @_;
+	warn 'Deprecated method "entries_overlapping_region". Use "records_overlapping_region" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->records_overlapping_region($strand, $chr, $start, $stop);
+}
+
+sub chromosomes_for_strand {
+	my ($self, $strand) = @_;
+	warn 'Deprecated method "chromosomes_for_strand". Use "rnames_for_strand" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->rnames_for_strand($strand);
+}
+
+sub chromosomes_for_all_strands {
+	my ($self, $strand) = @_;
+	warn 'Deprecated method "chromosomes_for_all_strands". Use "rnames_for_all_strands" instead in '.(caller)[1].' line '.(caller)[2]."\n";
+	return $self->rnames_for_all_strands;
+}
+
 
 __PACKAGE__->meta->make_immutable;
 1;

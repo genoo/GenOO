@@ -20,6 +20,7 @@ MyBio::RegionCollection - Role for a collection of MyBio::Region objects
 # Let the code begin...
 
 package MyBio::RegionCollection;
+
 use Moose::Role;
 use namespace::autoclean;
 
@@ -28,17 +29,16 @@ requires qw (
 	species
 	description
 	extra
-	longest_entry
-	add_entry
-	foreach_entry_do
-	entries_count
+	longest_record
+	add_record
+	foreach_record_do
+	records_count
 	strands
-	chromosomes_for_strand
-	chromosomes_for_all_strands
-	longest_entry_length
+	rnames_for_strand
+	rnames_for_all_strands
 	is_empty
 	is_not_empty
-	entries_overlapping_region
+	records_overlapping_region
 );
 
 1;

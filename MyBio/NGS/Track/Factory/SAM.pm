@@ -84,7 +84,7 @@ sub read_track {
 	});
 	while (my $record = $parser->next_record) {
 		if ($record->is_mapped) {
-			$track->add_entry(
+			$track->add_record(
 				MyBio::NGS::Track::Factory::SAM::Tag->new({
 					RECORD => $record,
 				})

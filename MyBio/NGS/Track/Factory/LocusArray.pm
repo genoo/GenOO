@@ -77,7 +77,7 @@ sub read_track {
 	my $track = MyBio::NGS::Track::Type::DoubleHashArray->new;
 	
 	foreach my $record ( @{$self->array} ) {
-		$track->add_entry($record);
+		$track->add_record($record);
 	}
 	return $track;
 }

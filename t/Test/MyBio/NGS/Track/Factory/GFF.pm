@@ -61,7 +61,7 @@ sub read_track : Test(3) {
 	
 	my $track = $self->gff_track->read_track;
 	does_ok($track, 'MyBio::NGS::Track', "... and the returned object does the MyBio::NGS::Track role");
-	is $track->entries_count, 93, "... and it contains the correct number of tags";
+	is $track->records_count, 93, "... and it contains the correct number of tags";
 }
 
 1;

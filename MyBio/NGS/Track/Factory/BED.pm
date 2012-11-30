@@ -83,7 +83,7 @@ sub read_track {
 		FILE => $self->get_file,
 	});
 	while (my $record = $parser->next_record) {
-		$track->add_entry(
+		$track->add_record(
 			MyBio::NGS::Track::Factory::BED::Tag->new({
 				RECORD => $record,
 			})
