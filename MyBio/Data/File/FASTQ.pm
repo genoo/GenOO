@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-MyBio::Data::File::FASTQ - Object implementing mehtods for accessing fastq formatted files
+MyBio::Data::File::FASTQ - Object implementing methods for accessing fastq formatted files
 
 =head1 SYNOPSIS
 
@@ -21,8 +21,8 @@ MyBio::Data::File::FASTQ - Object implementing mehtods for accessing fastq forma
 
 =head1 EXAMPLES
 
-    # Read one line
-    my $entry = $fasta_parser->next();
+    # Read one entry
+    my $entry = $fastq_parser->next();
 
 =head1 AUTHOR - Manolis Maragkakis
 
@@ -33,85 +33,59 @@ Email em.maragkakis@gmail.com
 # Let the code begin...
 
 package MyBio::Data::File::FASTQ;
-use strict;
 
 use FileHandle;
+use Moose;
+use namespace::autoclean;
+use MyBio::Data::File::FASTQ::Record;
 
-use base qw(MyBio::_Initializable);
+has 'file'  => (isa => 'Str', is => 'rw', required => 1);
+has 'extra' => (isa => 'Str', is => 'rw');
 
-sub _init {
-	
-	my ($self,$data) = @_;
-	
-	$self->set_file($$data{FILE});
-	$self->set_extra($$data{EXTRA_INFO});
-	
-	my $read_mode = "<";
-	if ($self->file =~ /\.gz$/) {
-		$read_mode = "<:gzip";
-	}
-	
-	my $filehandle = FileHandle->new($self->file, $read_mode) or die "Cannot open file \"".$self->file."\"  $!";
-	$self->_set_filehandle($filehandle);
-}
+has '_filehandle' => (
+	is        => 'ro',
+	builder   => '_open_filehandle',
+	init_arg  => undef,
+	lazy      => 1,
+);
 
 #######################################################################
-#############################   Getters   #############################
+########################   Interface Methods   ########################
 #######################################################################
-sub file {
-	return $_[0]->{FILE};
-}
-sub extra {
-	return $_[0]->{EXTRA_INFO};
-}
-sub _filehandle {
-	return $_[0]->{FILEHANDLE};
-}
-
-#######################################################################
-#############################   Setters   #############################
-#######################################################################
-sub set_file {
-	$_[0]->{FILE}=$_[1] if defined $_[1];
-}
-sub set_extra {
-	$_[0]->{EXTRA_INFO}=$_[1] if defined $_[1];
-}
-sub _set_filehandle {
-	$_[0]->{FILEHANDLE}=$_[1] if defined $_[1];
-}
-
-#######################################################################
-#########################   General Methods   #########################
-#######################################################################
-
-
-sub next {
+sub next_record {
 	my ($self) = @_;
 	
-	my $filehandle = $self->_filehandle;
-	while (my $line = <$filehandle>) {
+	while (my $line = $self->_filehandle->getline) {
 		if ($line =~ /^\@/) {
 			my $id = substr($line,1); chomp($id);
-			my $seq = <$filehandle>; chomp($seq);
-			my $not_used = <$filehandle>; chomp($not_used);
-			my $quality = <$filehandle>; chomp($quality);
+			my $seq =$self->_filehandle->getline; chomp($seq);
+			my $not_used = $self->_filehandle->getline; chomp($not_used); #unused line
+			my $quality = $self->_filehandle->getline; chomp($quality);
 			
-			return $self->_create_entry($id, $seq, $not_used, $quality);
+			return $self->_create_record($id, $seq, $quality);
 		}
 	}
 	return undef;
 }
 
-sub _create_entry {
-	my ($self, $id, $seq, $not_used, $quality) = @_;
+#######################################################################
+#######################   Private Methods  ############################
+#######################################################################
+sub _open_filehandle {
+	my ($self) = @_;
 	
-	return {
-		IDENTIFIER    => $id,
-		SEQUENCE      => $seq,
-		QUALITY       => $quality,
-		ENTRY         => 1,
-	};
+	my $read_mode = ($self->file !~ /\.gz$/) ? '<' : '<:gzip';
+	return FileHandle->new($self->file, $read_mode) or die 'Cannot open file '.$self->file.". $!";
+}
+
+sub _create_record {
+	my ($self, $id, $seq, $quality) = @_;
+	
+	return MyBio::Data::File::FASTQ::Record->new(
+		name     => $id,
+		sequence => $seq,
+		quality  => $quality,
+	);
 }
 
 1;
