@@ -6,7 +6,7 @@ Locus documentation.
 <link rel="stylesheet" type="text/css" href="perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio</span>
+<span id="modRootPath">GenOO</span>
 <span id="modName">Locus</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
@@ -17,12 +17,12 @@ Locus documentation.
 </div>
 <div id="sep"></div>
 <div id="descTitle">Included modules</div>
-<div id="descArea"><div id="libEntry"><span id="use"><a href="MyMath.html">MyBio::MyMath</a></span> </div>
+<div id="descArea"><div id="libEntry"><span id="use"><a href="MyMath.html">GenOO::MyMath</a></span> </div>
 </div>
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="error">Clone</span> <span id="isa"><a href="_Initializable.html">MyBio::_Initializable</a></span> </div>
+<div id="descArea"><span id="error">Clone</span> <span id="isa"><a href="_Initializable.html">GenOO::_Initializable</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
@@ -184,8 +184,8 @@ Locus documentation.
 					SPECIES      =&gt; <span id="var">$region</span>-&gt;<span id="method">get_species</span>,
 					STRAND       =&gt; <span id="var">$region</span>-&gt;<span id="method">get_strand</span>,
 					CHR          =&gt; <span id="var">$region</span>-&gt;<span id="method">get_chr</span>,
-					START        =&gt; <span id="braces">(</span><span id="module"><a href="MyMath.html">MyBio::MyMath</a></span>::<span id="method">max</span><span id="braces">(</span> <span id="braces">[</span><span id="var">$region</span>-&gt;<span id="method">get_start</span>, <span id="var">$self</span>-&gt;<span id="method">get_start</span><span id="braces">]</span> <span id="braces">)</span><span id="braces">)</span><span id="braces">[</span>1<span id="braces">]</span>,
-					STOP         =&gt; <span id="braces">(</span><span id="module"><a href="MyMath.html">MyBio::MyMath</a></span>::<span id="method">min</span><span id="braces">(</span> <span id="braces">[</span><span id="var">$region</span>-&gt;<span id="method">get_stop</span>, <span id="var">$self</span>-&gt;<span id="method">get_stop</span><span id="braces">]</span> <span id="braces">)</span><span id="braces">)</span><span id="braces">[</span>1<span id="braces">]</span>,
+					START        =&gt; <span id="braces">(</span><span id="module"><a href="MyMath.html">GenOO::MyMath</a></span>::<span id="method">max</span><span id="braces">(</span> <span id="braces">[</span><span id="var">$region</span>-&gt;<span id="method">get_start</span>, <span id="var">$self</span>-&gt;<span id="method">get_start</span><span id="braces">]</span> <span id="braces">)</span><span id="braces">)</span><span id="braces">[</span>1<span id="braces">]</span>,
+					STOP         =&gt; <span id="braces">(</span><span id="module"><a href="MyMath.html">GenOO::MyMath</a></span>::<span id="method">min</span><span id="braces">(</span> <span id="braces">[</span><span id="var">$region</span>-&gt;<span id="method">get_stop</span>, <span id="var">$self</span>-&gt;<span id="method">get_stop</span><span id="braces">]</span> <span id="braces">)</span><span id="braces">)</span><span id="braces">[</span>1<span id="braces">]</span>,
 					SEQUENCE     =&gt; <span id="perlFunc">undef</span>, <span id="comment">#not sure what to do with seq!!!</span><br />					EXTRA_INFO   =&gt; <span id="var">$region</span>-&gt;<span id="method">get_extra</span>,
 				<span id="braces">}</span><span id="braces">)</span>;
 				<span id="perlFunc">push</span> <span id="var">@outarray</span>, <span id="var">$partLocus</span>;

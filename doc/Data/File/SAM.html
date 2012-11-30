@@ -6,14 +6,14 @@ SAM documentation.
 <link rel="stylesheet" type="text/css" href="../../perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio::Data::File</span>
+<span id="modRootPath">GenOO::Data::File</span>
 <span id="modName">SAM</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#libs">Included libraries</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::Data::File::SAM</B> - Object implementing methods for accessing sam formatted files</div>
+<div id="descArea"><B>GenOO::Data::File::SAM</B> - Object implementing methods for accessing sam formatted files</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry">No package variables defined.</div>
@@ -21,19 +21,19 @@ SAM documentation.
 <div id="sep"></div>
 <div id="descTitle">Included modules</div>
 <div id="descArea"><div id="libEntry"><span id="use">FileHandle</span></div>
-<div id="libEntry"><span id="use"><a href="SAM/Record.html">MyBio::Data::File::SAM::Record</a></span> </div>
+<div id="libEntry"><span id="use"><a href="SAM/Record.html">GenOO::Data::File::SAM::Record</a></span> </div>
 </div>
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="../../_Initializable.html">MyBio::_Initializable</a></span> </div>
+<div id="descArea"><span id="isa"><a href="../../_Initializable.html">GenOO::_Initializable</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
 <div id="descArea"><pre id="podParagraph">    # Object that manages a sam file. 
 
     # To initialize 
-    my $sam_file = <B>MyBio::Data::File::SAM</B>->new({
+    my $sam_file = <B>GenOO::Data::File::SAM</B>->new({
         FILE            => undef,
         EXTRA_INFO      => undef,
     });</pre>
@@ -250,7 +250,7 @@ SAM documentation.
 	<span id="perlFunc">chomp</span> <span id="var">$line</span>;
 	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$qname</span>, <span id="var">$flag</span>, <span id="var">$rname</span>, <span id="var">$pos</span>, <span id="var">$mapq</span>, <span id="var">$cigar</span>, <span id="var">$rnext</span>, <span id="var">$pnext</span>, <span id="var">$tlen</span>, <span id="var">$seq</span>, <span id="var">$qual</span>, <span id="var">@tags</span><span id="braces">)</span> = <span id="perlFunc">split</span><span id="braces">(</span><span id="regExp">/\t/</span>,<span id="var">$line</span><span id="braces">)</span>;
 	
-	<span id="perlKey">return</span> <span id="module"><a href="SAM/Record.html">MyBio::Data::File::SAM::Record</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+	<span id="perlKey">return</span> <span id="module"><a href="SAM/Record.html">GenOO::Data::File::SAM::Record</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 		QNAME      =&gt; <span id="var">$qname</span>,
 		FLAG       =&gt; <span id="var">$flag</span>,
 		RNAME      =&gt; <span id="var">$rname</span>,
@@ -317,7 +317,7 @@ SAM documentation.
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_EXAMPLES" id="_pod_EXAMPLES"></a>EXAMPLES</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="genInfoArea"><pre id="podParagraph">    # Create object
-    my $sam_file = <B>MyBio::Data::File::SAM</B>->new({
+    my $sam_file = <B>GenOO::Data::File::SAM</B>->new({
           FILE => 't/sample_data/sample.sam.gz'
     });
     

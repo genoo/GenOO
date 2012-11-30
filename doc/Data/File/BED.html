@@ -6,14 +6,14 @@ BED documentation.
 <link rel="stylesheet" type="text/css" href="../../perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio::Data::File</span>
+<span id="modRootPath">GenOO::Data::File</span>
 <span id="modName">BED</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#libs">Included libraries</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::Data::File::BED</B> - Object implementing methods for accessing bed formatted files (<a href="http://genome.ucsc.edu/FAQ/FAQformat#format1" target="urlWin" id="podUrl">http://genome.ucsc.edu/FAQ/FAQformat#format1</a>)</div>
+<div id="descArea"><B>GenOO::Data::File::BED</B> - Object implementing methods for accessing bed formatted files (<a href="http://genome.ucsc.edu/FAQ/FAQformat#format1" target="urlWin" id="podUrl">http://genome.ucsc.edu/FAQ/FAQformat#format1</a>)</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry">No package variables defined.</div>
@@ -21,19 +21,19 @@ BED documentation.
 <div id="sep"></div>
 <div id="descTitle">Included modules</div>
 <div id="descArea"><div id="libEntry"><span id="use">FileHandle</span></div>
-<div id="libEntry"><span id="use"><a href="BED/Record.html">MyBio::Data::File::BED::Record</a></span> </div>
+<div id="libEntry"><span id="use"><a href="BED/Record.html">GenOO::Data::File::BED::Record</a></span> </div>
 </div>
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="../../_Initializable.html">MyBio::_Initializable</a></span> </div>
+<div id="descArea"><span id="isa"><a href="../../_Initializable.html">GenOO::_Initializable</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
 <div id="descArea"><pre id="podParagraph">    # Object that manages a bed file. 
 
     # To initialize 
-    my $bed_file = <B>MyBio::Data::File::BED</B>->new({
+    my $bed_file = <B>GenOO::Data::File::BED</B>->new({
         FILE            => undef,
         EXTRA_INFO      => undef,
     });</pre>
@@ -247,7 +247,7 @@ BED documentation.
 	<span id="perlFunc">chomp</span> <span id="var">$line</span>;
 	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$chr</span>,<span id="var">$start</span>,<span id="var">$stop_1</span>,<span id="var">$name</span>,<span id="var">$score</span>,<span id="var">$strand</span>,<span id="var">$thick_start</span>,<span id="var">$thick_stop</span>,<span id="var">$rgb</span>,<span id="var">$block_count</span>,<span id="var">$block_sizes</span>,<span id="var">$block_starts</span><span id="braces">)</span> = <span id="perlFunc">split</span><span id="braces">(</span><span id="regExp">/\t/</span>,<span id="var">$line</span><span id="braces">)</span>;
 	
-	<span id="perlKey">return</span> <span id="module"><a href="BED/Record.html">MyBio::Data::File::BED::Record</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+	<span id="perlKey">return</span> <span id="module"><a href="BED/Record.html">GenOO::Data::File::BED::Record</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 		CHR          =&gt; <span id="var">$chr</span>,
 		START        =&gt; <span id="var">$start</span>,
 		STOP_1       =&gt; <span id="var">$stop_1</span>,
@@ -307,7 +307,7 @@ BED documentation.
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_EXAMPLES" id="_pod_EXAMPLES"></a>EXAMPLES</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="genInfoArea"><pre id="podParagraph">    # Create object
-    my $bed_file = <B>MyBio::Data::File::BED</B>->new({
+    my $bed_file = <B>GenOO::Data::File::BED</B>->new({
           FILE => 't/sample_data/sample.bed.gz'
     });
     

@@ -6,28 +6,28 @@ SplicedLocus documentation.
 <link rel="stylesheet" type="text/css" href="perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio</span>
+<span id="modRootPath">GenOO</span>
 <span id="modName">SplicedLocus</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#libs">Included libraries</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::SplicedLocus</B> - A region consisting of spicing elements</div>
+<div id="descArea"><B>GenOO::SplicedLocus</B> - A region consisting of spicing elements</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry">No package variables defined.</div>
 </div>
 <div id="sep"></div>
 <div id="descTitle">Included modules</div>
-<div id="descArea"><div id="libEntry"><span id="use"><a href="Junction.html">MyBio::Junction</a></span> </div>
-<div id="libEntry"><span id="use"><a href="Transcript/Exon.html">MyBio::Transcript::Exon</a></span> </div>
-<div id="libEntry"><span id="use"><a href="Transcript/Intron.html">MyBio::Transcript::Intron</a></span> </div>
+<div id="descArea"><div id="libEntry"><span id="use"><a href="Junction.html">GenOO::Junction</a></span> </div>
+<div id="libEntry"><span id="use"><a href="Transcript/Exon.html">GenOO::Transcript::Exon</a></span> </div>
+<div id="libEntry"><span id="use"><a href="Transcript/Intron.html">GenOO::Transcript::Intron</a></span> </div>
 </div>
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="Locus.html">MyBio::Locus</a></span> </div>
+<div id="descArea"><span id="isa"><a href="Locus.html">GenOO::Locus</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
@@ -35,7 +35,7 @@ SplicedLocus documentation.
     # Represents a spliced region with introns and exons
    
     # To initialize 
-    my $region = <B>MyBio::SplicedLocus</B>->new({
+    my $region = <B>GenOO::SplicedLocus</B>->new({
         SPECIES      => undef,
         STRAND       => undef,
         CHR          => undef,
@@ -105,7 +105,7 @@ SplicedLocus documentation.
 <span id="comment"># 	warn &quot;Method &quot;.(caller(0))[3].&quot; has not been tested for bugs. Please check and remove warning&quot;;</span><br />	<span id="perlKey">my</span> <span id="var">$exon_starts</span> = <span id="var">$self</span>-&gt;<span id="method">get_splice_starts</span>;
 	<span id="perlKey">my</span> <span id="var">$exon_stops</span> = <span id="var">$self</span>-&gt;<span id="method">get_splice_stops</span>;
 	<span id="perlKey">for</span> <span id="braces">(</span><span id="perlKey">my</span> <span id="var">$i</span>=0;<span id="var">$i</span>&lt;@<span id="braces">{</span><span id="var">$exon_starts</span><span id="braces">}</span>;<span id="var">$i</span>++<span id="braces">)</span> <span id="braces">{</span>
-		<span id="var">$self</span>-&gt;<span id="method">push_exon</span><span id="braces">(</span><span id="module"><a href="Transcript/Exon.html">MyBio::Transcript::Exon</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+		<span id="var">$self</span>-&gt;<span id="method">push_exon</span><span id="braces">(</span><span id="module"><a href="Transcript/Exon.html">GenOO::Transcript::Exon</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 			SPECIES    =&gt; <span id="var">$self</span>-&gt;<span id="method">get_species</span>,
 			STRAND     =&gt; <span id="var">$self</span>-&gt;<span id="method">get_strand</span>,
 			CHR        =&gt; <span id="var">$self</span>-&gt;<span id="method">get_chr</span>,
@@ -121,7 +121,7 @@ SplicedLocus documentation.
 <span id="comment"># 	warn &quot;Method &quot;.(caller(0))[3].&quot; has not been tested for bugs. Please check and remove warning&quot;;</span><br />	<span id="perlKey">my</span> <span id="var">$exon_starts</span> = <span id="var">$self</span>-&gt;<span id="method">get_splice_starts</span>;
 	<span id="perlKey">my</span> <span id="var">$exon_stops</span> = <span id="var">$self</span>-&gt;<span id="method">get_splice_stops</span>;
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_start</span> &lt; $$exon_starts<span id="braces">[</span>0<span id="braces">]</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="var">$self</span>-&gt;<span id="method">push_intron</span><span id="braces">(</span><span id="module"><a href="Transcript/Intron.html">MyBio::Transcript::Intron</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+		<span id="var">$self</span>-&gt;<span id="method">push_intron</span><span id="braces">(</span><span id="module"><a href="Transcript/Intron.html">GenOO::Transcript::Intron</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 			SPECIES    =&gt; <span id="var">$self</span>-&gt;<span id="method">get_species</span>,
 			STRAND     =&gt; <span id="var">$self</span>-&gt;<span id="method">get_strand</span>,
 			CHR        =&gt; <span id="var">$self</span>-&gt;<span id="method">get_chr</span>,
@@ -131,7 +131,7 @@ SplicedLocus documentation.
 		<span id="braces">}</span><span id="braces">)</span><span id="braces">)</span>;
 	<span id="braces">}</span>
 	<span id="perlKey">for</span> <span id="braces">(</span><span id="perlKey">my</span> <span id="var">$i</span>=1;<span id="var">$i</span>&lt;@<span id="braces">{</span><span id="var">$exon_starts</span><span id="braces">}</span>;<span id="var">$i</span>++<span id="braces">)</span> <span id="braces">{</span>
-		<span id="var">$self</span>-&gt;<span id="method">push_intron</span><span id="braces">(</span><span id="module"><a href="Transcript/Intron.html">MyBio::Transcript::Intron</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+		<span id="var">$self</span>-&gt;<span id="method">push_intron</span><span id="braces">(</span><span id="module"><a href="Transcript/Intron.html">GenOO::Transcript::Intron</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 			SPECIES    =&gt; <span id="var">$self</span>-&gt;<span id="method">get_species</span>,
 			STRAND     =&gt; <span id="var">$self</span>-&gt;<span id="method">get_strand</span>,
 			CHR        =&gt; <span id="var">$self</span>-&gt;<span id="method">get_chr</span>,
@@ -141,7 +141,7 @@ SplicedLocus documentation.
 		<span id="braces">}</span><span id="braces">)</span><span id="braces">)</span>;
 	<span id="braces">}</span>
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_stop</span> &gt; $$exon_stops<span id="braces">[</span>-1<span id="braces">]</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="var">$self</span>-&gt;<span id="method">push_intron</span><span id="braces">(</span><span id="module"><a href="Transcript/Intron.html">MyBio::Transcript::Intron</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+		<span id="var">$self</span>-&gt;<span id="method">push_intron</span><span id="braces">(</span><span id="module"><a href="Transcript/Intron.html">GenOO::Transcript::Intron</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 			SPECIES    =&gt; <span id="var">$self</span>-&gt;<span id="method">get_species</span>,
 			STRAND     =&gt; <span id="var">$self</span>-&gt;<span id="method">get_strand</span>,
 			CHR        =&gt; <span id="var">$self</span>-&gt;<span id="method">get_chr</span>,
@@ -169,7 +169,7 @@ SplicedLocus documentation.
 	
 	<span id="perlKey">my</span> <span id="var">$junctions_count</span> = <span id="var">@junction_starts</span> == <span id="var">@junction_stops</span> ? <span id="var">@junction_starts</span> : <span id="perlFunc">die</span> <span id="dqStr">"Junctions starts are not of the same size as junction stops\n"</span>;
 	<span id="perlKey">for</span> <span id="braces">(</span><span id="perlKey">my</span> <span id="var">$i</span>=0;<span id="var">$i</span>&lt;<span id="var">$junctions_count</span>;<span id="var">$i</span>++<span id="braces">)</span> <span id="braces">{</span>
-		<span id="perlFunc">push</span> <span id="var">@junctions</span>, <span id="module"><a href="Junction.html">MyBio::Junction</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+		<span id="perlFunc">push</span> <span id="var">@junctions</span>, <span id="module"><a href="Junction.html">GenOO::Junction</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 			SPECIES      =&gt; <span id="var">$self</span>-&gt;<span id="method">get_species</span>,
 			STRAND       =&gt; <span id="var">$self</span>-&gt;<span id="method">get_strand</span>,
 			CHR          =&gt; <span id="var">$self</span>-&gt;<span id="method">get_chr</span>,
@@ -244,7 +244,7 @@ SplicedLocus documentation.
 	<span id="perlKey">my</span> <span id="var">@junctions</span> = <span id="braces">(</span><span id="braces">)</span>;
 	<span id="perlKey">foreach</span> <span id="perlKey">my</span> <span id="var">$exon</span> <span id="braces">(</span>@<span id="braces">{</span><span id="var">$self</span>-&gt;<span id="method">get_exons</span><span id="braces">}</span><span id="braces">)</span> <span id="braces">{</span>
 		<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_start</span> &lt; <span id="var">$exon</span>-&gt;<span id="method">get_start</span><span id="braces">)</span> <span id="braces">{</span>
-			<span id="perlFunc">push</span> <span id="var">@junctions</span>,<span id="module"><a href="Locus.html">MyBio::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+			<span id="perlFunc">push</span> <span id="var">@junctions</span>,<span id="module"><a href="Locus.html">GenOO::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 				STRAND       =&gt; <span id="var">$exon</span>-&gt;<span id="method">get_strand</span>,
 				CHR          =&gt; <span id="var">$exon</span>-&gt;<span id="method">get_chr</span>,
 				START        =&gt; <span id="var">$exon</span>-&gt;<span id="method">get_start</span>-1,
@@ -252,7 +252,7 @@ SplicedLocus documentation.
 			<span id="braces">}</span><span id="braces">)</span>;
 		<span id="braces">}</span>
 		<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_stop</span> &gt; <span id="var">$exon</span>-&gt;<span id="method">get_stop</span><span id="braces">)</span> <span id="braces">{</span>
-			<span id="perlFunc">push</span> <span id="var">@junctions</span>,<span id="module"><a href="Locus.html">MyBio::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+			<span id="perlFunc">push</span> <span id="var">@junctions</span>,<span id="module"><a href="Locus.html">GenOO::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 				STRAND       =&gt; <span id="var">$exon</span>-&gt;<span id="method">get_strand</span>,
 				CHR          =&gt; <span id="var">$exon</span>-&gt;<span id="method">get_chr</span>,
 				START        =&gt; <span id="var">$exon</span>-&gt;<span id="method">get_stop</span>,

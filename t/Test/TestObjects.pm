@@ -4,7 +4,7 @@ use strict;
 ################################################
 ################### Locus ######################
 ################################################
-sub get_testobject_MyBio_Locus {
+sub get_testobject_GenOO_Locus {
 	return [
 		{
 			#this is a generic object of the class
@@ -43,9 +43,9 @@ sub get_testobject_MyBio_Locus {
 }
 
 ################################################
-############## MyBio::NGS::Tag #################
+############## GenOO::NGS::Tag #################
 ################################################
-sub get_testobject_MyBio_NGS_Tag {
+sub get_testobject_GenOO_NGS_Tag {
 	return [
 		{
 			#this is a generic object of the class

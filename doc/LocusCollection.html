@@ -6,35 +6,35 @@ LocusCollection documentation.
 <link rel="stylesheet" type="text/css" href="perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio</span>
+<span id="modRootPath">GenOO</span>
 <span id="modName">LocusCollection</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#libs">Included libraries</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::LocusCollection</B> - Object for a collection of MyBio::Locus objects, with features</div>
+<div id="descArea"><B>GenOO::LocusCollection</B> - Object for a collection of GenOO::Locus objects, with features</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry">No package variables defined.</div>
 </div>
 <div id="sep"></div>
 <div id="descTitle">Included modules</div>
-<div id="descArea"><div id="libEntry"><span id="use"><a href="Locus.html">MyBio::Locus</a></span> </div>
-<div id="libEntry"><span id="use"><a href="LocusCollection/Stats.html">MyBio::LocusCollection::Stats</a></span> </div>
-<div id="libEntry"><span id="use"><a href="MySub.html">MyBio::MySub</a></span> </div>
+<div id="descArea"><div id="libEntry"><span id="use"><a href="Locus.html">GenOO::Locus</a></span> </div>
+<div id="libEntry"><span id="use"><a href="LocusCollection/Stats.html">GenOO::LocusCollection::Stats</a></span> </div>
+<div id="libEntry"><span id="use"><a href="MySub.html">GenOO::MySub</a></span> </div>
 </div>
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="_Initializable.html">MyBio::_Initializable</a></span> </div>
+<div id="descArea"><span id="isa"><a href="_Initializable.html">GenOO::_Initializable</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
-<div id="descArea"><pre id="podParagraph">    # Object that manages a collection of MyBio::Locus objects. 
+<div id="descArea"><pre id="podParagraph">    # Object that manages a collection of GenOO::Locus objects. 
 
     # To initialize 
-    my $locus_collection = <B>MyBio::LocusCollection</B>->new({
+    my $locus_collection = <B>GenOO::LocusCollection</B>->new({
         NAME            => undef,
         SPECIES         => undef,
         DESCRIPTION     => undef,
@@ -47,7 +47,7 @@ LocusCollection documentation.
 <div id="descTitle">Description</div>
 <div id="descArea"><pre id="podParagraph">    The primary data structure of this object is a 2D hash whose primary key is the strand 
     and its secondary key is the chromosome name. Each such pair of keys correspond to an
-    array reference which stores objects of the class <a href="Locus.html" target="urlWin" id="podUrl"><b>MyBio::Locus</b></a> sorted by start position.</pre>
+    array reference which stores objects of the class <a href="Locus.html" target="urlWin" id="podUrl"><b>GenOO::Locus</b></a> sorted by start position.</pre>
 </div>
 <div id="sep"></div>
 <a name="Methods" id="Methods"></a>
@@ -95,7 +95,7 @@ LocusCollection documentation.
 <div id="mainTitle">Methods description</div>
 <div id="sep"></div>
 <table id="methDescTitle" width="100%"><tr><td WIDTH="200"><a name="_pod_annotate_entries_contained_in_collection" id="_pod_annotate_entries_contained_in_collection"></a><a name="POD1" id="POD1"></a>annotate_entries_contained_in_collection</td><td ><a href="#CODE3">code</a></td><td >&nbsp;&nbsp;&nbsp;&nbsp;</td><td ><a href="#POD2">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
-<table id="methDescArea" width="100%"><tr><td><pre id="podParagraph">  Arg [1]    : MyBio::LocusCollection. A locus collection against which $self is compared.
+<table id="methDescArea" width="100%"><tr><td><pre id="podParagraph">  Arg [1]    : GenOO::LocusCollection. A locus collection against which $self is compared.
   Example    : $locus_collection->annotate_entries_contained_in_collection($locus_collection2)
   Description: Sets for all entries in the $self locus collection the overlap attribute.
                This attribute indicates whether the entry overlaps with any of the entries on the reference locus collection.
@@ -105,7 +105,7 @@ LocusCollection documentation.
   Status     : Experimental / Unstable</pre></td></tr></table>
 <div id="sep"></div>
 <table id="methDescTitle" width="100%"><tr><td WIDTH="200"><a name="_pod_annotate_entries_overlapping_with_collection" id="_pod_annotate_entries_overlapping_with_collection"></a><a name="POD2" id="POD2"></a>annotate_entries_overlapping_with_collection</td><td ><a href="#CODE4">code</a></td><td ><a href="#POD1">prev</a></td><td ><a href="#POD3">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
-<table id="methDescArea" width="100%"><tr><td><pre id="podParagraph">  Arg [1]    : MyBio::LocusCollection. A locus collection against which $self is compared. 
+<table id="methDescArea" width="100%"><tr><td><pre id="podParagraph">  Arg [1]    : GenOO::LocusCollection. A locus collection against which $self is compared. 
   Arg [2]    : hash reference. Defines parameters for the overlap.
   Example    : $locus_collection->annotate_entries_overlapping_with_collection($locus_collection2, {OFFSET  => 0})
   Description: Sets the overlap attribute for entries. This indicates if the entry overlaps with any entry on the reference locus collection.
@@ -286,7 +286,7 @@ LocusCollection documentation.
 				<span id="braces">}</span>
 				<span id="perlKey">foreach</span> <span id="perlKey">my</span> <span id="var">$pos</span> <span id="braces">(</span><span id="perlFunc">keys</span> <span id="var">%count</span><span id="braces">)</span> <span id="braces">{</span>
 					<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$start</span>, <span id="var">$stop</span><span id="braces">)</span> = <span id="perlFunc">split</span><span id="braces">(</span><span id="regExp">/\|/</span>,<span id="var">$pos</span><span id="braces">)</span>;
-					<span id="perlKey">my</span> <span id="var">$entryObj</span> = <span id="module"><a href="Locus.html">MyBio::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+					<span id="perlKey">my</span> <span id="var">$entryObj</span> = <span id="module"><a href="Locus.html">GenOO::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 						CHR           =&gt; <span id="var">$chr</span>,
 						START         =&gt; <span id="var">$start</span>,
 						STOP          =&gt; <span id="var">$stop</span>,
@@ -325,7 +325,7 @@ LocusCollection documentation.
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">entries_iterator</span>
 {<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span><span id="braces">)</span> = <span id="var">@_</span>;
 	
-	<span id="perlKey">return</span> <span id="module"><a href="LocusCollection/Iterator.html">MyBio::LocusCollection::Iterator</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+	<span id="perlKey">return</span> <span id="module"><a href="LocusCollection/Iterator.html">GenOO::LocusCollection::Iterator</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 		DATA_STRUCTURE =&gt; <span id="var">$self</span>-&gt;<span id="method">entries</span>,
 	<span id="braces">}</span><span id="braces">)</span>;</pre>}</td></div>
 <div id="sep"></div>
@@ -388,7 +388,7 @@ LocusCollection documentation.
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE19" id="CODE19"></a>init_stats</td><td >description</td><td ><a href="#CODE18">prev</a></td><td ><a href="#CODE20">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">init_stats</span>
 {<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span><span id="braces">)</span> = <span id="var">@_</span>;
-	<span id="var">$self</span>-&gt;<span id="braces">{</span>STATS<span id="braces">}</span> = <span id="module"><a href="LocusCollection/Stats.html">MyBio::LocusCollection::Stats</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+	<span id="var">$self</span>-&gt;<span id="braces">{</span>STATS<span id="braces">}</span> = <span id="module"><a href="LocusCollection/Stats.html">GenOO::LocusCollection::Stats</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 		COLLECTION =&gt; <span id="var">$self</span>
 	<span id="braces">}</span><span id="braces">)</span>;</pre>}</td></div>
 <div id="sep"></div>
@@ -559,7 +559,7 @@ LocusCollection documentation.
 			<span id="perlFunc">warn</span> <span id="dqStr">"Skipping chromosome. File <span id="var">$chr_file</span> does not exist"</span>;
 			<span id="perlKey">next</span>;
 		<span id="braces">}</span>
-		<span id="perlKey">my</span> <span id="var">$chr_seq</span> = <span id="perlFunc">join</span><span id="braces">(</span><span id="sqStr">''</span>,<span id="perlFunc">map</span><span id="braces">{</span><span id="sqStr">'N'</span><span id="braces">}</span> <span id="braces">(</span>1..<span id="var">$maxflank</span><span id="braces">)</span><span id="braces">)</span>.<span id="module"><a href="MySub.html">MyBio::MySub</a></span>::<span id="method">read_fasta</span><span id="braces">(</span><span id="var">$chr_file</span>,<span id="dqStr">"<span id="var">$chr</span>"</span><span id="braces">)</span>.<span id="perlFunc">join</span><span id="braces">(</span><span id="sqStr">''</span>,<span id="perlFunc">map</span><span id="braces">{</span><span id="sqStr">'N'</span><span id="braces">}</span> <span id="braces">(</span>1..<span id="var">$maxflank</span><span id="braces">)</span><span id="braces">)</span>;
+		<span id="perlKey">my</span> <span id="var">$chr_seq</span> = <span id="perlFunc">join</span><span id="braces">(</span><span id="sqStr">''</span>,<span id="perlFunc">map</span><span id="braces">{</span><span id="sqStr">'N'</span><span id="braces">}</span> <span id="braces">(</span>1..<span id="var">$maxflank</span><span id="braces">)</span><span id="braces">)</span>.<span id="module"><a href="MySub.html">GenOO::MySub</a></span>::<span id="method">read_fasta</span><span id="braces">(</span><span id="var">$chr_file</span>,<span id="dqStr">"<span id="var">$chr</span>"</span><span id="braces">)</span>.<span id="perlFunc">join</span><span id="braces">(</span><span id="sqStr">''</span>,<span id="perlFunc">map</span><span id="braces">{</span><span id="sqStr">'N'</span><span id="braces">}</span> <span id="braces">(</span>1..<span id="var">$maxflank</span><span id="braces">)</span><span id="braces">)</span>;
 		
 		<span id="perlKey">foreach</span> <span id="perlKey">my</span> <span id="var">$strand</span> <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">strands</span><span id="braces">)</span> <span id="braces">{</span>
 			<span id="perlKey">my</span> <span id="var">$entries_array_ref</span> = $$entries_ref<span id="braces">{</span><span id="var">$strand</span><span id="braces">}</span><span id="braces">{</span><span id="var">$chr</span><span id="braces">}</span>;
@@ -632,7 +632,7 @@ LocusCollection documentation.
 				<span id="perlKey">my</span> <span id="var">$last_positive_entry_index</span> = 0;
 				<span id="perlFunc">print</span> <span id="var">$OUT</span> <span id="dqStr">"variableStep chrom=chr<span id="var">$chr</span> span=$step\n"</span>;
 				<span id="perlKey">for</span> <span id="braces">(</span><span id="perlKey">my</span> <span id="var">$start</span> = <span id="var">$window</span>; <span id="var">$start</span> &lt; <span id="var">$lastend</span>; <span id="var">$start</span> += <span id="var">$step</span><span id="braces">)</span> <span id="braces">{</span>
-					<span id="perlKey">my</span> <span id="var">$wiglocus</span> = <span id="module"><a href="Locus.html">MyBio::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+					<span id="perlKey">my</span> <span id="var">$wiglocus</span> = <span id="module"><a href="Locus.html">GenOO::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 						STRAND       =&gt; <span id="var">$strand</span>,
 						CHR          =&gt; <span id="var">$chr</span>,
 						START        =&gt; <span id="var">$start</span>,
@@ -688,7 +688,7 @@ LocusCollection documentation.
 	<span id="perlKey">foreach</span> <span id="perlKey">my</span> <span id="var">$chr</span> <span id="braces">(</span><span id="var">@chromosomes_for_all_strands</span><span id="braces">)</span> <span id="braces">{</span>
 		<span id="perlKey">my</span> <span id="var">$chr_file</span> = <span id="var">$chr_folder</span>.<span id="dqStr">"/chr<span id="var">$chr</span>.fa"</span>;
 		<span id="perlKey">if</span> <span id="braces">(</span>-e <span id="var">$chr_file</span><span id="braces">)</span> <span id="braces">{</span>
-			<span id="perlKey">my</span> <span id="var">$chr_seq</span> = <span id="module"><a href="MySub.html">MyBio::MySub</a></span>::<span id="method">read_fasta</span><span id="braces">(</span><span id="var">$chr_file</span>,<span id="dqStr">"chr<span id="var">$chr</span>"</span><span id="braces">)</span>;
+			<span id="perlKey">my</span> <span id="var">$chr_seq</span> = <span id="module"><a href="MySub.html">GenOO::MySub</a></span>::<span id="method">read_fasta</span><span id="braces">(</span><span id="var">$chr_file</span>,<span id="dqStr">"chr<span id="var">$chr</span>"</span><span id="braces">)</span>;
 			<span id="perlKey">unless</span> <span id="braces">(</span><span id="perlFunc">defined</span> <span id="var">$chr_seq</span><span id="braces">)</span><span id="braces">{</span><span id="perlFunc">die</span> <span id="dqStr">"No Chromosome Sequence chr$chr\n"</span>;<span id="braces">}</span>
 			
 			<span id="perlKey">foreach</span> <span id="perlKey">my</span> <span id="var">$strand</span> <span id="braces">(</span><span id="perlFunc">keys</span> %<span id="braces">{</span><span id="var">$entries_ref</span><span id="braces">}</span><span id="braces">)</span> <span id="braces">{</span>

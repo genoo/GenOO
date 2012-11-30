@@ -6,14 +6,14 @@ Gene documentation.
 <link rel="stylesheet" type="text/css" href="perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio</span>
+<span id="modRootPath">GenOO</span>
 <span id="modName">Gene</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#libs">Included libraries</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::Gene</B> - Gene object, with features</div>
+<div id="descArea"><B>GenOO::Gene</B> - Gene object, with features</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry"><div id="descSubTitle">Privates (from <b>"my"</b> definitions)</div>
@@ -21,21 +21,21 @@ Gene documentation.
 <div id="libEntry"><span id="var">%all_gene_ensgids</span>;</div>
 <div id="libEntry"><span id="var">%all_gene_names</span>;</div>
 <div id="libEntry"><span id="var">$DBconnector</span>;</div>
-<div id="libEntry"><span id="var">$accessPolicy</span> = <span id="module"><a href="DBconnector.html">MyBio::DBconnector</a></span>-&gt;<span id="method">global_access</span><span id="braces">(</span><span id="braces">)</span></div>
+<div id="libEntry"><span id="var">$accessPolicy</span> = <span id="module"><a href="DBconnector.html">GenOO::DBconnector</a></span>-&gt;<span id="method">global_access</span><span id="braces">(</span><span id="braces">)</span></div>
 <div id="libEntry"><span id="var">%all_gene_ids</span>;</div>
 <div id="libEntry"><span id="var">$select_all_from_genes_where_ensgid</span>;</div>
 <div id="libEntry"><span id="var">$select_all_from_genes_where_ensgid_Query</span> = <span id="perlFunc">qq</span><span id="dqStr">/<span id="regExp">/</span>/</span>SELECT * FROM diana_protein_genes WHERE diana_protein_genes.ensgid=?/</div>
 </div>
 <div id="sep"></div>
 <div id="descTitle">Included modules</div>
-<div id="descArea"><div id="libEntry"><span id="use"><a href="DBconnector.html">MyBio::DBconnector</a></span> </div>
-<div id="libEntry"><span id="use"><a href="Helper/Locus.html">MyBio::Helper::Locus</a></span> </div>
+<div id="descArea"><div id="libEntry"><span id="use"><a href="DBconnector.html">GenOO::DBconnector</a></span> </div>
+<div id="libEntry"><span id="use"><a href="Helper/Locus.html">GenOO::Helper::Locus</a></span> </div>
 <div id="libEntry"><span id="use">Object::ID</span> </div>
 </div>
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="Locus.html">MyBio::Locus</a></span> </div>
+<div id="descArea"><span id="isa"><a href="Locus.html">GenOO::Locus</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
@@ -43,7 +43,7 @@ Gene documentation.
     # It represents a gene (a genomic region and a collection of transcripts)
     
     # To initialize 
-    my $transcript = MyBio::Transcript->new({
+    my $transcript = GenOO::Transcript->new({
         INTERNAL_ID    => undef,
         SPECIES        => undef,
         STRAND         => undef,
@@ -61,7 +61,7 @@ Gene documentation.
 <div id="sep"></div>
 <a name="DESCRIPTION" id="DESCRIPTION"></a>
 <div id="descTitle">Description</div>
-<div id="descArea"><pre id="podParagraph">    <B>MyBio::Gene</B> describes a gene. A gene is defined as a locus and as a collection of transcript. This means that it has
+<div id="descArea"><pre id="podParagraph">    <B>GenOO::Gene</B> describes a gene. A gene is defined as a locus and as a collection of transcript. This means that it has
     genomic location attributes which are set in respect to the start and stop positions of its contained transcripts. 
     Whenever a transcript is added to a gene object the genomic coordinates of the gene are automatically updated. 
     It is not clear if the gene should have attributes like the biotype as it is not definite whether its contained
@@ -124,31 +124,31 @@ Gene documentation.
 <table id="methDescTitle" width="100%"><tr><td WIDTH="200"><a name="_pod_get_by_ensgid" id="_pod_get_by_ensgid"></a><a name="POD1" id="POD1"></a>get_by_ensgid</td><td ><a href="#CODE17">code</a></td><td >&nbsp;&nbsp;&nbsp;&nbsp;</td><td ><a href="#POD2">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <table id="methDescArea" width="100%"><tr><td><pre id="podParagraph">  Arg [1]    : string $ensgid
                The Ensembl id of the gene.
-  Example    : <B>MyBio::Gene</B>->get_by_ensgid;
+  Example    : <B>GenOO::Gene</B>->get_by_ensgid;
   Description: Class method that returns the object which corresponds to the provided Ensembl gene id.
                If no object is found, then depending on the database access policy the method either attempts
                to create a new object or returns undef
-  Returntype : <B>MyBio::Gene</B> / undef
+  Returntype : <B>GenOO::Gene</B> / undef
   Caller     : ?
   Status     : Stable</pre></td></tr></table>
 <div id="sep"></div>
 <table id="methDescTitle" width="100%"><tr><td WIDTH="200"><a name="_pod_get_by_id" id="_pod_get_by_id"></a><a name="POD2" id="POD2"></a>get_by_id</td><td ><a href="#CODE18">code</a></td><td ><a href="#POD1">prev</a></td><td ><a href="#POD3">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <table id="methDescArea" width="100%"><tr><td><pre id="podParagraph">  Arg [1]    : string $id
                The primary id of the gene.
-  Example    : <B>MyBio::Gene</B>->get_by_id;
+  Example    : <B>GenOO::Gene</B>->get_by_id;
   Description: Class method that returns the object which corresponds to the provided primary gene id.
                If no object is found returns undef
-  Returntype : <B>MyBio::Gene</B> / undef
+  Returntype : <B>GenOO::Gene</B> / undef
   Caller     : ?
   Status     : Under development</pre></td></tr></table>
 <div id="sep"></div>
 <table id="methDescTitle" width="100%"><tr><td WIDTH="200"><a name="_pod_get_by_name" id="_pod_get_by_name"></a><a name="POD3" id="POD3"></a>get_by_name</td><td ><a href="#CODE19">code</a></td><td ><a href="#POD2">prev</a></td><td ><a href="#POD4">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <table id="methDescArea" width="100%"><tr><td><pre id="podParagraph">  Arg [1]    : string $ensgid
                The name of the gene.
-  Example    : <B>MyBio::Gene</B>->get_by_name;
+  Example    : <B>GenOO::Gene</B>->get_by_name;
   Description: Class method that returns a reference to an array of object which correspond to the provided gene name.
                If no matching object is found a reference to an empty array is returned.
-  Returntype : <B>MyBio::Gene</B> / []
+  Returntype : <B>GenOO::Gene</B> / []
   Caller     : ?
   Status     : Stable</pre></td></tr></table>
 <div id="sep"></div>
@@ -265,12 +265,12 @@ Gene documentation.
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE8" id="CODE8"></a>add_transcript</td><td >description</td><td ><a href="#CODE7">prev</a></td><td ><a href="#CODE9">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">add_transcript</span>
 {<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span>,<span id="var">$transcript</span><span id="braces">)</span> = <span id="var">@_</span>;
-	<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">defined</span> <span id="var">$transcript</span> and <span id="braces">(</span><span id="var">$transcript</span>-&gt;<span id="method">isa</span><span id="braces">(</span><span id="sqStr">'MyBio::Transcript'</span><span id="braces">)</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
+	<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">defined</span> <span id="var">$transcript</span> and <span id="braces">(</span><span id="var">$transcript</span>-&gt;<span id="method">isa</span><span id="braces">(</span><span id="sqStr">'GenOO::Transcript'</span><span id="braces">)</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
 		<span id="var">$self</span>-&gt;<span id="method">update_info_from_transcript</span><span id="braces">(</span><span id="var">$transcript</span><span id="braces">)</span>;
 		<span id="perlFunc">push</span> <span id="braces">(</span>@<span id="braces">{</span><span id="var">$self</span>-&gt;<span id="braces">{</span>TRANSCRIPTS<span id="braces">}</span><span id="braces">}</span>,<span id="var">$transcript</span><span id="braces">)</span>;
 	<span id="braces">}</span>
 	<span id="perlKey">else</span> <span id="braces">{</span>
-		<span id="perlFunc">warn</span> <span id="sqStr">'Object &quot;'</span>.<span id="perlFunc">ref</span><span id="braces">(</span><span id="var">$transcript</span><span id="braces">)</span>.<span id="sqStr">'&quot; is not MyBio::Transcript.    skipped'</span>;
+		<span id="perlFunc">warn</span> <span id="sqStr">'Object &quot;'</span>.<span id="perlFunc">ref</span><span id="braces">(</span><span id="var">$transcript</span><span id="braces">)</span>.<span id="sqStr">'&quot; is not GenOO::Transcript.    skipped'</span>;
 	<span id="braces">}</span></pre>}</td></div>
 <div id="sep"></div>
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE9" id="CODE9"></a>allow_database_access</td><td >description</td><td ><a href="#CODE8">prev</a></td><td ><a href="#CODE10">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
@@ -488,12 +488,12 @@ Gene documentation.
 				<span id="perlKey">else</span> <span id="braces">{</span><span id="perlFunc">print</span> STDERR <span id="sqStr">'Choice not recognised. Please specify (y/n)'</span>.<span id="dqStr">"\n"</span>;<span id="braces">}</span>
 			<span id="braces">}</span>
 			<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$accessPolicy</span> <span id="perlKey">eq</span> <span id="sqStr">'ALLOW'</span><span id="braces">)</span> <span id="braces">{</span>
-				<span id="perlKey">if</span> <span id="braces">(</span><span id="module"><a href="DBconnector.html">MyBio::DBconnector</a></span>-&gt;<span id="perlFunc">exists</span><span id="braces">(</span><span id="dqStr">"core"</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
-					<span id="var">$DBconnector</span> = <span id="module"><a href="DBconnector.html">MyBio::DBconnector</a></span>-&gt;<span id="method">get_dbconnector</span><span id="braces">(</span><span id="dqStr">"core"</span><span id="braces">)</span>;
+				<span id="perlKey">if</span> <span id="braces">(</span><span id="module"><a href="DBconnector.html">GenOO::DBconnector</a></span>-&gt;<span id="perlFunc">exists</span><span id="braces">(</span><span id="dqStr">"core"</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
+					<span id="var">$DBconnector</span> = <span id="module"><a href="DBconnector.html">GenOO::DBconnector</a></span>-&gt;<span id="method">get_dbconnector</span><span id="braces">(</span><span id="dqStr">"core"</span><span id="braces">)</span>;
 				<span id="braces">}</span>
 				<span id="perlKey">else</span> <span id="braces">{</span>
 					<span id="perlFunc">print</span> STDERR <span id="dqStr">"\nRequesting database connector for class $class\n"</span>;
-					<span id="var">$DBconnector</span> = <span id="module"><a href="DBconnector.html">MyBio::DBconnector</a></span>-&gt;<span id="method">get_dbconnector</span><span id="braces">(</span><span id="var">$class</span><span id="braces">)</span>;
+					<span id="var">$DBconnector</span> = <span id="module"><a href="DBconnector.html">GenOO::DBconnector</a></span>-&gt;<span id="method">get_dbconnector</span><span id="braces">(</span><span id="var">$class</span><span id="braces">)</span>;
 				<span id="braces">}</span>
 			<span id="braces">}</span>
 		<span id="braces">}</span>
@@ -518,7 +518,7 @@ Gene documentation.
 		<span id="braces">}</span>
 	<span id="braces">}</span>
 	
-	<span id="perlKey">my</span> <span id="var">$merged_exons</span> = <span id="module"><a href="Helper/Locus.html">MyBio::Helper::Locus</a></span>::<span id="method">merge</span><span id="braces">(</span>\<span id="var">@exons</span><span id="braces">)</span>;
+	<span id="perlKey">my</span> <span id="var">$merged_exons</span> = <span id="module"><a href="Helper/Locus.html">GenOO::Helper::Locus</a></span>::<span id="method">merge</span><span id="braces">(</span>\<span id="var">@exons</span><span id="braces">)</span>;
 	
 	<span id="perlKey">my</span> <span id="var">$exon_length</span> = 0;
 	<span id="perlKey">foreach</span> <span id="perlKey">my</span> <span id="var">$exon</span> <span id="braces">(</span>@$merged_exons<span id="braces">)</span> <span id="braces">{</span>
@@ -546,7 +546,7 @@ Gene documentation.
 		<span id="braces">}</span>
 	<span id="braces">}</span>
 	
-	<span id="perlKey">return</span> <span id="module"><a href="Helper/Locus.html">MyBio::Helper::Locus</a></span>::<span id="method">merge</span><span id="braces">(</span>\<span id="var">@exons</span><span id="braces">)</span>;</pre>}</td></div>
+	<span id="perlKey">return</span> <span id="module"><a href="Helper/Locus.html">GenOO::Helper::Locus</a></span>::<span id="method">merge</span><span id="braces">(</span>\<span id="var">@exons</span><span id="braces">)</span>;</pre>}</td></div>
 <div id="sep"></div>
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE30" id="CODE30"></a>get_name</td><td >description</td><td ><a href="#CODE29">prev</a></td><td ><a href="#CODE31">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">get_name</span>
@@ -660,8 +660,8 @@ Gene documentation.
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">set_transcripts</span>
 {<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span>,<span id="var">$transcripts_ref</span><span id="braces">)</span> = <span id="var">@_</span>;
 	<span id="perlKey">foreach</span> <span id="perlKey">my</span> <span id="var">$transcript</span> <span id="braces">(</span>@$transcripts_ref<span id="braces">)</span> <span id="braces">{</span>
-		<span id="perlKey">unless</span> <span id="braces">(</span><span id="var">$transcript</span>-&gt;<span id="method">isa</span><span id="braces">(</span><span id="sqStr">'MyBio::Transcript'</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
-			<span id="perlFunc">die</span> <span id="sqStr">'Object &quot;'</span>.<span id="perlFunc">ref</span><span id="braces">(</span><span id="var">$transcript</span><span id="braces">)</span>.<span id="sqStr">'&quot; is not MyBio::Transcript.'</span>;
+		<span id="perlKey">unless</span> <span id="braces">(</span><span id="var">$transcript</span>-&gt;<span id="method">isa</span><span id="braces">(</span><span id="sqStr">'GenOO::Transcript'</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
+			<span id="perlFunc">die</span> <span id="sqStr">'Object &quot;'</span>.<span id="perlFunc">ref</span><span id="braces">(</span><span id="var">$transcript</span><span id="braces">)</span>.<span id="sqStr">'&quot; is not GenOO::Transcript.'</span>;
 		<span id="braces">}</span>
 		<span id="var">$self</span>-&gt;<span id="method">update_info_from_transcript</span><span id="braces">(</span><span id="var">$transcript</span><span id="braces">)</span>;
 	<span id="braces">}</span>
@@ -705,7 +705,7 @@ Gene documentation.
 <div id="mainTitle">General documentation</div>
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_EXAMPLES" id="_pod_EXAMPLES"></a>EXAMPLES</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
-<div id="genInfoArea"><pre id="podParagraph">    my $gene = <B>MyBio::Gene</B>->get_by_ensgid('ENSG00000000143'); # using the class method to get the corresponding object</pre></div>
+<div id="genInfoArea"><pre id="podParagraph">    my $gene = <B>GenOO::Gene</B>->get_by_ensgid('ENSG00000000143'); # using the class method to get the corresponding object</pre></div>
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_AUTHOR - Manolis Maragkakis, Panagiotis Alexiou" id="_pod_AUTHOR - Manolis Maragkakis, Panagiotis Alexiou"></a>AUTHOR - Manolis Maragkakis, Panagiotis Alexiou</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="genInfoArea">Email <a href="mailto:em.maragkakis@gmail.com" id="podEmail">em.maragkakis@gmail.com</a>, <a href="mailto:pan.alexiou@fleming.gr" id="podEmail">pan.alexiou@fleming.gr</a></div>

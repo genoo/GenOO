@@ -2,14 +2,14 @@
 use warnings;
 use strict;
 
-use Test::Class::Load qw(t/Test/MyBio/);
+use Test::Class::Load qw(t/Test/GenOO/);
 Test::Class->runtests;
 
 # use File::Find;
 # 
 # BEGIN { 
 # 	
-# 	find(\&load, 't/Test/MyBio/');
+# 	find(\&load, 't/Test/GenOO/');
 # 	
 # 	sub load {
 # 		my $filename = $_;

@@ -6,21 +6,21 @@ Locus documentation.
 <link rel="stylesheet" type="text/css" href="../perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio::Helper</span>
+<span id="modRootPath">GenOO::Helper</span>
 <span id="modName">Locus</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::Helper::Locus</B> - Helper functions which could not fit in MyBio::Locus class</div>
+<div id="descArea"><B>GenOO::Helper::Locus</B> - Helper functions which could not fit in GenOO::Locus class</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry">No package variables defined.</div>
 </div>
 <div id="sep"></div>
 <div id="descTitle">Included modules</div>
-<div id="descArea"><div id="libEntry"><span id="use"><a href="../Locus.html">MyBio::Locus</a></span> </div>
+<div id="descArea"><div id="libEntry"><span id="use"><a href="../Locus.html">GenOO::Locus</a></span> </div>
 </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
@@ -46,24 +46,24 @@ Locus documentation.
 <div id="mainTitle">Methods description</div>
 <div id="sep"></div>
 <table id="methDescTitle" width="100%"><tr><td WIDTH="200"><a name="_pod_merge" id="_pod_merge"></a><a name="POD1" id="POD1"></a>merge</td><td ><a href="#CODE1">code</a></td><td >&nbsp;&nbsp;&nbsp;&nbsp;</td><td ><a href="#POD2">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
-<table id="methDescArea" width="100%"><tr><td><pre id="podParagraph">  Arg [1]    : array reference of MyBio::Locus objects or objects that inherit from this class.
+<table id="methDescArea" width="100%"><tr><td><pre id="podParagraph">  Arg [1]    : array reference of GenOO::Locus objects or objects that inherit from this class.
                The loci to be merged.
   Arg [2]    : hash reference with parameters
                Supported params:
                                 a. OFFSET
                                 b. USE_STRAND
-  Example    : my ($merged_loci,$included_loci) = MyBio::Helper::Locus::merge(\@overlapping_loci, $params);
+  Example    : my ($merged_loci,$included_loci) = GenOO::Helper::Locus::merge(\@overlapping_loci, $params);
   Description: Function that gets as input a set of possibly overlapping loci and returns a new array of merged loci.
                When called in list context it also returns an array whose each element is a list of the initial loci which have been
                merged into the corresponding output merged locus. It merges overlapping loci into a new locus by calculating as start
                the smallest start and as stop the highest stop position of the loci that overalap.
-               If any of the entries in the input list is not a MyBio::Locus it invokes a warning and skips the corresponding entry.
+               If any of the entries in the input list is not a GenOO::Locus it invokes a warning and skips the corresponding entry.
                
   Returntype : In scalar context:
-                    [MyBio::Locus] / []
+                    [GenOO::Locus] / []
                In list context:
-                    [MyBio::Locus] / []
-                    [[MyBio::Locus]] / []
+                    [GenOO::Locus] / []
+                    [[GenOO::Locus]] / []
   Caller     : ?
   Status     : Development</pre></td></tr></table>
 <div id="sep"></div>
@@ -82,7 +82,7 @@ Locus documentation.
 	<span id="perlKey">my</span> <span id="var">@merged_loci</span>;
 	<span id="perlKey">my</span> <span id="var">@included_loci</span>;
 	<span id="perlKey">foreach</span> <span id="perlKey">my</span> <span id="var">$locus</span> <span id="braces">(</span><span id="var">@sorted_loci</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$locus</span>-&gt;<span id="method">isa</span><span id="braces">(</span><span id="sqStr">'MyBio::Locus'</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
+		<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$locus</span>-&gt;<span id="method">isa</span><span id="braces">(</span><span id="sqStr">'GenOO::Locus'</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
 			<span id="perlKey">my</span> <span id="var">$merged_locus</span> = <span id="var">$merged_loci</span><span id="braces">[</span>-1<span id="braces">]</span>;
 			<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">defined</span> <span id="var">$merged_locus</span> and <span id="var">$merged_locus</span>-&gt;<span id="method">overlaps</span><span id="braces">(</span><span id="var">$locus</span>,<span id="var">$offset</span>,<span id="var">$use_strand</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
 				<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">wantarray</span><span id="braces">)</span> <span id="braces">{</span>
@@ -93,14 +93,14 @@ Locus documentation.
 				<span id="braces">}</span>
 			<span id="braces">}</span>
 			<span id="perlKey">else</span> <span id="braces">{</span>
-				<span id="perlFunc">push</span> <span id="var">@merged_loci</span>,<span id="module"><a href="../Locus.html">MyBio::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="var">$locus</span><span id="braces">)</span>;
+				<span id="perlFunc">push</span> <span id="var">@merged_loci</span>,<span id="module"><a href="../Locus.html">GenOO::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="var">$locus</span><span id="braces">)</span>;
 				<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">wantarray</span><span id="braces">)</span> <span id="braces">{</span>
 					<span id="perlFunc">push</span> <span id="var">@included_loci</span>,<span id="braces">[</span><span id="var">$locus</span><span id="braces">]</span>;
 				<span id="braces">}</span>
 			<span id="braces">}</span>
 		<span id="braces">}</span>
 		<span id="perlKey">else</span> <span id="braces">{</span>
-			<span id="perlFunc">warn</span> <span id="sqStr">'Object &quot;'</span>.<span id="perlFunc">ref</span><span id="braces">(</span><span id="var">$locus</span><span id="braces">)</span>.<span id="sqStr">'&quot; is not MyBio::Locus and is skipped '</span>;
+			<span id="perlFunc">warn</span> <span id="sqStr">'Object &quot;'</span>.<span id="perlFunc">ref</span><span id="braces">(</span><span id="var">$locus</span><span id="braces">)</span>.<span id="sqStr">'&quot; is not GenOO::Locus and is skipped '</span>;
 		<span id="braces">}</span>
 	<span id="braces">}</span>
 	
@@ -115,7 +115,7 @@ Locus documentation.
 <div id="mainTitle">General documentation</div>
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_EXAMPLES" id="_pod_EXAMPLES"></a>EXAMPLES</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
-<div id="genInfoArea"><pre id="podParagraph">    my @merged_loci = MyBio::Helper::Locus::merge(\@overlapping_loci);</pre></div>
+<div id="genInfoArea"><pre id="podParagraph">    my @merged_loci = GenOO::Helper::Locus::merge(\@overlapping_loci);</pre></div>
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_AUTHOR - Manolis Maragkakis" id="_pod_AUTHOR - Manolis Maragkakis"></a>AUTHOR - Manolis Maragkakis</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="genInfoArea">Email <a href="mailto:em.maragkakis@gmail.com" id="podEmail">em.maragkakis@gmail.com</a></div>

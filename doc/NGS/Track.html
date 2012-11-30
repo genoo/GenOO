@@ -6,34 +6,34 @@ Track documentation.
 <link rel="stylesheet" type="text/css" href="../perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio::NGS</span>
+<span id="modRootPath">GenOO::NGS</span>
 <span id="modName">Track</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#libs">Included libraries</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::NGS::Track</B> - Object for a collection of MyBio::NGS::Tag objects, with features</div>
+<div id="descArea"><B>GenOO::NGS::Track</B> - Object for a collection of GenOO::NGS::Tag objects, with features</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry">No package variables defined.</div>
 </div>
 <div id="sep"></div>
 <div id="descTitle">Included modules</div>
-<div id="descArea"><div id="libEntry"><span id="use"><a href="../MySub.html">MyBio::MySub</a></span> </div>
-<div id="libEntry"><span id="use"><a href="Tag.html">MyBio::NGS::Tag</a></span> </div>
-<div id="libEntry"><span id="use"><a href="Track/Stats.html">MyBio::NGS::Track::Stats</a></span> </div>
+<div id="descArea"><div id="libEntry"><span id="use"><a href="../MySub.html">GenOO::MySub</a></span> </div>
+<div id="libEntry"><span id="use"><a href="Tag.html">GenOO::NGS::Tag</a></span> </div>
+<div id="libEntry"><span id="use"><a href="Track/Stats.html">GenOO::NGS::Track::Stats</a></span> </div>
 </div>
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="../LocusCollection.html">MyBio::LocusCollection</a></span> </div>
+<div id="descArea"><span id="isa"><a href="../LocusCollection.html">GenOO::LocusCollection</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
-<div id="descArea"><pre id="podParagraph">    # Object that manages a collection of <a href="Tag.html" target="urlWin" id="podUrl"><b>MyBio::NGS::Tag</b></a> objects. <br />
+<div id="descArea"><pre id="podParagraph">    # Object that manages a collection of <a href="Tag.html" target="urlWin" id="podUrl"><b>GenOO::NGS::Tag</b></a> objects. <br />
     # To initialize 
-    my $track = <B>MyBio::NGS::Track</B>->new({
+    my $track = <B>GenOO::NGS::Track</B>->new({
         NAME            => undef,
         SPECIES         => undef,
         DESCRIPTION     => undef,
@@ -45,7 +45,7 @@ Track documentation.
 <div id="descTitle">Description</div>
 <div id="descArea"><pre id="podParagraph">    The primary data structure of this object is a 2D hash whose primary key is the strand 
     and its secondary key is the chromosome name. Each such pair of keys correspond to an
-    array reference which stores objects of the class <a href="Tag.html" target="urlWin" id="podUrl"><b>MyBio::NGS::Tag</b></a> sorted by start position.</pre>
+    array reference which stores objects of the class <a href="Tag.html" target="urlWin" id="podUrl"><b>GenOO::NGS::Tag</b></a> sorted by start position.</pre>
 </div>
 <div id="sep"></div>
 <a name="Methods" id="Methods"></a>
@@ -181,7 +181,7 @@ Track documentation.
 				<span id="braces">}</span>
 				<span id="perlKey">foreach</span> <span id="perlKey">my</span> <span id="var">$pos</span> <span id="braces">(</span><span id="perlFunc">keys</span> <span id="var">%count</span><span id="braces">)</span> <span id="braces">{</span>
 					<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$start</span>, <span id="var">$stop</span><span id="braces">)</span> = <span id="perlFunc">split</span><span id="braces">(</span><span id="regExp">/\|/</span>,<span id="var">$pos</span><span id="braces">)</span>;
-					<span id="perlKey">my</span> <span id="var">$entryObj</span> = <span id="module"><a href="Tag.html">MyBio::NGS::Tag</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+					<span id="perlKey">my</span> <span id="var">$entryObj</span> = <span id="module"><a href="Tag.html">GenOO::NGS::Tag</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 						CHR           =&gt; <span id="var">$chr</span>,
 						START         =&gt; <span id="var">$start</span>,
 						STOP          =&gt; <span id="var">$stop</span>,
@@ -230,7 +230,7 @@ Track documentation.
 	<span id="braces">}</span>
 	
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$newobj1_start</span> &lt;= <span id="var">$newobj1_stop</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="perlKey">my</span> <span id="var">$entryObj</span> = <span id="module"><a href="Tag.html">MyBio::NGS::Tag</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+		<span id="perlKey">my</span> <span id="var">$entryObj</span> = <span id="module"><a href="Tag.html">GenOO::NGS::Tag</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 			CHR           =&gt; <span id="var">$chr</span>,
 			START         =&gt; <span id="var">$newobj1_start</span>,
 			STOP          =&gt; <span id="var">$newobj1_stop</span>,
@@ -241,7 +241,7 @@ Track documentation.
 		<span id="perlFunc">push</span> <span id="braces">(</span><span id="var">@out</span>, <span id="var">$entryObj</span><span id="braces">)</span>;
 	<span id="braces">}</span>
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$newobj2_start</span> &lt;= <span id="var">$newobj2_stop</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="perlKey">my</span> <span id="var">$entryObj</span> = <span id="module"><a href="Tag.html">MyBio::NGS::Tag</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+		<span id="perlKey">my</span> <span id="var">$entryObj</span> = <span id="module"><a href="Tag.html">GenOO::NGS::Tag</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 			CHR           =&gt; <span id="var">$chr</span>,
 			START         =&gt; <span id="var">$newobj2_start</span>,
 			STOP          =&gt; <span id="var">$newobj2_stop</span>,
@@ -252,7 +252,7 @@ Track documentation.
 		<span id="perlFunc">push</span> <span id="braces">(</span><span id="var">@out</span>,<span id="var">$entryObj</span><span id="braces">)</span>;
 	<span id="braces">}</span>
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$newobj3_start</span> &lt;= <span id="var">$newobj3_stop</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="perlKey">my</span> <span id="var">$entryObj</span> = <span id="module"><a href="Tag.html">MyBio::NGS::Tag</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+		<span id="perlKey">my</span> <span id="var">$entryObj</span> = <span id="module"><a href="Tag.html">GenOO::NGS::Tag</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 			CHR           =&gt; <span id="var">$chr</span>,
 			START         =&gt; <span id="var">$newobj3_start</span>,
 			STOP          =&gt; <span id="var">$newobj3_stop</span>,
@@ -295,7 +295,7 @@ Track documentation.
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE6" id="CODE6"></a>init_stats</td><td >description</td><td ><a href="#CODE5">prev</a></td><td ><a href="#CODE7">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">init_stats</span>
 {<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span><span id="braces">)</span> = <span id="var">@_</span>;
-	<span id="var">$self</span>-&gt;<span id="braces">{</span>STATS<span id="braces">}</span> = <span id="module"><a href="Track/Stats.html">MyBio::NGS::Track::Stats</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+	<span id="var">$self</span>-&gt;<span id="braces">{</span>STATS<span id="braces">}</span> = <span id="module"><a href="Track/Stats.html">GenOO::NGS::Track::Stats</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 		COLLECTION =&gt; <span id="var">$self</span>
 	<span id="braces">}</span><span id="braces">)</span>;</pre>}</td></div>
 <div id="sep"></div>
@@ -522,7 +522,7 @@ Track documentation.
 			<span id="perlFunc">warn</span> <span id="dqStr">"Skipping chromosome. File <span id="var">$chr_file</span> does not exist"</span>;
 			<span id="perlKey">next</span>;
 		<span id="braces">}</span>
-		<span id="perlKey">my</span> <span id="var">$chr_seq</span> = <span id="perlFunc">join</span><span id="braces">(</span><span id="sqStr">''</span>,<span id="perlFunc">map</span><span id="braces">{</span><span id="sqStr">'N'</span><span id="braces">}</span> <span id="braces">(</span>1..<span id="var">$maxflank</span><span id="braces">)</span><span id="braces">)</span>.<span id="module"><a href="../MySub.html">MyBio::MySub</a></span>::<span id="method">read_fasta</span><span id="braces">(</span><span id="var">$chr_file</span>,<span id="dqStr">"chr<span id="var">$chr</span>"</span><span id="braces">)</span>.<span id="perlFunc">join</span><span id="braces">(</span><span id="sqStr">''</span>,<span id="perlFunc">map</span><span id="braces">{</span><span id="sqStr">'N'</span><span id="braces">}</span> <span id="braces">(</span>1..<span id="var">$maxflank</span><span id="braces">)</span><span id="braces">)</span>;
+		<span id="perlKey">my</span> <span id="var">$chr_seq</span> = <span id="perlFunc">join</span><span id="braces">(</span><span id="sqStr">''</span>,<span id="perlFunc">map</span><span id="braces">{</span><span id="sqStr">'N'</span><span id="braces">}</span> <span id="braces">(</span>1..<span id="var">$maxflank</span><span id="braces">)</span><span id="braces">)</span>.<span id="module"><a href="../MySub.html">GenOO::MySub</a></span>::<span id="method">read_fasta</span><span id="braces">(</span><span id="var">$chr_file</span>,<span id="dqStr">"chr<span id="var">$chr</span>"</span><span id="braces">)</span>.<span id="perlFunc">join</span><span id="braces">(</span><span id="sqStr">''</span>,<span id="perlFunc">map</span><span id="braces">{</span><span id="sqStr">'N'</span><span id="braces">}</span> <span id="braces">(</span>1..<span id="var">$maxflank</span><span id="braces">)</span><span id="braces">)</span>;
 		
 		<span id="perlKey">foreach</span> <span id="perlKey">my</span> <span id="var">$strand</span> <span id="braces">(</span><span id="perlFunc">keys</span> %<span id="braces">{</span><span id="var">$entries_ref</span><span id="braces">}</span><span id="braces">)</span> <span id="braces">{</span>
 			<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">exists</span> $$entries_ref<span id="braces">{</span><span id="var">$strand</span><span id="braces">}</span><span id="braces">{</span><span id="var">$chr</span><span id="braces">}</span><span id="braces">)</span> <span id="braces">{</span>
@@ -599,7 +599,7 @@ Track documentation.
 				<span id="perlFunc">print</span> <span id="dqStr">"variableStep chrom=chr<span id="var">$chr</span> span=$step\n"</span>;
 				<span id="perlKey">for</span> <span id="braces">(</span><span id="perlKey">my</span> <span id="var">$start</span> = <span id="var">$window</span>; <span id="var">$start</span> &lt; <span id="var">$lastend</span>; <span id="var">$start</span> += <span id="var">$step</span><span id="braces">)</span>
 				<span id="braces">{</span>
-					<span id="perlKey">my</span> <span id="var">$wiglocus</span> = <span id="module"><a href="../Locus.html">MyBio::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+					<span id="perlKey">my</span> <span id="var">$wiglocus</span> = <span id="module"><a href="../Locus.html">GenOO::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 						STRAND       =&gt; <span id="var">$strand</span>,
 						CHR          =&gt; <span id="var">$chr</span>,
 						START        =&gt; <span id="var">$start</span>,

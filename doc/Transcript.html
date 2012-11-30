@@ -6,40 +6,40 @@ Transcript documentation.
 <link rel="stylesheet" type="text/css" href="perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio</span>
+<span id="modRootPath">GenOO</span>
 <span id="modName">Transcript</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#libs">Included libraries</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::Transcript</B> - Transcript object, with features</div>
+<div id="descArea"><B>GenOO::Transcript</B> - Transcript object, with features</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry"><div id="descSubTitle">Privates (from <b>"my"</b> definitions)</div>
 </div>
 <div id="libEntry"><span id="var">%allTranscripts</span>;</div>
 <div id="libEntry"><span id="var">$DBconnector</span>;</div>
-<div id="libEntry"><span id="var">$accessPolicy</span> = <span id="module"><a href="DBconnector.html">MyBio::DBconnector</a></span>-&gt;<span id="method">global_access</span><span id="braces">(</span><span id="braces">)</span></div>
+<div id="libEntry"><span id="var">$accessPolicy</span> = <span id="module"><a href="DBconnector.html">GenOO::DBconnector</a></span>-&gt;<span id="method">global_access</span><span id="braces">(</span><span id="braces">)</span></div>
 <div id="libEntry"><span id="var">$select_all_from_transcripts_where_enstid</span>;</div>
 <div id="libEntry"><span id="var">$select_all_from_transcripts_where_enstid_Query</span> = <span id="perlFunc">qq</span><span id="dqStr">/<span id="regExp">/</span>/</span>SELECT * FROM diana_transcripts WHERE diana_transcripts.enstid=?/</div>
 </div>
 <div id="sep"></div>
 <div id="descTitle">Included modules</div>
-<div id="descArea"><div id="libEntry"><span id="use"><a href="DBconnector.html">MyBio::DBconnector</a></span> </div>
-<div id="libEntry"><span id="use"><a href="Gene.html">MyBio::Gene</a></span> </div>
-<div id="libEntry"><span id="use"><a href="Helper/Locus.html">MyBio::Helper::Locus</a></span> </div>
-<div id="libEntry"><span id="use"><a href="MySub.html">MyBio::MySub</a></span> </div>
-<div id="libEntry"><span id="use"><a href="Transcript/CDNA.html">MyBio::Transcript::CDNA</a></span> </div>
-<div id="libEntry"><span id="use"><a href="Transcript/CDS.html">MyBio::Transcript::CDS</a></span> </div>
-<div id="libEntry"><span id="use"><a href="Transcript/UTR3.html">MyBio::Transcript::UTR3</a></span> </div>
-<div id="libEntry"><span id="use"><a href="Transcript/UTR5.html">MyBio::Transcript::UTR5</a></span> </div>
+<div id="descArea"><div id="libEntry"><span id="use"><a href="DBconnector.html">GenOO::DBconnector</a></span> </div>
+<div id="libEntry"><span id="use"><a href="Gene.html">GenOO::Gene</a></span> </div>
+<div id="libEntry"><span id="use"><a href="Helper/Locus.html">GenOO::Helper::Locus</a></span> </div>
+<div id="libEntry"><span id="use"><a href="MySub.html">GenOO::MySub</a></span> </div>
+<div id="libEntry"><span id="use"><a href="Transcript/CDNA.html">GenOO::Transcript::CDNA</a></span> </div>
+<div id="libEntry"><span id="use"><a href="Transcript/CDS.html">GenOO::Transcript::CDS</a></span> </div>
+<div id="libEntry"><span id="use"><a href="Transcript/UTR3.html">GenOO::Transcript::UTR3</a></span> </div>
+<div id="libEntry"><span id="use"><a href="Transcript/UTR5.html">GenOO::Transcript::UTR5</a></span> </div>
 <div id="libEntry"><span id="use">Scalar::Util</span> qw /weaken/ </div>
 </div>
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="SplicedLocus.html">MyBio::SplicedLocus</a></span> </div>
+<div id="descArea"><span id="isa"><a href="SplicedLocus.html">GenOO::SplicedLocus</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
@@ -47,18 +47,18 @@ Transcript documentation.
     # It represents a transcript of a gene
     
     # To initialize 
-    my $transcript = <B>MyBio::Transcript</B>->new({
+    my $transcript = <B>GenOO::Transcript</B>->new({
         ENSTID         => undef,
         SPECIES        => undef,
         STRAND         => undef,
         CHR            => undef,
         START          => undef,
         STOP           => undef,
-        GENE           => undef, # MyBio::Gene
-        UTR5           => undef, # MyBio::Transcript::UTR5
-        CDS            => undef, # MyBio::Transcript::CDS
-        UTR3           => undef, # MyBio::Transcript::UTR3
-        CDNA           => undef, # MyBio::Transcript::CDNA
+        GENE           => undef, # GenOO::Gene
+        UTR5           => undef, # GenOO::Transcript::UTR5
+        CDS            => undef, # GenOO::Transcript::CDS
+        UTR3           => undef, # GenOO::Transcript::UTR3
+        CDNA           => undef, # GenOO::Transcript::CDNA
         BIOTYPE        => undef,
         INTERNAL_ID    => undef,
         INTERNAL_GID   => undef,
@@ -136,11 +136,11 @@ Transcript documentation.
 <table id="methDescTitle" width="100%"><tr><td WIDTH="200"><a name="_pod_get_by_enstid" id="_pod_get_by_enstid"></a><a name="POD1" id="POD1"></a>get_by_enstid</td><td ><a href="#CODE22">code</a></td><td >&nbsp;&nbsp;&nbsp;&nbsp;</td><td ><a href="#POD2">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <table id="methDescArea" width="100%"><tr><td><pre id="podParagraph">  Arg [1]    : string $enstid
                The primary id of the transcript.
-  Example    : <B>MyBio::Transcript</B>->get_by_enstid;
+  Example    : <B>GenOO::Transcript</B>->get_by_enstid;
   Description: Class method that returns the object which corresponds to the provided primary transcript id.
                If no object is found, then depending on the database access policy the method either attempts
                to create a new object or returns NULL
-  Returntype : <B>MyBio::Transcript</B> / NULL
+  Returntype : <B>GenOO::Transcript</B> / NULL
   Caller     : ?
   Status     : Stable</pre></td></tr></table>
 <div id="sep"></div>
@@ -168,7 +168,7 @@ Transcript documentation.
 	<span id="var">$self</span>-&gt;<span id="method">set_internalGID</span><span id="braces">(</span>$$data<span id="braces">{</span>INTERNAL_GID<span id="braces">}</span><span id="braces">)</span>;
 	<span id="var">$self</span>-&gt;<span id="method">set_coding_start</span><span id="braces">(</span>$$data<span id="braces">{</span>CODING_START<span id="braces">}</span><span id="braces">)</span>;
 	<span id="var">$self</span>-&gt;<span id="method">set_coding_stop</span><span id="braces">(</span>$$data<span id="braces">{</span>CODING_STOP<span id="braces">}</span><span id="braces">)</span>;
-	<span id="var">$self</span>-&gt;<span id="method">set_gene</span><span id="braces">(</span>$$data<span id="braces">{</span>GENE<span id="braces">}</span><span id="braces">)</span>; <span id="comment"># MyBio::Gene</span><br />	<span id="var">$self</span>-&gt;<span id="method">set_cdna</span><span id="braces">(</span>$$data<span id="braces">{</span>CDNA<span id="braces">}</span><span id="braces">)</span>; <span id="comment"># MyBio::Transcript::CDNA</span><br />	<span id="var">$self</span>-&gt;<span id="method">set_utr5</span><span id="braces">(</span>$$data<span id="braces">{</span>UTR5<span id="braces">}</span><span id="braces">)</span>; <span id="comment"># MyBio::Transcript::UTR5</span><br />	<span id="var">$self</span>-&gt;<span id="method">set_cds</span><span id="braces">(</span>$$data<span id="braces">{</span>CDS<span id="braces">}</span><span id="braces">)</span>;   <span id="comment"># MyBio::Transcript::CDS</span><br />	<span id="var">$self</span>-&gt;<span id="method">set_utr3</span><span id="braces">(</span>$$data<span id="braces">{</span>UTR3<span id="braces">}</span><span id="braces">)</span>; <span id="comment"># MyBio::Transcript::UTR3</span><br />	
+	<span id="var">$self</span>-&gt;<span id="method">set_gene</span><span id="braces">(</span>$$data<span id="braces">{</span>GENE<span id="braces">}</span><span id="braces">)</span>; <span id="comment"># GenOO::Gene</span><br />	<span id="var">$self</span>-&gt;<span id="method">set_cdna</span><span id="braces">(</span>$$data<span id="braces">{</span>CDNA<span id="braces">}</span><span id="braces">)</span>; <span id="comment"># GenOO::Transcript::CDNA</span><br />	<span id="var">$self</span>-&gt;<span id="method">set_utr5</span><span id="braces">(</span>$$data<span id="braces">{</span>UTR5<span id="braces">}</span><span id="braces">)</span>; <span id="comment"># GenOO::Transcript::UTR5</span><br />	<span id="var">$self</span>-&gt;<span id="method">set_cds</span><span id="braces">(</span>$$data<span id="braces">{</span>CDS<span id="braces">}</span><span id="braces">)</span>;   <span id="comment"># GenOO::Transcript::CDS</span><br />	<span id="var">$self</span>-&gt;<span id="method">set_utr3</span><span id="braces">(</span>$$data<span id="braces">{</span>UTR3<span id="braces">}</span><span id="braces">)</span>; <span id="comment"># GenOO::Transcript::UTR3</span><br />	
 	<span id="perlKey">my</span> <span id="var">$class</span> = <span id="perlFunc">ref</span><span id="braces">(</span><span id="var">$self</span><span id="braces">)</span> || <span id="var">$self</span>;
 	<span id="var">$class</span>-&gt;<span id="method">_add_to_all</span><span id="braces">(</span><span id="var">$self</span><span id="braces">)</span>;
 	
@@ -283,9 +283,9 @@ Transcript documentation.
 		<span id="perlFunc">close</span> <span id="var">$IN</span>;
 		
 		<span id="perlKey">foreach</span> <span id="perlKey">my</span> <span id="var">$genename</span> <span id="braces">(</span><span id="perlFunc">keys</span> <span id="var">%transcripts_for_genename</span><span id="braces">)</span> <span id="braces">{</span>
-			<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$merged_loci</span>,<span id="var">$included_transcripts</span><span id="braces">)</span> = <span id="module"><a href="Helper/Locus.html">MyBio::Helper::Locus</a></span>::<span id="method">merge</span><span id="braces">(</span><span id="var">$transcripts_for_genename</span><span id="braces">{</span><span id="var">$genename</span><span id="braces">}</span><span id="braces">)</span>;
+			<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$merged_loci</span>,<span id="var">$included_transcripts</span><span id="braces">)</span> = <span id="module"><a href="Helper/Locus.html">GenOO::Helper::Locus</a></span>::<span id="method">merge</span><span id="braces">(</span><span id="var">$transcripts_for_genename</span><span id="braces">{</span><span id="var">$genename</span><span id="braces">}</span><span id="braces">)</span>;
 			<span id="perlKey">for</span> <span id="braces">(</span><span id="perlKey">my</span> <span id="var">$i</span>=0;<span id="var">$i</span>&lt;@$merged_loci;$i++<span id="braces">)</span> <span id="braces">{</span>
-				<span id="perlKey">my</span> <span id="var">$gene</span> = <span id="module"><a href="Gene.html">MyBio::Gene</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span>$$merged_loci<span id="braces">[</span><span id="var">$i</span><span id="braces">]</span><span id="braces">)</span>;
+				<span id="perlKey">my</span> <span id="var">$gene</span> = <span id="module"><a href="Gene.html">GenOO::Gene</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span>$$merged_loci<span id="braces">[</span><span id="var">$i</span><span id="braces">]</span><span id="braces">)</span>;
 				<span id="var">$gene</span>-&gt;<span id="method">set_name</span><span id="braces">(</span><span id="var">$genename</span><span id="braces">)</span>;
 				<span id="perlKey">foreach</span> <span id="perlKey">my</span> <span id="var">$transcript</span> <span id="braces">(</span>@<span id="braces">{</span>$$included_transcripts<span id="braces">[</span><span id="var">$i</span><span id="braces">]</span><span id="braces">}</span><span id="braces">)</span> <span id="braces">{</span>
 					<span id="var">$gene</span>-&gt;<span id="method">set_description</span><span id="braces">(</span><span id="perlFunc">delete</span> <span id="var">$transcript</span>-&gt;<span id="braces">{</span>TEMP_DESCRIPTION<span id="braces">}</span><span id="braces">)</span>;
@@ -309,9 +309,9 @@ Transcript documentation.
 				<span id="var">$line</span> = <span id="perlFunc">substr</span><span id="braces">(</span><span id="var">$line</span>,1<span id="braces">)</span>;
 				<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$enstid</span>,<span id="var">$strand</span>,<span id="var">$chr</span>,<span id="var">$ensgid</span>,<span id="var">$species</span><span id="braces">)</span> = <span id="perlFunc">split</span><span id="braces">(</span><span id="regExp">/\|/</span>,<span id="var">$line</span><span id="braces">)</span>;
 				
-				<span id="comment"># Search if the gene has already been defined. If not create it</span><br />				<span id="perlKey">my</span> <span id="var">$geneObj</span> = <span id="module"><a href="Gene.html">MyBio::Gene</a></span>-&gt;<span id="method">get_by_ensgid</span><span id="braces">(</span><span id="var">$ensgid</span><span id="braces">)</span>;
+				<span id="comment"># Search if the gene has already been defined. If not create it</span><br />				<span id="perlKey">my</span> <span id="var">$geneObj</span> = <span id="module"><a href="Gene.html">GenOO::Gene</a></span>-&gt;<span id="method">get_by_ensgid</span><span id="braces">(</span><span id="var">$ensgid</span><span id="braces">)</span>;
 				<span id="perlKey">unless</span> <span id="braces">(</span><span id="var">$geneObj</span><span id="braces">)</span> <span id="braces">{</span>
-					<span id="var">$geneObj</span> = <span id="module"><a href="Gene.html">MyBio::Gene</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+					<span id="var">$geneObj</span> = <span id="module"><a href="Gene.html">GenOO::Gene</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 								ENSGID   =&gt; <span id="var">$ensgid</span>,
 								<span id="braces">}</span><span id="braces">)</span>;
 				<span id="braces">}</span>
@@ -335,7 +335,7 @@ Transcript documentation.
 			<span id="braces">}</span>
 			<span id="perlKey">elsif</span> <span id="braces">(</span><span id="perlFunc">substr</span><span id="braces">(</span><span id="var">$line</span>,0,4<span id="braces">)</span> <span id="perlKey">eq</span> <span id="sqStr">'UTR5'</span><span id="braces">)</span> <span id="braces">{</span>
 				<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$what</span>,<span id="var">$splice_starts</span>,<span id="var">$splice_stops</span>,<span id="var">$sequence</span>,<span id="var">$accessibility</span><span id="braces">)</span> = <span id="perlFunc">split</span><span id="braces">(</span><span id="regExp">/\t/</span>,<span id="var">$line</span><span id="braces">)</span>;
-				<span id="perlKey">my</span> <span id="var">$utr5Obj</span> = <span id="module"><a href="Transcript/UTR5.html">MyBio::Transcript::UTR5</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+				<span id="perlKey">my</span> <span id="var">$utr5Obj</span> = <span id="module"><a href="Transcript/UTR5.html">GenOO::Transcript::UTR5</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 									TRANSCRIPT       =&gt; <span id="var">$transcript</span>,
 									SPLICE_STARTS    =&gt; <span id="var">$splice_starts</span>,
 									SPLICE_STOPS     =&gt; <span id="var">$splice_stops</span>,
@@ -346,7 +346,7 @@ Transcript documentation.
 			<span id="braces">}</span>
 			<span id="perlKey">elsif</span> <span id="braces">(</span><span id="perlFunc">substr</span><span id="braces">(</span><span id="var">$line</span>,0,3<span id="braces">)</span> <span id="perlKey">eq</span> <span id="sqStr">'CDS'</span><span id="braces">)</span> <span id="braces">{</span>
 				<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$what</span>,<span id="var">$splice_starts</span>,<span id="var">$splice_stops</span>,<span id="var">$sequence</span>,<span id="var">$accessibility</span><span id="braces">)</span> = <span id="perlFunc">split</span><span id="braces">(</span><span id="regExp">/\t/</span>,<span id="var">$line</span><span id="braces">)</span>;
-				<span id="perlKey">my</span> <span id="var">$cdsObj</span> = <span id="module"><a href="Transcript/CDS.html">MyBio::Transcript::CDS</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+				<span id="perlKey">my</span> <span id="var">$cdsObj</span> = <span id="module"><a href="Transcript/CDS.html">GenOO::Transcript::CDS</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 									TRANSCRIPT       =&gt; <span id="var">$transcript</span>,
 									SPLICE_STARTS    =&gt; <span id="var">$splice_starts</span>,
 									SPLICE_STOPS     =&gt; <span id="var">$splice_stops</span>,
@@ -357,7 +357,7 @@ Transcript documentation.
 			<span id="braces">}</span>
 			<span id="perlKey">elsif</span> <span id="braces">(</span><span id="perlFunc">substr</span><span id="braces">(</span><span id="var">$line</span>,0,4<span id="braces">)</span> <span id="perlKey">eq</span> <span id="sqStr">'UTR3'</span><span id="braces">)</span> <span id="braces">{</span>
 				<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$what</span>,<span id="var">$splice_starts</span>,<span id="var">$splice_stops</span>,<span id="var">$sequence</span>,<span id="var">$accessibility</span><span id="braces">)</span> = <span id="perlFunc">split</span><span id="braces">(</span><span id="regExp">/\t/</span>,<span id="var">$line</span><span id="braces">)</span>;
-				<span id="perlKey">my</span> <span id="var">$utr3Obj</span> = <span id="module"><a href="Transcript/UTR3.html">MyBio::Transcript::UTR3</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+				<span id="perlKey">my</span> <span id="var">$utr3Obj</span> = <span id="module"><a href="Transcript/UTR3.html">GenOO::Transcript::UTR3</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 									TRANSCRIPT       =&gt; <span id="var">$transcript</span>,
 									SPLICE_STARTS    =&gt; <span id="var">$splice_starts</span>,
 									SPLICE_STOPS     =&gt; <span id="var">$splice_stops</span>,
@@ -383,9 +383,9 @@ Transcript documentation.
 			<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">substr</span><span id="braces">(</span><span id="var">$line</span>,0,1<span id="braces">)</span> <span id="perlKey">ne</span> <span id="sqStr">'#'</span><span id="braces">)</span> <span id="braces">{</span>
 				<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$ensgid</span>,<span id="var">$enstid</span>,<span id="var">$chr</span>,<span id="var">$strand</span>,<span id="var">$start</span>,<span id="var">$stop</span>,<span id="var">$biotype</span><span id="braces">)</span> = <span id="perlFunc">split</span><span id="braces">(</span><span id="regExp">/\t/</span>,<span id="var">$line</span><span id="braces">)</span>;
 				
-				<span id="comment"># Search if the gene has already been defined. If not create it</span><br />				<span id="perlKey">my</span> <span id="var">$geneObj</span> = <span id="module"><a href="Gene.html">MyBio::Gene</a></span>-&gt;<span id="method">get_by_ensgid</span><span id="braces">(</span><span id="var">$ensgid</span><span id="braces">)</span>;
+				<span id="comment"># Search if the gene has already been defined. If not create it</span><br />				<span id="perlKey">my</span> <span id="var">$geneObj</span> = <span id="module"><a href="Gene.html">GenOO::Gene</a></span>-&gt;<span id="method">get_by_ensgid</span><span id="braces">(</span><span id="var">$ensgid</span><span id="braces">)</span>;
 				<span id="perlKey">unless</span> <span id="braces">(</span><span id="var">$geneObj</span><span id="braces">)</span> <span id="braces">{</span>
-					<span id="var">$geneObj</span> = <span id="module"><a href="Gene.html">MyBio::Gene</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+					<span id="var">$geneObj</span> = <span id="module"><a href="Gene.html">GenOO::Gene</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 								ENSGID   =&gt; <span id="var">$ensgid</span>,
 								<span id="braces">}</span><span id="braces">)</span>;
 				<span id="braces">}</span>
@@ -438,9 +438,9 @@ Transcript documentation.
 				<span id="perlKey">my</span> <span id="var">$ensgid</span> = <span id="var">$1</span>;
 				<span id="perlKey">my</span> <span id="var">$enstid</span> = <span id="var">$2</span>;
 				
-				<span id="perlKey">my</span> <span id="var">$geneObj</span> = <span id="module"><a href="Gene.html">MyBio::Gene</a></span>-&gt;<span id="method">get_by_ensgid</span><span id="braces">(</span><span id="var">$ensgid</span><span id="braces">)</span>;
+				<span id="perlKey">my</span> <span id="var">$geneObj</span> = <span id="module"><a href="Gene.html">GenOO::Gene</a></span>-&gt;<span id="method">get_by_ensgid</span><span id="braces">(</span><span id="var">$ensgid</span><span id="braces">)</span>;
 				<span id="perlKey">unless</span> <span id="braces">(</span><span id="var">$geneObj</span><span id="braces">)</span> <span id="braces">{</span>
-					<span id="var">$geneObj</span> = <span id="module"><a href="Gene.html">MyBio::Gene</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+					<span id="var">$geneObj</span> = <span id="module"><a href="Gene.html">GenOO::Gene</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 						ENSGID   =&gt; <span id="var">$ensgid</span>,
 					<span id="braces">}</span><span id="braces">)</span>;
 				<span id="braces">}</span>
@@ -513,7 +513,7 @@ Transcript documentation.
 <table id="methCodeTitle" width="100%"><tr><td width="200"><a name="CODE11" id="CODE11"></a>create_cdna</td><td >description</td><td ><a href="#CODE10">prev</a></td><td ><a href="#CODE12">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">create_cdna</span>
 {<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span><span id="braces">)</span> = <span id="var">@_</span>;
-	<span id="var">$self</span>-&gt;<span id="braces">{</span>CDNA<span id="braces">}</span> = <span id="module"><a href="Transcript/CDNA.html">MyBio::Transcript::CDNA</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+	<span id="var">$self</span>-&gt;<span id="braces">{</span>CDNA<span id="braces">}</span> = <span id="module"><a href="Transcript/CDNA.html">GenOO::Transcript::CDNA</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 		START         =&gt; <span id="var">$self</span>-&gt;<span id="method">get_start</span>,
 		STOP          =&gt; <span id="var">$self</span>-&gt;<span id="method">get_stop</span>,
 		SPLICE_STARTS =&gt; <span id="var">$self</span>-&gt;<span id="method">get_splice_starts</span>,
@@ -526,7 +526,7 @@ Transcript documentation.
 <div id="methCodeArea"><td ><span id="sub">sub</span> <span id="subName">create_cds</span>
 {<pre>	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$self</span><span id="braces">)</span> = <span id="var">@_</span>;
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">defined</span> <span id="var">$self</span>-&gt;<span id="method">get_coding_start</span> and <span id="perlFunc">defined</span> <span id="var">$self</span>-&gt;<span id="method">get_coding_stop</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="var">$self</span>-&gt;<span id="braces">{</span>CDS<span id="braces">}</span> = <span id="module"><a href="Transcript/CDS.html">MyBio::Transcript::CDS</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+		<span id="var">$self</span>-&gt;<span id="braces">{</span>CDS<span id="braces">}</span> = <span id="module"><a href="Transcript/CDS.html">GenOO::Transcript::CDS</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 			START      =&gt; <span id="var">$self</span>-&gt;<span id="method">get_coding_start</span>,
 			STOP       =&gt; <span id="var">$self</span>-&gt;<span id="method">get_coding_stop</span>,
 			TRANSCRIPT =&gt; <span id="var">$self</span>
@@ -578,7 +578,7 @@ Transcript documentation.
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">defined</span> <span id="var">$self</span>-&gt;<span id="method">get_coding_start</span> and <span id="perlFunc">defined</span> <span id="var">$self</span>-&gt;<span id="method">get_coding_stop</span><span id="braces">)</span> <span id="braces">{</span>
 		<span id="perlKey">my</span> <span id="var">$utr3_start</span> = <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span> == 1<span id="braces">)</span> ? <span id="var">$self</span>-&gt;<span id="method">get_coding_stop</span> + 1 : <span id="var">$self</span>-&gt;<span id="method">get_start</span>;
 		<span id="perlKey">my</span> <span id="var">$utr3_stop</span> = <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span> == 1<span id="braces">)</span> ? <span id="var">$self</span>-&gt;<span id="method">get_stop</span> : <span id="var">$self</span>-&gt;<span id="method">get_coding_start</span> - 1;
-		<span id="var">$self</span>-&gt;<span id="braces">{</span>UTR3<span id="braces">}</span> = <span id="module"><a href="Transcript/UTR3.html">MyBio::Transcript::UTR3</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+		<span id="var">$self</span>-&gt;<span id="braces">{</span>UTR3<span id="braces">}</span> = <span id="module"><a href="Transcript/UTR3.html">GenOO::Transcript::UTR3</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 			START      =&gt; <span id="var">$utr3_start</span>,
 			STOP       =&gt; <span id="var">$utr3_stop</span>,
 			TRANSCRIPT =&gt; <span id="var">$self</span>
@@ -596,7 +596,7 @@ Transcript documentation.
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">defined</span> <span id="var">$self</span>-&gt;<span id="method">get_coding_start</span> and <span id="perlFunc">defined</span> <span id="var">$self</span>-&gt;<span id="method">get_coding_stop</span><span id="braces">)</span> <span id="braces">{</span>
 		<span id="perlKey">my</span> <span id="var">$utr5_start</span> = <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span> == 1<span id="braces">)</span> ? <span id="var">$self</span>-&gt;<span id="method">get_start</span> : <span id="var">$self</span>-&gt;<span id="method">get_coding_stop</span> + 1;
 		<span id="perlKey">my</span> <span id="var">$utr5_stop</span> = <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span> == 1<span id="braces">)</span> ? <span id="var">$self</span>-&gt;<span id="method">get_coding_start</span> - 1 : <span id="var">$self</span>-&gt;<span id="method">get_stop</span>;
-		<span id="var">$self</span>-&gt;<span id="braces">{</span>UTR5<span id="braces">}</span> = <span id="module"><a href="Transcript/UTR5.html">MyBio::Transcript::UTR5</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+		<span id="var">$self</span>-&gt;<span id="braces">{</span>UTR5<span id="braces">}</span> = <span id="module"><a href="Transcript/UTR5.html">GenOO::Transcript::UTR5</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 			START      =&gt; <span id="var">$utr5_start</span>,
 			STOP       =&gt; <span id="var">$utr5_stop</span>,
 			TRANSCRIPT =&gt; <span id="var">$self</span>
@@ -690,7 +690,7 @@ Transcript documentation.
 		<span id="perlKey">return</span> <span id="var">$self</span>-&gt;<span id="braces">{</span>CDS<span id="braces">}</span>;
 	<span id="braces">}</span>
 	<span id="perlKey">elsif</span> <span id="braces">(</span><span id="var">$class</span>-&gt;<span id="method">database_access</span> <span id="perlKey">eq</span> <span id="sqStr">'ALLOW'</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="var">$self</span>-&gt;<span id="method">set_cds</span><span id="braces">(</span><span id="module"><a href="Transcript/CDS.html">MyBio::Transcript::CDS</a></span>-&gt;<span id="method">create_new_CDS_from_database</span><span id="braces">(</span><span id="var">$self</span><span id="braces">)</span><span id="braces">)</span>;
+		<span id="var">$self</span>-&gt;<span id="method">set_cds</span><span id="braces">(</span><span id="module"><a href="Transcript/CDS.html">GenOO::Transcript::CDS</a></span>-&gt;<span id="method">create_new_CDS_from_database</span><span id="braces">(</span><span id="var">$self</span><span id="braces">)</span><span id="braces">)</span>;
 		<span id="perlKey">return</span> <span id="var">$self</span>-&gt;<span id="braces">{</span>CDS<span id="braces">}</span>;
 	<span id="braces">}</span>
 	<span id="perlKey">else</span> <span id="braces">{</span>
@@ -721,12 +721,12 @@ Transcript documentation.
 				<span id="perlKey">else</span> <span id="braces">{</span><span id="perlFunc">print</span> STDERR <span id="sqStr">'Choice not recognised. Please specify (y/n)'</span>.<span id="dqStr">"\n"</span>;<span id="braces">}</span>
 			<span id="braces">}</span>
 			<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$accessPolicy</span> <span id="perlKey">eq</span> <span id="sqStr">'ALLOW'</span><span id="braces">)</span> <span id="braces">{</span>
-				<span id="perlKey">if</span> <span id="braces">(</span><span id="module"><a href="DBconnector.html">MyBio::DBconnector</a></span>-&gt;<span id="perlFunc">exists</span><span id="braces">(</span><span id="dqStr">"core"</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
-					<span id="var">$DBconnector</span> = <span id="module"><a href="DBconnector.html">MyBio::DBconnector</a></span>-&gt;<span id="method">get_dbconnector</span><span id="braces">(</span><span id="dqStr">"core"</span><span id="braces">)</span>;
+				<span id="perlKey">if</span> <span id="braces">(</span><span id="module"><a href="DBconnector.html">GenOO::DBconnector</a></span>-&gt;<span id="perlFunc">exists</span><span id="braces">(</span><span id="dqStr">"core"</span><span id="braces">)</span><span id="braces">)</span> <span id="braces">{</span>
+					<span id="var">$DBconnector</span> = <span id="module"><a href="DBconnector.html">GenOO::DBconnector</a></span>-&gt;<span id="method">get_dbconnector</span><span id="braces">(</span><span id="dqStr">"core"</span><span id="braces">)</span>;
 				<span id="braces">}</span>
 				<span id="perlKey">else</span> <span id="braces">{</span>
 					<span id="perlFunc">print</span> STDERR <span id="dqStr">"\nRequesting database connector for class $class\n"</span>;
-					<span id="var">$DBconnector</span> = <span id="module"><a href="DBconnector.html">MyBio::DBconnector</a></span>-&gt;<span id="method">get_dbconnector</span><span id="braces">(</span><span id="var">$class</span><span id="braces">)</span>;
+					<span id="var">$DBconnector</span> = <span id="module"><a href="DBconnector.html">GenOO::DBconnector</a></span>-&gt;<span id="method">get_dbconnector</span><span id="braces">(</span><span id="var">$class</span><span id="braces">)</span>;
 				<span id="braces">}</span>
 			<span id="braces">}</span>
 		<span id="braces">}</span>
@@ -780,7 +780,7 @@ Transcript documentation.
 		<span id="perlKey">return</span> <span id="var">$self</span>-&gt;<span id="braces">{</span>UTR3<span id="braces">}</span>;
 	<span id="braces">}</span>
 	<span id="perlKey">elsif</span> <span id="braces">(</span><span id="var">$class</span>-&gt;<span id="method">database_access</span> <span id="perlKey">eq</span> <span id="sqStr">'ALLOW'</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="var">$self</span>-&gt;<span id="method">set_utr3</span><span id="braces">(</span><span id="module"><a href="Transcript/UTR3.html">MyBio::Transcript::UTR3</a></span>-&gt;<span id="method">create_new_UTR3_from_database</span><span id="braces">(</span><span id="var">$self</span><span id="braces">)</span><span id="braces">)</span>;
+		<span id="var">$self</span>-&gt;<span id="method">set_utr3</span><span id="braces">(</span><span id="module"><a href="Transcript/UTR3.html">GenOO::Transcript::UTR3</a></span>-&gt;<span id="method">create_new_UTR3_from_database</span><span id="braces">(</span><span id="var">$self</span><span id="braces">)</span><span id="braces">)</span>;
 		<span id="perlKey">return</span> <span id="var">$self</span>-&gt;<span id="braces">{</span>UTR3<span id="braces">}</span>;
 	<span id="braces">}</span>
 	<span id="perlKey">else</span> <span id="braces">{</span>
@@ -799,7 +799,7 @@ Transcript documentation.
 		<span id="perlKey">return</span> <span id="var">$self</span>-&gt;<span id="braces">{</span>UTR5<span id="braces">}</span>;
 	<span id="braces">}</span>
 	<span id="perlKey">elsif</span> <span id="braces">(</span><span id="var">$class</span>-&gt;<span id="method">database_access</span> <span id="perlKey">eq</span> <span id="sqStr">'ALLOW'</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="var">$self</span>-&gt;<span id="method">set_utr5</span><span id="braces">(</span><span id="module"><a href="Transcript/UTR5.html">MyBio::Transcript::UTR5</a></span>-&gt;<span id="method">create_new_UTR5_from_database</span><span id="braces">(</span><span id="var">$self</span><span id="braces">)</span><span id="braces">)</span>;
+		<span id="var">$self</span>-&gt;<span id="method">set_utr5</span><span id="braces">(</span><span id="module"><a href="Transcript/UTR5.html">GenOO::Transcript::UTR5</a></span>-&gt;<span id="method">create_new_UTR5_from_database</span><span id="braces">(</span><span id="var">$self</span><span id="braces">)</span><span id="braces">)</span>;
 		<span id="perlKey">return</span> <span id="var">$self</span>-&gt;<span id="braces">{</span>UTR5<span id="braces">}</span>;
 	<span id="braces">}</span>
 	<span id="perlKey">else</span> <span id="braces">{</span>
@@ -969,7 +969,7 @@ Transcript documentation.
 				<span id="perlFunc">warn</span> <span id="dqStr">"Skipping chromosome. File <span id="var">$chr_file</span> does not exist"</span>;
 				<span id="perlKey">next</span>;
 			<span id="braces">}</span>
-			<span id="perlKey">my</span> <span id="var">$chr_seq</span> = <span id="module"><a href="MySub.html">MyBio::MySub</a></span>::<span id="method">read_fasta</span><span id="braces">(</span><span id="var">$chr_file</span>,<span id="dqStr">"chr<span id="var">$chr</span>"</span><span id="braces">)</span>;
+			<span id="perlKey">my</span> <span id="var">$chr_seq</span> = <span id="module"><a href="MySub.html">GenOO::MySub</a></span>::<span id="method">read_fasta</span><span id="braces">(</span><span id="var">$chr_file</span>,<span id="dqStr">"chr<span id="var">$chr</span>"</span><span id="braces">)</span>;
 			
 			<span id="perlKey">unless</span> <span id="braces">(</span><span id="perlFunc">defined</span> <span id="var">$chr_seq</span><span id="braces">)</span> <span id="braces">{</span>
 				<span id="perlFunc">die</span> <span id="dqStr">"No Chromosome Sequence chr$chr\n"</span>;
@@ -1025,7 +1025,7 @@ Transcript documentation.
 <div id="mainTitle">General documentation</div>
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_EXAMPLES" id="_pod_EXAMPLES"></a>EXAMPLES</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
-<div id="genInfoArea"><pre id="podParagraph">    my %transcripts = <B>MyBio::Transcript</B>->read_region_info_for_transcripts('FILE',"$database/Ensembl_release_54/CDS_and_3UTR_sequences_CLEAN.txt");</pre></div>
+<div id="genInfoArea"><pre id="podParagraph">    my %transcripts = <B>GenOO::Transcript</B>->read_region_info_for_transcripts('FILE',"$database/Ensembl_release_54/CDS_and_3UTR_sequences_CLEAN.txt");</pre></div>
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_AUTHOR - Manolis Maragkakis, Panagiotis Alexiou" id="_pod_AUTHOR - Manolis Maragkakis, Panagiotis Alexiou"></a>AUTHOR - Manolis Maragkakis, Panagiotis Alexiou</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="genInfoArea">Email <a href="mailto:em.maragkakis@gmail.com" id="podEmail">em.maragkakis@gmail.com</a>, <a href="mailto:pan.alexiou@fleming.gr" id="podEmail">pan.alexiou@fleming.gr</a></div>

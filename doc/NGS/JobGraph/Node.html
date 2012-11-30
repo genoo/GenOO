@@ -6,14 +6,14 @@ Node documentation.
 <link rel="stylesheet" type="text/css" href="../../perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio::NGS::JobGraph</span>
+<span id="modRootPath">GenOO::NGS::JobGraph</span>
 <span id="modName">Node</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#libs">Included libraries</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::NGS::JobGraph::Node</B> - Node for a JobGraph object, with features</div>
+<div id="descArea"><B>GenOO::NGS::JobGraph::Node</B> - Node for a JobGraph object, with features</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry">No package variables defined.</div>
@@ -21,7 +21,7 @@ Node documentation.
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="error">Clone</span> <span id="isa"><a href="../../_Initializable.html">MyBio::_Initializable</a></span> </div>
+<div id="descArea"><span id="error">Clone</span> <span id="isa"><a href="../../_Initializable.html">GenOO::_Initializable</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
@@ -29,18 +29,18 @@ Node documentation.
     # At a higher level it can be a job or a data object
     
     # To initialize 
-    my $transcript = <B>MyBio::NGS::JobGraph::Node</B>->new({
+    my $transcript = <B>GenOO::NGS::JobGraph::Node</B>->new({
         ENSTID         => undef,
         SPECIES        => undef,
         STRAND         => undef,
         CHR            => undef,
         START          => undef,
         STOP           => undef,
-        GENE           => undef, # MyBio::Gene
-        UTR5           => undef, # MyBio::NGS::JobGraph::Node::UTR5
-        CDS            => undef, # MyBio::NGS::JobGraph::Node::CDS
-        UTR3           => undef, # MyBio::NGS::JobGraph::Node::UTR3
-        CDNA           => undef, # MyBio::NGS::JobGraph::Node::CDNA
+        GENE           => undef, # GenOO::Gene
+        UTR5           => undef, # GenOO::NGS::JobGraph::Node::UTR5
+        CDS            => undef, # GenOO::NGS::JobGraph::Node::CDS
+        UTR3           => undef, # GenOO::NGS::JobGraph::Node::UTR3
+        CDNA           => undef, # GenOO::NGS::JobGraph::Node::CDNA
         BIOTYPE        => undef,
         INTERNAL_ID    => undef,
         INTERNAL_GID   => undef,
@@ -117,7 +117,7 @@ Node documentation.
 <div id="mainTitle">General documentation</div>
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_EXAMPLES" id="_pod_EXAMPLES"></a>EXAMPLES</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
-<div id="genInfoArea"><pre id="podParagraph">    my %transcripts = <B>MyBio::NGS::JobGraph::Node</B>->read_region_info_for_transcripts('FILE',"$database/Ensembl_release_54/CDS_and_3UTR_sequences_CLEAN.txt");</pre></div>
+<div id="genInfoArea"><pre id="podParagraph">    my %transcripts = <B>GenOO::NGS::JobGraph::Node</B>->read_region_info_for_transcripts('FILE',"$database/Ensembl_release_54/CDS_and_3UTR_sequences_CLEAN.txt");</pre></div>
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_AUTHOR - Manolis Maragkakis, Panagiotis Alexiou" id="_pod_AUTHOR - Manolis Maragkakis, Panagiotis Alexiou"></a>AUTHOR - Manolis Maragkakis, Panagiotis Alexiou</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="genInfoArea">Email <a href="mailto:em.maragkakis@gmail.com" id="podEmail">em.maragkakis@gmail.com</a>, <a href="mailto:pan.alexiou@fleming.gr" id="podEmail">pan.alexiou@fleming.gr</a></div>

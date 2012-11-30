@@ -6,7 +6,7 @@ CDNA documentation.
 <link rel="stylesheet" type="text/css" href="../perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio::Transcript</span>
+<span id="modRootPath">GenOO::Transcript</span>
 <span id="modName">CDNA</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
@@ -21,7 +21,7 @@ CDNA documentation.
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="TranscriptRegion.html">MyBio::Transcript::TranscriptRegion</a></span> </div>
+<div id="descArea"><span id="isa"><a href="TranscriptRegion.html">GenOO::Transcript::TranscriptRegion</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
@@ -70,7 +70,7 @@ CDNA documentation.
 			<span id="var">$select_region_info_from_transcripts_where_internal_tid</span>-&gt;<span id="method">execute</span><span id="braces">(</span><span id="var">$internal_tid</span><span id="braces">)</span>;
 			<span id="perlKey">my</span> <span id="var">$fetch_hash_ref</span> = <span id="var">$select_region_info_from_transcripts_where_internal_tid</span>-&gt;<span id="method">fetchrow_hashref</span>;
 			<span id="var">$select_region_info_from_transcripts_where_internal_tid</span>-&gt;<span id="method">finish</span><span id="braces">(</span><span id="braces">)</span>; <span id="comment"># there should be only one result so I have to indicate that fetching is over</span><br />			
-			<span id="perlKey">my</span> <span id="var">$cdnaObj</span> = <span id="module"><a href="CDNA.html">MyBio::Transcript::CDNA</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+			<span id="perlKey">my</span> <span id="var">$cdnaObj</span> = <span id="module"><a href="CDNA.html">GenOO::Transcript::CDNA</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 								TRANSCRIPT       =&gt; <span id="var">$transcript</span>,
 								SPLICE_STARTS    =&gt; $$fetch_hash_ref<span id="braces">{</span>CDNA_start<span id="braces">}</span>,
 								SPLICE_STOPS     =&gt; $$fetch_hash_ref<span id="braces">{</span>CDNA_stop<span id="braces">}</span>,

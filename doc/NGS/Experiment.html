@@ -6,14 +6,14 @@ Experiment documentation.
 <link rel="stylesheet" type="text/css" href="../perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio::NGS</span>
+<span id="modRootPath">GenOO::NGS</span>
 <span id="modName">Experiment</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#libs">Included libraries</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::NGS::Experiment</B> - Object describing a Next Generation Sequencing experiment</div>
+<div id="descArea"><B>GenOO::NGS::Experiment</B> - Object describing a Next Generation Sequencing experiment</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry">No package variables defined.</div>
@@ -25,7 +25,7 @@ Experiment documentation.
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="../_Initializable.html">MyBio::_Initializable</a></span> </div>
+<div id="descArea"><span id="isa"><a href="../_Initializable.html">GenOO::_Initializable</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
@@ -34,7 +34,7 @@ Experiment documentation.
     # It primary goal is to be extensible so that it can describe several types of experiments
     
     # To initialize 
-    my $experiment = <B>MyBio::NGS::Experiment</B>->new({
+    my $experiment = <B>GenOO::NGS::Experiment</B>->new({
         NAME            => undef,
         SPECIES         => undef,
         DESCRIPTION     => undef,
@@ -239,7 +239,7 @@ Experiment documentation.
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_EXAMPLES" id="_pod_EXAMPLES"></a>EXAMPLES</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="genInfoArea"><pre id="podParagraph">    # Read experiment info
-    my $experiment_obj = <B>MyBio::NGS::Experiment</B>->read_xml("params.xml);
+    my $experiment_obj = <B>GenOO::NGS::Experiment</B>->read_xml("params.xml);
     
     # Get all samples for a particular sub experiment</pre></div>
 <div id="sep"></div>

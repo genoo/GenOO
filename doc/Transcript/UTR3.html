@@ -6,7 +6,7 @@ UTR3 documentation.
 <link rel="stylesheet" type="text/css" href="../perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio::Transcript</span>
+<span id="modRootPath">GenOO::Transcript</span>
 <span id="modName">UTR3</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
@@ -21,7 +21,7 @@ UTR3 documentation.
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="TranscriptRegion.html">MyBio::Transcript::TranscriptRegion</a></span> </div>
+<div id="descArea"><span id="isa"><a href="TranscriptRegion.html">GenOO::Transcript::TranscriptRegion</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
@@ -76,7 +76,7 @@ UTR3 documentation.
 		<span id="perlKey">while</span> <span id="braces">(</span><span id="perlKey">my</span> <span id="var">$line</span>=&lt;PROFILE&gt;<span id="braces">)</span> <span id="braces">{</span>
 			<span id="perlFunc">chomp</span> <span id="var">$line</span>;
 			<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$enstid</span>,<span id="var">$cons_profile</span><span id="braces">)</span> = <span id="perlFunc">split</span><span id="braces">(</span><span id="regExp">/\t/</span>,<span id="var">$line</span><span id="braces">)</span>;
-			<span id="perlKey">my</span> <span id="var">$transcript</span> = <span id="module"><a href="../Transcript.html">MyBio::Transcript</a></span>-&gt;<span id="method">get_by_enstid</span><span id="braces">(</span><span id="var">$enstid</span><span id="braces">)</span>;
+			<span id="perlKey">my</span> <span id="var">$transcript</span> = <span id="module"><a href="../Transcript.html">GenOO::Transcript</a></span>-&gt;<span id="method">get_by_enstid</span><span id="braces">(</span><span id="var">$enstid</span><span id="braces">)</span>;
 			<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">defined</span> <span id="var">$transcript</span><span id="braces">)</span> <span id="braces">{</span>
 				<span id="var">$transcript</span>-&gt;<span id="method">get_utr3</span>-&gt;<span id="method">set_conservation</span><span id="braces">(</span><span id="var">$cons_profile</span><span id="braces">)</span>;
 			<span id="braces">}</span>
@@ -97,7 +97,7 @@ UTR3 documentation.
 			<span id="var">$select_region_info_from_transcripts_where_internal_tid</span>-&gt;<span id="method">execute</span><span id="braces">(</span><span id="var">$internal_tid</span><span id="braces">)</span>;
 			<span id="perlKey">my</span> <span id="var">$fetch_hash_ref</span> = <span id="var">$select_region_info_from_transcripts_where_internal_tid</span>-&gt;<span id="method">fetchrow_hashref</span>;
 			<span id="var">$select_region_info_from_transcripts_where_internal_tid</span>-&gt;<span id="method">finish</span><span id="braces">(</span><span id="braces">)</span>; <span id="comment"># there should be only one result so I have to indicate that fetching is over</span><br />			
-			<span id="perlKey">my</span> <span id="var">$utr3Obj</span> = <span id="module"><a href="UTR3.html">MyBio::Transcript::UTR3</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+			<span id="perlKey">my</span> <span id="var">$utr3Obj</span> = <span id="module"><a href="UTR3.html">GenOO::Transcript::UTR3</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 								TRANSCRIPT       =&gt; <span id="var">$transcript</span>,
 								SPLICE_STARTS    =&gt; $$fetch_hash_ref<span id="braces">{</span>UTR3_start<span id="braces">}</span>,
 								SPLICE_STOPS     =&gt; $$fetch_hash_ref<span id="braces">{</span>UTR3_stop<span id="braces">}</span>,

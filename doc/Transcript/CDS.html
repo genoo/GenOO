@@ -6,7 +6,7 @@ CDS documentation.
 <link rel="stylesheet" type="text/css" href="../perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio::Transcript</span>
+<span id="modRootPath">GenOO::Transcript</span>
 <span id="modName">CDS</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
@@ -21,7 +21,7 @@ CDS documentation.
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="TranscriptRegion.html">MyBio::Transcript::TranscriptRegion</a></span> </div>
+<div id="descArea"><span id="isa"><a href="TranscriptRegion.html">GenOO::Transcript::TranscriptRegion</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
@@ -91,7 +91,7 @@ CDS documentation.
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span> == 1<span id="braces">)</span><span id="braces">{</span><span id="var">$start</span> = <span id="var">$self</span>-&gt;<span id="method">get_start</span>;<span id="braces">}</span>
 	<span id="perlKey">elsif</span> <span id="braces">(</span><span id="var">$self</span>-&gt;<span id="method">get_strand</span> == -1<span id="braces">)</span><span id="braces">{</span><span id="var">$start</span> = <span id="var">$self</span>-&gt;<span id="method">get_stop</span>;<span id="braces">}</span>
 	<span id="perlKey">else</span> <span id="braces">{</span><span id="perlKey">return</span> <span id="perlFunc">undef</span>;<span id="braces">}</span>
-	<span id="perlKey">my</span> <span id="var">$cdsstart</span> = <span id="module"><a href="../Locus.html">MyBio::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+	<span id="perlKey">my</span> <span id="var">$cdsstart</span> = <span id="module"><a href="../Locus.html">GenOO::Locus</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 				STRAND       =&gt; <span id="var">$self</span>-&gt;<span id="method">get_strand</span>,
 				CHR          =&gt; <span id="var">$self</span>-&gt;<span id="method">get_chr</span>,
 				START        =&gt; <span id="var">$start</span>,

@@ -6,14 +6,14 @@ GFF documentation.
 <link rel="stylesheet" type="text/css" href="../../perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio::Data::File</span>
+<span id="modRootPath">GenOO::Data::File</span>
 <span id="modName">GFF</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#libs">Included libraries</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::Data::File::GFF</B> - Object implementing methods for accessing gff formatted files (<a href="http://www.sanger.ac.uk/resources/software/gff/spec.html" target="urlWin" id="podUrl">http://www.sanger.ac.uk/resources/software/gff/spec.html</a>)</div>
+<div id="descArea"><B>GenOO::Data::File::GFF</B> - Object implementing methods for accessing gff formatted files (<a href="http://www.sanger.ac.uk/resources/software/gff/spec.html" target="urlWin" id="podUrl">http://www.sanger.ac.uk/resources/software/gff/spec.html</a>)</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry">No package variables defined.</div>
@@ -21,19 +21,19 @@ GFF documentation.
 <div id="sep"></div>
 <div id="descTitle">Included modules</div>
 <div id="descArea"><div id="libEntry"><span id="use">FileHandle</span></div>
-<div id="libEntry"><span id="use"><a href="GFF/Record.html">MyBio::Data::File::GFF::Record</a></span> </div>
+<div id="libEntry"><span id="use"><a href="GFF/Record.html">GenOO::Data::File::GFF::Record</a></span> </div>
 </div>
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="../../_Initializable.html">MyBio::_Initializable</a></span> </div>
+<div id="descArea"><span id="isa"><a href="../../_Initializable.html">GenOO::_Initializable</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
 <div id="descArea"><pre id="podParagraph">    # Object that manages a gff file. 
 
     # To initialize 
-    my $gff_file = <B>MyBio::Data::File::GFF</B>->new({
+    my $gff_file = <B>GenOO::Data::File::GFF</B>->new({
         FILE            => undef,
         EXTRA_INFO      => undef,
     });</pre>
@@ -256,7 +256,7 @@ GFF documentation.
 	<span id="perlKey">my</span> <span id="braces">(</span><span id="var">$seqname</span>, <span id="var">$source</span>, <span id="var">$feature</span>, <span id="var">$start</span>, <span id="var">$end</span>, <span id="var">$score</span>, <span id="var">$strand</span>, <span id="var">$frame</span>, <span id="var">$attributes_string</span><span id="braces">)</span> = <span id="perlFunc">split</span><span id="braces">(</span><span id="regExp">/\t/</span>,<span id="var">$line</span><span id="braces">)</span>;
 	<span id="perlKey">my</span> <span id="var">@attributes</span> = <span id="perlFunc">split</span><span id="braces">(</span><span id="regExp">/;\s*/</span>,<span id="var">$attributes_string</span><span id="braces">)</span>;
 	
-	<span id="perlKey">return</span> <span id="module"><a href="GFF/Record.html">MyBio::Data::File::GFF::Record</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
+	<span id="perlKey">return</span> <span id="module"><a href="GFF/Record.html">GenOO::Data::File::GFF::Record</a></span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="braces">{</span>
 		SEQNAME     =&gt; <span id="var">$seqname</span>,
 		SOURCE      =&gt; <span id="var">$source</span>,
 		FEATURE     =&gt; <span id="var">$feature</span>,
@@ -323,7 +323,7 @@ GFF documentation.
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_EXAMPLES" id="_pod_EXAMPLES"></a>EXAMPLES</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="genInfoArea"><pre id="podParagraph">    # Create object
-    my $gff_file = <B>MyBio::Data::File::GFF</B>->new({
+    my $gff_file = <B>GenOO::Data::File::GFF</B>->new({
           FILE => 't/sample_data/sample.gff.gz'
     });
     

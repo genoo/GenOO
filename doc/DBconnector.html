@@ -6,14 +6,14 @@ DBconnector documentation.
 <link rel="stylesheet" type="text/css" href="perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio</span>
+<span id="modRootPath">GenOO</span>
 <span id="modName">DBconnector</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#libs">Included libraries</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::DBconnector</B> - Connector to database object, with features</div>
+<div id="descArea"><B>GenOO::DBconnector</B> - Connector to database object, with features</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry"><div id="descSubTitle">Privates (from <b>"my"</b> definitions)</div>
@@ -28,7 +28,7 @@ DBconnector documentation.
 <div id="sep"></div>
 <a name="libs" id="libs"></a>
 <div id="descTitle">Inherit</div>
-<div id="descArea"><span id="isa"><a href="_Initializable.html">MyBio::_Initializable</a></span> </div>
+<div id="descArea"><span id="isa"><a href="_Initializable.html">GenOO::_Initializable</a></span> </div>
 <div id="sep"></div>
 <a name="SYNOPSIS" id="SYNOPSIS"></a>
 <div id="descTitle">Synopsis</div>
@@ -36,7 +36,7 @@ DBconnector documentation.
     # Currently it is designed only for MySQL databases
     
     # To initialize 
-    my $dbconn = <B>MyBio::DBconnector</B>->new({
+    my $dbconn = <B>GenOO::DBconnector</B>->new({
         NAME        => undef,
         HOST        => undef,
         DATABASE    => undef,
@@ -86,7 +86,7 @@ DBconnector documentation.
 <div id="mainTitle">Methods description</div>
 <div id="sep"></div>
 <table id="methDescTitle" width="100%"><tr><td WIDTH="200"><a name="_pod_global_access" id="_pod_global_access"></a><a name="POD1" id="POD1"></a>global_access</td><td ><a href="#CODE21">code</a></td><td >&nbsp;&nbsp;&nbsp;&nbsp;</td><td ><a href="#POD2">next</a></td><td align="right"><a href="#TOP">Top</a></td></tr></table>
-<table id="methDescArea" width="100%"><tr><td><pre id="podParagraph">  Example    : my $accessPolicy = <B>MyBio::DBconnector</B>->global_access();
+<table id="methDescArea" width="100%"><tr><td><pre id="podParagraph">  Example    : my $accessPolicy = <B>GenOO::DBconnector</B>->global_access();
   Description: Class method that returns whether access to the database is allowed or not
   Returntype : ALLOW / DENY
   Caller     : ?

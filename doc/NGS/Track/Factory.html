@@ -6,14 +6,14 @@ Factory documentation.
 <link rel="stylesheet" type="text/css" href="../../perl.css">
 </head>
 <body bgcolor="white">
-<span id="modRootPath">MyBio::NGS::Track</span>
+<span id="modRootPath">GenOO::NGS::Track</span>
 <span id="modName">Factory</span>
 <div id="sep"></div>
 <a name="TOP" id="TOP"></a>
 <table id="daArea" width="100%"><tr><td id="daEntry" ><a href="#SUMMARY">Summary</a></td><td id="daEntry" ><a href="#vardefs">Package variables</a></td><td id="daEntry" ><a href="#SYNOPSIS">Synopsis</a></td><td id="daEntry" ><a href="#DESCRIPTION">Description</a></td><td id="daEntry" ><a href="#General">General documentation</a></td><td id="daEntry" ><a href="#Methods">Methods</a></td></tr></table>
 <div id="sep"></div>
 <div id="descTitle">Summary</div>
-<div id="descArea"><B>MyBio::NGS::Track::Factory</B> - Factory for creating MyBio::NGS::Track objects</div>
+<div id="descArea"><B>GenOO::NGS::Track::Factory</B> - Factory for creating GenOO::NGS::Track objects</div>
 <div id="sep"></div>
 <a name="vardefs" id="vardefs"></a><div id="descTitle">Package variables</div>
 <div id="descArea"><div id="libEntry">No package variables defined.</div>
@@ -24,7 +24,7 @@ Factory documentation.
 <div id="descArea"><pre id="podParagraph">    # It helps to encapsulate the actual factories that handle the creation of the requested objects
     
     # Usage
-    my $factory = <B>MyBio::NGS::Track::Factory</B>->new({
+    my $factory = <B>GenOO::NGS::Track::Factory</B>->new({
         TYPE => 'GFF'
         FILE => 'sample.gff'
     });</pre>
@@ -56,8 +56,8 @@ Factory documentation.
 	<span id="perlKey">my</span> <span id="var">$type</span> = <span id="perlFunc">delete</span> <span id="var">$data</span>-&gt;<span id="braces">{</span>TYPE<span id="braces">}</span>;
 	
 	<span id="perlKey">if</span> <span id="braces">(</span><span id="perlFunc">defined</span> <span id="var">$type</span><span id="braces">)</span> <span id="braces">{</span>
-		<span id="perlKey">my</span> <span id="var">$handler_class_path</span> = <span id="sqStr">'MyBio/NGS/Track/Factory/'</span>.<span id="var">$type</span>.<span id="sqStr">'.pm'</span>;
-		<span id="perlKey">my</span> <span id="var">$handler_class</span> = <span id="sqStr">'MyBio::NGS::Track::Factory::'</span>.<span id="var">$type</span>;
+		<span id="perlKey">my</span> <span id="var">$handler_class_path</span> = <span id="sqStr">'GenOO/NGS/Track/Factory/'</span>.<span id="var">$type</span>.<span id="sqStr">'.pm'</span>;
+		<span id="perlKey">my</span> <span id="var">$handler_class</span> = <span id="sqStr">'GenOO::NGS::Track::Factory::'</span>.<span id="var">$type</span>;
 		<span id="perlKey">require</span> <span id="var">$handler_class_path</span>;
 	
 		<span id="perlKey">return</span> <span id="var">$handler_class</span>-&gt;<span id="perlKey">new</span><span id="braces">(</span><span id="var">$data</span><span id="braces">)</span>;
@@ -77,12 +77,12 @@ Factory documentation.
 <div id="sep"></div>
 <table id="genInfoTitle" width="100%"><tr><td><a name="_pod_EXAMPLES" id="_pod_EXAMPLES"></a>EXAMPLES</td><td align="right"><a href="#TOP">Top</a></td></tr></table>
 <div id="genInfoArea"><pre id="podParagraph">    # Create a factory
-    my $factory = <B>MyBio::NGS::Track::Factory</B>->new({
+    my $factory = <B>GenOO::NGS::Track::Factory</B>->new({
         TYPE => 'GFF'
     }); # returns the actual factory that can handle GFF files
     
     # ditto (preferably)
-    my $factory = <B>MyBio::NGS::Track::Factory</B>->instantiate({
+    my $factory = <B>GenOO::NGS::Track::Factory</B>->instantiate({
         TYPE => 'GFF'
     });</pre></div>
 <div id="sep"></div>
