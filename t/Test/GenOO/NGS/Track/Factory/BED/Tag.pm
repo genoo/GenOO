@@ -19,18 +19,18 @@ sub new_object : Test(setup) {
 	my ($self) = @_;
 	
 	my $record_data = {
-		CHR          => 'chr7',
-		START        => 127471196,
-		STOP_1       => 127472363,
-		NAME         => 'Pos1',
-		SCORE        => 0,
-		STRAND       => '+',
-		THICK_START  => 127471196,
-		THICK_STOP   => 127472363,
-		RGB          => '255,0,0',
-		BLOCK_COUNT  => 2,
-		BLOCK_SIZES  => [100,200],
-		BLOCK_STARTS => [0, 900],
+		rname             => 'chr7',
+		start             => 127471196,
+		stop_1based       => 127472363,
+		name              => 'Pos1',
+		score             => 0,
+		strand_symbol     => '+',
+		thick_start       => 127471196,
+		thick_stop_1based => 127472363,
+		rgb               => '255,0,0',
+		block_count       => 2,
+		block_sizes       => [100,200],
+		block_starts      => [0, 900],
 	};
 	
 	my $record = GenOO::Data::File::BED::Record->new($record_data);

@@ -41,190 +41,62 @@ GenOO::Data::File::BED::Record - Object representing a record of a bed file
 # Let the code begin...
 
 package GenOO::Data::File::BED::Record;
-use strict;
 
-use base qw( GenOO::_Initializable );
+use Moose;
+use namespace::autoclean;
 
-our $VERSION = '1.0';
+# Define the attributes
+has 'rname'             => (isa => 'Str', is => 'ro', required => 1);
+has 'start'             => (isa => 'Int', is => 'ro', required => 1);
+has 'stop'              => (isa => 'Int', is => 'ro', required => 1);
+has 'name'              => (isa => 'Str', is => 'ro', required => 1);
+has 'score'             => (isa => 'Num', is => 'ro', required => 1);
+has 'strand'            => (isa => 'Int', is => 'ro', required => 1);
+has 'thick_start'       => (isa => 'Int', is => 'ro');
+has 'thick_stop_1based' => (isa => 'Int', is => 'ro');
+has 'rgb'               => (isa => 'Str', is => 'ro');
+has 'block_count'       => (isa => 'Int', is => 'ro');
+has 'block_sizes'       => (isa => 'ArrayRef', is => 'ro');
+has 'block_starts'      => (isa => 'ArrayRef', is => 'ro');
+has 'extra'             => (is => 'rw');
+has 'copy_number'       => (isa => 'Int', is => 'ro', default => 1, lazy => 1);
 
-sub _init {
-	my ($self,$data) = @_;
+# Define consuming roles
+with 'GenOO::Region';
+
+# Before object creation edit the hash with the arguments to resolve 1 based and strand symbol
+around BUILDARGS => sub {
+	my $orig  = shift;
+	my $class = shift;
 	
-	$self->set_chr($$data{CHR}); # Name of the chromosome
-	$self->set_start($$data{START}); # 0-based
-	$self->set_stop($$data{STOP_1}); # 1-based
-	$self->set_name($$data{NAME}); # Name of the BED
-	$self->set_score($$data{SCORE}); # A score between 0 and 1000
-	$self->set_strand($$data{STRAND}); # The strand '+' or '-'. 
-	$self->set_thick_start($$data{THICK_START}); # 0-based start position at which feature is drawn thickly
-	$self->set_thick_stop($$data{THICK_STOP}); # 1-based stop position at which feature is drawn thickly
-	$self->set_rgb($$data{RGB}); # An RGB value of the form R,G,B (e.g. 255,0,0)
-	$self->set_block_count($$data{BLOCK_COUNT}); # The number of blocks (exons) in the BED line
-	$self->set_block_sizes($$data{BLOCK_SIZES}); # A comma-separated list of the block sizes
-	$self->set_block_starts($$data{BLOCK_STARTS}); # A comma-separated list of block starts.
-}
-
-#######################################################################
-########################   Attribute Setters   ########################
-#######################################################################
-sub set_chr {
-	my ($self,$value) = @_;
-	$self->{CHR} = $value if defined $value;
-}
-
-sub set_start {
-	my ($self,$value) = @_;
-	$self->{START} = $value if defined $value;
-}
-
-sub set_stop {
-	my ($self,$value) = @_;
-	$self->{STOP} = $value - 1 if defined $value;
-}
-
-sub set_name {
-	my ($self,$value) = @_;
-	$self->{NAME} = $value if defined $value;
-}
-
-sub set_score {
-	my ($self,$value) = @_;
-	$self->{SCORE} = $value if defined $value;
-}
-
-sub set_strand {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		if ($value eq '+') {
-			$self->{STRAND} = 1;
+	my $argv_hash_ref = $class->$orig(@_);
+	
+	if (exists $argv_hash_ref->{stop_1based}) {
+		$argv_hash_ref->{stop} = $argv_hash_ref->{stop_1based} - 1;
+	}
+	if (exists $argv_hash_ref->{strand_symbol}) {
+		if ($argv_hash_ref->{strand_symbol} eq '+') {
+			$argv_hash_ref->{strand} = 1;
 		}
-		elsif ($value eq '-') {
-			$self->{STRAND} = -1;
-		}
-		else {
-			delete $self->{STRAND};
+		elsif ($argv_hash_ref->{strand_symbol} eq '-') {
+			$argv_hash_ref->{strand} = -1;
 		}
 	}
-}
-
-sub set_thick_start {
-	my ($self,$value) = @_;
-	$self->{THICK_START} = $value if defined $value;
-}
-
-sub set_thick_stop {
-	my ($self,$value) = @_;
-	$self->{THICK_STOP} = $value - 1 if defined $value;
-}
-
-sub set_rgb {
-	my ($self,$value) = @_;
-	$self->{RGB} = $value if defined $value;
-}
-
-sub set_block_count {
-	my ($self,$value) = @_;
-	$self->{BLOCK_COUNT} = $value if defined $value;
-}
-
-sub set_block_sizes {
-	my ($self,$value) = @_;
-	$self->{BLOCK_SIZES} = $value if defined $value;
-}
-
-sub set_block_starts {
-	my ($self,$value) = @_;
-	$self->{BLOCK_STARTS} = $value if defined $value;
-}
-
-#######################################################################
-############################   Accessors   ############################
-#######################################################################
-sub chr {
-	my ($self) = @_;
-	return $self->{CHR};
-}
-
-sub start {
-	my ($self) = @_;
-	return $self->{START};
-}
-
-sub stop {
-	my ($self) = @_;
-	return $self->{STOP};
-}
-
-sub name {
-	my ($self) = @_;
-	return $self->{NAME};
-}
-
-sub score {
-	my ($self) = @_;
-	return $self->{SCORE};
-}
-
-sub strand {
-	my ($self) = @_;
-	return $self->{STRAND};
-}
-
-sub thick_start {
-	my ($self) = @_;
-	return $self->{THICK_START};
-}
-
-sub thick_stop {
-	my ($self) = @_;
-	return $self->{THICK_STOP};
-}
-
-sub rgb {
-	my ($self) = @_;
-	return $self->{RGB};
-}
-
-sub block_count {
-	my ($self) = @_;
-	return $self->{BLOCK_COUNT};
-}
-
-sub block_sizes {
-	my ($self) = @_;
-	return $self->{BLOCK_SIZES};
-}
-
-sub block_starts {
-	my ($self) = @_;
-	return $self->{BLOCK_STARTS};
-}
-
-sub length {
-	my ($self) = @_;
-	return $self->stop - $self->start + 1;
-}
-
-sub strand_symbol {
-	my ($self) = @_;
 	
-	my $strand = $self->strand;
-	if (defined $strand) {
-		if ($strand == 1) {
-			return '+';
-		}
-		elsif ($strand == -1) {
-			return '-';
-		}
-		elsif ($strand == 0) {
-			return '.';
-		}
-	}
-	return undef;
+	return $argv_hash_ref;
+};
+
+#######################################################################
+########################   Interface Methods   ########################
+#######################################################################
+sub stop_1_based {
+	my ($self) = @_;
+	return $self->stop + 1;
 }
 
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
 
+__PACKAGE__->meta->make_immutable;
 1;

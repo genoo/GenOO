@@ -1,10 +1,9 @@
 package Test::GenOO::Data::File::SAM::Record;
 use strict;
 
+use base qw(Test::GenOO);
 use Test::Moose;
 use Test::Most;
-use base qw(Test::GenOO);
-
 
 #######################################################################
 ################   Startup (Runs once in the begining  ################
@@ -23,7 +22,6 @@ sub create_new_test_objects : Test(setup) {
 	my $test_class = ref($self) || $self;
 	$self->{TEST_OBJECTS} = $test_class->test_objects();
 };
-
 
 #######################################################################
 ###########################   Actual Tests   ##########################

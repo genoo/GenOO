@@ -68,11 +68,11 @@ sub strand {
 }
 sub chr {
 	my ($self) = @_;
-	return $self->record->chr;
+	return $self->record->rname;
 }
 sub chromosome {
 	my ($self) = @_;
-	return $self->record->chr;
+	return $self->record->rname;
 }
 sub start {
 	my ($self) = @_;

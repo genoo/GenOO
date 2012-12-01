@@ -130,14 +130,14 @@ sub parse_record_line : Test(14) {
 	my $record =  $self->obj->parse_record_line($line);
 	isa_ok $record, 'GenOO::Data::File::BED::Record', "... and the returned object";
 	
-	is $record->chr, 'chr7', "... and should have the correct value";
+	is $record->rname, 'chr7', "... and should have the correct value";
 	is $record->start, 127471196, "... and again";
 	is $record->stop, 127472362, "... and again";
 	is $record->name, 'Pos1', "... and again";
 	is $record->score, 0, "... and again";
 	is $record->strand, 1, "... and again";
 	is $record->thick_start, 127471196, "... and again";
-	is $record->thick_stop, 127472362, "... and again";
+	is $record->thick_stop_1based, 127472363, "... and again";
 	is $record->rgb, '255,0,0', "... and again";
 	is $record->block_count, 2, "... and again";
 	is_deeply $record->block_sizes, [100,200], "... and again";

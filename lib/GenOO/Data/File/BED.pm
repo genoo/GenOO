@@ -226,20 +226,23 @@ sub parse_record_line {
 	chomp $line;
 	my ($chr,$start,$stop_1,$name,$score,$strand,$thick_start,$thick_stop,$rgb,$block_count,$block_sizes,$block_starts) = split(/\t/,$line);
 	
-	return GenOO::Data::File::BED::Record->new({
-		CHR          => $chr,
-		START        => $start,
-		STOP_1       => $stop_1,
-		NAME         => $name,
-		SCORE        => $score,
-		STRAND       => $strand,
-		THICK_START  => $thick_start,
-		THICK_STOP   => $thick_stop,
-		RGB          => $rgb,
-		BLOCK_COUNT  => $block_count,
-		BLOCK_SIZES  => [split(/,/,$block_sizes)],
-		BLOCK_STARTS => [split(/,/,$block_starts)],
-	});
+	my $data = {
+		rname             => $chr,
+		start             => $start,
+		stop_1based       => $stop_1,
+		name              => $name,
+		score             => $score,
+		strand_symbol     => $strand,
+	};
+	
+	($data->{thick_start}       = $thick_start) if defined $thick_start;
+	($data->{thick_stop_1based} = $thick_stop) if defined $thick_stop;
+	($data->{rgb}               = $rgb) if defined $rgb;
+	($data->{block_count}       = $block_count) if defined $block_count;
+	($data->{block_sizes}       = [split(/,/,$block_sizes)]) if defined $block_sizes;
+	($data->{block_starts}      = [split(/,/,$block_starts)]) if defined $block_starts;
+	
+	return GenOO::Data::File::BED::Record->new($data);
 }
 
 sub line_looks_like_comment {

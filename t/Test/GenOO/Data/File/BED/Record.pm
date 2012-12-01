@@ -2,8 +2,8 @@ package Test::GenOO::Data::File::BED::Record;
 use strict;
 
 use base qw(Test::GenOO);
+use Test::Moose;
 use Test::Most;
-
 
 #######################################################################
 ################   Startup (Runs once in the begining  ################
@@ -14,142 +14,190 @@ sub _check_loading : Test(startup => 1) {
 };
 
 #######################################################################
-###########################   Actual Tests   ##########################
+#################   Setup (Runs before every method)  #################
+#######################################################################
+sub create_new_test_objects : Test(setup) {
+	my ($self) = @_;
+	
+	my $test_class = ref($self) || $self;
+	$self->{TEST_OBJECTS} = $test_class->test_objects();
+};
+
+#######################################################################
+##########################   Initial Tests   ##########################
 #######################################################################
 sub _isa_test : Test(1) {
 	my ($self) = @_;
-	
-	my $data = {
-		CHR          => 'chr7',
-		START        => 127471196,
-		STOP_1       => 127472363,
-		NAME         => 'Pos1',
-		SCORE        => 0,
-		STRAND       => '+',
-		THICK_START  => 127471196,
-		THICK_STOP   => 127472363,
-		RGB          => '255,0,0',
-		BLOCK_COUNT  => 2,
-		BLOCK_SIZES  => [100,200],
-		BLOCK_STARTS => [0, 900],
-	};
-	
-	isa_ok $self->class->new($data), $self->class, "... and the object";
+	isa_ok $self->obj(0), $self->class, "... and the object";
 }
 
-sub chr : Test(4) {
+sub _role_check : Test(1) {
 	my ($self) = @_;
-	$self->simple_attribute_test('chr', 'chr7', 'chr7');
+	does_ok($self->obj(0), 'GenOO::Region', '... does the GenOO::Region role');
 }
 
-sub start : Test(4) {
-	my ($self) = @_;
-	$self->simple_attribute_test('start', 127471196, 127471196);
-}
-
-sub stop : Test(4) {
-	my ($self) = @_;
-	$self->simple_attribute_test('stop', 127472363, 127472362);
-}
-
-sub strand : Test(4) {
-	my ($self) = @_;
-	$self->simple_attribute_test('strand', '+', 1);
-}
-
-sub thick_start : Test(4) {
-	my ($self) = @_;
-	$self->simple_attribute_test('thick_start', 127471196, 127471196);
-}
-
-sub thick_stop : Test(4) {
-	my ($self) = @_;
-	$self->simple_attribute_test('thick_stop', 127472363, 127472362);
-}
-
-sub rgb : Test(4) {
-	my ($self) = @_;
-	$self->simple_attribute_test('rgb', '255,0,0', '255,0,0');
-}
-
-sub block_count : Test(4) {
-	my ($self) = @_;
-	$self->simple_attribute_test('block_count', 2, 2);
-}
-
-sub block_sizes : Test(4) {
-	my ($self) = @_;
-	$self->deep_attribute_test('block_sizes', [100,200], [100,200]);
-}
-
-sub block_starts : Test(4) {
-	my ($self) = @_;
-	$self->deep_attribute_test('block_starts', [0, 900], [0, 900]);
-}
-
-
-sub length : Test(2) {
+#######################################################################
+###########################   Actual Tests   ##########################
+#######################################################################
+sub rname : Test(2) {
 	my ($self) = @_;
 	
-	my $obj = $self->class->new;
-	can_ok $obj, 'length';
-	
-	$obj->set_start(127471196);
-	$obj->set_stop(127472363);
-	is $obj->length, 1167, "... and should return the correct value";
+	has_attribute_ok($self->obj(0), 'rname', "... test object has the 'rname' attribute");
+	is $self->obj(0)->rname, 'chr7', "... and returns the correct value";
 }
 
-sub strand_symbol : Test(5) {
+sub start : Test(2) {
 	my ($self) = @_;
 	
-	my $obj = $self->class->new;
-	can_ok $obj, 'strand_symbol';
+	has_attribute_ok($self->obj(0), 'start', "... test object has the 'start' attribute");
+	is $self->obj(0)->start, 127471196, "... and returns the correct value";
+}
+
+sub stop : Test(3) {
+	my ($self) = @_;
 	
-	is $obj->strand_symbol, undef, "... and should return the correct value";
+	has_attribute_ok($self->obj(0), 'stop', "... test object has the 'stop' attribute");	
+	is $self->obj(0)->stop, 127472362, "... and returns the correct value";
+	is $self->obj(1)->stop, 150, "... and returns the correct value";
+}
+
+sub name : Test(2) {
+	my ($self) = @_;
 	
-	$obj->set_strand('+');
-	is $obj->strand_symbol, '+', "... and should return the correct value again";
+	has_attribute_ok($self->obj(0), 'name', "... test object has the 'name' attribute");
+	is $self->obj(0)->name, 'Pos1', "... and returns the correct value";
+}
+
+sub score : Test(3) {
+	my ($self) = @_;
 	
-	$obj->set_strand('-');
-	is $obj->strand_symbol, '-', "... and again";
+	has_attribute_ok($self->obj(0), 'score', "... test object has the 'score' attribute");
+	is $self->obj(0)->score, 10, "... and returns the correct value";
+	is $self->obj(1)->score, 0.5, "... and returns the correct value";
+}
+
+sub strand : Test(3) {
+	my ($self) = @_;
 	
-	$obj->set_strand('.');
-	is $obj->strand_symbol, undef, "... and again";
+	has_attribute_ok($self->obj(0), 'strand', "... test object has the 'strand' attribute");	
+	is $self->obj(0)->strand, 1, "... and returns the correct value";
+	is $self->obj(1)->strand, -1, "... and returns the correct value";
+}
+
+sub thick_start : Test(2) {
+	my ($self) = @_;
+	
+	has_attribute_ok($self->obj(0), 'thick_start', "... test object has the 'thick_start' attribute");	
+	is $self->obj(0)->thick_start, 127471196, "... and returns the correct value";
+}
+
+sub thick_stop_1based : Test(2) {
+	my ($self) = @_;
+	
+	has_attribute_ok($self->obj(0), 'thick_stop_1based', "... test object has the 'thick_stop_1based' attribute");	
+	is $self->obj(0)->thick_stop_1based, 127472363, "... and returns the correct value";
+}
+
+sub rgb : Test(2) {
+	my ($self) = @_;
+	
+	has_attribute_ok($self->obj(0), 'rgb', "... test object has the 'rgb' attribute");	
+	is $self->obj(0)->rgb, '255,0,0', "... and returns the correct value";
+}
+
+sub block_count : Test(2) {
+	my ($self) = @_;
+	
+	has_attribute_ok($self->obj(0), 'block_count', "... test object has the 'block_count' attribute");	
+	is $self->obj(0)->block_count, 2, "... and returns the correct value";
+}
+
+sub block_sizes : Test(2) {
+	my ($self) = @_;
+	
+	has_attribute_ok($self->obj(0), 'block_sizes', "... test object has the 'block_sizes' attribute");	
+	is_deeply $self->obj(0)->block_sizes, [100,200], "... and returns the correct value";
+}
+
+sub block_starts : Test(2) {
+	my ($self) = @_;
+	
+	has_attribute_ok($self->obj(0), 'block_starts', "... test object has the 'block_starts' attribute");	
+	is_deeply $self->obj(0)->block_starts, [0, 900], "... and returns the correct value";
+}
+
+sub copy_number : Test(3) {
+	my ($self) = @_;
+	
+	has_attribute_ok($self->obj(0), 'copy_number', "... test object has the 'copy_number' attribute");
+	is $self->obj(0)->copy_number, 1, "... and returns the correct value";
+	is $self->obj(1)->copy_number, 100, "... and returns the correct value";
+}
+
+sub stop_1_based : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'stop_1_based';
+	is $self->obj(0)->stop_1_based, 127472363, "... and returns the correct value";
 }
 
 #######################################################################
 ##########################   Helper Methods   #########################
 #######################################################################
-
-sub simple_attribute_test {
-	my ($self,$attribute,$value,$expected) = @_;
+sub obj {
+	my ($self, $index) = @_;
 	
-	my $get = $attribute;
-	my $set = 'set_'.$attribute;
-	
-	my $obj = $self->class->new;
-	
-	can_ok $obj, $get;
-	ok !defined $obj->$get, "... and $attribute should start as undefined";
-	
-	can_ok $obj, $set;
-	$obj->$set($value);
-	is $obj->$get, $expected, "... and setting its value should succeed";
+	return $self->{TEST_OBJECTS}->[$index];
 }
 
-sub deep_attribute_test {
-	my ($self,$attribute,$value,$expected) = @_;
+sub objs {
+	my ($self) = @_;
 	
-	my $get = $attribute;
-	my $set = 'set_'.$attribute;
-	
-	my $obj = $self->class->new;
-	
-	can_ok $obj, $get;
-	ok !defined $obj->$get, "... and $attribute should start as undefined";
-	
-	can_ok $obj, $set;
-	$obj->$set($value);
-	is_deeply $obj->$get, $expected, "... and setting its value should succeed";
+	return @{$self->{TEST_OBJECTS}};
 }
+
+#######################################################################
+###############   Class method to create test objects   ###############
+#######################################################################
+sub test_objects {
+	my ($test_class) = @_;
+	
+	eval "require ".$test_class->class;
+	
+	my @test_objects;
+	
+	push @test_objects, $test_class->class->new({
+		rname             => 'chr7',
+		start             => 127471196,
+		stop_1based       => 127472363,
+		name              => 'Pos1',
+		score             => 10,
+		strand_symbol     => '+',
+		thick_start       => 127471196,
+		thick_stop_1based => 127472363,
+		rgb               => '255,0,0',
+		block_count       => 2,
+		block_sizes       => [100,200],
+		block_starts      => [0, 900],
+	});
+	
+	push @test_objects, $test_class->class->new({
+		rname             => 'chr10',
+		start             => 127,
+		stop              => 150,
+		name              => 'Pos2',
+		score             => 0.5,
+		strand            => -1,
+		thick_start       => 127471196,
+		thick_stop_1based => 127472363,
+		rgb               => '255,0,0',
+		block_count       => 1,
+		block_sizes       => [24],
+		block_starts      => [0],
+		copy_number       => 100,
+	});
+	
+	return \@test_objects;
+}
+
 1;
