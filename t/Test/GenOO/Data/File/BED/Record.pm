@@ -134,11 +134,11 @@ sub copy_number : Test(3) {
 	is $self->obj(1)->copy_number, 100, "... and returns the correct value";
 }
 
-sub stop_1_based : Test(2) {
+sub stop_1based : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'stop_1_based';
-	is $self->obj(0)->stop_1_based, 127472363, "... and returns the correct value";
+	can_ok $self->obj(0), 'stop_1based';
+	is $self->obj(0)->stop_1based, 127472363, "... and returns the correct value";
 }
 
 #######################################################################

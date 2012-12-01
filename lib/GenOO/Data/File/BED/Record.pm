@@ -10,19 +10,19 @@ GenOO::Data::File::BED::Record - Object representing a record of a bed file
 
     # To initialize 
     my $record = GenOO::Data::File::BED::Record->new({
-        CHR          => undef,
-        START        => undef,
-        STOP_1       => undef,
-        NAME         => undef,
-        SCORE        => undef,
-        STRAND       => undef,
-        THICK_START  => undef,
-        THICK_STOP   => undef,
-        RGB          => undef,
-        BLOCK_COUNT  => undef,
-        BLOCK_SIZES  => undef,
-        BLOCK_STARTS => undef,
-        EXTRA_INFO   => undef,
+        rname             => undef,
+        start             => undef,
+        stop_1based       => undef,
+        name              => undef,
+        score             => undef,
+        strand_symbol     => undef,
+        thick_start       => undef,
+        thick_stop_1based => undef,
+        rgb               => undef,
+        block_count       => undef,
+        block_sizes       => undef,
+        block_starts      => undef,
+        copy_number       => undef,
     });
 
 
@@ -33,8 +33,16 @@ GenOO::Data::File::BED::Record - Object representing a record of a bed file
 
 =head1 EXAMPLES
 
-    # Return 1 or -1 for the strand
-    my $strand = $record->strand();
+    # Return strand
+    my $strand = $record->strand; # -1
+    my $strand_symbol = $record->strand_symbol; # -
+    
+    # Return stop position
+    my $stop = $record->stop; #10
+    my $stop_1based = $record->stop_1based; #11
+    
+    # Return location
+    my $location = $record->location;
 
 =cut
 
@@ -61,7 +69,7 @@ has 'block_starts'      => (isa => 'ArrayRef', is => 'ro');
 has 'extra'             => (is => 'rw');
 has 'copy_number'       => (isa => 'Int', is => 'ro', default => 1, lazy => 1);
 
-# Define consuming roles
+# Consume roles
 with 'GenOO::Region';
 
 # Before object creation edit the hash with the arguments to resolve 1 based and strand symbol
@@ -89,7 +97,7 @@ around BUILDARGS => sub {
 #######################################################################
 ########################   Interface Methods   ########################
 #######################################################################
-sub stop_1_based {
+sub stop_1based {
 	my ($self) = @_;
 	return $self->stop + 1;
 }
