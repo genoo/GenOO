@@ -2,36 +2,41 @@
 
 =head1 NAME
 
-GenOO::RegionCollection::Factory::SAM - Factory for creating GenOO::RegionCollection object from a SAM formatted file
+GenOO::RegionCollection::Factory::SAM - Factory for creating GenOO::RegionCollection object from a SAM file
 
 =head1 SYNOPSIS
 
-    # Creates GenOO::RegionCollection object from a SAM formatted file 
+    # Creates GenOO::RegionCollection object from a SAM file 
 
-    # It should not be used directly but through the generic GenOO::RegionCollection::Factory as follows
-    my $factory = GenOO::RegionCollection::Factory->new({
-        type => 'SAM'
-        file => 'sample.sam'
-    });
+    # Preferably use it through the generic GenOO::RegionCollection::Factory
+    my $factory = GenOO::RegionCollection::Factory->new('SAM',
+        {
+            file => 'sample.sam'
+        }
+    );
 
 =head1 DESCRIPTION
 
-    Implements the Track::Factory interface and uses the SAM parser to create a 
-    GenOO::RegionCollection object from a SAM formatted file.
+    An instance of this class is a concrete factory for the creation of a 
+    L<GenOO::RegionCollection> object from a SAM file. It offers the method 
+    "read_collection" (as the consumed role requires) which returns the actual
+    L<GenOO::RegionCollection> object in the form of 
+    L<GenOO::RegionCollection::Type::DoubleHashArray>. The latter is the implementation
+    of the L<GenOO::RegionCollection> class based on the complex data structure
+    L<GenOO::Data::Structure::DoubleHashArray>.
 
 =head1 EXAMPLES
 
-    # Create the factory
-    my $factory = GenOO::RegionCollection::Factory->new({
-        type => 'SAM'
-        file => 'sample.sam'
-    });
+    # Create a concrete factory
+    my $factory_implementation = GenOO::RegionCollection::Factory->new('SAM',
+        {
+            file => 'sample.sam'
+        }
+    );
     
-    # ditto (preferably)
-    my $factory = GenOO::RegionCollection::Factory->instantiate({
-        type => 'SAM'
-        file => 'sample.sam'
-    });
+    # Return the actual GenOO::RegionCollection object
+    my $collection = $factory_implementation->read_collection;
+    print ref($collection) # GenOO::RegionCollection::Type::DoubleHashArray
 
 =cut
 
@@ -46,7 +51,6 @@ use GenOO::RegionCollection::Type::DoubleHashArray;
 use GenOO::Data::File::SAM;
 
 has 'file' => (is => 'Str', is => 'ro');
-has 'extra' => (is => 'rw');
 
 with 'GenOO::RegionCollection::Factory::Requires';
 
