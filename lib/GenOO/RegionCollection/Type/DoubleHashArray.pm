@@ -40,7 +40,6 @@ package GenOO::RegionCollection::Type::DoubleHashArray;
 use Moose;
 use namespace::autoclean;
 
-use GenOO::MySub;
 use GenOO::Module::Search::Binary;
 use GenOO::Data::Structure::DoubleHashArray;
 
