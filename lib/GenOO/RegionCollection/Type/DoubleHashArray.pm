@@ -70,7 +70,7 @@ with 'GenOO::RegionCollection';
 #######################################################################
 sub add_record {
 	my ($self, $record) = @_;
-	$self->_container->add_entry($record->strand, $record->chromosome, $record);
+	$self->_container->add_entry($record->strand, $record->rname, $record);
 	$self->_reset;
 }
 
@@ -201,57 +201,6 @@ sub _records_ref_for_strand_and_rname {
 sub _reset {
 	my ($self) = @_;
 	$self->_clear_longest_record;
-}
-
-#######################################################################
-##################   Methods that modify the object  ##################
-#######################################################################
-=head2 set_sequence_for_all_records
-  Arg [1]    : Hash reference containing parameters.
-               Required parameters:
-                  1/ CHR_FOLDER: The folder that contains fasta files with the chromosome sequences
-  Example    : set_sequence_for_all_records({
-                 CHR_FOLDER       => "/chromosomes/hg19/"
-               })
-  Description: Sets the sequence attribute for all records in the RegionCollection.
-=cut
-sub set_sequence_for_all_records {
-	my ($self, $params) = @_;
-	
-	my $chr_folder = delete $params->{'CHR_FOLDER'};
-	unless (defined $chr_folder) {
-		die "Error. The CHR_FOLDER must be specified in ".(caller(0))[3]."\n";
-	}
-	
-	my $current_chr;
-	my $current_chr_seq;
-	$self->foreach_record_do( sub {
-		my ($record) = @_;
-		
-		if ($record->chromosome ne $current_chr) {
-			my $chr_file = $chr_folder.'/'.$record->chromosome.'.fa';
-			if (-e $chr_file) {
-				$current_chr_seq = GenOO::MySub::read_fasta($chr_file, $record->chromosome);
-				$current_chr = $record->chromosome;
-			}
-			else {
-				warn "Skipping chromosome. File $chr_file does not exist";
-				next;
-			}
-		}
-		
-		my $record_seq = substr($current_chr_seq, $record->start, $record->length);
-		if ($record->strand == -1) {
-			$record_seq = reverse($record_seq);
-			if ($record_seq =~ /U/i) {
-				$record_seq =~ tr/ATGCUatgcu/UACGAuacga/;
-			}
-			else {
-				$record_seq =~ tr/ATGCUatgcu/TACGAtacga/;
-			}
-		}
-		$record->set_sequence($record_seq);
-	});
 }
 
 #######################################################################

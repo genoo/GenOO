@@ -52,6 +52,12 @@ with 'GenOO::NGS::Track';
 #######################################################################
 ########################   Interface Methods   ########################
 #######################################################################
+sub add_record {
+	my ($self, $record) = @_;
+	$self->_container->add_entry($record->strand, $record->chromosome, $record);
+	$self->_reset;
+}
+
 after 'add_record' => sub {
 	my ($self) = @_;
 	$self->_reset_stats;
