@@ -50,7 +50,6 @@ package GenOO::Gene;
 use strict;
 use Object::ID;
 
-use GenOO::DBconnector;
 use GenOO::Helper::Locus;
 
 use base qw(GenOO::Locus);
@@ -549,91 +548,6 @@ sub has_coding_transcript {
 		close $IN;
 		
 		return %all_gene_ids;
-	}
-	
-	########################################## database ##########################################
-	my $DBconnector;
-	my $accessPolicy = GenOO::DBconnector->global_access();
-	my $select_all_from_genes_where_ensgid;
-	my $select_all_from_genes_where_ensgid_Query = qq/SELECT * FROM diana_protein_genes WHERE diana_protein_genes.ensgid=?/;
-	
-	sub allow_database_access {
-		$accessPolicy = 'ALLOW';
-	}
-	
-	sub deny_database_access {
-		$accessPolicy = 'DENY';
-	}
-	
-	sub database_access {
-		my ($class) = @_;
-		
-		while (!defined $accessPolicy) {
-			print STDERR "Would you like to enable database access to retrieve data for class $class? (y/n) [n]";
-			my $userChoice = <>;
-			chomp ($userChoice);
-			if    ($userChoice eq '')  {$class->deny_database_access;}
-			elsif ($userChoice eq 'y') {$class->allow_database_access;}
-			elsif ($userChoice eq 'n') {$class->deny_database_access;}
-			else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
-		}
-		
-		return $accessPolicy;
-	}
-	
-	sub get_db_connector {
-		my ($class) = @_;
-		$class = ref($class) || $class;
-		
-		if (!defined $DBconnector) {
-			while (!defined $accessPolicy) {
-				print STDERR "Would you like to enable database access to retrieve data for class $class? (y/n) [n]";
-				my $userChoice = <>;
-				chomp ($userChoice);
-				if    ($userChoice eq '')  {$class->deny_database_access;}
-				elsif ($userChoice eq 'y') {$class->allow_database_access;}
-				elsif ($userChoice eq 'n') {$class->deny_database_access;}
-				else {print STDERR 'Choice not recognised. Please specify (y/n)'."\n";}
-			}
-			if ($accessPolicy eq 'ALLOW') {
-				if (GenOO::DBconnector->exists("core")) {
-					$DBconnector = GenOO::DBconnector->get_dbconnector("core");
-				}
-				else {
-					print STDERR "\nRequesting database connector for class $class\n";
-					$DBconnector = GenOO::DBconnector->get_dbconnector($class);
-				}
-			}
-		}
-		return $DBconnector;
-	}
-	
-	sub create_new_gene_from_database {
-		my ($class,$ensgid) = @_;
-		
-		my $DBconnector = $class->get_db_connector();
-		if (defined $DBconnector) {
-			my $dbh = $DBconnector->get_handle();
-			unless (defined $select_all_from_genes_where_ensgid) {
-				$select_all_from_genes_where_ensgid = $dbh->prepare($select_all_from_genes_where_ensgid_Query);
-			}
-			$select_all_from_genes_where_ensgid->execute($ensgid);
-			my $fetch_hash_ref = $select_all_from_genes_where_ensgid->fetchrow_hashref;
-			$select_all_from_genes_where_ensgid->finish(); # there should be only one result so I have to indicate that fetching is over
-			
-			if (defined $$fetch_hash_ref{internal_gid}) {
-				my $gene = $class->new({
-							   INTERNAL_ID      => $$fetch_hash_ref{internal_gid},
-							   ENSGID           => $$fetch_hash_ref{ensgid},
-							});
-				return $gene;
-			}
-			else {
-				warn "Gene \"$ensgid\" could not be found in database. Please check that the gene already exists\n";
-				return undef;
-			}
-			
-		}
 	}
 }
 

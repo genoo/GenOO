@@ -43,41 +43,4 @@ sub whatami {
 	return 'UTR5';
 }
 
-#######################################################################
-##########################   Class Methods   ##########################
-#######################################################################
-{
-	########################################## database ##########################################
-	my $select_region_info_from_transcripts_where_internal_tid;
-	my $select_region_info_from_transcripts_where_internal_tid_Query = qq/SELECT UTR5_start,UTR5_stop,UTR5_seq FROM diana_transcripts WHERE diana_transcripts.internal_tid=?/;
-	
-	sub create_new_UTR5_from_database {
-		my ($class,$transcript) = @_;
-		
-		my $internal_tid = $transcript->get_internalID();
-		my $DBconnector = $class->get_global_DBconnector();
-		if (defined $DBconnector) {
-			my $dbh = $DBconnector->get_handle();
-			unless (defined $select_region_info_from_transcripts_where_internal_tid) {
-				$select_region_info_from_transcripts_where_internal_tid = $dbh->prepare($select_region_info_from_transcripts_where_internal_tid_Query);
-			}
-			$select_region_info_from_transcripts_where_internal_tid->execute($internal_tid);
-			my $fetch_hash_ref = $select_region_info_from_transcripts_where_internal_tid->fetchrow_hashref;
-			$select_region_info_from_transcripts_where_internal_tid->finish(); # there should be only one result so I have to indicate that fetching is over
-			
-			my $utr5Obj = GenOO::Transcript::UTR5->new({
-								TRANSCRIPT       => $transcript,
-								SPLICE_STARTS    => $$fetch_hash_ref{UTR5_start},
-								SPLICE_STOPS     => $$fetch_hash_ref{UTR5_stop},
-								SEQUENCE         => $$fetch_hash_ref{UTR5_seq},
-								});
-			
-			return $utr5Obj;
-		}
-		else {
-			return undef;
-		}
-	}
-}
-
 1;
