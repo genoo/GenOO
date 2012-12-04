@@ -306,18 +306,11 @@ sub get_constitutive_coding_exons {
 sub get_exon_length {
 	my ($self) = @_;
 	
-	my @exons;
-	foreach my $transcript (@{$self->get_transcripts}) {
-		foreach my $exon (@{$transcript->get_exons}) {
-			push @exons, $exon;
-		}
-	}
-	
-	my $merged_exons = GenOO::Helper::Locus::merge(\@exons);
+	my $merged_exons = $self->get_merged_exons;
 	
 	my $exon_length = 0;
 	foreach my $exon (@$merged_exons) {
-		$exon_length += $exon->get_length;
+		$exon_length += $exon->length;
 	}
 	
 	return $exon_length;
