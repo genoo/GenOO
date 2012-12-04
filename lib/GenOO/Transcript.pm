@@ -127,10 +127,6 @@ sub get_utr5 {
 		$self->create_utr5();
 		return $self->{UTR5};
 	}
-	elsif ($class->database_access eq 'ALLOW') {
-		$self->set_utr5(GenOO::Transcript::UTR5->create_new_UTR5_from_database($self));
-		return $self->{UTR5};
-	}
 	else {
 		return undef;
 	}
@@ -145,10 +141,6 @@ sub get_cds {
 		$self->create_cds();
 		return $self->{CDS};
 	}
-	elsif ($class->database_access eq 'ALLOW') {
-		$self->set_cds(GenOO::Transcript::CDS->create_new_CDS_from_database($self));
-		return $self->{CDS};
-	}
 	else {
 		return undef;
 	}
@@ -161,10 +153,6 @@ sub get_utr3 {
 	}
 	elsif ($self->get_biotype eq 'coding') {
 		$self->create_utr3();
-		return $self->{UTR3};
-	}
-	elsif ($class->database_access eq 'ALLOW') {
-		$self->set_utr3(GenOO::Transcript::UTR3->create_new_UTR3_from_database($self));
 		return $self->{UTR3};
 	}
 	else {
@@ -423,8 +411,7 @@ sub create_utr3 {
                The primary id of the transcript.
   Example    : GenOO::Transcript->get_by_enstid;
   Description: Class method that returns the object which corresponds to the provided primary transcript id.
-               If no object is found, then depending on the database access policy the method either attempts
-               to create a new object or returns NULL
+               If no object is found, create a new object or return NULL
   Returntype : GenOO::Transcript / NULL
   Caller     : ?
   Status     : Stable
@@ -434,9 +421,6 @@ sub create_utr3 {
 		my ($class,$enstid) = @_;
 		if (exists $allTranscripts{$enstid}) {
 			return $allTranscripts{$enstid};
-		}
-		elsif ($class->database_access eq 'ALLOW') {
-			return $class->create_new_transcript_from_database($enstid);
 		}
 		else {
 			return undef;

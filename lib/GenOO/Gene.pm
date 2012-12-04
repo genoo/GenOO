@@ -420,8 +420,7 @@ sub has_coding_transcript {
                The Ensembl id of the gene.
   Example    : GenOO::Gene->get_by_ensgid;
   Description: Class method that returns the object which corresponds to the provided Ensembl gene id.
-               If no object is found, then depending on the database access policy the method either attempts
-               to create a new object or returns undef
+               If no object is found, then create a new object or return undef
   Returntype : GenOO::Gene / undef
   Caller     : ?
   Status     : Stable
@@ -431,9 +430,6 @@ sub has_coding_transcript {
 		my ($class,$ensgid) = @_;
 		if (exists $all_gene_ensgids{$ensgid}) {
 			return $all_gene_ensgids{$ensgid};
-		}
-		elsif ($class->database_access eq 'ALLOW') {
-			return $class->create_new_gene_from_database($ensgid);
 		}
 		else {
 			return undef;
