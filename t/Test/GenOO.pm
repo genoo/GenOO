@@ -54,4 +54,19 @@ sub get_output_for {
 	return ($self->data->{$attribute}->{OUTPUT});
 }
 
+#######################################################################
+##########################   Helper Methods   #########################
+#######################################################################
+sub obj {
+	my ($self, $index) = @_;
+	
+	return $self->{TEST_OBJECTS}->[$index];
+}
+
+sub objs {
+	my ($self) = @_;
+	
+	return @{$self->{TEST_OBJECTS}};
+}
+
 1;

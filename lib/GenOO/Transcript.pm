@@ -321,8 +321,8 @@ sub get_exons_split_by_function {
 sub create_cdna {
 	my ($self) = @_;
 	$self->{CDNA} = GenOO::Transcript::CDNA->new({
-		START         => $self->get_start,
-		STOP          => $self->get_stop,
+		START         => $self->start,
+		STOP          => $self->stop,
 		SPLICE_STARTS => $self->get_splice_starts,
 		SPLICE_STOPS  => $self->get_splice_stops,
 		TRANSCRIPT    => $self
@@ -332,8 +332,8 @@ sub create_cdna {
 sub create_utr5 {
 	my ($self) = @_;
 	if (defined $self->get_coding_start and defined $self->get_coding_stop) {
-		my $utr5_start = ($self->get_strand == 1) ? $self->get_start : $self->get_coding_stop + 1;
-		my $utr5_stop = ($self->get_strand == 1) ? $self->get_coding_start - 1 : $self->get_stop;
+		my $utr5_start = ($self->strand == 1) ? $self->start : $self->get_coding_stop + 1;
+		my $utr5_stop = ($self->strand == 1) ? $self->get_coding_start - 1 : $self->stop;
 		$self->{UTR5} = GenOO::Transcript::UTR5->new({
 			START      => $utr5_start,
 			STOP       => $utr5_stop,
