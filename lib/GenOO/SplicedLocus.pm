@@ -129,6 +129,7 @@ sub is_position_within_exon {
 			return 1;
 		}
 	}
+	return 0;
 }
 
 sub is_position_within_intron {
@@ -140,6 +141,7 @@ sub is_position_within_intron {
 			return 1;
 		}
 	}
+	return 0;
 }
 
 sub get_exon_exon_junctions {
@@ -294,7 +296,7 @@ sub get_intron_exon_junctions {
 			});
 		}
 	}
-	return \@junctions;
+	return @junctions;
 }
 
 sub get_exonic_length {
