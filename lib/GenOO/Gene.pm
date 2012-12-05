@@ -36,7 +36,7 @@ GenOO::Gene - Gene object, with features
 
 =head1 EXAMPLES
 
-    my $gene = GenOO::Gene->get_by_ensgid('ENSG00000000143'); # using the class method to get the corresponding object
+    my $gene = GenOO::Gene->by_ensgid('ENSG00000000143'); # using the class method to get the corresponding object
 
 =head1 AUTHOR - Manolis Maragkakis, Panagiotis Alexiou
 
@@ -47,497 +47,247 @@ Email em.maragkakis@gmail.com, pan.alexiou@fleming.gr
 # Let the code begin...
 
 package GenOO::Gene;
-use strict;
-use Object::ID;
+
+use Moose;
+use namespace::autoclean;
 
 use GenOO::Helper::Locus;
 
-use base qw(GenOO::Locus);
+extends 'GenOO::GenomicRegion';
 
-sub _init {
-	my ($self,$data) = @_;
-	
-	$self->SUPER::_init($data);
-	$self->set_internalID($$data{INTERNAL_ID});
-	$self->set_ensgid($$data{ENSGID});
-	$self->set_refseq($$data{REFSEQ}); # [] reference to array of refseqs
-	$self->set_transcripts($$data{TRANSCRIPTS}); # [] reference to array of transcripts
-	$self->set_description($$data{DESCRIPTION});
-	
-	my $class = ref($self) || $self;
-	$class->_add_to_all($self);
-	
-	return $self;
-}
+has 'name' => (
+	isa => 'Str',
+	is => 'rw',
+	required => 1
+);
+
+has 'description' => (
+	isa => 'Str',
+	is => 'rw'
+);
+
+has 'transcripts' => (
+	isa => 'ArrayRef[GenOO::Transcript]',
+	is => 'rw'
+);
+
+has 'strand' => (
+	is      => 'rw',
+	builder => '_find_strand',
+	clearer => '_clear_strand',
+	lazy    => 1,
+);
+has 'chromosome' => (
+	is      => 'rw',
+	builder => '_find_chromosome',
+	clearer => '_clear_chromosome',
+	lazy    => 1,
+);
+has 'start' => (
+	is      => 'rw',
+	builder => '_find_start',
+	clearer => '_clear_start',
+	lazy    => 1,
+);
+has 'stop' => (
+	is      => 'rw',
+	builder => '_find_stop',
+	clearer => '_clear_stop',
+	lazy    => 1,
+);
 
 #######################################################################
-#############################   Getters   #############################
+########################   Interface Methods   ########################
 #######################################################################
-sub get_id {
-	return $_[0]->object_id;
-}
-sub get_ensgid {
-	return $_[0]->{ENSGID};
-}
-sub get_description {
-	return $_[0]->{DESCRIPTION};
-}
-sub get_internalID {
-	return $_[0]->{INTERNAL_ID};
-}
-sub get_refseq {
-	if (defined $_[0]->{REFSEQ}) {
-		if (defined $_[1]) {
-			return $_[0]->{REFSEQ}->[$_[1]]; #return the requested item
-		}
-		else {
-			return $_[0]->{REFSEQ};
-		}
-	}
-	else {
-		return [];
-	}
-}
-sub get_transcripts {
-	if (defined $_[0]->{TRANSCRIPTS}) {
-		if (defined $_[1]) {
-			return ${$_[0]->{TRANSCRIPTS}}[$_[1]]; #return the requested gene
-		}
-		else {
-			return $_[0]->{TRANSCRIPTS}; # return the reference to the array with the gene objects
-		}
-	}
-	else {
-		return [];
-	}
-}
-sub get_coding_transcripts {
+sub coding_transcripts {
 	my ($self) = @_;
 	
-	my @coding_transcripts;
-	foreach my $transcript (@{$self->get_transcripts}) {
-		if ($transcript->is_coding) {
-			push @coding_transcripts,$transcript;
-		}
+	if (defined $self->transcripts) {
+		return [grep {$_->is_coding} @{$self->transcripts}];
 	}
-	return \@coding_transcripts;
+	else {
+		warn "No transcripts found for ".$self->name."\n";
+		return undef;
+	}
 }
-sub get_non_coding_transcripts {
+sub non_coding_transcripts {
 	my ($self) = @_;
 	
-	my @non_coding_transcripts;
-	foreach my $transcript (@{$self->get_transcripts}) {
-		if (!$transcript->is_coding) {
-			push @non_coding_transcripts,$transcript;
-		}
+	if (defined $self->transcripts) {
+		return [grep {not $_->is_coding} @{$self->transcripts}];
 	}
-	return \@non_coding_transcripts;
+	else {
+		warn "No transcripts found for ".$self->name."\n";
+		return undef;
+	}
 }
 
-#######################################################################
-#############################   Setters   #############################
-#######################################################################
-sub set_ensgid {
-	$_[0]->{ENSGID} = $_[1] if defined $_[1];
-}
-sub set_internalID {
-	$_[0]->{INTERNAL_ID} = $_[1] if defined $_[1];
-}
-sub set_description {
-	$_[0]->{DESCRIPTION} = $_[1] if defined $_[1];
-}
-sub set_transcripts {
-	my ($self,$transcripts_ref) = @_;
-	foreach my $transcript (@$transcripts_ref) {
-		unless ($transcript->isa('GenOO::Transcript')) {
-			die 'Object "'.ref($transcript).'" is not GenOO::Transcript.';
-		}
-		$self->update_info_from_transcript($transcript);
-	}
-	$self->{TRANSCRIPTS} = $transcripts_ref;
-}
-sub set_refseq {
-	$_[0]->{REFSEQ} = $_[1] if defined $_[1];
-}
-
-#######################################################################
-#########################   General Methods   #########################
-#######################################################################
-sub update_info_from_transcript {
-	my ($self,$transcript) = @_;
-	
-	if (!defined $self->species) {
-		$self->set_species($transcript->species);
-	}
-	elsif ($self->species ne $transcript->species) {
-		die "Inconsistency found when trying to update gene info from transcript. Gene species: ".$self->species."\tTranscript species: ".$transcript->species."\n";
-	}
-	
-	if (!defined $self->strand) {
-		$self->set_strand($transcript->strand);
-	}
-	elsif ($self->strand ne $transcript->strand) {
-		die "Inconsistency found when trying to update gene info from transcript. Gene strand: ".$self->strand."\tTranscript strand: ".$transcript->strand."\n";
-	}
-	
-	if (!defined $self->chr) {
-		$self->set_chr($transcript->chr);
-	}
-	elsif ($self->chr ne $transcript->chr) {
-		die "Inconsistency found when trying to update gene info from transcript. Gene chr: ".$self->chr."\tTranscript chr: ".$transcript->chr."\n";
-	}
-	
-	if (!defined $self->start or $transcript->start < $self->start) {
-		$self->set_start($transcript->start);
-	}
-	
-	if (!defined $self->stop or $transcript->stop > $self->stop) {
-		$self->set_stop($transcript->stop);
-	}
-}
-sub add_refseq {
-	my ($self,$value) = @_;
-	push (@{$self->{REFSEQ}},$value) if defined $value;
-}
 sub add_transcript {
-	my ($self,$transcript) = @_;
+	my ($self, $transcript) = @_;
+	
 	if (defined $transcript and ($transcript->isa('GenOO::Transcript'))) {
-		$self->update_info_from_transcript($transcript);
-		push (@{$self->{TRANSCRIPTS}},$transcript);
+		push @{$self->transcripts}, $transcript;
+		$self->_reset;
 	}
 	else {
-		warn 'Object "'.ref($transcript).'" is not GenOO::Transcript.    skipped';
+		warn 'Object "'.ref($transcript).'" is not a GenOO::Transcript ... skipped';
 	}
 }
-sub push_transcript {
-	my ($self,$transcript) = @_;
-	warn "Method ".(caller(0))[3]." is deprecated. Consider using method \"add_transcript\" instead.\n";
-	$self->add_transcript($transcript);
-}
-sub annotate_constitutive_exons {
+
+sub constitutive_exons {
 	my ($self) = @_;
 	
 	my %counts;
-	foreach my $transcript (@{$self->get_transcripts}) {
-		foreach my $exon (@{$transcript->get_exons}) {
-			$counts{$exon->id}++;
+	foreach my $transcript (@{$self->transcripts}) {
+		foreach my $exon (@{$transcript->exons}) {
+			$counts{$exon->location}++;
 		}
 	}
-	
-	foreach my $transcript (@{$self->get_transcripts}) {
-		foreach my $exon (@{$transcript->get_exons}) {
-			if ($counts{$exon->id} == @{$self->get_transcripts}) {
-				$exon->is_constitutive(1);
-			}
-			else {
-				$exon->is_constitutive(0);
-			}
-		}
-	}
-}
-sub annotate_constitutive_coding_exons {
-	my ($self) = @_;
-	
-	my $coding_transcripts_count = 0;
-	my %counts;
-	my $coding_transcripts = $self->get_coding_transcripts;
-	my $non_coding_transcripts = $self->get_non_coding_transcripts;
-	foreach my $transcript (@$coding_transcripts) {
-		foreach my $exon (@{$transcript->get_exons}) {
-			$counts{$exon->id}++;
-		}
-	}
-	
-	foreach my $transcript (@$coding_transcripts) {
-		foreach my $exon (@{$transcript->get_exons}) {
-			if ($counts{$exon->id} == @$coding_transcripts) {
-				$exon->is_constitutive(1);
-			}
-			else {
-				$exon->is_constitutive(0);
-			}
-		}
-	}
-	
-	foreach my $transcript (@$non_coding_transcripts) {
-		foreach my $exon (@{$transcript->get_exons}) {
-			$exon->is_constitutive(0);
-		}
-	}
-}
-sub get_constitutive_exons {
-	my ($self) = @_;
-	
-	$self->annotate_constitutive_exons();
 	
 	my @constitutive_exons;
-	my %already_found;
-	foreach my $transcript (@{$self->get_transcripts}) {
-		foreach my $exon (@{$transcript->get_exons}) {
-			if ($exon->is_constitutive() and !exists $already_found{$exon->id}) {
-				my $new_exon = $exon->clone();
-				$new_exon->set_where($self);
-				push @constitutive_exons, $new_exon;
-				$already_found{$exon->id} = 1;
+	my $transcript_count = @{$self->transcripts};
+	foreach my $transcript (@{$self->transcripts}) {
+		foreach my $exon (@{$transcript->exons}) {
+			if (exists $counts{$exon->location} and ($counts{$exon->location} == $transcript_count)) {
+				push @constitutive_exons, GenOO::GenomicRegion->new(
+					strand     => $exon->strand,
+					chromosome => $exon->chromosome,
+					start      => $exon->start,
+					stop       => $exon->stop
+				);
+				
+				delete $counts{$exon->location};
 			}
 		}
 	}
 	return \@constitutive_exons;
 }
-sub get_constitutive_coding_exons {
+
+sub constitutive_coding_exons {
 	my ($self) = @_;
 	
-	$self->annotate_constitutive_coding_exons();
+	my %counts;
+	foreach my $transcript (@{$self->transcripts}) {
+		foreach my $exon (@{$transcript->exons}) {
+			$counts{$exon->location}++;
+		}
+	}
 	
 	my @constitutive_exons;
-	my %already_found;
-	foreach my $transcript (@{$self->get_transcripts}) {
-		foreach my $exon (@{$transcript->get_exons}) {
-			if ($exon->is_constitutive() and !exists $already_found{$exon->id}) {
-				my $new_exon = $exon->clone();
-				$new_exon->set_where($self);
-				push @constitutive_exons, $new_exon;
-				$already_found{$exon->id} = 1;
+	my $transcript_count = @{$self->coding_transcripts};
+	foreach my $transcript (@{$self->transcripts}) {
+		foreach my $exon (@{$transcript->exons}) {
+			if (exists $counts{$exon->location} and ($counts{$exon->location} == $transcript_count)) {
+				push @constitutive_exons, GenOO::GenomicRegion->new(
+					strand     => $exon->strand,
+					chromosome => $exon->chromosome,
+					start      => $exon->start,
+					stop       => $exon->stop
+				);
+				
+				delete $counts{$exon->location};
 			}
 		}
 	}
 	return \@constitutive_exons;
 }
-sub get_exon_length {
-	my ($self) = @_;
-	
-	my $merged_exons = $self->get_merged_exons;
-	
-	my $exon_length = 0;
-	foreach my $exon (@$merged_exons) {
-		$exon_length += $exon->length;
-	}
-	
-	return $exon_length;
-}
-sub get_merged_exons {
-	my ($self) = @_;
-	
-	my @exons;
-	foreach my $transcript (@{$self->get_transcripts}) {
-		foreach my $exon (@{$transcript->get_exons}) {
-			push @exons, $exon;
-		}
-	}
-	
-	return GenOO::Helper::Locus::merge(\@exons);
-}
+
 sub has_coding_transcript {
 	my ($self) = @_;
 	
-	my $has_coding_transcript = 0;
-	foreach my $transcript (@{$self->get_transcripts}) {
+	foreach my $transcript (@{$self->transcripts}) {
 		if ($transcript->is_coding) {
-			$has_coding_transcript = 1;
-			last;
+			return 1;
 		}
 	}
 	
-	return $has_coding_transcript;
+	return 0;
 }
 
 #######################################################################
-##########################   Class Methods   ##########################
+#########################   Private methods  ##########################
 #######################################################################
-{
-	my %all_gene_ids;      # unique key for every gene
-	my %all_gene_ensgids;  # unique key for every gene
-	my %all_gene_names;    # non-unique key for every gene -> value is an array
+sub _find_strand {
+	my ($self) = @_;
 	
-	sub _add_to_all {
-		my ($class,$obj) = @_;
-		$all_gene_ids{$obj->get_id} = $obj;
-		if (defined $obj->get_ensgid) {
-			$all_gene_ensgids{$obj->get_ensgid} = $obj;
-		}
-		if (defined $obj->name) {
-			unless (exists $all_gene_names{$obj->name}) {
-				$all_gene_names{$obj->name} = [];
-			}
-			push @{$all_gene_names{$obj->name}}, $obj;
-		}
-	}
-	sub _delete_from_all {
-		my ($class,$obj) = @_;
-		delete $all_gene_ids{$obj->get_id};
-		delete $all_gene_ensgids{$obj->get_ensgid};
-		if (exists $all_gene_names{$obj->get_name}) {
-			for (my $i=0;$i<@{$all_gene_names{$obj->get_name}};$i++) {
-				if ($all_gene_names{$obj->get_name}->[$i]->get_id eq $obj->get_id) {
-					splice(@{$all_gene_names{$obj->get_name}},$i,1);
-				}
-			}
-		}
+	my $strand;
+	if (defined $self->transcripts) {
+		$strand = $self->transcripts->[0]->strand;
 	}
 	
-	sub get_all {
-		my ($class) = @_;
-		return values %all_gene_ids;
+	if (not defined $strand) {
+		die "No strand found for ".$self->name."\n";
 	}
-	
-	sub delete_all {
-		my ($class) = @_;
-		%all_gene_ids = ();
-	}
-
-=head2 get_by_id
-
-  Arg [1]    : string $id
-               The primary id of the gene.
-  Example    : GenOO::Gene->get_by_id;
-  Description: Class method that returns the object which corresponds to the provided primary gene id.
-               If no object is found returns undef
-  Returntype : GenOO::Gene / undef
-  Caller     : ?
-  Status     : Under development
-
-=cut
-	sub get_by_id {
-		my ($class,$id) = @_;
-		if (exists $all_gene_ids{$id}) {
-			return $all_gene_ids{$id};
-		}
-		else {
-			return undef;
-		}
-	}
-	
-=head2 get_by_ensgid
-
-  Arg [1]    : string $ensgid
-               The Ensembl id of the gene.
-  Example    : GenOO::Gene->get_by_ensgid;
-  Description: Class method that returns the object which corresponds to the provided Ensembl gene id.
-               If no object is found, then create a new object or return undef
-  Returntype : GenOO::Gene / undef
-  Caller     : ?
-  Status     : Stable
-
-=cut
-	sub get_by_ensgid {
-		my ($class,$ensgid) = @_;
-		if (exists $all_gene_ensgids{$ensgid}) {
-			return $all_gene_ensgids{$ensgid};
-		}
-		else {
-			return undef;
-		}
-	}
-	
-=head2 get_by_name
-
-  Arg [1]    : string $ensgid
-               The name of the gene.
-  Example    : GenOO::Gene->get_by_name;
-  Description: Class method that returns a reference to an array of object which correspond to the provided gene name.
-               If no matching object is found a reference to an empty array is returned.
-  Returntype : GenOO::Gene / []
-  Caller     : ?
-  Status     : Stable
-
-=cut
-	sub get_by_name {
-		my ($class,$name) = @_;
-		if (exists $all_gene_names{$name}) {
-			return $all_gene_names{$name};
-		}
-		else {
-			return [];
-		}
-	}
-	
-	
-	sub read_refseqs {
-		my ($class,$method,@attributes) = @_;
-		
-		if ($method eq "FILE") {
-			my $filename = $attributes[0];
-			return $class->_read_file_with_refseqs($filename);
-		}
-	}
-	
-	sub _read_file_with_refseqs {
-		my ($class,$file)=@_;
-		
-		open (my $IN,"<",$file) or die "Cannot open file $file: $!";
-		while (my $line = <$IN>){
-			chomp($line);
-			my ($ensgid,$refseq) = split(/\t/,$line);
-			my $geneObj = $class->get_by_ensgid($ensgid);
-			unless ($geneObj) {
-				$geneObj = $class->new({
-							   ENSGID   => $ensgid,
-							});
-			}
-			$geneObj->add_refseq($refseq);
-		}
-		close $IN;
-		
-		return %all_gene_ids;
-	}
-	
-	sub read_names {
-		my ($class,$method,@attributes) = @_;
-		
-		if ($method eq "FILE") {
-			my $filename = $attributes[0];
-			return $class->_read_file_with_names($filename);
-		}
-	}
-	
-	sub _read_file_with_names {
-		my ($class,$file)=@_;
-		
-		open (my $IN,"<",$file) or die "Cannot open file $file: $!";
-		while (my $line = <$IN>){
-			chomp($line);
-			my ($ensgid,$commonName) = split(/\t/,$line);
-			my $geneObj = $class->get_by_ensgid($ensgid);
-			unless ($geneObj) {
-				$geneObj = $class->new({
-							   ENSGID   => $ensgid,
-							});
-			}
-			$geneObj->set_name($commonName);
-		}
-		close $IN;
-		
-		return %all_gene_ids;
-	}
-	
-	sub read_description {
-		my ($class,$method,@attributes) = @_;
-		
-		if ($method eq "FILE") {
-			my $filename = $attributes[0];
-			return $class->_read_file_with_descriptions($filename);
-		}
-	}
-	
-	sub _read_file_with_descriptions {
-		my ($class,$file)=@_;
-		
-		open (my $IN,"<",$file) or die "Cannot open file $file: $!";
-		while (my $line = <$IN>){
-			chomp($line);
-			my ($ensgid,$description) = split(/\t/,$line);
-			my $geneObj = $class->get_by_ensgid($ensgid);
-			unless ($geneObj) {
-				$geneObj = $class->new({
-							   ENSGID   => $ensgid,
-							});
-			}
-			$geneObj->set_description($description);
-		}
-		close $IN;
-		
-		return %all_gene_ids;
+	else {
+		return $strand;
 	}
 }
+
+sub _find_chromosome {
+	my ($self) = @_;
+	
+	my $chromosome;
+	if (defined $self->transcripts) {
+		$chromosome = $self->transcripts->[0]->chromosome;
+	}
+	
+	if (not defined $chromosome) {
+		die "No chromosome found for ".$self->name."\n";
+	}
+	else {
+		return $chromosome;
+	}
+}
+
+sub _find_start {
+	my ($self) = @_;
+	
+	my $start;
+	if (defined $self->transcripts) {
+		foreach my $transcript (@{$self->transcripts}) {
+			if ((not defined $start) or ($start > $transcript->start)) {
+				$start = $transcript->start;
+			}
+		}
+	}
+	
+	if (not defined $start) {
+		die "No start found for ".$self->name."\n";
+	}
+	else {
+		return $start;
+	}
+}
+
+sub _find_stop {
+	my ($self) = @_;
+	
+	my $stop;
+	if (defined $self->transcripts) {
+		foreach my $transcript (@{$self->transcripts}) {
+			if ((not defined $stop) or ($stop < $transcript->stop)) {
+				$stop = $transcript->stop;
+			}
+		}
+	}
+	
+	if (not defined $stop) {
+		die "No stop found for ".$self->name."\n";
+	}
+	else {
+		return $stop;
+	}
+}
+
+sub _reset {
+	my ($self) = @_;
+	
+	$self->_clear_strand;
+	$self->_clear_chromosome;
+	$self->_clear_start;
+	$self->_clear_stop;
+}
+
+__PACKAGE__->meta->make_immutable;
 
 1;
