@@ -21,7 +21,6 @@ GenOO::Transcript - Transcript object, with features
         UTR5           => undef, # GenOO::Transcript::UTR5
         CDS            => undef, # GenOO::Transcript::CDS
         UTR3           => undef, # GenOO::Transcript::UTR3
-        CDNA           => undef, # GenOO::Transcript::CDNA
         BIOTYPE        => undef,
         INTERNAL_ID    => undef,
         INTERNAL_GID   => undef,
@@ -49,232 +48,66 @@ Email em.maragkakis@gmail.com, pan.alexiou@fleming.gr
 # Let the code begin...
 
 package GenOO::Transcript;
-use strict;
 
-use Scalar::Util qw/weaken/;
+use Moose;
+use namespace::autoclean;
+
 use GenOO::Helper::Locus;
 use GenOO::Gene;
-use GenOO::Transcript::CDNA;
 use GenOO::Transcript::UTR5;
 use GenOO::Transcript::CDS;
 use GenOO::Transcript::UTR3;
 
-use base qw(GenOO::SplicedLocus);
+extends 'GenOO::GenomicRegion';
 
-sub _init {
-	my ($self,$data) = @_;
-	
-	$self->SUPER::_init($data);
-	$self->set_enstid($$data{ENSTID});
-	$self->set_biotype($$data{BIOTYPE});
-	$self->set_internalID($$data{INTERNAL_ID});
-	$self->set_internalGID($$data{INTERNAL_GID});
-	$self->set_coding_start($$data{CODING_START});
-	$self->set_coding_stop($$data{CODING_STOP});
-	$self->set_gene($$data{GENE}); # GenOO::Gene
-	$self->set_cdna($$data{CDNA}); # GenOO::Transcript::CDNA
-	$self->set_utr5($$data{UTR5}); # GenOO::Transcript::UTR5
-	$self->set_cds($$data{CDS});   # GenOO::Transcript::CDS
-	$self->set_utr3($$data{UTR3}); # GenOO::Transcript::UTR3
-	
-	my $class = ref($self) || $self;
-	$class->_add_to_all($self);
-	
-	return $self;
-}
+has 'id'           => (is => 'rw', required => 1);
+has 'coding_start' => (isa => 'Int', is => 'rw');
+has 'coding_stop'  => (isa => 'Int', is => 'rw');
 
-#######################################################################
-#############################   Getters   #############################
-#######################################################################
-sub get_enstid {
-	return $_[0]->{ENSTID};
-}
-sub get_biotype {
-	return $_[0]->{BIOTYPE};
-}
-sub get_internalID {
-	return $_[0]->{INTERNAL_ID};
-}
-sub get_internalGID {
-	return $_[0]->{INTERNAL_GID};
-}
-sub get_coding_start {
-	return $_[0]->{CODING_START}
-}
-sub get_coding_stop {
-	return $_[0]->{CODING_STOP}
-}
-sub get_gene {
-	return $_[0]->{GENE};
-}
-sub get_cdna {
-	my ($self) = @_;
-	if (defined $self->{CDNA}) {
-		return $self->{CDNA};
-	}
-	else {
-		$self->create_cdna();
-		return $self->{CDNA};
-	}
-}
-sub get_utr5 {
-	my ($self) = @_;
+has 'biotype' => (
+	isa       => 'Str',
+	is        => 'rw',
+	builder   => '_find_biotype',
+	lazy      => 1,
+);
+
+has 'gene' => (
+# 	isa       => 'GenOO::Gene',
+	is        => 'rw',
+	builder   => '_find_or_create_gene',
+	lazy      => 1,
+	weak_ref => 1
+);
+
+has 'utr5' => (
+# 	isa       => 'GenOO::Transcript::UTR5',
+	is        => 'rw',
+	builder   => '_find_or_create_utr5',
+	lazy      => 1
+);
+
+has 'cds' => (
+# 	isa       => 'enOO::Transcript::CDS',
+	is        => 'rw',
+	builder   => '_find_or_create_cds',
+	lazy      => 1
+);
+
+has 'utr3' => (
+# 	isa       => 'GenOO::Transcript::UTR3',
+	is        => 'rw',
+	builder   => '_find_or_create_utr3',
+	lazy      => 1
+);
+
+with 'GenOO::Spliceable';
+
+
+sub BUILD {
+	my $self = shift;
+	
 	my $class = ref($self) || $self;
-	if (defined $self->{UTR5}) {
-		return $self->{UTR5};
-	}
-	elsif ($self->get_biotype eq 'coding') {
-		$self->create_utr5();
-		return $self->{UTR5};
-	}
-	else {
-		return undef;
-	}
-}
-sub get_cds {
-	my ($self) = @_;
-	my $class = ref($self) || $self;
-	if (defined $self->{CDS}) {
-		return $self->{CDS};
-	}
-	elsif ($self->get_biotype eq 'coding') {
-		$self->create_cds();
-		return $self->{CDS};
-	}
-	else {
-		return undef;
-	}
-}
-sub get_utr3 {
-	my ($self) = @_;
-	my $class = ref($self) || $self;
-	if (defined $self->{UTR3}) {
-		return $self->{UTR3};
-	}
-	elsif ($self->get_biotype eq 'coding') {
-		$self->create_utr3();
-		return $self->{UTR3};
-	}
-	else {
-		return undef;
-	}
-}
-#######################################################################
-#############################   Setters   #############################
-#######################################################################
-sub set_enstid {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$value =~ s/>//;
-		$self->{ENSTID} = $value;
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-sub set_biotype {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$self->{BIOTYPE} = $value;
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-sub set_internalID {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$self->{INTERNAL_ID} = $value;
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-sub set_internalGID {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$self->{INTERNAL_GID} = $value;
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-sub set_coding_start {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$self->{CODING_START} = $value;
-		$self->set_biotype('coding');
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-sub set_coding_stop {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$self->{CODING_STOP} = $value;
-		$self->set_biotype('coding');
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-sub set_gene {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$self->{GENE} = $value;
-		weaken($self->{GENE}); # circular reference needs to be weakened to avoid memory leaks
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-sub set_cdna {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$self->{CDNA} = $value;
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-sub set_utr5 {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$self->{UTR5} = $value;
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-sub set_cds {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$self->{CDS} = $value;
-		return 0;
-	}
-	else {
-		return 1;
-	}
-}
-sub set_utr3 {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$self->{UTR3} = $value;
-		return 0;
-	}
-	else {
-		return 1;
-	}
+	$class->_add_transcript($self);
 }
 
 #######################################################################
@@ -282,6 +115,7 @@ sub set_utr3 {
 #######################################################################
 sub delete {
 	my ($self) = @_;
+	
 	my $class = ref($self) || $self;
 	my $gene_transcripts = $self->get_gene->get_transcripts;
 	for (my $i=0;$i<@$gene_transcripts;$i++) {
@@ -289,93 +123,118 @@ sub delete {
 			splice @$gene_transcripts,$i,1;
 		}
 	}
-	$class->_delete_from_all($self);
+	$class->_delete_transcript($self);
 }
-sub is_coding {
-	if ($_[0]->get_biotype eq 'coding') {
-		return 1;
-	}
-	else {
-		return 0;
-	}
-}
-sub get_exons_split_by_function {
+
+sub exons_split_by_function {
 	my ($self) = @_;
+	
 	if ($self->is_coding) {
 		my @exons;
-		if (defined $self->get_utr5) {
-			push @exons,@{$self->get_utr5->get_exons};
+		if (defined $self->utr5) {
+			push @exons,@{$self->utr5->get_exons};
 		}
-		if (defined $self->get_cds) {
-			push @exons,@{$self->get_cds->get_exons};
+		if (defined $self->cds) {
+			push @exons,@{$self->cds->get_exons};
 		}
-		if (defined $self->get_utr3) {
-			push @exons,@{$self->get_utr3->get_exons};
+		if (defined $self->utr3) {
+			push @exons,@{$self->utr3->get_exons};
 		}
 		return \@exons;
 	}
 	else {
-		return $self->get_cdna->get_exons;
+		return $self->exons;
 	} 
 }
-sub create_cdna {
+
+sub is_coding {
 	my ($self) = @_;
-	$self->{CDNA} = GenOO::Transcript::CDNA->new({
-		START         => $self->start,
-		STOP          => $self->stop,
-		SPLICE_STARTS => $self->get_splice_starts,
-		SPLICE_STOPS  => $self->get_splice_stops,
-		TRANSCRIPT    => $self
-	});
-	return 0;
-}
-sub create_utr5 {
-	my ($self) = @_;
-	if (defined $self->get_coding_start and defined $self->get_coding_stop) {
-		my $utr5_start = ($self->strand == 1) ? $self->start : $self->get_coding_stop + 1;
-		my $utr5_stop = ($self->strand == 1) ? $self->get_coding_start - 1 : $self->stop;
-		$self->{UTR5} = GenOO::Transcript::UTR5->new({
-			START      => $utr5_start,
-			STOP       => $utr5_stop,
-			TRANSCRIPT => $self
-		});
-		$self->get_utr5->set_splicing_info($self->get_splice_starts,$self->get_splice_stops);
-		return 0;
-	}
-	else {
+	
+	if ($self->biotype eq 'coding') {
 		return 1;
 	}
-}
-sub create_cds {
-	my ($self) = @_;
-	if (defined $self->get_coding_start and defined $self->get_coding_stop) {
-		$self->{CDS} = GenOO::Transcript::CDS->new({
-			START      => $self->get_coding_start,
-			STOP       => $self->get_coding_stop,
-			TRANSCRIPT => $self
-		});
-		$self->get_cds->set_splicing_info($self->get_splice_starts,$self->get_splice_stops);
+	else {
 		return 0;
 	}
-	else {
-		return 1;
+}
+
+#######################################################################
+#########################   Private methods  ##########################
+#######################################################################
+sub _find_or_create_utr5 {
+	my ($self) = @_;
+	
+	if (defined $self->coding_start and defined $self->coding_stop) {
+		my $utr5_start = ($self->strand == 1) ? $self->start : $self->coding_stop + 1;
+		my $utr5_stop = ($self->strand == 1) ? $self->coding_start - 1 : $self->stop;
+		
+		my ($splice_starts, $splice_stops) = _sanitize_splice_coords_within_limits(
+			$self->splice_starts,
+			$self->splice_stops,
+			$utr5_start,
+			$utr5_stop
+		);
+		
+		return GenOO::Transcript::UTR5->new({
+			START         => $utr5_start,
+			STOP          => $utr5_stop,
+			SPLICE_STARTS => $splice_starts,
+			SPLICE_STOPS  => $splice_stops,
+			TRANSCRIPT    => $self
+		});
 	}
 }
-sub create_utr3 {
+
+sub _find_or_create_cds {
 	my ($self) = @_;
-	if (defined $self->get_coding_start and defined $self->get_coding_stop) {
-		my $utr3_start = ($self->strand == 1) ? $self->get_coding_stop + 1 : $self->start;
-		my $utr3_stop = ($self->strand == 1) ? $self->stop : $self->get_coding_start - 1;
-		$self->{UTR3} = GenOO::Transcript::UTR3->new({
-			START      => $utr3_start,
-			STOP       => $utr3_stop,
-			TRANSCRIPT => $self
+	
+	if (defined $self->coding_start and defined $self->coding_stop) {
+		my ($splice_starts, $splice_stops) = _sanitize_splice_coords_within_limits(
+			$self->splice_starts,
+			$self->splice_stops,
+			$self->coding_start,
+			$self->coding_stop
+		);
+		
+		return GenOO::Transcript::CDS->new({
+			START         => $self->coding_start,
+			STOP          => $self->coding_stop,
+			SPLICE_STARTS => $splice_starts,
+			SPLICE_STOPS  => $splice_stops,
+			TRANSCRIPT    => $self
 		});
-		$self->get_utr3->set_splicing_info($self->get_splice_starts,$self->get_splice_stops);
-		return 0;
 	}
-	else {
-		return 1;
+}
+
+sub _find_or_create_utr3 {
+	my ($self) = @_;
+	
+	if (defined $self->coding_start and defined $self->coding_stop) {
+		my $utr3_start = ($self->strand == 1) ? $self->coding_stop + 1 : $self->start;
+		my $utr3_stop = ($self->strand == 1) ? $self->stop : $self->coding_start - 1;
+		
+		my ($splice_starts, $splice_stops) = _sanitize_splice_coords_within_limits(
+			$self->splice_starts,
+			$self->splice_stops,
+			$utr3_start,
+			$utr3_stop
+		);
+		
+		return GenOO::Transcript::UTR3->new({
+			START         => $utr3_start,
+			STOP          => $utr3_stop,
+			SPLICE_STARTS => $splice_starts,
+			SPLICE_STOPS  => $splice_stops,
+			TRANSCRIPT    => $self
+		});
+	}
+}
+
+sub _find_biotype {
+	my ($self) = @_;
+	
+	if (defined $self->coding_start) {
+		return 'coding';
 	}
 }
 
@@ -383,58 +242,42 @@ sub create_utr3 {
 ##########################   Class Methods   ##########################
 #######################################################################
 {
-	my %allTranscripts;
+	my %all_created_transcripts;
 	
-	sub _add_to_all {
-		my ($class,$obj) = @_;
-		$allTranscripts{$obj->get_enstid} = $obj;
+	sub _add_transcript {
+		my ($class, $obj) = @_;
+		
+		$all_created_transcripts{$obj->id} = $obj;
 	}
 	
-	sub _delete_from_all {
-		my ($class,$obj) = @_;
-		delete $allTranscripts{$obj->get_enstid};
+	sub _delete_transcript {
+		my ($class, $obj) = @_;
+		
+		delete $all_created_transcripts{$obj->id};
 	}
 	
-	sub get_all {
+	sub all_transcripts {
 		my ($class) = @_;
-		return %allTranscripts;
+		
+		return values %all_created_transcripts;
 	}
 	
-	sub delete_all {
+	sub delete_all_transcripts {
 		my ($class) = @_;
-		%allTranscripts = ();
+		
+		%all_created_transcripts = ();
 	}
 
-=head2 get_by_enstid
-
-  Arg [1]    : string $enstid
-               The primary id of the transcript.
-  Example    : GenOO::Transcript->get_by_enstid;
-  Description: Class method that returns the object which corresponds to the provided primary transcript id.
-               If no object is found, create a new object or return NULL
-  Returntype : GenOO::Transcript / NULL
-  Caller     : ?
-  Status     : Stable
-
-=cut
-	sub get_by_enstid {
-		my ($class,$enstid) = @_;
-		if (exists $allTranscripts{$enstid}) {
-			return $allTranscripts{$enstid};
-		}
-		else {
-			return undef;
-		}
+	sub transcript_with_id {
+		my ($class, $id) = @_;
+		
+		return $all_created_transcripts{$id};
 	}
 	
 	sub read_transcripts {
-		my ($class,$method,@attributes) = @_;
+		my ($class, $method, @attributes) = @_;
 		
-		if ($method eq "FILE") {
-			my $filename = $attributes[0];
-			return $class->_read_file_with_transcripts($filename);
-		}
-		elsif ($method eq "GTF") {
+		if ($method eq "GTF") {
 			my $filename = $attributes[0];
 			return $class->_read_gtf_with_transcripts($filename);
 		}
@@ -444,59 +287,6 @@ sub create_utr3 {
 		}
 	}
 	
-	sub _read_file_with_transcripts {
-		my ($class,$file)=@_;
-		
-		my $transcript;
-		my $species;
-		open (my $IN,"<",$file) or die "Cannot open file $file: $!";
-		while (my $line=<$IN>){
-			chomp($line);
-			if (substr($line,0,1) ne '#') {
-				my ($ensgid,$enstid,$chr,$strand,$start,$stop,$biotype) = split(/\t/,$line);
-				
-				# Search if the gene has already been defined. If not create it
-				my $geneObj = GenOO::Gene->get_by_ensgid($ensgid);
-				unless ($geneObj) {
-					$geneObj = GenOO::Gene->new({
-								ENSGID   => $ensgid,
-								});
-				}
-				
-				$transcript = $class->get_by_enstid($enstid);
-				if ($transcript) {
-					unless (defined $transcript->get_enstid)  {$transcript->set_enstid($enstid);}
-					unless (defined $transcript->get_species) {$transcript->set_species($species);}
-					unless (defined $transcript->get_strand)  {$transcript->set_strand($strand);}
-					unless (defined $transcript->get_chr)     {$transcript->set_chr($chr);}
-					unless (defined $transcript->get_start)   {$transcript->set_start($start);}
-					unless (defined $transcript->get_stop)    {$transcript->set_stop($stop);}
-					unless (defined $transcript->get_biotype) {$transcript->set_biotype($biotype);}
-					unless (defined $transcript->get_gene)    {$transcript->set_gene($geneObj);}
-					
-				}
-				else {
-					$transcript = $class->new({
-						ENSTID           => $enstid,
-						SPECIES          => $species,
-						STRAND           => $strand,
-						CHR              => $chr,
-						START            => $start,
-						STOP             => $stop,
-						BIOTYPE          => $biotype,
-						GENE             => $geneObj,
-					});
-				}
-			}
-			elsif (substr($line,0,1) eq '#') {
-				$line =~ /species="(.+)"/;
-				$species = $1;
-			}
-		}
-		close $IN;
-		
-		return %allTranscripts;
-	}
 	sub _read_gtf_with_transcripts {
 		my ($class,$file)=@_;
 		
@@ -509,7 +299,7 @@ sub create_utr3 {
 				$stop = $stop-1;
 				$nameinfo =~ /gene_id\s+\"(.+)\"\;\s+transcript_id\s+\"(.+)\"/;
 				my $ensgid = $1;
-				my $enstid = $2;
+				my $id = $2;
 				
 				my $geneObj = GenOO::Gene->get_by_ensgid($ensgid);
 				unless ($geneObj) {
@@ -518,10 +308,10 @@ sub create_utr3 {
 					});
 				}
 				
-				my $transcriptObj = $class->get_by_enstid($enstid);
+				my $transcriptObj = $class->get_by_enstid($id);
 				unless ($transcriptObj) {
 					$transcriptObj = $class->new({
-						ENSTID   => $enstid,
+						ENSTID   => $id,
 						GENE     => $geneObj,
 						CHR      => $chr,
 						STRAND   => $strand,
@@ -562,8 +352,9 @@ sub create_utr3 {
 			}
 		}
 		close $IN;
-		return %allTranscripts;
+		return %all_created_transcripts;
 	}
+	
 	sub _read_exon_info_file {
 		my ($class,$file)=@_;
 		
@@ -657,196 +448,9 @@ sub create_utr3 {
 			}
 		}
 		
-		return %allTranscripts;
-	}
-	
-	sub set_sequences_from_genome {
-		my ($class, $params) = @_;
-		
-		my $chr_folder = exists $params->{'CHR_FOLDER'} ? $params->{'CHR_FOLDER'} : die "Chromosome folder must be provided";
-		
-		my %in_chromosomes;
-		foreach my $transcipt (values %allTranscripts) {
-			push @{$in_chromosomes{$transcipt->get_chr}}, $transcipt;
-		}
-		
-		foreach my $chr (keys %in_chromosomes) {
-			my $chr_file = $chr_folder."/chr$chr.fa";
-			unless (-e $chr_file) {
-				warn "Skipping chromosome. File $chr_file does not exist";
-				next;
-			}
-			my $chr_seq = read_fasta($chr_file,"chr$chr");
-			
-			unless (defined $chr_seq) {
-				die "No Chromosome Sequence chr$chr\n";
-			}
-			
-			foreach my $transcript (@{$in_chromosomes{$chr}}) {
-				my $seq = substr($chr_seq,$transcript->get_start,$transcript->get_length);
-				if ($transcript->get_strand == -1) {
-					$seq = reverse($seq);
-					if ($seq =~ /U/i) {
-						$seq =~ tr/ATGCUatgcu/UACGAuacga/;
-					}
-					else {
-						$seq =~ tr/ATGCUatgcu/TACGAtacga/;
-					}
-				}
-				$transcript->set_sequence($seq);
-			}
-		}
-	}
-	
-	
-	sub read_region_info_for_transcripts {
-		my ($class,$method,@attributes) = @_;
-		
-		if ($method eq "FILE") {
-			my $filename = $attributes[0];
-			return $class->_read_file_with_region_info_for_transcripts($filename);
-		}
-	}
-	
-	sub _read_file_with_region_info_for_transcripts {
-		my ($class,$file)=@_;
-		
-		my $transcript;
-		open (my $FASTA,"<",$file) or die "Cannot open file $file: $!";
-		while (my $line=<$FASTA>){
-			chomp($line);
-			if (substr($line,0,1) eq '>') {
-				$line = substr($line,1);
-				my ($enstid,$strand,$chr,$ensgid,$species) = split(/\|/,$line);
-				
-				# Search if the gene has already been defined. If not create it
-				my $geneObj = GenOO::Gene->get_by_ensgid($ensgid);
-				unless ($geneObj) {
-					$geneObj = GenOO::Gene->new({
-								ENSGID   => $ensgid,
-								});
-				}
-				
-				$transcript = $class->get_by_enstid($enstid);
-				if ($transcript) {
-					unless (defined $transcript->get_strand)  {$transcript->set_strand($strand);}
-					unless (defined $transcript->get_chr)     {$transcript->set_chr($chr);}
-					unless (defined $transcript->get_gene)    {$transcript->set_gene($geneObj);}
-					unless (defined $transcript->get_species) {$transcript->set_species($species);}
-				}
-				else {
-					$transcript = $class->new({
-								ENSTID           => $enstid,
-								STRAND           => $strand,
-								CHR              => $chr,
-								SPECIES          => $species,
-								GENE             => $geneObj,
-								});
-				}
-			}
-			elsif (substr($line,0,4) eq 'UTR5') {
-				my ($what,$splice_starts,$splice_stops,$sequence,$accessibility) = split(/\t/,$line);
-				my $utr5Obj = GenOO::Transcript::UTR5->new({
-									TRANSCRIPT       => $transcript,
-									SPLICE_STARTS    => $splice_starts,
-									SPLICE_STOPS     => $splice_stops,
-									SEQUENCE         => $sequence,
-									ACCESSIBILITY    => $accessibility,
-									});
-				$transcript->set_utr5($utr5Obj);
-			}
-			elsif (substr($line,0,3) eq 'CDS') {
-				my ($what,$splice_starts,$splice_stops,$sequence,$accessibility) = split(/\t/,$line);
-				my $cdsObj = GenOO::Transcript::CDS->new({
-									TRANSCRIPT       => $transcript,
-									SPLICE_STARTS    => $splice_starts,
-									SPLICE_STOPS     => $splice_stops,
-									SEQUENCE         => $sequence,
-									ACCESSIBILITY    => $accessibility,
-									});
-				$transcript->set_cds($cdsObj);
-			}
-			elsif (substr($line,0,4) eq 'UTR3') {
-				my ($what,$splice_starts,$splice_stops,$sequence,$accessibility) = split(/\t/,$line);
-				my $utr3Obj = GenOO::Transcript::UTR3->new({
-									TRANSCRIPT       => $transcript,
-									SPLICE_STARTS    => $splice_starts,
-									SPLICE_STOPS     => $splice_stops,
-									SEQUENCE         => $sequence,
-									ACCESSIBILITY    => $accessibility,
-									});
-				$transcript->set_utr3($utr3Obj);
-			}
-		}
-		close $FASTA;
-		
-		return %allTranscripts;
-	}
-	
-	sub read_fasta {
-	# Reads a fasta file
-		my ($file,$requested_header) = @_;
-		
-		if (defined $requested_header) {
-			return read_fasta_seq_for_requested_header($file,$requested_header);
-		}
-		else {
-			return read_fasta_sequences_in_hash($file);
-		}
-	}
-
-	sub read_fasta_sequences_in_hash {
-		my ($file) = @_;
-		
-		my $header;
-		my $seq;
-		my %sequence;
-		open (my $FASTA,"<",$file) or die "Cannot open file $file: $!";
-		while (my $line = <$FASTA>){
-			chomp($line);
-			if ($line =~ /^>/) {
-				if ($seq) {
-					$sequence{$header} = $seq;
-					$seq = '';
-				}
-				$header = substr($line,1);
-			}
-			else {
-				$seq .= $line;
-			}
-		}
-		if ($seq) {
-			$sequence{$header} = $seq;
-		}
-		close $FASTA;
-		
-		return \%sequence;
-	}
-
-	sub read_fasta_seq_for_requested_header {
-	# Reads a fasta file
-		my ($file,$requested_header) = @_;
-		
-		open (my $FASTA,"<",$file) or die "Cannot open file $file: $!";
-		while (my $line = <$FASTA>){
-			chomp($line);
-			if ($line =~ /^>$requested_header$/) {
-				my $seq = '';
-				while ($line = <$FASTA>) {
-					chomp($line);
-					if ($line =~ /^>/) {
-						return $seq;
-					}
-					else {
-						$seq .= $line;
-					}
-				}
-				return $seq;
-			}
-		}
-		close $FASTA;
-		return undef;
+		return %all_created_transcripts;
 	}
 }
 
+__PACKAGE__->meta->make_immutable;
 1;
