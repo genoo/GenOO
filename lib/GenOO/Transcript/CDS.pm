@@ -36,12 +36,12 @@ sub get_cds_start_locus {
 #this will return the coding start nucleotide not the "start"/ ie it will be strand specific!
 	my $self = $_[0];
 	my $start;
-	if ($self->get_strand == 1){$start = $self->get_start;}
-	elsif ($self->get_strand == -1){$start = $self->get_stop;}
+	if ($self->strand == 1){$start = $self->start;}
+	elsif ($self->strand == -1){$start = $self->stop;}
 	else {return undef;}
 	my $cdsstart = GenOO::Locus->new({
-				STRAND       => $self->get_strand,
-				CHR          => $self->get_chr,
+				STRAND       => $self->strand,
+				CHR          => $self->chr,
 				START        => $start,
 				STOP         => $start,
 	});
