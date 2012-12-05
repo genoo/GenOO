@@ -38,8 +38,8 @@ package GenOO::Spliceable;
 use Moose::Role;
 use Moose::Util::TypeConstraints;
 
-use GenOO::Transcript::Exon;
-use GenOO::Transcript::Intron;
+use GenOO::Exon;
+use GenOO::Intron;
 use GenOO::Junction;
 
 # Define new data type
