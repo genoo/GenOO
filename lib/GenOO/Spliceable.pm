@@ -190,13 +190,13 @@ sub _create_exons {
 	
 	my @exons;
 	for (my $i=0;$i<@{$exon_starts};$i++) {
-		push @exons, GenOO::Transcript::Exon->new({
-			SPECIES    => $self->species,
-			STRAND     => $self->strand,
-			CHR        => $self->rname,
-			START      => $$exon_starts[$i],
-			STOP       => $$exon_stops[$i],
-			WHERE      => $self
+		push @exons, GenOO::Exon->new({
+			species    => $self->species,
+			strand     => $self->strand,
+			chromosome => $self->rname,
+			start      => $$exon_starts[$i],
+			stop       => $$exon_stops[$i],
+			part_of    => $self
 		});
 	}
 	
@@ -212,35 +212,35 @@ sub _create_introns {
 	my @introns;
 	
 	if ($self->start < $$exon_starts[0]) {
-		push @introns, GenOO::Transcript::Intron->new({
-			SPECIES    => $self->species,
-			STRAND     => $self->strand,
-			CHR        => $self->rname,
-			START      => $self->start,
-			STOP       => $$exon_starts[0] - 1,
-			WHERE      => $self,
+		push @introns, GenOO::Intron->new({
+			species    => $self->species,
+			strand     => $self->strand,
+			chromosome => $self->rname,
+			start      => $self->start,
+			stop       => $$exon_starts[0] - 1,
+			part_of    => $self,
 		});
 	}
 	
 	for (my $i=1;$i<@{$exon_starts};$i++) {
-		push @introns, (GenOO::Transcript::Intron->new({
-			SPECIES    => $self->species,
-			STRAND     => $self->strand,
-			CHR        => $self->rname,
-			START      => ${$exon_stops}[$i-1] + 1,
-			STOP       => ${$exon_starts}[$i] - 1,
-			WHERE      => $self,
+		push @introns, (GenOO::Intron->new({
+			species    => $self->species,
+			strand     => $self->strand,
+			chromosome => $self->rname,
+			start      => ${$exon_stops}[$i-1] + 1,
+			stop       => ${$exon_starts}[$i] - 1,
+			part_of    => $self,
 		}));
 	}
 	
 	if ($self->stop > $$exon_stops[-1]) {
-		$self->push_intron(GenOO::Transcript::Intron->new({
-			SPECIES    => $self->species,
-			STRAND     => $self->strand,
-			CHR        => $self->rname,
-			START      => $$exon_stops[-1] + 1,
-			STOP       => $self->stop,
-			WHERE      => $self,
+		$self->push_intron(GenOO::Intron->new({
+			species    => $self->species,
+			strand     => $self->strand,
+			chromosome => $self->rname,
+			start      => $$exon_stops[-1] + 1,
+			stop       => $self->stop,
+			part_of    => $self,
 		}));
 	}
 	
