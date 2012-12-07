@@ -202,7 +202,6 @@ sub _create_exons {
 	my @exons;
 	for (my $i=0;$i<@{$exon_starts};$i++) {
 		push @exons, GenOO::Exon->new({
-			species    => $self->species,
 			strand     => $self->strand,
 			chromosome => $self->rname,
 			start      => $$exon_starts[$i],
@@ -224,7 +223,6 @@ sub _create_introns {
 	
 	if ($self->start < $$exon_starts[0]) {
 		push @introns, GenOO::Intron->new({
-			species    => $self->species,
 			strand     => $self->strand,
 			chromosome => $self->rname,
 			start      => $self->start,
@@ -235,7 +233,6 @@ sub _create_introns {
 	
 	for (my $i=1;$i<@{$exon_starts};$i++) {
 		push @introns, (GenOO::Intron->new({
-			species    => $self->species,
 			strand     => $self->strand,
 			chromosome => $self->rname,
 			start      => ${$exon_stops}[$i-1] + 1,
@@ -246,7 +243,6 @@ sub _create_introns {
 	
 	if ($self->stop > $$exon_stops[-1]) {
 		push @introns, (GenOO::Intron->new({
-			species    => $self->species,
 			strand     => $self->strand,
 			chromosome => $self->rname,
 			start      => $$exon_stops[-1] + 1,
