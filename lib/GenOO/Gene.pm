@@ -51,24 +51,25 @@ package GenOO::Gene;
 use Moose;
 use namespace::autoclean;
 
-use GenOO::Helper::Locus;
+use GenOO::Transcript;
 
 extends 'GenOO::GenomicRegion';
 
 has 'name' => (
-	isa => 'Str',
-	is => 'rw',
+	isa      => 'Str',
+	is       => 'rw',
 	required => 1
 );
 
 has 'description' => (
 	isa => 'Str',
-	is => 'rw'
+	is  => 'rw'
 );
 
 has 'transcripts' => (
-	isa => 'ArrayRef[GenOO::Transcript]',
-	is => 'rw'
+	isa     => 'ArrayRef[GenOO::Transcript]',
+	is      => 'rw',
+	default => sub {[]}
 );
 
 has 'strand' => (
@@ -77,18 +78,21 @@ has 'strand' => (
 	clearer => '_clear_strand',
 	lazy    => 1,
 );
+
 has 'chromosome' => (
 	is      => 'rw',
 	builder => '_find_chromosome',
 	clearer => '_clear_chromosome',
 	lazy    => 1,
 );
+
 has 'start' => (
 	is      => 'rw',
 	builder => '_find_start',
 	clearer => '_clear_start',
 	lazy    => 1,
 );
+
 has 'stop' => (
 	is      => 'rw',
 	builder => '_find_stop',
@@ -134,7 +138,7 @@ sub add_transcript {
 	}
 }
 
-sub constitutive_exons {
+sub constitutive_exonic_regions {
 	my ($self) = @_;
 	
 	my %counts;
@@ -163,7 +167,7 @@ sub constitutive_exons {
 	return \@constitutive_exons;
 }
 
-sub constitutive_coding_exons {
+sub constitutive_coding_exonic_regions {
 	my ($self) = @_;
 	
 	my %counts;
