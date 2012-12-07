@@ -43,7 +43,18 @@ use GenOO::Intron;
 use GenOO::Junction;
 
 # Define new data type
-subtype 'SortedArrayRef', as 'ArrayRef';
+subtype 'SortedArrayRef', as 'ArrayRef', where {
+	my $arrayref = $_;
+	if (@{$arrayref} > 1){
+		for (my $i = 1; $i < @{$arrayref}; $i++){
+			if ($$arrayref[$i] < $$arrayref[$i-1]){
+				return 0;
+			}
+		}
+		return 1;
+	}
+	return 1;
+};
 
 # Define coercions to new data type
 coerce 'SortedArrayRef', from 'ArrayRef', via { [sort {$a <=> $b} @{$_}] };
@@ -96,7 +107,7 @@ sub is_position_within_intron {
 			return 1;
 		}
 	}
-	return 1;
+	return 0;
 }
 
 sub exon_exon_junctions {
@@ -234,7 +245,7 @@ sub _create_introns {
 	}
 	
 	if ($self->stop > $$exon_stops[-1]) {
-		$self->push_intron(GenOO::Intron->new({
+		push @introns, (GenOO::Intron->new({
 			species    => $self->species,
 			strand     => $self->strand,
 			chromosome => $self->rname,

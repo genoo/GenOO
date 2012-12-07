@@ -31,28 +31,6 @@ sub _isa_test : Test(1) {
 }
 
 #######################################################################
-#######################   Class Interface Tests   #####################
-#######################################################################
-
-sub get_cds_start_locus : Test(5) {
-	my ($self) = @_;
-	
-	can_ok $self->obj(0), 'get_cds_start_locus';
-	is $self->obj(0)->get_cds_start_locus->start, '200', "... and returns the correct value";
-	is $self->obj(0)->get_cds_start_locus->chromosome, 'chr11', "... and returns the correct value";
-	is $self->obj(0)->get_cds_start_locus->stop, '200', "... and returns the correct value";
-	is $self->obj(0)->get_cds_start_locus->strand, '-1', "... and returns the correct value";
-}
-
-
-sub whatami : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj(0), 'whatami';
-	is $self->obj(0)->whatami, 'CDS', "... and returns the correct value";
-}
-
-#######################################################################
 ###############   Class method to create test objects   ###############
 #######################################################################
 sub test_objects {
