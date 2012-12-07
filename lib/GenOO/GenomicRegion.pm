@@ -44,11 +44,16 @@ GenOO::GenomicRegion - Object that corresponds to a region on a genome
 package GenOO::GenomicRegion;
 
 use Moose;
+use Moose::Util::TypeConstraints;
 use namespace::autoclean;
+
+subtype 'RegionStrand', as 'Int', where {($_ == 1) or ($_ == -1)};
+
+coerce 'RegionStrand', from 'Str', via { _sanitize_strand($_) };
 
 has 'name'        => (isa => 'Str', is => 'rw');
 has 'species'     => (isa => 'Str', is => 'rw');
-has 'strand'      => (is => 'rw', required => 1);
+has 'strand'      => (isa => 'RegionStrand', is => 'rw', required => 1, coerce => 1);
 has 'chromosome'  => (isa => 'Str', is => 'rw', required => 1);
 has 'start'       => (isa => 'Int', is => 'rw', required => 1);
 has 'stop'        => (isa => 'Int', is => 'rw', required => 1);
@@ -57,13 +62,6 @@ has 'sequence'    => (isa => 'Str', is => 'rw');
 has 'extra'       => (is => 'rw');
 
 with 'GenOO::Region';
-
-sub BUILD {
-	my $self = shift;
-	
-	$self->_sanitize_strand();
-	$self->_sanitize_chromosome();
-}
 
 #######################################################################
 ########################   Interface Methods   ########################
@@ -84,13 +82,13 @@ sub id {
 #########################   Private methods  ##########################
 #######################################################################
 sub _sanitize_strand {
-	my ($self) = @_;
+	my ($value) = @_;
 	
-	if ($self->strand eq '+') {
-		$self->strand(1);
+	if ($value eq '+') {
+		return 1;
 	}
-	elsif ($self->strand eq '-') {
-		$self->strand(-1);
+	elsif ($value eq '-') {
+		return -1;
 	}
 }
 
