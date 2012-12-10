@@ -132,13 +132,13 @@ sub exons_split_by_function {
 	if ($self->is_coding) {
 		my @exons;
 		if (defined $self->utr5) {
-			push @exons,@{$self->utr5->get_exons};
+			push @exons,@{$self->utr5->exons};
 		}
 		if (defined $self->cds) {
-			push @exons,@{$self->cds->get_exons};
+			push @exons,@{$self->cds->exons};
 		}
 		if (defined $self->utr3) {
-			push @exons,@{$self->utr3->get_exons};
+			push @exons,@{$self->utr3->exons};
 		}
 		return \@exons;
 	}
@@ -176,11 +176,14 @@ sub _find_or_create_utr5 {
 		);
 		
 		return GenOO::Transcript::UTR5->new({
-			START         => $utr5_start,
-			STOP          => $utr5_stop,
-			SPLICE_STARTS => $splice_starts,
-			SPLICE_STOPS  => $splice_stops,
-			TRANSCRIPT    => $self
+			start         => $utr5_start,
+			stop          => $utr5_stop,
+			splice_starts => $splice_starts,
+			splice_stops  => $splice_stops,
+			transcript    => $self,
+			chromosome    => $self->chromosome,
+			strand        => $self->strand
+			
 		});
 	}
 }
@@ -197,11 +200,13 @@ sub _find_or_create_cds {
 		);
 		
 		return GenOO::Transcript::CDS->new({
-			START         => $self->coding_start,
-			STOP          => $self->coding_stop,
-			SPLICE_STARTS => $splice_starts,
-			SPLICE_STOPS  => $splice_stops,
-			TRANSCRIPT    => $self
+			start         => $self->coding_start,
+			stop          => $self->coding_stop,
+			splice_starts => $splice_starts,
+			splice_stops  => $splice_stops,
+			transcript    => $self,
+			chromosome    => $self->chromosome,
+			strand        => $self->strand
 		});
 	}
 }
@@ -221,11 +226,13 @@ sub _find_or_create_utr3 {
 		);
 		
 		return GenOO::Transcript::UTR3->new({
-			START         => $utr3_start,
-			STOP          => $utr3_stop,
-			SPLICE_STARTS => $splice_starts,
-			SPLICE_STOPS  => $splice_stops,
-			TRANSCRIPT    => $self
+			start         => $utr3_start,
+			stop          => $utr3_stop,
+			splice_starts => $splice_starts,
+			splice_stops  => $splice_stops,
+			transcript    => $self,
+			chromosome    => $self->chromosome,
+			strand        => $self->strand
 		});
 	}
 }

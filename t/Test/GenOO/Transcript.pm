@@ -101,7 +101,7 @@ sub utr3 : Test(4) {
 sub is_coding : Test(3) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'is_coding');
+	can_ok($self->obj(0), 'is_coding');
 	is $self->obj(0)->is_coding, 1, "... and returns the correct value";
 	is $self->obj(1)->is_coding, 0, "... and returns the correct value";
 }
@@ -109,7 +109,7 @@ sub is_coding : Test(3) {
 sub exons_split_by_function : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'exons_split_by_function');
+	can_ok($self->obj(0), 'exons_split_by_function');
 	is @{$self->obj(0)->exons_split_by_function}, 10, "... and returns the correct value";
 }
 

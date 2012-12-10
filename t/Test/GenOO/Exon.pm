@@ -1,4 +1,4 @@
-package Test::GenOO::Intron;
+package Test::GenOO::Exon;
 use strict;
 
 use base qw(Test::GenOO);
