@@ -1,7 +1,10 @@
 package Test::GenOO::Transcript::UTR5;
 use strict;
 
+use Test::GenOO::Transcript::Part;
+
 use base qw(Test::GenOO);
+use Test::Moose;
 use Test::Most;
 
 #######################################################################
@@ -33,12 +36,6 @@ sub _isa_test : Test(1) {
 #######################################################################
 #######################   Class Interface Tests   #####################
 #######################################################################
-sub whatami : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj(0), 'whatami';
-	is $self->obj(0)->whatami, 'UTR5', "... and returns the correct value";
-}
 
 #######################################################################
 ###############   Class method to create test objects   ###############
@@ -49,22 +46,21 @@ sub test_objects {
 	eval "require ".$test_class->class;
 	
 	my @test_objects;
-	
+	my @test_parts = @{Test::GenOO::Transcript::Part->test_objects()};
+	my $test_part = $test_parts[0];
 	push @test_objects, $test_class->class->new({
-		TRANSCRIPT       => undef,
-		SPLICE_STARTS    => undef,
-		SPLICE_STOPS     => undef,
-		LENGTH           => undef,
-		SEQUENCE         => undef,
-		ACCESSIBILITY    => undef,
-		CONSERVATION     => undef,
-		EXTRA_INFO       => undef,
+		strand         => $test_part->strand,
+		chromosome     => $test_part->chromosome,
+		start          => $test_part->start,
+		stop           => $test_part->stop,
+		splice_starts  => $test_part->splice_starts,
+		splice_stops   => $test_part->splice_stops,
+		species        => $test_part->species,
 	});
 	
 	return \@test_objects;
 }
 
 1;
- 
  
  

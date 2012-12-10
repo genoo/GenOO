@@ -1,4 +1,4 @@
-package Test::GenOO::Transcript::Intron;
+package Test::GenOO::Intron;
 use strict;
 
 use base qw(Test::GenOO);

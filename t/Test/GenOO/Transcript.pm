@@ -2,6 +2,7 @@ package Test::GenOO::Transcript;
 use strict;
 
 use base qw(Test::GenOO);
+use Test::Moose;
 use Test::Most;
 
 #######################################################################
@@ -36,14 +37,14 @@ sub _isa_test : Test(1) {
 sub id : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'id';
+	has_attribute_ok($self->obj(0), 'id');
 	is $self->obj(0)->id, 'uc007hzr.1', "... and returns the correct value";
 }
 
 sub biotype : Test(3) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'biotype';
+	has_attribute_ok($self->obj(0), 'biotype');
 	is $self->obj(0)->biotype, 'coding', "... and returns the correct value";
 	is $self->obj(1)->biotype, 'non coding', "... and returns the correct value";
 }
@@ -51,7 +52,7 @@ sub biotype : Test(3) {
 sub coding_start : Test(3) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'coding_start';
+	has_attribute_ok($self->obj(0), 'coding_start');
 	is $self->obj(0)->coding_start, 8896852, "... and returns the correct value";
 	is $self->obj(1)->coding_start, undef, "... and returns the correct value";
 }
@@ -59,7 +60,7 @@ sub coding_start : Test(3) {
 sub coding_stop : Test(3) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'coding_stop';
+	has_attribute_ok($self->obj(0), 'coding_stop');
 	is $self->obj(0)->coding_stop, 8911112, "... and returns the correct value";
 	is $self->obj(1)->coding_stop, undef, "... and returns the correct value";
 }
@@ -67,26 +68,13 @@ sub coding_stop : Test(3) {
 sub gene : Test(1) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'gene';
-}
-
-sub cdna : Test(6) {
-	my ($self) = @_;
-	
-	can_ok $self->obj(0), 'cdna';
-	
-	isa_ok $self->obj(0)->cdna, 'GenOO::Transcript::CDNA', "... and returns the correct value";
-	is $self->obj(0)->cdna->start, 8893144, "... and returns the correct value";
-	is $self->obj(0)->cdna->stop, 8911139, "... and returns the correct value";
-	
-	is $self->obj(1)->cdna->start, 86086601, "... and returns the correct value";
-	is $self->obj(1)->cdna->stop, 86086630, "... and returns the correct value";
+	has_attribute_ok($self->obj(0), 'gene');
 }
 
 sub utr5 : Test(4) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'utr5';
+	has_attribute_ok($self->obj(0), 'utr5');
 	isa_ok $self->obj(0)->utr5, 'GenOO::Transcript::UTR5', "... and returns the correct value";
 	is $self->obj(0)->utr5->start, 8911113, "... and returns the correct value";
 	is $self->obj(0)->utr5->stop, 8911139, "... and returns the correct value";
@@ -95,7 +83,7 @@ sub utr5 : Test(4) {
 sub cds : Test(4) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'cds';
+	has_attribute_ok($self->obj(0), 'cds');
 	isa_ok $self->obj(0)->cds, 'GenOO::Transcript::CDS', "... and returns the correct value";
 	is $self->obj(0)->cds->start, 8896852, "... and returns the correct value";
 	is $self->obj(0)->cds->stop, 8911112, "... and returns the correct value";
@@ -104,7 +92,7 @@ sub cds : Test(4) {
 sub utr3 : Test(4) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'utr3';
+	has_attribute_ok($self->obj(0), 'utr3');
 	isa_ok $self->obj(0)->utr3, 'GenOO::Transcript::UTR3', "... and returns the correct value";
 	is $self->obj(0)->utr3->start, 8893144, "... and returns the correct value";
 	is $self->obj(0)->utr3->stop, 8896851, "... and returns the correct value";
@@ -113,7 +101,7 @@ sub utr3 : Test(4) {
 sub is_coding : Test(3) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'is_coding';
+	has_attribute_ok($self->obj(0), 'is_coding');
 	is $self->obj(0)->is_coding, 1, "... and returns the correct value";
 	is $self->obj(1)->is_coding, 0, "... and returns the correct value";
 }
@@ -121,8 +109,23 @@ sub is_coding : Test(3) {
 sub exons_split_by_function : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'exons_split_by_function';
+	has_attribute_ok($self->obj(0), 'exons_split_by_function');
 	is @{$self->obj(0)->exons_split_by_function}, 10, "... and returns the correct value";
+}
+
+#######################################################################
+##########################   Helper Methods   #########################
+#######################################################################
+sub obj {
+	my ($self, $index) = @_;
+	
+	return $self->{TEST_OBJECTS}->[$index];
+}
+
+sub objs {
+	my ($self) = @_;
+	
+	return @{$self->{TEST_OBJECTS}};
 }
 
 
@@ -136,7 +139,7 @@ sub test_objects {
 	
 	my @test_objects;
 	
-	push @test_objects, $test_class->class->new({
+	push @test_objects, $test_class->class->new(
 		id             => 'uc007hzr.1',
 		strand         => -1,
 		chromosome     => 'chr11',
@@ -165,9 +168,9 @@ sub test_objects {
 		coding_start   => 8896852,
 		coding_stop    => 8911112,
 		biotype        => 'coding',
-	});
+	);
 	
-	push @test_objects, $test_class->class->new({
+	push @test_objects, $test_class->class->new(
 		id             => 'uc007gqc.1',
 		strand         => 1,
 		chromosome     => 'chr10',
@@ -176,7 +179,7 @@ sub test_objects {
 		splice_starts  => [86086601],
 		splice_stops   => [86086630],
 		biotype        => 'non coding',
-	});
+	);
 	
 	return \@test_objects;
 }

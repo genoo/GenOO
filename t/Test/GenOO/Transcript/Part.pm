@@ -173,8 +173,6 @@ sub test_objects {
 		sequence      => 'AGTTAAATTATAAATATTTATTTCATTCTATAAAAATATTGTCATTACAATGTTGGTTGTGAAATTGTTAGAAAATACACAAATATAAAAAGACTGAAGTCAAAAACACCCAGGCTTCCTGGTCTTTAATGTCACACCATGGACACCAACATCCCACTGGTTTGTTACCATATTAGCAGCACTTTATTGTATTGCATTAGGGTATGATATTACATCACAGCACAGATTATCTACCAATTCCCTGTTCATTCACATTAGGAAATTTCTTATTTATAACAGTACTAAGCTTTGATTATAACCTGTGTTAAATGACTCTTACAAGCATAAGTATTAAGTCAAAGGAAGCAGTTTCAAGCTTTCCCACGGATAGTAAATAGCCAAGTGACCTTCAGGACATTGGTACTAACACCCCTCCTACCATCAATGTCCAAATGATTCTAATTTATCATCTCTTAGTTTAACACTGTTTTTAGAAGAAAAATGACCAACTCATGCTCCCT'
 	});
 	
-# 	warn "AAAAAAAAA\t".join("\n",@{$test_objects[-1]->splice_starts})."\n";
-	
 	push @test_objects, $test_class->class->new({
 		strand         => 1,
 		chromosome     => 'chr10',
@@ -189,26 +187,3 @@ sub test_objects {
 }
 
 1;
-
-
-#################################################
-
-# 
-#    my $region = GenOO::Transcript::Part->new({
-#         SPECIES      => undef,
-#         STRAND       => undef,
-#         CHR          => undef,
-#         START        => undef,
-#         STOP         => undef,
-#         SEQUENCE     => undef,
-#         NAME         => undef,
-#         TRANSCRIPT       => undef,
-#         SPLICE_STARTS    => undef,
-#         SPLICE_STOPS     => undef,
-#         SEQUENCE         => undef,
-#     });
-# 
-
-# has 'transcript' => (isa => 'GenOO::Transcript',is => 'rw', weak_ref => 1);
-# 
-# with 'GenOO::Spliceable';
