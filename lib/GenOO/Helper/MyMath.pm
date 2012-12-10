@@ -1,6 +1,32 @@
-package GenOO::Helper::MyMath;
+# POD documentation - main docs before the code
 
-# Contains useful mathematical functions
+=head1 NAME
+
+GenOO::Helper::MyMath - A collection of useful mathematical methods
+
+=head1 SYNOPSIS
+
+    A collection of useful mathematical methods
+    
+=head1 DESCRIPTION
+
+    This class contains useful mathematical methods such as mean, round_digits, sigmoid, min, max, glog
+
+=head1 EXAMPLES
+
+    #mean
+    my @array = [0,20,100];
+    my $mean = GenOO::Helper::MyMath->mean(\@array); #returns mean (40)
+
+    #round_digits
+    my $number = 1.012345;
+    my $rounded = GenOO::Helper::MyMath->round_digits($number,2); #returns (1.01)
+        
+=cut
+
+# Let the code begin...
+
+package GenOO::Helper::MyMath;
 
 use strict;
 

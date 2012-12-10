@@ -2,45 +2,68 @@
 
 =head1 NAME
 
-GenOO::Gene - Gene object, with features
+GenOO::Gene - Gene object
 
 =head1 SYNOPSIS
 
-    # This is the main gene object
-    # It represents a gene (a genomic region and a collection of transcripts)
+    # This object represents a gene (collection of transcripts)
+    # It extends the L<GenOO::GenomicRegion> object
     
     # To initialize 
-    my $transcript = GenOO::Transcript->new({
-        INTERNAL_ID    => undef,
-        SPECIES        => undef,
-        STRAND         => undef,
-        CHR            => undef,
-        START          => undef,
-        STOP           => undef,
-        ENSGID         => undef,
-        NAME           => undef,
-        REFSEQ         => undef,
-        TRANSCRIPTS    => undef, # [] reference to array of gene objects
-        DESCRIPTION    => undef,
-        EXTRA_INFO     => undef,
-    });
+    my $gene = GenOO::Gene->new(
+        name        => undef,    #required
+        strand      => undef,    #can be inferred
+        chromosome  => undef,    #can be inferred
+        start       => undef,    #can be inferred
+        stop        => undef,    #can be inferred
+        description => undef,
+        transcripts => reference to an array of L<GenOO::Transcript> objects
+    );
 
 =head1 DESCRIPTION
 
-    GenOO::Gene describes a gene. A gene is defined as a locus and as a collection of transcript. This means that it has
-    genomic location attributes which are set in respect to the start and stop positions of its contained transcripts. 
-    Whenever a transcript is added to a gene object the genomic coordinates of the gene are automatically updated. 
-    It is not clear if the gene should have attributes like the biotype as it is not definite whether its contained
-    transcripts would all have the same biotype or not.
-    Whenever a gene object is created a unique id is associated with the object until it gets out of scope.
+    GenOO::Gene describes a gene. A gene is defined as a genomic region (it has the strand, chromosome, start and stop
+    attributes required by L<GenOO::GenomicRegion>) as well as collection of L<GenOO::Transcript> objects. The genomic
+    location attributes can be inferred by the locations of the contained transcripts. The start position of the gene
+    will be the smallest coordinate of all the contained transcripts etc.
+    Whenever a transcript is added to a gene object the genomic coordinates of the gene are automatically updated.
+    It is a good idea NOT to set the genomic location of the gene directly but to let it be inferred by the transcripts.
 
 =head1 EXAMPLES
-
-    my $gene = GenOO::Gene->by_ensgid('ENSG00000000143'); # using the class method to get the corresponding object
-
-=head1 AUTHOR - Manolis Maragkakis, Panagiotis Alexiou
-
-Email em.maragkakis@gmail.com, pan.alexiou@fleming.gr
+    my $gene = GenOO::Gene->new(
+        name        => '2310016C08Rik',
+        description => 'hypoxia-inducible gene 2 protein isoform 2',
+        transcripts => [
+                GenOO::Transcript->new(
+                    id            => 'uc012eiw.1',
+                    strand        => 1,
+                    chromosome    => 'chr6',
+                    start         => 29222487,
+                    stop          => 29225448,
+                    coding_start  => 29222571,
+                    coding_stop   => 29224899,
+                    biotype       => 'coding',
+                    splice_starts => [29222487,29224649],
+                    splice_stops  => [29222607,29225448]
+                ),
+                GenOO::Transcript->new(
+                    id            => 'uc009bdd.2',
+                    strand        => 1,
+                    chromosome    => 'chr6',
+                    start         => 29222625,
+                    stop          => 29225448,
+                    coding_start  => 29224705,
+                    coding_stop   => 29224899,
+                    biotype       => 'coding',
+                    splice_starts => [29222625,29224649],
+                    splice_stops  => [29222809,29225448]
+                )
+            ]
+    );
+    print $gene->strand; #    1
+    print $gene->chromosome; #    chr6
+    print $gene->start;    #    29222487
+    print $gene->stop;    #    29225448
 
 =cut
 

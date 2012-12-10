@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-GenOO::RegionCollection::Factory - Factory for creating GenOO::RegionCollection objects
+GenOO::RegionCollection::Factory - Factory for creating L<GenOO::RegionCollection> objects
 
 =head1 SYNOPSIS
 

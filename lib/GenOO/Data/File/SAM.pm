@@ -29,10 +29,6 @@ GenOO::Data::File::SAM - Object implementing methods for accessing sam formatted
     # Read one record at a time
     my $sam_record = $sam_file->next_record();
 
-=head1 AUTHOR - Manolis Maragkakis
-
-Email em.maragkakis@gmail.com
-
 =cut
 
 # Let the code begin...

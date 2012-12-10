@@ -29,10 +29,6 @@ GenOO::Data::File::GFF - Object implementing methods for accessing gff formatted
     # Read one record at a time
     my $record = $gff_file->next_record();
 
-=head1 AUTHOR - Manolis Maragkakis
-
-Email em.maragkakis@gmail.com
-
 =cut
 
 # Let the code begin...

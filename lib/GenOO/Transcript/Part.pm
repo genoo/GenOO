@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-GenOO::Transcript::Part - A functional region within a transcript consisting of spicing elements, with features
+GenOO::Transcript::Part - A functional region within a transcript consisting of spliceable elements
 
 =head1 SYNOPSIS
 
@@ -13,22 +13,24 @@ GenOO::Transcript::Part - A functional region within a transcript consisting of 
     
     # To initialize 
     my $region = GenOO::Transcript::Part->new({
-        SPECIES      => undef,
-        STRAND       => undef,
-        CHR          => undef,
-        START        => undef,
-        STOP         => undef,
-        SEQUENCE     => undef,
-        NAME         => undef,
-        TRANSCRIPT       => undef,
-        SPLICE_STARTS    => undef,
-        SPLICE_STOPS     => undef,
-        SEQUENCE         => undef,
+        species      => undef,
+        strand       => undef,    #required
+        chromosome   => undef,    #required
+        start        => undef,    #required
+        stop         => undef,    #required
+        name         => undef,
+        sequence     => undef,
+        transcript   => undef,    #backreference to a L<GenOO::Transcript> object
+        splice_starts    => undef,    #reference to an array of splice starts
+        splice_stops     => undef,    #reference to an array of splice stops
     });
 
 =head1 DESCRIPTION
 
-    Not provided yet
+    A transcript part can be any functional part of a transcript. It is usually used for the 3'UTR
+    5'UTR, coding region (CDS) etc. It has a genomic location (start, stop, chromosome, strand), 
+    it is spliceable (splice_starts, splice_stops, exons, introns etc) and is connected to a 
+    transcript object.
 
 =head1 EXAMPLES
 

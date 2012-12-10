@@ -5,37 +5,53 @@
 GenOO::GenomicRegion - Object that corresponds to a region on a genome
 
 =head1 SYNOPSIS
-
+    
+    # This object represents a genomic region (location on the genome)
+    # It extends the L<GenOO::Region> object
+    
     # Instantiate 
-    my $genomic_region = GenOO::GenomicRegion->new({
+    my $genomic_region = GenOO::GenomicRegion->new(
         name         => undef,
         species      => undef,
-        strand       => undef,
-        chromosome   => undef,
-        start        => undef,
-        stop         => undef,
-        copy_number  => undef,
+        strand       => undef,    #required
+        chromosome   => undef,    #required
+        start        => undef,    #required
+        stop         => undef,    #required
+        copy_number  => undef,    #defaults to 1
         sequence     => undef,
-    });
+    );
 
 =head1 DESCRIPTION
 
     A genomic region object is an area on a reference genome. It has a
-    specific start and stop position and a specific strand. The main
-    difference from the the L<GenOO::Region> role is that it has the
-    "chromosome" attribute instead of the generic "rname"
+    specific start and stop position and specific strand and chromosome.
+    The main difference from the the L<GenOO::Region> role is that it has the
+    "chromosome" attribute instead of the generic "rname". The copy number
+    attribute is useful when counting aligned reads so that the number of
+    reads in this specific location can be collapsed. It defaults to 1.
+    See L<GenOO::Region> and for more available methods
 
 =head1 EXAMPLES
-
+    
+    my $genomic_region = GenOO::GenomicRegion->new(
+        name        => 'test_object_0',
+        species     => 'human',
+        strand      => '+',
+        chromosome  => 'chr1',
+        start       => 3,
+        stop        => 10,
+        copy_number => 7,
+        sequence    => 'AGCTAGCU'
+    );
     # Get the genomic location information
-    $genomic_region->start;      # 10
-    $genomic_region->stop;       # 20
-    $genomic_region->strand;     # -1
-    $genomic_region->chromosome; # chrY
-    $genomic_region->rname;      # chrY
+    $genomic_region->start;      # 3
+    $genomic_region->stop;       # 10
+    $genomic_region->strand;     # 1
+    $genomic_region->chromosome; # chr1
+    $genomic_region->rname;      # chr1 - this is always the same as chromosome
     
     # Get the head (5p) position on the reference sequence
-    $obj_with_role->head_position;  # 20
+    $genomic_region->head_position;  # 3 - this method comes from L<GenOO::Region>
 
 =cut
 

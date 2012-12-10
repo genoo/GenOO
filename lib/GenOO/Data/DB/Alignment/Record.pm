@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-GenOO::Data::DB::Alignment::Record - Class consuming GenOO::Region role for a database record
+GenOO::Data::DB::Alignment::Record - Class consuming L<GenOO::Region> role for a database record
 
 =head1 SYNOPSIS
 
@@ -20,7 +20,7 @@ GenOO::Data::DB::Alignment::Record - Class consuming GenOO::Region role for a da
 
 =head1 DESCRIPTION
 
-    This class provides a GenOO::Region interface for records stored in a database. The objects of the class consume the GenOO::Region role and therefore support all attributes and methods defined by the role. They also have extra accessors for the remaining data provided by the database records.
+    This class provides a L<GenOO::Region> interface for records stored in a database. The objects of the class consume the L<GenOO::Region> role and therefore support all attributes and methods defined by the role. They also have extra accessors for the remaining data provided by the database records.
 
 =head1 EXAMPLES
 

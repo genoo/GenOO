@@ -9,11 +9,10 @@ GenOO::Data::File::FASTQ - Object implementing methods for accessing fastq forma
     # Object that manages a fastq file. 
 
     # To initialize 
-    my $file = GenOO::Data::File::FASTQ->new({
-        FILE            => undef,
-        EXTRA_INFO      => undef,
-    });
-
+    my $file = GenOO::Data::File::FASTQ->new(
+        file            => undef,
+        extra           => undef,
+    );
 
 =head1 DESCRIPTION
 
@@ -22,11 +21,7 @@ GenOO::Data::File::FASTQ - Object implementing methods for accessing fastq forma
 =head1 EXAMPLES
 
     # Read one entry
-    my $entry = $fastq_parser->next();
-
-=head1 AUTHOR - Manolis Maragkakis
-
-Email em.maragkakis@gmail.com
+    my $entry = $fastq_parser->next_record();
 
 =cut
 

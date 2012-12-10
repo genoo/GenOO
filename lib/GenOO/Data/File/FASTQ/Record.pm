@@ -10,9 +10,9 @@ GenOO::Data::File::FASTQ::Record - Object representing a record of a fastq file
 
     # To initialize 
     my $fastq_record = GenOO::Data::File::FASTQ::Record->new({
-        name      => undef,
-        sequence  => undef,
-        quality   => undef,
+        name      => undef,    #required
+        sequence  => undef,    #required
+        quality   => undef,    #required
         extra     => undef,
     });
 
