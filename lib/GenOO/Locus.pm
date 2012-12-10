@@ -36,7 +36,7 @@ package GenOO::Locus;
 use strict;
 
 use base qw( GenOO::_Initializable Clone);
-use GenOO::MyMath;
+use GenOO::Helper::MyMath;
 
 sub _init {
 	my ($self,$data) = @_;
@@ -352,8 +352,8 @@ sub get_contained_locuses {
 					SPECIES      => $region->species,
 					STRAND       => $region->strand,
 					CHR          => $region->chr,
-					START        => (GenOO::MyMath::max( [$region->start, $self->start] ))[1],
-					STOP         => (GenOO::MyMath::min( [$region->stop, $self->stop] ))[1],
+					START        => (GenOO::Helper::MyMath::max( [$region->start, $self->start] ))[1],
+					STOP         => (GenOO::Helper::MyMath::min( [$region->stop, $self->stop] ))[1],
 					SEQUENCE     => undef, #not sure what to do with seq!!!
 					EXTRA_INFO   => $region->get_extra,
 				});

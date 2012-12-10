@@ -1,4 +1,4 @@
-package GenOO::MyMath;
+package GenOO::Helper::MyMath;
 
 # Contains useful mathematical functions
 
