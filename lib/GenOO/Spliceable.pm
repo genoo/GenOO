@@ -61,8 +61,8 @@ coerce 'SortedArrayRef', from 'ArrayRef', via { [sort {$a <=> $b} @{$_}] };
 coerce 'SortedArrayRef', from 'Str'     , via { [sort {$a <=> $b} (split(/\D+/,$_))] };
 
 # Define attributes
-has 'splice_starts'  => (isa => 'SortedArrayRef', is => 'ro', required => 1, coerce => 1);
-has 'splice_stops'   => (isa => 'SortedArrayRef', is => 'ro', required => 1, coerce => 1);
+has 'splice_starts'  => (isa => 'SortedArrayRef', is => 'rw', required => 1, coerce => 1);
+has 'splice_stops'   => (isa => 'SortedArrayRef', is => 'rw', required => 1, coerce => 1);
 
 has 'exons' => (
 	isa       => 'ArrayRef',
