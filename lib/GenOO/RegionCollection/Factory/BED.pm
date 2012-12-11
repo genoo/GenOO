@@ -50,7 +50,7 @@ use namespace::autoclean;
 use GenOO::RegionCollection::Type::DoubleHashArray;
 use GenOO::Data::File::BED;
 
-has 'file' => (is => 'Str', is => 'ro');
+has 'file' => (is => 'Str', is => 'ro', required => 1);
 
 with 'GenOO::RegionCollection::Factory::Requires';
 
