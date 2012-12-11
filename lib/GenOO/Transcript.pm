@@ -72,7 +72,7 @@ has 'biotype' => (
 );
 
 has 'gene' => (
-# 	isa       => 'GenOO::Gene',
+	isa       => 'GenOO::Gene',
 	is        => 'rw',
 	builder   => '_find_or_create_gene',
 	lazy      => 1,
@@ -80,21 +80,21 @@ has 'gene' => (
 );
 
 has 'utr5' => (
-# 	isa       => 'GenOO::Transcript::UTR5',
+	isa       => 'GenOO::Transcript::UTR5',
 	is        => 'rw',
 	builder   => '_find_or_create_utr5',
 	lazy      => 1
 );
 
 has 'cds' => (
-# 	isa       => 'enOO::Transcript::CDS',
+	isa       => 'GenOO::Transcript::CDS',
 	is        => 'rw',
 	builder   => '_find_or_create_cds',
 	lazy      => 1
 );
 
 has 'utr3' => (
-# 	isa       => 'GenOO::Transcript::UTR3',
+	isa       => 'GenOO::Transcript::UTR3',
 	is        => 'rw',
 	builder   => '_find_or_create_utr3',
 	lazy      => 1
