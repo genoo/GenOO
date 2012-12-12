@@ -66,7 +66,7 @@ sub merge {
 	my @merged_loci;
 	my @included_loci;
 	foreach my $locus (@sorted_loci) {
-		if ($locus->isa('GenOO::Locus')) {
+		if ($locus->isa('GenOO::Locus') ) {
 			my $merged_locus = $merged_loci[-1];
 			if (defined $merged_locus and $merged_locus->overlaps($locus,{OFFSET=>$offset, USE_STRAND=>$use_strand})) {
 				if (wantarray) {

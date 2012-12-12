@@ -88,9 +88,7 @@ has 'biotype' => (
 has 'gene' => (
 	isa       => 'GenOO::Gene',
 	is        => 'rw',
-	builder   => '_find_or_create_gene',
-	lazy      => 1,
-	weak_ref => 1
+	weak_ref  => 1
 );
 
 has 'utr5' => (
