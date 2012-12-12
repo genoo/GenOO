@@ -34,7 +34,7 @@ GenOO::Transcript - Corresponds to a gene transcript
     The Transcript class describes a transcript of a gene. It can have a backreference
     to the gene in which it belongs. Protein coding transcripts have functional regions
     such as 5'UTR, CDS and 3'UTR. The transcript class extends the L<GenOO::GenomicRegion>
-    and implements the L<GenOO::Splicable> role.
+    and implements the L<GenOO::Spliceable> role.
 
 =head1 EXAMPLES
 
