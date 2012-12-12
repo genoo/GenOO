@@ -83,16 +83,16 @@ sub read_collection {
 sub _make_list_of_genes {
 	my ($self) = @_;
 	
-	my %genes;
+	my @outgenes;
 	my %transcripts_for_genename;
 	$self->transcript_collection->foreach_record_do( sub {
-		my $entry = $_;
-		my %annotation_hash = $self->annotation_hash;
+		my ($entry) = @_;
+		my $annotation_hash = $self->annotation_hash;
 		my $transcript_name = $entry->id;
 		my $transcript_obj = $entry;
 		my $gene_name;
-		if (exists $annotation_hash{$transcript_name}){
-			$gene_name = $annotation_hash{$transcript_name};
+		if (exists $$annotation_hash{$transcript_name}){
+			$gene_name = $$annotation_hash{$transcript_name};
 			push @{$transcripts_for_genename{$gene_name}},$transcript_obj; 
 		}
 		else {next;}
@@ -111,21 +111,69 @@ sub _make_list_of_genes {
 	});
 	
 	foreach my $genename (keys %transcripts_for_genename) {
-		my ($merged_loci,$included_transcripts) = GenOO::Helper::Locus::merge($transcripts_for_genename{$genename});
-		for (my $i=0;$i<@$merged_loci;$i++) {
-			my $gene = GenOO::Gene->new($$merged_loci[$i]);
-			$gene->set_name($genename);
-			foreach my $transcript (@{$$included_transcripts[$i]}) {
-# 				$gene->set_description(delete $transcript->{TEMP_DESCRIPTION});
-# 				$gene->add_transcript($transcript);
-				$transcript->set_gene($gene);
+		my ($merged_regions,$included_transcripts) = _merge($transcripts_for_genename{$genename});
+		for (my $i=0;$i<@$merged_regions;$i++) {
+			my $gene = GenOO::Gene->new(
+# 				start       => $$merged_regions[$i]->start,
+# 				stop        => $$merged_regions[$i]->stop,
+# 				strand      => $$merged_regions[$i]->strand,
+# 				chromosome  => $$merged_regions[$i]->chromosome,
+				name        => $genename,
+				transcripts => $$included_transcripts[$i]
+			);
+			foreach my $transcript (@{$gene->transcripts}) {
+				$transcript->gene($gene);
 			}
-			$genes{$genename} = $gene;
+			push @outgenes, $gene;
 		}
 	}
 	
+	return @outgenes;
+}
+
+sub _merge {
+	my ($regions_ref, $params) = @_;
 	
-	return values %genes;
+	my $offset = exists $params->{'OFFSET'} ? $params->{'OFFSET'} : 0;
+	my $use_strand = exists $params->{'USE_STRAND'} ? $params->{'USE_STRAND'} : 1;
+	
+	my @sorted_regions = (@$regions_ref > 1) ? sort{$a->start <=> $b->start} @$regions_ref : @$regions_ref;
+	
+	my @merged_regions;
+	my @included_regions;
+	foreach my $region (@sorted_regions) {
+		
+		my $merged_region = $merged_regions[-1];
+		if (defined $merged_region and $merged_region->overlaps($region,{OFFSET=>$offset, USE_STRAND=>$use_strand})) {
+			if (wantarray) {
+				push @{$included_regions[-1]}, $region;
+			}
+			if ($region->stop() > $merged_region->stop) {
+				$merged_region->stop($region->stop);
+			}
+		}
+		else {
+			push @merged_regions, GenOO::GenomicRegion->new
+			(
+				start      => $region->start,
+				stop       => $region->stop,
+				strand     => $region->strand,
+				chromosome => $region->chromosome,
+			);
+			if (wantarray) {
+				push @included_regions,[$region];
+			}
+		}
+	
+	}
+	
+	if (wantarray) {
+		return (\@merged_regions, \@included_regions);
+	}
+	else {
+		return \@merged_regions;
+	}
+	
 }
 
 1;
