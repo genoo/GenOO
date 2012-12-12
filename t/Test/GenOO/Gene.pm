@@ -153,6 +153,7 @@ sub test_objects {
 	my ($test_class) = @_;
 	
 	eval "require ".$test_class->class;
+	eval "require GenOO::Transcript";
 	
 	my @test_objects;
 	
