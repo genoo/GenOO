@@ -12,10 +12,13 @@ GenOO::Gene - Gene object
     # To initialize 
     my $gene = GenOO::Gene->new(
         name        => undef,    #required
-        strand      => undef,    #can be inferred
-        chromosome  => undef,    #can be inferred
-        start       => undef,    #can be inferred
-        stop        => undef,    #can be inferred
+        species     => undef,
+        strand      => undef,    #can be inferred from transcripts
+        chromosome  => undef,    #can be inferred from transcripts
+        start       => undef,    #can be inferred from transcripts
+        stop        => undef,    #can be inferred from transcripts
+        copy_number => undef,    #defaults to 1
+        sequence    => undef,
         description => undef,
         transcripts => reference to an array of L<GenOO::Transcript> objects
     );
@@ -30,40 +33,43 @@ GenOO::Gene - Gene object
     It is a good idea NOT to set the genomic location of the gene directly but to let it be inferred by the transcripts.
 
 =head1 EXAMPLES
+    # Create a new gene object
     my $gene = GenOO::Gene->new(
         name        => '2310016C08Rik',
         description => 'hypoxia-inducible gene 2 protein isoform 2',
         transcripts => [
-                GenOO::Transcript->new(
-                    id            => 'uc012eiw.1',
-                    strand        => 1,
-                    chromosome    => 'chr6',
-                    start         => 29222487,
-                    stop          => 29225448,
-                    coding_start  => 29222571,
-                    coding_stop   => 29224899,
-                    biotype       => 'coding',
-                    splice_starts => [29222487,29224649],
-                    splice_stops  => [29222607,29225448]
-                ),
-                GenOO::Transcript->new(
-                    id            => 'uc009bdd.2',
-                    strand        => 1,
-                    chromosome    => 'chr6',
-                    start         => 29222625,
-                    stop          => 29225448,
-                    coding_start  => 29224705,
-                    coding_stop   => 29224899,
-                    biotype       => 'coding',
-                    splice_starts => [29222625,29224649],
-                    splice_stops  => [29222809,29225448]
-                )
-            ]
+                                GenOO::Transcript->new(
+                                        id            => 'uc012eiw.1',
+                                        strand        => 1,
+                                        chromosome    => 'chr6',
+                                        start         => 29222487,
+                                        stop          => 29225448,
+                                        coding_start  => 29222571,
+                                        coding_stop   => 29224899,
+                                        biotype       => 'coding',
+                                        splice_starts => [29222487,29224649],
+                                        splice_stops  => [29222607,29225448]
+                                ),
+                                GenOO::Transcript->new(
+                                        id            => 'uc009bdd.2',
+                                        strand        => 1,
+                                        chromosome    => 'chr6',
+                                        start         => 29222625,
+                                        stop          => 29225448,
+                                        coding_start  => 29224705,
+                                        coding_stop   => 29224899,
+                                        biotype       => 'coding',
+                                        splice_starts => [29222625,29224649],
+                                        splice_stops  => [29222809,29225448]
+                                )
+                        ],
     );
-    print $gene->strand; #    1
-    print $gene->chromosome; #    chr6
-    print $gene->start;    #    29222487
-    print $gene->stop;    #    29225448
+    
+    # Get gene information
+    $gene->strand;     # 1
+    $gene->chromosome; # chr6
+    $gene->start;      # 29222487
+    $gene->stop;       # 29225448
 
 =cut
 
@@ -73,8 +79,6 @@ package GenOO::Gene;
 
 use Moose;
 use namespace::autoclean;
-
-use GenOO::Transcript;
 
 extends 'GenOO::GenomicRegion';
 
@@ -137,6 +141,7 @@ sub coding_transcripts {
 		return undef;
 	}
 }
+
 sub non_coding_transcripts {
 	my ($self) = @_;
 	
