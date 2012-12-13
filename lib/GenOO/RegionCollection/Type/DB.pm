@@ -216,20 +216,36 @@ sub records_overlapping_region {
 	return @overlapping_records;
 }
 
+sub total_copy_number_for_records_overlapping_region {
+	my ($self, $strand, $rname, $start, $stop, $block) = @_;
+	
+	my $select = $self->_db_handle->prepare(
+		'SELECT SUM(copy_number) FROM '.$self->_statement_table_name.
+		' WHERE `strand`=? AND `rname`=? AND `start` BETWEEN ? AND ? AND `stop` BETWEEN ? AND ?'
+	);
+	
+	my @res = $self->_db_handle->selectrow_array($select, {}, $strand, $rname, $start, $stop, $start, $stop);
+	
+	return $res[0] || 0;
+}
+
 #######################################################################
 #########################   Private methods  ##########################
 #######################################################################
 sub _build_db_connector {
 	my ($self) = @_;
 	
-	return GenOO::Data::DB::Connector->new({
+	my $data = {
 		driver   => $self->driver,
 		host     => $self->host,
 		database => $self->database,
-		user     => $self->user,
-		password => $self->password,
-		port     => $self->port,
-	});
+	};
+	
+	($data->{user} = $self->user) if defined $self->user;
+	($data->{password} = $self->password) if defined $self->password;
+	($data->{port} = $self->port) if defined $self->port;
+	
+	return GenOO::Data::DB::Connector->new($data);
 }
 
 sub _build_db_handle {
