@@ -35,34 +35,38 @@ GenOO::Spliceable - Role for a region that can be spliced
 # Let the code begin...
 
 package GenOO::Spliceable;
+
 use Moose::Role;
 use Moose::Util::TypeConstraints;
+use namespace::autoclean;
 
 use GenOO::Exon;
 use GenOO::Intron;
 use GenOO::Junction;
 
 # Define new data type
-subtype 'SortedArrayRef', as 'ArrayRef', where {
-	my $arrayref = $_;
-	if (@{$arrayref} > 1){
-		for (my $i = 1; $i < @{$arrayref}; $i++){
-			if ($$arrayref[$i] < $$arrayref[$i-1]){
-				return 0;
-			}
-		}
-		return 1;
-	}
-	return 1;
-};
+subtype 'SortedArrayRef', as 'ArrayRef', where { _sorted_array() };
 
 # Define coercions to new data type
 coerce 'SortedArrayRef', from 'ArrayRef', via { [sort {$a <=> $b} @{$_}] };
 coerce 'SortedArrayRef', from 'Str'     , via { [sort {$a <=> $b} (split(/\D+/,$_))] };
 
 # Define attributes
-has 'splice_starts'  => (isa => 'SortedArrayRef', is => 'rw', required => 1, coerce => 1);
-has 'splice_stops'   => (isa => 'SortedArrayRef', is => 'rw', required => 1, coerce => 1);
+has 'splice_starts' => (
+	isa      => 'SortedArrayRef',
+	is       => 'ro',
+	writer   => '_set_splice_starts',
+	required => 1,
+	coerce   => 1
+);
+
+has 'splice_stops' => (
+	isa      => 'SortedArrayRef',
+	is       => 'ro',
+	writer   => '_set_splice_stops',
+	required => 1,
+	coerce   => 1
+);
 
 has 'exons' => (
 	isa       => 'ArrayRef',
@@ -82,6 +86,13 @@ has 'introns' => (
 
 # Define consumed roles
 with 'GenOO::Region';
+
+
+sub BUILD {
+	my $self = shift;
+	
+	$self->_sanitize_splice_starts_and_stops;
+}
 
 #######################################################################
 ########################   Interface Methods   ########################
@@ -190,6 +201,14 @@ sub relative_exonic_position {
 	}
 }
 
+sub set_splice_starts_and_stops {
+	my ($self, $splice_starts, $splice_stops) = @_;
+	
+	$self->_set_splice_starts($splice_starts);
+	$self->_set_splice_stops($splice_stops);
+	$self->_sanitize_splice_starts_and_stops;
+}
+
 #######################################################################
 #######################   Private Methods  ############################
 #######################################################################
@@ -254,6 +273,29 @@ sub _create_introns {
 	return \@introns;
 }
 
+sub _sanitize_splice_starts_and_stops {
+	my ($self) = @_;
+	
+	my $splice_starts = $self->splice_starts;
+	my $splice_stops = $self->splice_stops;
+	
+	if (@$splice_starts != @$splice_stops) {
+		die "Error: Spice starts array is not of the same size as splice_stops (".scalar @$splice_starts."!=".scalar @$splice_stops.")\n";
+	}
+	
+	my $index = 0;
+	while ($index < (@$splice_starts-1)) {
+		if ($$splice_stops[$index] == $$splice_starts[$index+1] - 1) {
+			$$splice_stops[$index] = $$splice_stops[$index+1];
+			splice @$splice_starts, $index+1, 1;
+			splice @$splice_stops, $index+1, 1;
+		}
+		else {
+			$index++;
+		}
+	}
+}
+
 #######################################################################
 #######################   Private Routines  ###########################
 #######################################################################
@@ -285,6 +327,20 @@ sub _sanitize_splice_coords_within_limits {
 		}
 	}
 	return \@splice_starts, \@splice_stops;
+}
+
+sub _sorted_array {
+	my $arrayref = $_;
+	
+	if (@{$arrayref} > 1){
+		for (my $i = 1; $i < @{$arrayref}; $i++){
+			if ($$arrayref[$i] < $$arrayref[$i-1]){
+				return 0;
+			}
+		}
+		return 1;
+	}
+	return 1;
 }
 
 1;

@@ -142,8 +142,7 @@ sub _read_gtf_with_transcripts {
 	close $FH;
 	
 	foreach my $transcript_id (keys %transcripts) {
-		$transcripts{$transcript_id}->splice_starts($transcript_splice_starts{$transcript_id});
-		$transcripts{$transcript_id}->splice_stops($transcript_splice_stops{$transcript_id});
+		$transcripts{$transcript_id}->set_splice_starts_and_stops($transcript_splice_starts{$transcript_id}, $transcript_splice_stops{$transcript_id});
 	}
 	
 	return values %transcripts;
