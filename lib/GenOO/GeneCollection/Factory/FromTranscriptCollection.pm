@@ -12,7 +12,7 @@ GenOO::GeneCollection::Factory::FromTranscriptCollection - Factory for creating 
     my $factory = GenOO::GeneCollection::Factory->create(
         'FromTranscriptCollection',
         {
-            annotation_hash => %annotation,
+            annotation_hash => \%annotation,
             transcript_collection => $transcript_collection
         }
     );
@@ -33,7 +33,7 @@ GenOO::GeneCollection::Factory::FromTranscriptCollection - Factory for creating 
     my $factory_implementation = GenOO::GeneCollection::Factory->create(
         'FromTranscriptCollection',
         {
-            annotation_hash => %annotation,
+            annotation_hash => \%annotation,
             transcript_collection => $transcript_collection
         }
     );
@@ -52,6 +52,7 @@ use Moose;
 use namespace::autoclean;
 
 use GenOO::RegionCollection::Type::DoubleHashArray;
+use GenOO::Gene;
 
 has 'annotation_hash'       => (
 	isa      => 'HashRef', 
@@ -96,28 +97,12 @@ sub _make_list_of_genes {
 			push @{$transcripts_for_genename{$gene_name}},$transcript_obj; 
 		}
 		else {next;}
-		
-		
-		
-# 		if (!exists $genes{$gene_name}){
-# 			$genes{$gene_name} = GenOO::Gene->new(
-# 				name         =>    $gene_name,
-# 				transcripts  =>    [$transcript_obj],
-# 			)
-# 		}
-# 		else {
-# 			$genes{$gene_name}->add_transcript($transcript_obj);
-# 		}
 	});
 	
 	foreach my $genename (keys %transcripts_for_genename) {
 		my ($merged_regions,$included_transcripts) = _merge($transcripts_for_genename{$genename});
 		for (my $i=0;$i<@$merged_regions;$i++) {
 			my $gene = GenOO::Gene->new(
-# 				start       => $$merged_regions[$i]->start,
-# 				stop        => $$merged_regions[$i]->stop,
-# 				strand      => $$merged_regions[$i]->strand,
-# 				chromosome  => $$merged_regions[$i]->chromosome,
 				name        => $genename,
 				transcripts => $$included_transcripts[$i]
 			);
@@ -164,16 +149,14 @@ sub _merge {
 				push @included_regions,[$region];
 			}
 		}
-	
 	}
-	
+
 	if (wantarray) {
 		return (\@merged_regions, \@included_regions);
 	}
 	else {
 		return \@merged_regions;
 	}
-	
 }
 
 1;
