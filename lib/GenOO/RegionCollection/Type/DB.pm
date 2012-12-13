@@ -81,18 +81,27 @@ has 'longest_record' => (
 	init_arg  => undef,
 	lazy      => 1,
 );
-has '_db_connector'    => (
+
+has '_db_connector' => (
 	isa       => 'GenOO::Data::DB::Connector',
 	is        => 'ro',
 	builder   => '_build_db_connector',
 	init_arg  => undef,
 	lazy       => 1
 );
-has '_db_handle'    => (
+
+has '_db_handle' => (
 	is        => 'ro',
 	builder   => '_build_db_handle',
 	init_arg  => undef,
-	lazy       => 1
+	lazy      => 1
+);
+
+has '_select_sum_copy_number_in_region' => (
+	is        => 'ro',
+	builder   => '_prepare_select_sum_copy_number_in_region',
+	init_arg  => undef,
+	lazy      => 1
 );
 
 with 'GenOO::RegionCollection';
@@ -219,12 +228,7 @@ sub records_overlapping_region {
 sub total_copy_number_for_records_overlapping_region {
 	my ($self, $strand, $rname, $start, $stop, $block) = @_;
 	
-	my $select = $self->_db_handle->prepare(
-		'SELECT SUM(copy_number) FROM '.$self->_statement_table_name.
-		' WHERE `strand`=? AND `rname`=? AND `start` BETWEEN ? AND ? AND `stop` BETWEEN ? AND ?'
-	);
-	
-	my @res = $self->_db_handle->selectrow_array($select, {}, $strand, $rname, $start, $stop, $start, $stop);
+	my @res = $self->_db_handle->selectrow_array($self->_select_sum_copy_number_in_region, {}, $strand, $rname, $start, $stop, $start, $stop);
 	
 	return $res[0] || 0;
 }
@@ -282,6 +286,16 @@ sub _statement_table_name {
 	return '`'.$self->database.'`.`'.$self->table.'`';
 }
 
+sub _prepare_select_sum_copy_number_in_region {
+	my ($self) = @_;
+	
+	return $self->_db_handle->prepare(
+		'SELECT SUM(copy_number) FROM '.$self->_statement_table_name.
+		' WHERE `strand`=? AND `rname`=? AND `start` BETWEEN ? AND ? AND `stop` BETWEEN ? AND ?'
+	);
+}
+
 
 __PACKAGE__->meta->make_immutable;
+
 1;
