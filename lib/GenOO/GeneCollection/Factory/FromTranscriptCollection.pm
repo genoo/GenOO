@@ -87,16 +87,12 @@ sub _make_list_of_genes {
 	my @outgenes;
 	my %transcripts_for_genename;
 	$self->transcript_collection->foreach_record_do( sub {
-		my ($entry) = @_;
-		my $annotation_hash = $self->annotation_hash;
-		my $transcript_name = $entry->id;
-		my $transcript_obj = $entry;
-		my $gene_name;
-		if (exists $$annotation_hash{$transcript_name}){
-			$gene_name = $$annotation_hash{$transcript_name};
-			push @{$transcripts_for_genename{$gene_name}},$transcript_obj; 
+		my ($transcript) = @_;
+		
+		if (exists $self->annotation_hash->{$transcript->id}){
+			my $gene_name = $self->annotation_hash->{$transcript->id};
+			push @{$transcripts_for_genename{$gene_name}}, $transcript; 
 		}
-		else {next;}
 	});
 	
 	foreach my $genename (keys %transcripts_for_genename) {
