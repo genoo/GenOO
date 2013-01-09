@@ -46,6 +46,7 @@ package GenOO::TranscriptCollection::Factory::GTF;
 
 use Moose;
 use namespace::autoclean;
+use FileHandle;
 
 use GenOO::RegionCollection::Factory;
 use GenOO::Transcript;
