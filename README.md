@@ -23,11 +23,11 @@ The library is under heavy development and functionality is added on a daily bas
 
 Prerequisites
 --------------
-*Moose
-*MooseX::AbstractFactory
-*DBIx::Class
-*PerlIO::gzip
-*namespace::autoclean
-*Test::Most
-*Test::Class
-*Modern::Perl
+* Moose
+* MooseX::AbstractFactory
+* DBIx::Class
+* PerlIO::gzip
+* namespace::autoclean
+* Test::Most
+* Test::Class
+* Modern::Perl
