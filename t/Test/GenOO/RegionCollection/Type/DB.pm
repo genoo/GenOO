@@ -115,7 +115,7 @@ sub longest_record : Test(1) {
 	has_attribute_ok($self->obj(0), 'longest_record', "... test object has the 'longest_record' attribute");
 }
  
-sub add_record : Test(2) {
+sub add_record : Test(1) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'add_record';
@@ -139,7 +139,7 @@ sub strands : Test(1) {
 	can_ok $self->obj(0), 'strands';
 }
 
-sub rnames_for_strand : Test(3) {
+sub rnames_for_strand : Test(1) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'rnames_for_strand';
