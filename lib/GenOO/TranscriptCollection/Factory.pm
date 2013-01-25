@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-GenOO::TranscriptCollection::Factory - Factory for creating L<GenOO::RegionCollection> objects
+GenOO::TranscriptCollection::Factory - Factory for creating L<GenOO::TranscriptCollection> objects
 
 =head1 SYNOPSIS
 

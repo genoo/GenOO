@@ -2,14 +2,14 @@
 
 =head1 NAME
 
-GenOO::RegionCollection::Factory::GTF - Factory for creating a RegionCollection with transcripts from a GTF file
+GenOO::RegionCollection::Factory::GTF - Factory for creating a TranscriptCollection with transcripts from a GTF file
 
 =head1 SYNOPSIS
 
-    # Creates GenOO::RegionCollection conatining transcripts from a GTF file 
+    # Creates GenOO::TranscriptnCollection containing transcripts from a GTF file 
 
     # Preferably use it through the generic GenOO::TranscriptCollection::Factory
-    my $factory = GenOO::RegionCollection::Factory->new('GTF',
+    my $factory = GenOO::TranscriptCollection::Factory->new('GTF',
         {
             file => 'sample.gtf'
         }
@@ -18,9 +18,9 @@ GenOO::RegionCollection::Factory::GTF - Factory for creating a RegionCollection 
 =head1 DESCRIPTION
 
     An instance of this class is a concrete factory for the creation of a 
-    L<GenOO::RegionCollection> containing transcripts from a GTF file. It offers the method 
+    L<GenOO::TranscriptCollection> containing transcripts from a GTF file. It offers the method 
     "read_collection" (as the consumed role requires) which returns the actual
-    L<GenOO::RegionCollection> object in the form of 
+    L<GenOO::TranscriptCollection> object in the form of 
     L<GenOO::RegionCollection::Type::DoubleHashArray>. The latter is the implementation
     of the L<GenOO::RegionCollection> class based on the complex data structure
     L<GenOO::Data::Structure::DoubleHashArray>.
@@ -87,6 +87,9 @@ sub _read_gtf_with_transcripts {
 		chomp($line);
 		if (($line !~ /^#/) and ($line ne '') and ($line !~ /^\s*$/)) {
 			my ($chr, $genome, $type, $start, $stop, $score, $strand, undef, $nameinfo) = split(/\t/, $line);
+			
+			if (($strand ne "+") and ($strand ne "-")){warn "Skipping transcript $nameinfo: strand $strand not accepted\n"; next;}
+			
 			$start = $start-1; #GTF is one based closed => convert to 0-based closed.
 			$stop = $stop-1;
 			$nameinfo =~ /transcript_id\s+\"(.+)\"/;

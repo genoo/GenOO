@@ -9,7 +9,7 @@ GenOO::RegionCollection::Factory::BED - Factory for creating GenOO::RegionCollec
     # Creates GenOO::RegionCollection object from a BED file 
 
     # Preferably use it through the generic GenOO::RegionCollection::Factory
-    my $factory = GenOO::RegionCollection::Factory->new('BED',
+    my $factory = GenOO::RegionCollection::Factory->create('BED',
         {
             file => 'sample.bed'
         }
@@ -28,7 +28,7 @@ GenOO::RegionCollection::Factory::BED - Factory for creating GenOO::RegionCollec
 =head1 EXAMPLES
 
     # Create a concrete factory
-    my $factory_implementation = GenOO::RegionCollection::Factory->new('BED',
+    my $factory_implementation = GenOO::RegionCollection::Factory->create('BED',
         {
             file => 'sample.bed'
         }
