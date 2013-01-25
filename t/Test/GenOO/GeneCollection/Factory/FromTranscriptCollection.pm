@@ -58,15 +58,13 @@ sub transcript_collection : Test(3) {
 	is $collection->records_count, 70, "... and it contains the correct number of records";
 }
 
-sub read_collection : Test(4) {
+sub read_collection : Test(3) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'read_collection';
 	
 	my $collection = $self->obj(0)->read_collection;
-	
 	does_ok($collection, 'GenOO::RegionCollection', "... and the returned object does the GenOO::RegionCollection role");
-	
 	is $collection->records_count, 6, "... and it contains the correct number of records";
 }
 

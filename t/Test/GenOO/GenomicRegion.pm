@@ -225,7 +225,7 @@ sub contains : Test(6) {
 	is $self->obj(7)->contains($self->obj(6)), 0, "... and returns the correct value";
 }
 
-sub contains_position : Test(6) {
+sub contains_position : Test(5) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'contains_position';
