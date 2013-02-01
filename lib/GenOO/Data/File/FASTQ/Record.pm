@@ -40,4 +40,18 @@ has 'sequence' => (isa => 'Str', is => 'rw', required => 1);
 has 'quality'  => (isa => 'Str', is => 'rw', required => 1);
 has 'extra'    => (is => 'rw');
 
+#######################################################################
+########################   Interface Methods   ########################
+#######################################################################
+sub to_string {
+	my ($self) = @_;
+	
+	return join("\n",(
+		'@'.$self->name,
+		$self->sequence,
+		'+',
+		$self->quality,
+	));
+}
+
 1;
