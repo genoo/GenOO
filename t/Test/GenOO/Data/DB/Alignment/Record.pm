@@ -117,6 +117,13 @@ sub tail_position : Test(2) {
 	is $self->obj(0)->tail_position, 85867666, "... and returns the correct value";
 }
 
+sub sequence_length : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'sequence_length';
+	is $self->obj(0)->sequence_length, 32, "... and returns the correct value";
+}
+
 #######################################################################
 ##########################   Helper Methods   #########################
 #######################################################################
