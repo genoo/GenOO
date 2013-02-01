@@ -48,5 +48,14 @@ has 'extra'       => (is => 'rw');
 
 with 'GenOO::Region';
 
+#######################################################################
+########################   Interface Methods   ########################
+#######################################################################
+sub sequence_length {
+	my ($self) = @_;
+	
+	return CORE::length($self->sequence);
+}
+
 __PACKAGE__->meta->make_immutable;
 1;
