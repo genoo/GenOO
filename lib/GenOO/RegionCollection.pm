@@ -23,6 +23,7 @@ package GenOO::RegionCollection;
 
 use Moose::Role;
 use namespace::autoclean;
+use GenOO::RegionCollection::Factory;
 
 requires qw ( 
 	name
@@ -42,4 +43,11 @@ requires qw (
 	records_overlapping_region
 );
 
+#######################################################################
+########################   Class Methods       ########################
+#######################################################################
+sub create_from {
+	my ($class, @attributes) = @_;
+	return GenOO::RegionCollection::Factory->create(@attributes)->read_collection;
+}
 1;
