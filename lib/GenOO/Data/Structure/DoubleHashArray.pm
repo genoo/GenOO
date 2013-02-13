@@ -14,7 +14,7 @@ GenOO::Data::Structure::DoubleHashArray - Object for a data structure which corr
 
     This class corresponds to a data structure which is a 2D hash whose primary key could be for
     example the strand, its secondary key the chromosome and each value an array reference with
-    objects of the class L<GenOO::Locus>.
+    objects that consume the L<GenOO::Region> role.
 
 =head1 EXAMPLES
 
