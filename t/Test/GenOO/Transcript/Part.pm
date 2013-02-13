@@ -42,35 +42,6 @@ sub objs {
 #######################################################################
 #######################   Class Interface Tests   #####################
 #######################################################################
-
-###????###????
-
-# sub get_splice_starts : Test(2) {
-# 	my ($self) = @_;
-# 	
-# 	can_ok $self->obj(0), 'get_splice_starts';
-# 	is_deeply $self->obj(0)->get_splice_starts, [
-# 					1,
-# 					100,
-# 					200,
-# 					300,
-# 				],, "... and returns the correct value";
-# }
-# 
-# sub get_splice_stops : Test(2) {
-# 	my ($self) = @_;
-# 	
-# 	can_ok $self->obj(0), 'get_splice_stops';
-# 	is_deeply $self->obj(0)->get_splice_stops, [
-# 					50,
-# 					150,
-# 					220,
-# 					400,
-# 				], "... and returns the correct value";
-# }
-
-####
-
 sub is_position_within_exon : Test(3) {
 	my ($self) = @_;
 	
@@ -101,30 +72,6 @@ sub exonic_sequence : Test(2) {
 	can_ok $self->obj(0), 'exonic_sequence';
 	is $self->obj(0)->exonic_sequence, 'CAAAAACACCCAGGCTTCCTGGTCTTTAATGTCACACCATGGACACCAACATCCCACTGGTTTGTTACCATATTAGCAGCACTTTATTGTATTGCATTAGGACTAAGCTTTGATTATAACCTTCAAGCTTTCCCACGGATAGTAAATAGCCAAGTGACCTTCAGGACATTGGTTCTTAGTTTAACACTGTTTTTAGAAGAAAAATGACCAACTCATGCTCCCT', "... and returns the correct value";
 }
-
-# sub get_exons : Test(3) {
-# 	my ($self) = @_;
-# 	
-# 	can_ok $self->obj(0), 'get_exons';
-# 	is @{$self->obj(0)->get_exons}, 4, "... and returns the correct value";
-# 	isa_ok ${$self->obj(0)->get_exons}[0], 'GenOO::Transcript::Exon', "... and is the correct type";
-# }
-
-# sub get_introns : Test(3) {
-# 	my ($self) = @_;
-# 	
-# 	can_ok $self->obj(0), 'get_introns';
-# 	is @{$self->obj(0)->get_introns}, 3, "... and returns the correct value";
-# 	isa_ok ${$self->obj(0)->get_introns}[0], 'GenOO::Transcript::Intron', "... and is the correct type";
-# }
-
-# sub get_intron_exon_junctions : Test(3) {
-# 	my ($self) = @_;
-# 	can_ok $self->obj(0), 'get_intron_exon_junctions';
-# 	my @junctions_array = $self->obj(0)->get_intron_exon_junctions;
-# 	is @junctions_array, 6, "... and returns the correct value";
-# 	isa_ok $junctions_array[0], 'GenOO::Locus', "... and is the correct type";
-# }
 
 sub exonic_length : Test(2) {
 	my ($self) = @_;

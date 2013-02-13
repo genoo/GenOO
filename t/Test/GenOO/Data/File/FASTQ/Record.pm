@@ -60,6 +60,19 @@ sub extra : Test(2) {
 	is $self->obj(0)->extra, 'something', "... and returns the correct value";
 }
 
+sub to_string : Test(2) {
+	my ($self) = @_;
+	
+	can_ok($self->obj(0), 'to_string');
+	my $correct_result = join("\n",(
+		'@HWUSI-EAS366_7:1:7:1032#0/1',
+		'TAATAGTTTTATTTCAGGTATAAGNATC',
+		'+',
+		'BCCB<B@BC@;BBBBB=A;BCBA9%?BB',
+	));
+	is $self->obj(0)->to_string, $correct_result, "... and returns the correct value";
+}
+
 #######################################################################
 ##########################   Helper Methods   #########################
 #######################################################################
