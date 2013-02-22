@@ -47,8 +47,10 @@ sub _init {
 sub set_header {
 	my ($self,$value) = @_;
 	
-	$value =~ s/^>//;
-	$self->{HEADER} = $value if defined $value;
+	if (defined $value) {
+		$value =~ s/^>//;
+		$self->{HEADER} = $value
+	}
 }
 
 sub set_sequence {
