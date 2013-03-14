@@ -44,10 +44,7 @@ Dependencies
 
 Important Notes
 --------------
-1.  Backwards compatibility is particularly important and GenOO will attempt to be as backwards compatible as possible.
-    However we all know that bugs exist and things might change. If a change breaks backwards compatibility
-    and particularly if it breaks the test suite it **must** be logged in the changelog file. 
-    This will help users track important changes and will make updates much more safe.
+* Backwards compatibility is particularly important and GenOO will attempt to be as backwards compatible as possible. However we all know that bugs exist and things might change. If a change breaks backwards compatibility and particularly if it breaks the test suite it **must** be logged in the changelog file. This will help users track important changes and will make updates much more safe.
 
 State
 --------------
