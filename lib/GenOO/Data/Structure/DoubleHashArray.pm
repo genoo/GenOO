@@ -155,7 +155,7 @@ sub is_empty {
 sub is_not_empty {
 	my ($self) = @_;
 	
-	if ($self->entries_count > 0) {
+	if (defined $self->entries_count and $self->entries_count > 0) {
 		return 1;
 	}
 	else {

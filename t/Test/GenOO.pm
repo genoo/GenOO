@@ -1,17 +1,40 @@
 package Test::GenOO;
-use strict;
 
-# INIT { Test::Class->runtests }
+use Modern::Perl;
 
-use base qw(Test::Class);
+use base 'Test::Class';
 use Test::More;
 
+INIT { Test::Class->runtests }
+
+#######################################################################
+###########################   Class Methods   #########################
+#######################################################################
 sub class {
 	my ($self) = @_;
+	
 	(my $class = ref($self) || $self) =~ s/^Test:://;
 	return $class;
 }
 
+#######################################################################
+##########################   Helper Methods   #########################
+#######################################################################
+sub obj {
+	my ($self, $index) = @_;
+	
+	return $self->{TEST_OBJECTS}->[$index];
+}
+
+sub objs {
+	my ($self) = @_;
+	
+	return @{$self->{TEST_OBJECTS}};
+}
+
+#######################################################################
+######################   Deprecated Test Methods   ####################
+#######################################################################
 sub simple_attribute_test {
 	my ($self,$attribute,$value,$expected) = @_;
 	
@@ -42,31 +65,6 @@ sub deep_attribute_test {
 	can_ok $obj, $set;
 	$obj->$set($value);
 	is_deeply $obj->$get, $expected, "... and setting its value should succeed";
-}
-
-sub get_input_for {
-	my ($self, $attribute) = @_;
-	return ($self->data->{$attribute}->{INPUT});
-}
-
-sub get_output_for {
-	my ($self, $attribute) = @_;
-	return ($self->data->{$attribute}->{OUTPUT});
-}
-
-#######################################################################
-##########################   Helper Methods   #########################
-#######################################################################
-sub obj {
-	my ($self, $index) = @_;
-	
-	return $self->{TEST_OBJECTS}->[$index];
-}
-
-sub objs {
-	my ($self) = @_;
-	
-	return @{$self->{TEST_OBJECTS}};
 }
 
 1;

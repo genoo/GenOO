@@ -93,6 +93,18 @@ sub tail_position {
 	}
 }
 
+sub mid_position {
+	my ($self) = @_;
+	
+	return ($self->start + $self->stop)/2;
+}
+
+sub mid_mid_distance_from {
+	my ($self, $from_locus) = @_;
+	
+	return ($self->mid_position - $from_locus->mid_position) * $self->strand;
+}
+
 sub head_head_distance_from {
 	my ($self, $from_locus) = @_;
 	
