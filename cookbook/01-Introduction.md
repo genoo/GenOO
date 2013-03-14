@@ -282,7 +282,7 @@ Similar methods: tail_tail_distance_from, head_tail_distance_from etc.
 
 
 
-Calculate the transcript expression based only on the exonic regions.
+### Recipe #4 - Calculate the transcript expression based only on the exonic regions.
 
 ```perl
 use GenOO::RegionCollection::Factory;
