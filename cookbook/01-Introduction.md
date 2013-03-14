@@ -120,7 +120,9 @@ while (my $read = $file_parser>next_record) {
 ```
 
 should output the whole file back in standard out.
-Reading in Transcripts / Collections
+
+
+#### Reading in Transcripts / Collections
 
 Genes and gene transcripts are very important for sequencing analyses and so extra care has been taken to make their use easier. The main file type for reading in transcripts is ncbi's GTF format (gene transfer format).
 
@@ -158,29 +160,22 @@ this method allows the user to access all entries one after the other and perfor
 Our input is two files - a BED file with aligned sequencing reads and a GTF file with transcript locations. We want to return a BED file containing only these reads overlapping at least one transcript.
 
 ```perl
-#!/usr/bin/perl
-use warnings;
-use strict;
-use lib '<path>/GenOO/v1.0/lib';
 use GenOO::Data::File::BED;
 use GenOO::TranscriptCollection::Factory;
 
-my $bed_file = shift;
-my $transcript_gtf_file = shift;
-
 my $transcript_collection = GenOO::TranscriptCollection::Factory->create(
 	'GTF', {
-		file => $transcript_gtf_file
+		file => 'transcripts_file.gtf'
 	}
 )->read_collection;
 
 my $bed_parser = GenOO::Data::File::BED->new({
-	file => $bed_file
+	file => 'reads.bed'
 });
 
 while (my $read = $bed_parser->next_record){
 	my @overlapping_transcripts = $transcript_collection->records_overlapping_region($record->strand, $record->chr, $record->start, $record->stop);
-	if (scalar(@overlapping_transcripts) > 0){
+	if (@overlapping_transcripts > 0){
 		print $record->to_string."\n";
 	}
 }
@@ -193,44 +188,33 @@ while (my $read = $bed_parser->next_record){
 	my @overlapping_transcripts = $transcript_collection->records_overlapping_region($record->strand, $record->chr, $record->start, $record->stop);
 	foreach my $transcript (@overlapping_transcripts){
 		if ($transcript->is_coding == 1){
-print $record->to_string."\n";
-last; #we don't want to print multiple times for all potentially overlapping transcripts
-}
+			print $record->to_string."\n";
+			last; #we don't want to print multiple times for all potentially overlapping transcripts
+		}
 	}
 }
 ```
-### Recipe #2 - RPKM
 
+### Recipe #2 - RPKM
 Our input is a database table that contains aligned reads and a GTF file with transcript locations. We want to count the number of reads that overlap each transcript and return the RPKM value of said transcript (reads per million per kb of coding region).
 
 ```perl
-#!/usr/bin/perl
-use warnings;
-use strict;
-use lib '<path>/GenOO/v1.0/lib';
 use GenOO::RegionCollection::Factory;
 use GenOO::TranscriptCollection::Factory;
-
-my $transcript_gtf_file = shift;
-
-my $database = shift;
-my $table = shift;
-my $user = shift;
-my $pass = shift;
 
 my $reads_collection = GenOO::RegionCollection::Factory->create('DBIC', {
 	driver      => 'mysql',
 	host        => 'localhost',
-	database    => $database,
-	table       => $table,
-	user        => $user,
-	password    => $pass,
+	database    => 'test_db',
+	table       => 'test_table',
+	user        => 'user',
+	password    => 'pass'
 })->read_collection;
 my $total_reads = $reads_collection->total_copy_number;
 
 my $transcript_collection = GenOO::TranscriptCollection::Factory->create(
 	'GTF', {
-		file => $transcript_gtf_file
+		file => 'transcripts_file.gtf'
 	}
 )->read_collection;
 
@@ -245,27 +229,20 @@ $transcript_collection->foreach_record_do( sub {
 });
 ```
 
-
 ### Recipe #3 - Distances 5' - 5' between reads
 We have a single reads track and we want to count pairwise 5'-5' distances for all overlapping reads. Note that the 5' end of a read can be the “start" or the “stop" of the read depending on strand. We'll use a BED file for input.
 
 ```perl
-#!/usr/bin/perl
-use warnings;
-use strict;
-use lib '<path>/GenOO/v1.0/lib';
 use GenOO::RegionCollection::Factory;
 
-my $bed_file = shift;
-
 my $reads_collection = GenOO::RegionCollection::Factory->create('BED', {
-	file => $bed_file
+	file => 'reads.bed'
 });
 
 my %counts;
 $reads_collection->foreach_record_do( sub {
-my ($read) = @_;
-my @overlapping_reads = $reads_collection->records_overlapping_region($read->strand, $read->chr, $read->start, $read->stop);
+	my ($read) = @_;
+	my @overlapping_reads = $reads_collection->records_overlapping_region($read->strand, $read->chr, $read->start, $read->stop);
 	foreach my $overlapping_read (@overlapping_reads){
 		if ($read == $overlapping_read){next;} #we don't want to count vs. itself
 		my $distance $read->head_head_distance_from($overlapping_read);
@@ -278,7 +255,7 @@ foreach my $distance (keys %counts){
 }
 ```
 
-Similar methods: tail_tail_distance_from, head_tail_distance_from etc.
+Similar methods: `tail_tail_distance_from`, `head_tail_distance_from` etc.
 
 
 
@@ -308,7 +285,7 @@ $transcripts->foreach_record_do( sub {
 	
 	my $expression = 0;
 	foreach my $exon (@{$transcript->exons}) {
-	$expression += $reads->total_copy_number_for_records_overlapping_region(
+		$expression += $reads->total_copy_number_for_records_overlapping_region(
 			$exon->strand,
 			$exon->chromosome,
 			$exon->start,
