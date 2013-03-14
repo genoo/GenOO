@@ -6,20 +6,41 @@ GenOO is an open-source perl framework which models biological entities into Per
 
 ### Installation
 
-Download the latest version of the library from <LINK>
+1.  Install git for your machine (git install)[http://git-scm.com/downloads]
+2.  Install GenOO dependencies (listed below) from CPAN
+3.  Clone the GenOO repository on your machine
+    `git clone https://github.com/genoo/GenOO.git`
+4.  In the beginning of your perl script write the following
+    `use lib 'path/to/genoo/clone/lib/'`
+5.  You are done. No, seriously, you are done
+6.  Happy coding
 
-Run tests <command>
-
-Include in PERL5 or use in your scripts:
-use lib 'path/GenOO/version/lib/';
-where the path to the lib/ folder of the GenOO installation is given.
-	
-
-Each specific library used in the script has to be called as well:
-
-```perl
-use GenOO::Data::File::SAM;
+If you want to verify that everything works
+```bash
+cd path/to/genoo/clone/
+prove -l t/test_all.t
 ```
+
+### Dependencies
+
+* Moose
+* MooseX::AbstractFactory
+* DBIx::Class
+* PerlIO::gzip
+* namespace::autoclean
+* Test::Most
+* Test::Class
+* Modern::Perl
+
+### Important Notes
+
+Backwards compatibility is particularly important and GenOO will attempt to be as backwards compatible as possible.
+However we all know that bugs exist and things might change. If a change breaks backwards compatibility
+and particularly if it breaks the test suite it **must** be logged in the changelog file. 
+This will help users track important changes and will make updates much more safe.
+
+Using GenOO
+-----------
 
 ### Data Input / Output
 
@@ -130,7 +151,9 @@ $transcript_collection->foreach_record_do(sub{...});
 
 this method allows the user to access all entries one after the other and perform arbitrary operations on them.
 
-# Recipe #1 - Get reads overlapping Coding Transcripts
+## Recipes
+
+### Recipe #1 - Get reads overlapping Coding Transcripts
 
 Our input is two files - a BED file with aligned sequencing reads and a GTF file with transcript locations. We want to return a BED file containing only these reads overlapping at least one transcript.
 
@@ -176,7 +199,7 @@ last; #we don't want to print multiple times for all potentially overlapping tra
 	}
 }
 ```
-# Recipe #2 - RPKM
+### Recipe #2 - RPKM
 
 Our input is a database table that contains aligned reads and a GTF file with transcript locations. We want to count the number of reads that overlap each transcript and return the RPKM value of said transcript (reads per million per kb of coding region).
 
@@ -223,7 +246,7 @@ $transcript_collection->foreach_record_do( sub {
 ```
 
 
-# Recipe #3 - Distances 5' - 5' between reads
+### Recipe #3 - Distances 5' - 5' between reads
 We have a single reads track and we want to count pairwise 5'-5' distances for all overlapping reads. Note that the 5' end of a read can be the “start" or the “stop" of the read depending on strand. We'll use a BED file for input.
 
 ```perl
