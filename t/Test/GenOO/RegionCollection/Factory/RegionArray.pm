@@ -39,7 +39,7 @@ sub _role_check : Test(1) {
 #######################################################################
 #######################   Class Interface Tests   #####################
 #######################################################################
-sub array : Test(1) {
+sub array_attribute : Test(1) {
 	my ($self) = @_;
 	
 	has_attribute_ok($self->obj(0), 'array', "... test object has the 'array' attribute");

@@ -195,9 +195,10 @@ sub strand_symbol {
 sub attribute {
 	my ($self, $attribute) = @_;
 	
-	if (defined $self->attributes) {
+	if (defined $self->attributes and defined $attribute) {
 		return $self->attributes->{$attribute};
 	}
+	return;
 }
 
 #######################################################################
