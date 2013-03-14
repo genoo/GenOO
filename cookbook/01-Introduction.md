@@ -155,7 +155,7 @@ this method allows the user to access all entries one after the other and perfor
 
 ## Recipes
 
-### Recipe #1 - Get reads overlapping Coding Transcripts
+### Recipe 1 - Get reads overlapping with coding transcripts
 
 Our input is two files - a BED file with aligned sequencing reads and a GTF file with transcript locations. We want to return a BED file containing only these reads overlapping at least one transcript.
 
@@ -195,8 +195,8 @@ while (my $read = $bed_parser->next_record){
 }
 ```
 
-### Recipe #2 - RPKM
-Our input is a database table that contains aligned reads and a GTF file with transcript locations. We want to count the number of reads that overlap each transcript and return the RPKM value of said transcript (reads per million per kb of coding region).
+### Recipe 2 - Transcript expression calculation with RPKM normalization
+Our input is a database table that contains aligned RNA-Seq reads and a GTF file with transcript locations. We want to count the number of reads that overlap each transcript and return the RPKM value of said transcript (reads per million per kb of coding region).
 
 ```perl
 use GenOO::RegionCollection::Factory;
@@ -229,7 +229,7 @@ $transcript_collection->foreach_record_do( sub {
 });
 ```
 
-### Recipe #3 - Distances 5' - 5' between reads
+### Recipe 3 - Pairwise 5' - 5' distances between reads
 We have a single reads track and we want to count pairwise 5'-5' distances for all overlapping reads. Note that the 5' end of a read can be the “start" or the “stop" of the read depending on strand. We'll use a BED file for input.
 
 ```perl
@@ -258,8 +258,7 @@ foreach my $distance (keys %counts){
 Similar methods: `tail_tail_distance_from`, `head_tail_distance_from` etc.
 
 
-
-### Recipe #4 - Calculate the transcript expression based only on the exonic regions.
+### Recipe 4 - Calculate transcript expression based only on the exonic regions.
 
 ```perl
 use GenOO::RegionCollection::Factory;
