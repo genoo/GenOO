@@ -14,11 +14,6 @@ Focus
 
 We want to keep this framework focused on the real issues found in sequencing analyses and balance being easily extendable with being focused and efficient.
 
-State
---------------
-The framework is under development and functionality is added regularly.
-The core of the framework is considered stable.
-
 Installation
 --------------
 1.  Install git for your machine (git install)[http://git-scm.com/downloads]
@@ -26,7 +21,7 @@ Installation
 3.  Clone the GenOO repository on your machine
     `git clone https://github.com/genoo/GenOO.git`
 4.  In the beginning of your perl script write the following
-    `use lib 'path/to/genoo/clone/lib/'
+    `use lib 'path/to/genoo/clone/lib/'`
 5.  You are done. No, seriously, you are done
 6.  Happy coding
 
@@ -50,7 +45,11 @@ Dependencies
 Important Notes
 --------------
 1.  Backwards compatibility is particularly important and GenOO will attempt to be as backwards compatible as possible.
-    However we all know that bugs exist and things might change.If a change breaks backwards compatibility
+    However we all know that bugs exist and things might change. If a change breaks backwards compatibility
     and particularly if it breaks the test suite it **must** be logged in the changelog file. 
     This will help users track important changes and will make updates much more safe.
-    
+
+State
+--------------
+The framework is under development and functionality is added regularly.
+The core of the framework is considered stable.
