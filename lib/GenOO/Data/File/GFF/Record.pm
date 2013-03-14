@@ -198,6 +198,7 @@ sub attribute {
 	if (defined $self->attributes and defined $attribute) {
 		return $self->attributes->{$attribute};
 	}
+	return;
 }
 
 #######################################################################
