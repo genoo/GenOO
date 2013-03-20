@@ -93,6 +93,18 @@ sub add_record : Test(2) {
 	is $self->obj(0)->records_count, 13, "... and should result in the correct number of records";
 }
 
+sub all_records : Test(4) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'all_records';
+	
+	my @records = $self->obj(0)->all_records;
+	is @records, 12, "... and in list context returns array with correct number of records";
+	
+	isa_ok $self->obj(0)->all_records, 'ARRAY', "... and in scalar context returned object ";
+	is @{$self->obj(0)->all_records}, 12, "... with the correct number of records";
+}
+
 sub foreach_record_do : Test(2) {
 	my ($self) = @_;
 	

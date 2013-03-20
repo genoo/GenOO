@@ -73,6 +73,17 @@ sub add_record {
 	$self->_reset;
 }
 
+sub all_records {
+	my ($self) = @_;
+	
+	my @all_records;
+	$self->foreach_record_do(sub {
+		push @all_records, $_[0];
+	});
+	
+	return wantarray ? @all_records : \@all_records;
+}
+
 sub foreach_record_do {
 	my ($self, $block) = @_;
 	$self->_container->foreach_entry_do($block);
