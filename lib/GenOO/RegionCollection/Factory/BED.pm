@@ -62,9 +62,9 @@ sub read_collection {
 	
 	my $collection = GenOO::RegionCollection::Type::DoubleHashArray->new;
 	
-	my $parser = GenOO::Data::File::BED->new({
-		FILE => $self->file,
-	});
+	my $parser = GenOO::Data::File::BED->new(
+		file => $self->file,
+	);
 	while (my $record = $parser->next_record) {
 		$collection->add_record($record);
 	}
