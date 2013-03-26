@@ -33,55 +33,84 @@ GenOO::Data::File::BED - Object implementing methods for accessing bed formatted
 # Let the code begin...
 
 package GenOO::Data::File::BED;
-use strict;
-use FileHandle;
 
+# Load external modules
+use Modern::Perl;
+use autodie;
+use Moose;
+use namespace::autoclean;
+
+# Load GenOO modules
 use GenOO::Data::File::BED::Record;
 
-use base qw(GenOO::_Initializable);
+#######################################################################
+############################   Attributes   ###########################
+#######################################################################
+has 'file'  => (isa => 'Maybe[Str]', is => 'rw', required => 1);
 
-our $VERSION = '1.0';
+has '_filehandle' => (
+	is        => 'ro',
+	builder   => '_open_filehandle',
+	init_arg  => undef,
+	lazy      => 1,
+);
 
-sub _init {
-	my ($self,$data) = @_;
+sub BUILD {
+	my $self = shift;
 	
-	$self->set_file($$data{FILE});
-	$self->set_extra($$data{EXTRA_INFO});
+	$self->init_header;
+	$self->init_records_cache;
+	$self->init_records_read_count;
 	
-	$self->init;
+	$self->parse_header_section;
 }
 
-sub open {
-	my ($self, $filename) = @_;
+around BUILDARGS => sub {
+	my $orig  = shift;
+	my $class = shift;
 	
-	my $read_mode = ($filename !~ /\.gz$/) ? '<' : '<:gzip';
-	$self->{FILEHANDLE} = FileHandle->new($filename, $read_mode) or die "Cannot open file \"$filename\". $!";
+	my $argv_hash_ref = $class->$orig(@_);
+	
+	if (exists $argv_hash_ref->{FILE}) {
+		my $file = delete $argv_hash_ref->{FILE};
+		$argv_hash_ref->{file} = $file;
+		warn 'Deprecated use of "FILE" in GenOO::Data::File::BED constructor. Use "file" instead.'."\n";
+	}
+	
+	return $argv_hash_ref;
+};
+
+#######################################################################
+########################   Interface Methods   ########################
+#######################################################################
+sub records_read_count {
+	my ($self) = @_;
+	return $self->{RECORDS_READ_COUNT};
+}
+
+sub next_record {
+	my ($self) = @_;
+	
+	my $record;
+	if ($self->record_cache_not_empty) {
+		$record = $self->next_record_from_cache;
+	}
+	else {
+		$record = $self->next_record_from_file;
+	}
+	
+	if (defined $record) {
+		$self->increment_records_read_count;
+	}
+	return $record;
 }
 
 #######################################################################
-########################   Attribute Setters   ########################
+#######################   Private Methods  ############################
 #######################################################################
-sub set_file {
-	my ($self, $value) = @_;
-	$self->{FILE} = $value if defined $value;
-}
-
 sub set_eof_reached {
 	my ($self) = @_;
 	$self->{EOF} = 1;
-}
-
-#######################################################################
-############################   Accessors   ############################
-#######################################################################
-sub file {
-	my ($self) = @_;
-	return $self->{FILE};
-}
-
-sub filehandle {
-	my ($self) = @_;
-	return $self->{FILEHANDLE};
 }
 
 sub header {
@@ -92,25 +121,6 @@ sub header {
 sub records_cache {
 	my ($self) = @_;
 	return $self->{RECORDS_CACHE};
-}
-
-sub records_read_count {
-	my ($self) = @_;
-	return $self->{RECORDS_READ_COUNT};
-}
-
-#######################################################################
-#########################   General Methods   #########################
-#######################################################################
-sub init {
-	my ($self) = @_;
-	$self->open($self->file);
-	
-	$self->init_header;
-	$self->init_records_cache;
-	$self->init_records_read_count;
-	
-	$self->parse_header_section;
 }
 
 sub init_header {
@@ -136,7 +146,7 @@ sub increment_records_read_count {
 sub parse_header_section {
 	my ($self) = @_;
 	
-	my $filehandle = $self->filehandle;
+	my $filehandle = $self->_filehandle;
 	while (my $line = $filehandle->getline) {
 		if ($self->line_looks_like_header($line)) {
 			$self->recognize_and_store_header_line($line);
@@ -158,7 +168,6 @@ sub recognize_and_store_header_line {
 	my ($self, $line) = @_;
 # 	if ($self->line_looks_like_version($line)) {
 # 		$self->parse_and_store_version_line($line);
-# 		
 # 	}
 # 	else {
 # 		$self->parse_and_store_header_line($line);
@@ -170,27 +179,10 @@ sub add_to_records_cache {
 	push @{$self->{RECORDS_CACHE}}, $record,
 }
 
-sub next_record {
-	my ($self) = @_;
-	
-	my $record;
-	if ($self->record_cache_not_empty) {
-		$record = $self->next_record_from_cache;
-	}
-	else {
-		$record = $self->next_record_from_file;
-	}
-	
-	if (defined $record) {
-		$self->increment_records_read_count;
-	}
-	return $record;
-}
-
 sub next_record_from_file {
 	my ($self) = @_;
 	
-	while (my $line = $self->filehandle->getline) {
+	while (my $line = $self->_filehandle->getline) {
 		if ($self->line_looks_like_record($line)) {
 			return $self->parse_record_line($line);
 		}
@@ -279,5 +271,24 @@ sub is_eof_reached {
 	my ($self) = @_;
 	return $self->{EOF};
 }
+
+sub _open_filehandle {
+	my ($self) = @_;
+	
+	my $read_mode;
+	if (!defined $self->file) {
+		$read_mode = '<-';
+	}
+	elsif ($self->file =~ /\.gz$/) {
+		$read_mode = '<:gzip';
+	}
+	else {
+		$read_mode = '<';
+	}
+	open (my $HANDLE, $read_mode, $self->file);
+	
+	return $HANDLE;
+}
+
 
 1;
