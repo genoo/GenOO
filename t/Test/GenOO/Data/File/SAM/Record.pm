@@ -347,9 +347,10 @@ sub to_string : Test(2) {
 		'0',
 		'ATTCGGCAGGTGAGTTGTTACACACTCCTTAG',
 		'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG',
-		'XG:i:0', 'MD:Z:32', 'X1:i:0', 'XM:i:0', 'XO:i:0', 'X0:i:2', 'XT:A:R',
-		'XA:Z:chr9,+110183777,32M,0;chr8,+110183756,30M1I,0;', 'NM:i:0'
+		'MD:Z:32', 'NM:i:0', 'X0:i:2', 'X1:i:0', 'XA:Z:chr9,+110183777,32M,0;chr8,+110183756,30M1I,0;',
+		'XG:i:0', 'XM:i:0', 'XO:i:0',  'XT:A:R'
 	);
+	
 	is $self->obj(0)->to_string, $expected, "... and returns the correct value";
 }
 

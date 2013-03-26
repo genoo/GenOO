@@ -20,7 +20,7 @@ sub new_object : Test(setup => 1) {
 	my ($self) = @_;
 	
 	ok $self->{OBJ} = GenOO::Data::File::BED->new({
-		FILE => 't/sample_data/sample.bed.gz'
+		file => 't/sample_data/sample.bed.gz'
 	});
 };
 
@@ -48,13 +48,6 @@ sub eof : Test(3) {
 	
 	while ($self->obj->next_record) {}
 	is $self->obj->is_eof_reached, 1, "... and should return the correct value again";
-}
-
-sub filehandle : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'filehandle';
-	isa_ok $self->obj->filehandle, 'FileHandle', "... and the returned object";
 }
 
 sub header : Test(2) {

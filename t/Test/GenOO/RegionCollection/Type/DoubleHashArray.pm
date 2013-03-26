@@ -93,6 +93,18 @@ sub add_record : Test(2) {
 	is $self->obj(0)->records_count, 13, "... and should result in the correct number of records";
 }
 
+sub all_records : Test(4) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'all_records';
+	
+	my @records = $self->obj(0)->all_records;
+	is @records, 12, "... and in list context returns array with correct number of records";
+	
+	isa_ok $self->obj(0)->all_records, 'ARRAY', "... and in scalar context returned object ";
+	is @{$self->obj(0)->all_records}, 12, "... with the correct number of records";
+}
+
 sub foreach_record_do : Test(2) {
 	my ($self) = @_;
 	
@@ -118,7 +130,7 @@ sub strands : Test(2) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'strands';
-	is_deeply [$self->obj(0)->strands], [1,-1], "... and should return the correct value";
+	is_deeply [$self->obj(0)->strands], [-1,1], "... and should return the correct value";
 }
 
 sub rnames_for_strand : Test(3) {
@@ -126,15 +138,17 @@ sub rnames_for_strand : Test(3) {
 	
 	can_ok $self->obj(0), 'rnames_for_strand';
 	
-	is $self->obj(0)->rnames_for_strand(1), 2, "... and should return the correct value";
-	is $self->obj(0)->rnames_for_strand(-1), 2, "... and should return the correct value";
+	my @rnames_for_strand = $self->obj(0)->rnames_for_strand(1);
+	is @rnames_for_strand, 2, "... and should return the correct value";
+	@rnames_for_strand = $self->obj(0)->rnames_for_strand(-1);
+	is @rnames_for_strand, 2, "... and should return the correct value";
 }
 
 sub rnames_for_all_strands : Test(2) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'rnames_for_all_strands';
-	is_deeply [$self->obj(0)->rnames_for_all_strands], ['chr3','chr1','chr4','chr2'], "... and should return the correct value";
+	is_deeply [$self->obj(0)->rnames_for_all_strands], ['chr1','chr2','chr3','chr4'], "... and should return the correct value";
 }
 
 sub longest_record_length : Test(2) {

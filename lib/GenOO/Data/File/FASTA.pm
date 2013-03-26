@@ -174,10 +174,10 @@ sub next_record {
 sub create_record {
 	my ($self) = @_;
 	
-	my $record = GenOO::Data::File::FASTA::Record->new({
-		HEADER   => $self->record_header_cache,
-		SEQUENCE => $self->record_seq_cache,
-	});
+	my $record = GenOO::Data::File::FASTA::Record->new(
+		header   => $self->record_header_cache,
+		sequence => $self->record_seq_cache,
+	);
 	$self->init_record_header_cache;
 	$self->init_seq_cache;
 	

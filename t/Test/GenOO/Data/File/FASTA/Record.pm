@@ -2,7 +2,8 @@ package Test::GenOO::Data::File::FASTA::Record;
 use strict;
 
 use base qw(Test::GenOO);
-use Test::More;
+use Test::Moose;
+use Test::Most;
 
 
 #######################################################################
@@ -16,46 +17,67 @@ sub _check_loading : Test(startup => 1) {
 #######################################################################
 #################   Setup (Runs before every method)  #################
 #######################################################################
-sub new_object : Test(setup) {
+sub create_new_test_objects : Test(setup) {
 	my ($self) = @_;
-
-	$self->{OBJ} = $self->class->new();
+	
+	my $test_class = ref($self) || $self;
+	$self->{TEST_OBJECTS} = $test_class->test_objects();
 };
 
 #######################################################################
-###########################   Actual Tests   ##########################
+##########################   Initial Tests   ##########################
 #######################################################################
 sub _isa_test : Test(1) {
 	my ($self) = @_;
-	
-	isa_ok $self->class->new(), $self->class, "... and the object";
-}
-
-sub header : Test(4) {
-	my ($self) = @_;
-	$self->simple_attribute_test('header', '> header', ' header');
-}
-
-sub sequence : Test(4) {
-	my ($self) = @_;
-	$self->simple_attribute_test('sequence', 'TCATCATCACTCATCTCATCATCATCATCAAT', 'TCATCATCACTCATCTCATCATCATCATCAAT');
-}
-
-sub length : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'length';
-	
-	$self->obj->set_sequence('TCATC');
-	is $self->obj->length, 5, '... and should return the correct value';
+	isa_ok $self->obj(0), $self->class, "... and the object";
 }
 
 #######################################################################
-##########################   Helper Methods   #########################
+#######################   Class Interface Tests   #####################
 #######################################################################
-sub obj {
+sub header : Test(3) {
 	my ($self) = @_;
-	return $self->{OBJ};
+	
+	has_attribute_ok($self->obj(0), 'header', "... test object has the 'header' attribute");
+	is $self->obj(0)->header, 'test1', "... and returns the correct value";
+	is $self->obj(1)->header, 'test2', "... and returns the correct value";
+}
+
+sub sequence : Test(3) {
+	my ($self) = @_;
+	
+	has_attribute_ok($self->obj(0), 'sequence', "... test object has the 'sequence' attribute");
+	is $self->obj(0)->sequence, 'CGATGCTAGCTAGCTGATCG', "... and returns the correct value";
+	is $self->obj(1)->sequence, 'ctagCTGATCTAGCTAATggccgat', "... and returns the correct value";
+}
+
+sub length : Test(3) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'length';
+	is $self->obj(0)->length, 20, "... and returns the correct value";
+	is $self->obj(1)->length, 25, "... and returns the correct value";
+}
+
+#######################################################################
+###############   Class method to create test objects   ###############
+#######################################################################
+sub test_objects {
+	my ($test_class) = @_;
+	
+	eval "require ".$test_class->class;
+	
+	my @test_objects;
+	push @test_objects, $test_class->class->new(
+		header      => '>test1',
+		sequence    => 'CGATGCTAGCTAGCTGATCG',
+	);
+	push @test_objects, $test_class->class->new(
+		header      => 'test2',
+		sequence    => 'ctagCTGATCTAGCTAATggccgat',
+	);
+	
+	return \@test_objects;
 }
 
 1;

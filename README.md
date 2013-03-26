@@ -35,6 +35,7 @@ Dependencies
 --------------
 * Moose
 * MooseX::AbstractFactory
+* MooseX::MarkAsMethods
 * DBIx::Class
 * PerlIO::gzip
 * namespace::autoclean

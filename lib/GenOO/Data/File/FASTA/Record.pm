@@ -28,51 +28,53 @@ GenOO::Data::File::FASTA::Record - Object representing a record of a fasta file
 # Let the code begin...
 
 package GenOO::Data::File::FASTA::Record;
-use strict;
 
-use base qw( GenOO::_Initializable );
+# Load external modules
+use Modern::Perl;
+use autodie;
+use Moose;
+use namespace::autoclean;
 
-our $VERSION = '1.0';
-
-sub _init {
-	my ($self,$data) = @_;
-	
-	$self->set_header($$data{HEADER});
-	$self->set_sequence($$data{SEQUENCE});
-}
 
 #######################################################################
-########################   Attribute Setters   ########################
+############################   Attributes   ###########################
 #######################################################################
-sub set_header {
-	my ($self,$value) = @_;
+has 'header' => (
+	isa      => 'Str',
+	is       => 'ro',
+	required => 1
+);
+
+has 'sequence' => (
+	isa      => 'Str',
+	is       => 'ro',
+	required => 1
+);
+
+around BUILDARGS => sub {
+	my ($orig, $class) = @_;
 	
-	if (defined $value) {
-		$value =~ s/^>//;
-		$self->{HEADER} = $value
+	my $argv_hash_ref = $class->$orig(@_);
+	
+	if (exists $argv_hash_ref->{HEADER}) {
+		$argv_hash_ref->{header} = delete $argv_hash_ref->{HEADER};
+		warn 'Deprecated use of "HEADER" in '.__PACKAGE__.' constructor. Use "header" instead.'."\n";
 	}
-}
-
-sub set_sequence {
-	my ($self,$value) = @_;
-	$self->{SEQUENCE} = $value if defined $value;
-}
-
-#######################################################################
-############################   Accessors   ############################
-#######################################################################
-sub header {
-	my ($self) = @_;
-	return $self->{HEADER};
-}
-
-sub sequence {
-	my ($self) = @_;
-	return $self->{SEQUENCE};
-}
+	if (exists $argv_hash_ref->{SEQUENCE}) {
+		$argv_hash_ref->{sequence} = delete $argv_hash_ref->{SEQUENCE};
+		warn 'Deprecated use of "SEQUENCE" in '.__PACKAGE__.' constructor. Use "sequence" instead.'."\n";
+	}
+	if (exists $argv_hash_ref->{header}) {
+		my $header = $argv_hash_ref->{header};
+		$header =~ s/^>//;
+		$argv_hash_ref->{header} = $header
+	}
+	
+	return $argv_hash_ref;
+};
 
 #######################################################################
-#########################   General Methods   #########################
+########################   Interface Methods   ########################
 #######################################################################
 sub length {
 	my ($self) = @_;
