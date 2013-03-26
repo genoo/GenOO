@@ -110,12 +110,12 @@ sub increment_entries_count {
 
 sub primary_keys {
 	my ($self) = @_;
-	return keys %{$self->structure};
+	return sort keys %{$self->structure};
 }
 
 sub secondary_keys_for_primary_key {
 	my ($self, $primary_key) = @_;
-	return keys %{$self->structure->{$primary_key}};
+	return sort keys %{$self->structure->{$primary_key}};
 }
 
 sub secondary_keys_for_all_primary_keys {
@@ -127,7 +127,7 @@ sub secondary_keys_for_all_primary_keys {
 			$secondary_keys{$secondary_key} = 1;
 		}
 	}
-	return keys %secondary_keys;
+	return (sort keys %secondary_keys);
 }
 
 sub entries_ref_for_keys {

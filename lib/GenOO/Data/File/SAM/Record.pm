@@ -351,7 +351,7 @@ sub cigar_relative_to_query {
 sub to_string {
 	my ($self) = @_;
 	
-	my $tags_string = join("\t", map{$_.':'.$self->tag($_)} keys %{$self->tags});
+	my $tags_string = join("\t", map{$_.':'.$self->tag($_)} sort keys %{$self->tags});
 	return join("\t",$self->qname, $self->flag, $self->rname, $self->pos, $self->mapq, $self->cigar, $self->rnext, $self->pnext, $self->tlen, $self->seq, $self->qual, $tags_string);
 }
 

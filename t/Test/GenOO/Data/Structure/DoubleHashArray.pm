@@ -63,7 +63,8 @@ sub init : Test(2) {
 	can_ok $self->obj, 'init';
 	
 	$self->obj->init;
-	is scalar($self->obj->primary_keys), 0, "... and should be empty";
+	my @primary_keys = $self->obj->primary_keys;
+	is @primary_keys, 0, "... and should be empty";
 }
 
 sub foreach_entry_do : Test(2) {
@@ -103,7 +104,7 @@ sub primary_keys : Test(2) {
 	my ($self) = @_;
 	
 	can_ok $self->obj, 'primary_keys';
-	is_deeply [$self->obj->primary_keys], [1,-1], "... and should return the correct value";
+	is_deeply [$self->obj->primary_keys], [-1,1], "... and should return the correct value";
 }
 
 sub secondary_keys_for_primary_key : Test(3) {
@@ -118,7 +119,7 @@ sub secondary_keys_for_all_primary_keys : Test(2) {
 	my ($self) = @_;
 	
 	can_ok $self->obj, 'secondary_keys_for_all_primary_keys';
-	is_deeply [$self->obj->secondary_keys_for_all_primary_keys], ['chr3','chr1','chr4','chr2'], "... and should return the correct value";
+	is_deeply [$self->obj->secondary_keys_for_all_primary_keys], ['chr1','chr2','chr3','chr4'], "... and should return the correct value";
 }
 
 sub entries_ref_for_keys : Test(2) {
