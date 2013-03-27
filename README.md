@@ -41,6 +41,7 @@ Dependencies
 * namespace::autoclean
 * Test::Most
 * Test::Class
+* Test::Exception
 * Modern::Perl
 
 Important Notes
