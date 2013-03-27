@@ -16,8 +16,8 @@ We want to keep this framework focused on the real issues found in sequencing an
 
 Installation
 --------------
-1.  Install git for your machine (git install)[http://git-scm.com/downloads]
-2.  Install GenOO dependencies (listed below) from CPAN
+1.  Install git for your machine [git install](http://git-scm.com/downloads)
+2.  Install GenOO dependencies (listed below) from CPAN. [How to install CPAN modules](http://www.cpan.org/modules/INSTALL.html)
 3.  Clone the GenOO repository on your machine
     `git clone https://github.com/genoo/GenOO.git`
 4.  In the beginning of your perl script write the following
