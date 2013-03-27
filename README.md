@@ -22,13 +22,17 @@ Installation
     `git clone https://github.com/genoo/GenOO.git`
 4.  In the beginning of your perl script write the following
     `use lib 'path/to/genoo/clone/lib/'`
-5.  You are done. No, seriously, you are done
-6.  Happy coding
+5.  You are done! No, seriously, you are done! Happy coding!
 
 If you want to verify that everything works
 ```bash
 cd path/to/genoo/clone/
 prove -l t/test_all.t
+```
+If you want to verify a particular package/class
+```bash
+cd path/to/genoo/clone/
+prove -mv -l -It/ t/Test/package_path.pm
 ```
 
 Dependencies
