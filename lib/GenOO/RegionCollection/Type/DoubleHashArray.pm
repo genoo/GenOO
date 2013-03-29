@@ -174,6 +174,15 @@ sub records_overlapping_region {
 	return @overlapping_records;
 }
 
+sub total_copy_number {
+	my ($self, $block) = @_;
+	
+	my $total_copy_number = 0;
+	$self->foreach_record_do( sub {$total_copy_number += $_[0]->copy_number} );
+	
+	return $total_copy_number;
+}
+
 
 #######################################################################
 #########################   Private methods  ##########################

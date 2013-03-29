@@ -206,6 +206,13 @@ sub records_ref_for_strand_and_rname : Test(2) {
 	is @{$self->obj(0)->_records_ref_for_strand_and_rname(1,'chr1')}, 3, "... and should return the correct value";
 }
 
+sub total_copy_number : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'total_copy_number';
+	is $self->obj(0)->total_copy_number, 18, "... and should return the correct value";
+}
+
 #######################################################################
 ##########################   Helper Methods   #########################
 #######################################################################
