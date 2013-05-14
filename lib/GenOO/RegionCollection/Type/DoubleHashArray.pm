@@ -89,6 +89,11 @@ sub foreach_record_do {
 	$self->_container->foreach_entry_do($block);
 }
 
+sub foreach_record_on_rname_do {
+	my ($self, $rname, $block) = @_;
+	$self->_container->foreach_entry_on_secondary_key_do($rname, $block);
+}
+
 sub records_count {
 	my ($self) = @_;
 	return $self->_container->entries_count;

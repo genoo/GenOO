@@ -107,6 +107,15 @@ sub foreach_record_do {
 	}
 }
 
+sub foreach_record_on_rname_do {
+	my ($self, $rname, $block) = @_;
+	
+	my $rs = $self->resultset->search({rname => $rname});
+	while (my $record = $rs->next) {
+		$block->($record);
+	}
+}
+
 sub records_count {
 	my ($self) = @_;
 	

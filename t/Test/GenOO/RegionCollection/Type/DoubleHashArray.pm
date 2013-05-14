@@ -119,6 +119,18 @@ sub foreach_record_do : Test(2) {
 	is $iterations, $self->obj(0)->records_count, "... and should do the correct number of iterations";
 }
 
+sub foreach_record_on_rname_do : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'foreach_record_on_rname_do';
+	
+	my $iterations = 0;
+	$self->obj(0)->foreach_record_on_rname_do('chr1', sub {
+		$iterations++;
+	});
+	is $iterations, 3, "... and should do the correct number of iterations";
+}
+
 sub records_count : Test(2) {
 	my ($self) = @_;
 	
