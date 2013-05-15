@@ -1,47 +1,13 @@
 GenOO Cookbook
 ==============
+
 Introduction
 ------------
 GenOO is an open-source perl framework which models biological entities into Perl objects and provides methods and objects that allow for the manipulation of common file types used in sequencing such as SAM, BED, FASTQ and others. Bioinformaticians can greatly benefit by this framework since it will allow them to focus on the actual analysis required instead of coping with the boilerplate of managing the data at hand. In contrast to other existing frameworks such as BioPerl, GenOO has been designed from scratch in a modular way with minimal requirements on external libraries.
 
-### Installation
-
-1.  Install git for your machine (git install)[http://git-scm.com/downloads]
-2.  Install GenOO dependencies (listed below) from CPAN
-3.  Clone the GenOO repository on your machine
-    `git clone https://github.com/genoo/GenOO.git`
-4.  In the beginning of your perl script write the following
-    `use lib 'path/to/genoo/clone/lib/'`
-5.  You are done. No, seriously, you are done
-6.  Happy coding
-
-If you want to verify that everything works
-```bash
-cd path/to/genoo/clone/
-prove -l t/test_all.t
-```
-
-### Dependencies
-
-* Moose
-* MooseX::AbstractFactory
-* DBIx::Class
-* PerlIO::gzip
-* namespace::autoclean
-* Test::Most
-* Test::Class
-* Modern::Perl
-
-### Important Notes
-
-Backwards compatibility is particularly important and GenOO will attempt to be as backwards compatible as possible.
-However we all know that bugs exist and things might change. If a change breaks backwards compatibility
-and particularly if it breaks the test suite it **must** be logged in the changelog file. 
-This will help users track important changes and will make updates much more safe.
 
 Using GenOO
 -----------
-
 ### Data Input / Output
 
 GenOO can use data from several common formats.
