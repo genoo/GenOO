@@ -4,6 +4,7 @@ use strict;
 use base qw(Test::GenOO);
 use Test::Moose;
 use Test::Most;
+use Test::Exception;
 
 #######################################################################
 ################   Startup (Runs once in the begining  ################
@@ -149,44 +150,81 @@ sub tail_position : Test(3) {
 	is $self->obj(6)->tail_position, 21, "... and returns the correct value";
 }
 
-sub head_head_distance_from : Test(5) {
+sub mid_position : Test(5) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'mid_position';
+	is $self->obj(0)->mid_position, 6.5, "... and returns the correct value";
+	is $self->obj(1)->mid_position, 6, "... and returns the correct value";
+	is $self->obj(6)->mid_position, 25.5, "... and returns the correct value";
+	is $self->obj(7)->mid_position, 26, "... and returns the correct value";
+}
+
+sub mid_mid_distance_from : Test(6) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'mid_mid_distance_from';
+	is $self->obj(1)->mid_mid_distance_from($self->obj(0)), -0.5, "... and returns the correct value";
+	is $self->obj(0)->mid_mid_distance_from($self->obj(1)), 0.5, "... and returns the correct value";
+	is $self->obj(9)->mid_mid_distance_from($self->obj(12)), 24.5, "... and returns the correct value";
+	is $self->obj(12)->mid_mid_distance_from($self->obj(9)), -24.5, "... and returns the correct value";
+	dies_ok {$self->obj(6)->mid_mid_distance_from($self->obj(9))} "... and dies when comparing regions on different reference";
+}
+
+sub mid_head_distance_from : Test(6) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'mid_head_distance_from';
+	is $self->obj(1)->mid_head_distance_from($self->obj(0)), 3, "... and returns the correct value";
+	is $self->obj(0)->mid_head_distance_from($self->obj(1)), 4.5, "... and returns the correct value";
+	is $self->obj(9)->mid_head_distance_from($self->obj(12)), 32, "... and returns the correct value";
+	is $self->obj(12)->mid_head_distance_from($self->obj(9)), -22.5, "... and returns the correct value";
+	dies_ok {$self->obj(6)->mid_head_distance_from($self->obj(9))} "... and dies when comparing regions on different reference";
+}
+
+sub head_head_distance_from : Test(6) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'head_head_distance_from';
 	is $self->obj(1)->head_head_distance_from($self->obj(0)), -1, "... and returns the correct value";
 	is $self->obj(0)->head_head_distance_from($self->obj(1)), 1, "... and returns the correct value";
-	is $self->obj(6)->head_head_distance_from($self->obj(9)), 5, "... and returns the correct value";
-	is $self->obj(9)->head_head_distance_from($self->obj(6)), -5, "... and returns the correct value";
+	is $self->obj(12)->head_head_distance_from($self->obj(9)), -30 , "... and returns the correct value";
+	is $self->obj(9)->head_head_distance_from($self->obj(12)), 30 , "... and returns the correct value";
+	dies_ok {$self->obj(6)->head_head_distance_from($self->obj(9))} "... and dies when comparing regions on different reference";
+
 }
 
-sub head_tail_distance_from : Test(5) {
+sub head_tail_distance_from : Test(6) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'head_tail_distance_from';
 	is $self->obj(1)->head_tail_distance_from($self->obj(0)), -8, "... and returns the correct value";
 	is $self->obj(0)->head_tail_distance_from($self->obj(1)), -7, "... and returns the correct value";
 	is $self->obj(6)->head_tail_distance_from($self->obj(7)), -8, "... and returns the correct value";
-	is $self->obj(9)->head_tail_distance_from($self->obj(6)), -14, "... and returns the correct value";
+	is $self->obj(12)->head_tail_distance_from($self->obj(9)), -34, "... and returns the correct value";
+	dies_ok {$self->obj(6)->head_tail_distance_from($self->obj(9))} "... and dies when comparing regions on different reference";
 }
 
-sub tail_head_distance_from : Test(5) {
+sub tail_head_distance_from : Test(6) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'tail_head_distance_from';
-	is $self->obj(0)->tail_head_distance_from($self->obj(3)), -1, "... and returns the correct value";
-	is $self->obj(3)->tail_head_distance_from($self->obj(0)), 17, "... and returns the correct value";
+	is $self->obj(0)->tail_head_distance_from($self->obj(2)), 9, "... and returns the correct value";
+	is $self->obj(2)->tail_head_distance_from($self->obj(0)), 7, "... and returns the correct value";
 	is $self->obj(6)->tail_head_distance_from($self->obj(7)), 9, "... and returns the correct value";
 	is $self->obj(7)->tail_head_distance_from($self->obj(6)), 8, "... and returns the correct value";
+	dies_ok {$self->obj(0)->tail_head_distance_from($self->obj(3))} "... and dies when comparing regions on different reference";
 }
 
-sub tail_tail_distance_from : Test(5) {
+sub tail_tail_distance_from : Test(6) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'tail_tail_distance_from';
-	is $self->obj(0)->tail_tail_distance_from($self->obj(3)), -10, "... and returns the correct value";
-	is $self->obj(3)->tail_tail_distance_from($self->obj(0)), 10, "... and returns the correct value";
+	is $self->obj(3)->tail_tail_distance_from($self->obj(4)), -1, "... and returns the correct value";
+	is $self->obj(4)->tail_tail_distance_from($self->obj(3)), 1, "... and returns the correct value";
 	is $self->obj(6)->tail_tail_distance_from($self->obj(7)), 1, "... and returns the correct value";
 	is $self->obj(7)->tail_tail_distance_from($self->obj(6)), -1, "... and returns the correct value";
+	dies_ok {$self->obj(0)->tail_tail_distance_from($self->obj(3))} "... and dies when comparing regions on different reference";
 }
 
 sub to_string : Test(2) {
@@ -274,7 +312,7 @@ sub test_objects {
 	push @test_objects, $test_class->class->new(strand => '+', chromosome => 'chr1', start => 2, stop => 10);
 	push @test_objects, $test_class->class->new(strand => '+', chromosome => 'chr1', start => 1, stop => 10);
 	push @test_objects, $test_class->class->new(strand => '+', chromosome => 'chr2', start => 11, stop => 20);
-	push @test_objects, $test_class->class->new(strand => '+', chromosome => 'chr2', start => 12, stop => 20);
+	push @test_objects, $test_class->class->new(strand => '+', chromosome => 'chr2', start => 12, stop => 21);
 	push @test_objects, $test_class->class->new(strand => '+', chromosome => 'chr2', start => 13, stop => 20);
 	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr3', start => 21, stop => 30);
 	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr3', start => 22, stop => 30);
@@ -282,6 +320,7 @@ sub test_objects {
 	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr4', start => 31, stop => 35);
 	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr4', start => 33, stop => 40);
 	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr4', start => 32, stop => 40);
+	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr4', start => 50, stop => 65); # No 12
 	
 	
 	return \@test_objects;

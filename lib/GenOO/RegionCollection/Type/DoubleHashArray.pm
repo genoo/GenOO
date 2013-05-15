@@ -89,6 +89,11 @@ sub foreach_record_do {
 	$self->_container->foreach_entry_do($block);
 }
 
+sub foreach_record_on_rname_do {
+	my ($self, $rname, $block) = @_;
+	$self->_container->foreach_entry_on_secondary_key_do($rname, $block);
+}
+
 sub records_count {
 	my ($self) = @_;
 	return $self->_container->entries_count;
@@ -172,6 +177,15 @@ sub records_overlapping_region {
 	);
 	
 	return @overlapping_records;
+}
+
+sub total_copy_number {
+	my ($self, $block) = @_;
+	
+	my $total_copy_number = 0;
+	$self->foreach_record_do( sub {$total_copy_number += $_[0]->copy_number} );
+	
+	return $total_copy_number;
 }
 
 

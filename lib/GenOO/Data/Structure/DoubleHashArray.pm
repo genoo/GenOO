@@ -92,6 +92,17 @@ sub foreach_entry_do {
 	}
 }
 
+sub foreach_entry_on_secondary_key_do {
+	my ($self, $secondary_key, $block) = @_;
+	
+	foreach my $primary_key (keys %{$self->structure}) {
+		next if not defined $self->structure->{$primary_key}->{$secondary_key};
+		foreach my $entry (@{$self->structure->{$primary_key}->{$secondary_key}}) {
+			$block->($entry);
+		}
+	}
+}
+
 sub add_entry {
 	my ($self, $primary_key, $secondary_key, $entry) = @_;
 	

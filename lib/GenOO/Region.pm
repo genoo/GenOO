@@ -102,30 +102,42 @@ sub mid_position {
 sub mid_mid_distance_from {
 	my ($self, $from_locus) = @_;
 	
+	die join(' ', 'Comparing relative position for regions on different reference (rname)',$self->rname,'ne',$from_locus->rname)."\n" if ($self->rname ne $from_locus->rname);
 	return ($self->mid_position - $from_locus->mid_position) * $self->strand;
+}
+
+sub mid_head_distance_from {
+	my ($self, $from_locus) = @_;
+	
+	die join(' ', 'Comparing relative position for regions on different reference (rname)',$self->rname,'ne',$from_locus->rname)."\n" if ($self->rname ne $from_locus->rname);
+	return ($self->mid_position - $from_locus->head_position) * $self->strand;
 }
 
 sub head_head_distance_from {
 	my ($self, $from_locus) = @_;
 	
+	die join(' ', 'Comparing relative position for regions on different reference (rname)',$self->rname,'ne',$from_locus->rname)."\n" if ($self->rname ne $from_locus->rname);
 	return ($self->head_position - $from_locus->head_position) * $self->strand;
 }
 
 sub head_tail_distance_from {
 	my ($self, $from_locus) = @_;
 	
+	die join(' ', 'Comparing relative position for regions on different reference (rname)',$self->rname,'ne',$from_locus->rname)."\n" if ($self->rname ne $from_locus->rname);
 	return ($self->head_position - $from_locus->tail_position) * $self->strand;
 }
 
 sub tail_head_distance_from {
 	my ($self, $from_locus) = @_;
 	
+	die join(' ', 'Comparing relative position for regions on different reference (rname)',$self->rname,'ne',$from_locus->rname)."\n" if ($self->rname ne $from_locus->rname);
 	return ($self->tail_position - $from_locus->head_position) * $self->strand;
 }
 
 sub tail_tail_distance_from {
 	my ($self, $from_locus) = @_;
 	
+	die join(' ', 'Comparing relative position for regions on different reference (rname)',$self->rname,'ne',$from_locus->rname)."\n" if ($self->rname ne $from_locus->rname);
 	return ($self->tail_position - $from_locus->tail_position) * $self->strand;
 }
 

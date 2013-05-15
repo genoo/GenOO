@@ -119,6 +119,18 @@ sub foreach_record_do : Test(2) {
 	is $iterations, $self->obj(0)->records_count, "... and should do the correct number of iterations";
 }
 
+sub foreach_record_on_rname_do : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'foreach_record_on_rname_do';
+	
+	my $iterations = 0;
+	$self->obj(0)->foreach_record_on_rname_do('chr1', sub {
+		$iterations++;
+	});
+	is $iterations, 3, "... and should do the correct number of iterations";
+}
+
 sub records_count : Test(2) {
 	my ($self) = @_;
 	
@@ -204,6 +216,13 @@ sub records_ref_for_strand_and_rname : Test(2) {
 	
 	can_ok $self->obj(0), '_records_ref_for_strand_and_rname';
 	is @{$self->obj(0)->_records_ref_for_strand_and_rname(1,'chr1')}, 3, "... and should return the correct value";
+}
+
+sub total_copy_number : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'total_copy_number';
+	is $self->obj(0)->total_copy_number, 18, "... and should return the correct value";
 }
 
 #######################################################################

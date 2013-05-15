@@ -82,6 +82,21 @@ sub foreach_entry_do : Test(2) {
 	is $iterations, $self->obj->entries_count, "... and should do the correct number of iterations";
 }
 
+sub foreach_entry_on_secondary_key_do : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj, 'foreach_entry_on_secondary_key_do';
+	
+	my $iterations = 0;
+	$self->obj->foreach_entry_on_secondary_key_do('chr3', sub{
+		my ($arg) = @_;
+		if ($arg =~ /^\d+$/) {
+			$iterations++;
+		}
+	});
+	is $iterations, 3, "... and should do the correct number of iterations";
+}
+
 sub add_entry : Test(2) {
 	my ($self) = @_;
 	
