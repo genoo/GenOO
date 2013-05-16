@@ -296,7 +296,7 @@ sub deletion_positions_on_reference : Test(5) {
 	is_deeply [$self->obj(3)->deletion_positions_on_reference], [22985499], "... and returns the correct value";
 }
 
-sub mismatch_positions_on_reference : Test(5) {
+sub mismatch_positions_on_reference : Test(6) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'mismatch_positions_on_reference';
@@ -305,9 +305,10 @@ sub mismatch_positions_on_reference : Test(5) {
 	is_deeply [$self->obj(1)->mismatch_positions_on_reference], [22051062,22051125], "... and returns the correct value";
 	is_deeply [$self->obj(2)->mismatch_positions_on_reference], [187239361,187239398], "... and returns the correct value";
 	is_deeply [$self->obj(3)->mismatch_positions_on_reference], [22985517,22985530,22985542,22985544], "... and returns the correct value";
+	is_deeply [$self->obj(5)->mismatch_positions_on_reference], [22985516,22985529,22985541,22985543], "... and returns the correct value";
 }
 
-sub mismatch_positions_on_query : Test(5) {
+sub mismatch_positions_on_query : Test(6) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'mismatch_positions_on_query';
@@ -316,6 +317,7 @@ sub mismatch_positions_on_query : Test(5) {
 	is_deeply [$self->obj(1)->mismatch_positions_on_query], [100,38], "... and returns the correct value";
 	is_deeply [$self->obj(2)->mismatch_positions_on_query], [12,48], "... and returns the correct value";
 	is_deeply [$self->obj(3)->mismatch_positions_on_query], [73,86,98,100], "... and returns the correct value";
+	is_deeply [$self->obj(5)->mismatch_positions_on_query], [73,86,98,100], "... and returns the correct value";
 }
 
 sub cigar_relative_to_query : Test(6) {
@@ -485,6 +487,30 @@ sub test_objects {
 		seq        => 'TNNNNNNNNCCAAGTGAAAG',
 		qual       => '?########20;<73@@B@@',
 		tags       => [],
+	});
+	
+	push @test_objects, $test_class->class->new({
+		qname      => 'HWI-EAS235_32:2:19:14059:2128',
+		flag       => '0',
+		rname      => 'chr5',
+		pos        => '22985444',
+		mapq       => '37',
+		cigar      => '101M',
+		rnext      => '*',
+		pnext      => '0',
+		tlen       => '0',
+		seq        => 'CAACACGTAAAGATCTATTTCAACGCTTCTTGCTTGTTTCTATATTGCTGAATACTAAGTAAGCCACATTGAAAAAGTAAAAGCAAGATTGCTTAGCTCTC',
+		qual       => 'DDGE<EF8BFFGDDFHBGHHHHHHHGHH@GHHGHHD2@==FEEGEDBGGGGH@GFGDD@,EE8AAAACCCAAC;CA<8AE@;+)9<3:08<===<=*A>@5',
+		tags       => {
+			'XT:A' => 'U',
+			'NM:i' => '5',
+			'X0:i' => '1',
+			'X1:i' => '0',
+			'XM:i' => '4',
+			'XO:i' => '1',
+			'XG:i' => '1',
+			'MD:Z' => '73C12A11A1A0'
+		},
 	});
 	
 	return \@test_objects;
