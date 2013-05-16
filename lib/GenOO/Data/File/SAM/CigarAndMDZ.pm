@@ -157,7 +157,7 @@ sub mismatch_positions_on_reference {
 	my @mismatch_positions;
 	my $mdz = $self->mdz;
 	
-	if ($mdz =~ /\^/) {
+	if ($mdz =~ /\w/) {
 		my $relative_position = 0;
 		while ($mdz ne '') {
 			if ($mdz =~ s/^(\d+)//) {
