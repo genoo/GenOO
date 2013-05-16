@@ -42,7 +42,7 @@ has 'cigar'       => (isa => 'Str', is => 'rw', required => 1);
 has 'mdz'         => (isa => 'Str', is => 'rw', required => 1);
 has 'extra'       => (is => 'rw');
 
-with 'GenOO::Region';
+with 'GenOO::Region', 'GenOO::Data::File::SAM::CigarAndMDZ';
 
 #######################################################################
 ########################   Interface Methods   ########################
@@ -51,6 +51,12 @@ sub sequence_length {
 	my ($self) = @_;
 	
 	return CORE::length($self->sequence);
+}
+
+sub query_length {
+	my ($self) = @_;
+	
+	return $self->sequence_length;
 }
 
 #######################################################################
