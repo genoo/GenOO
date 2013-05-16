@@ -2,8 +2,8 @@ package Test::GenOO::Data::File::FASTA;
 use strict;
 
 use base qw(Test::GenOO);
-use Test::More;
-
+use Test::Moose;
+use Test::Most;
 
 #######################################################################
 ################   Startup (Runs once in the begining  ################
@@ -16,227 +16,120 @@ sub _check_loading : Test(startup => 1) {
 #######################################################################
 #################   Setup (Runs before every method)  #################
 #######################################################################
-sub new_object : Test(setup) {
+sub create_new_test_objects : Test(setup) {
 	my ($self) = @_;
 	
-	$self->{OBJ} = GenOO::Data::File::FASTA->new({
-		FILE => 't/sample_data/sample.fa.gz'
-	});
+	my $test_class = ref($self) || $self;
+	$self->{TEST_OBJECTS} = $test_class->test_objects();
 };
 
 #######################################################################
-###########################   Actual Tests   ##########################
+##########################   Initial Tests   ##########################
 #######################################################################
 sub _isa_test : Test(1) {
 	my ($self) = @_;
-	
-	isa_ok $self->obj, $self->class, "... and the object";
+	isa_ok $self->obj(0), $self->class, "... and the object";
 }
 
+#######################################################################
+#######################   Class Interface Tests   #####################
+#######################################################################
 sub file : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'file';
-	is $self->obj->file, 't/sample_data/sample.fa.gz', "... and should return the correct value";
-}
-
-sub eof : Test(3) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'is_eof_reached';
-	is $self->obj->is_eof_reached, 0, "... and should return the correct value";
-	
-	while ($self->obj->next_record) {}
-	is $self->obj->is_eof_reached, 1, "... and should return the correct value again";
-}
-
-sub filehandle : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'filehandle';
-	isa_ok $self->obj->filehandle, 'FileHandle', "... and the returned object";
-}
-
-sub record_header_cache : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'record_header_cache';
-	is $self->obj->record_header_cache, undef, "... and should be empty";
-}
-
-sub record_seq_cache : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'record_seq_cache';
-	is $self->obj->record_seq_cache, undef, "... and should be empty";
+	has_attribute_ok($self->obj(0), 'file');
+	is $self->obj(0)->file, 't/sample_data/sample.fa.gz', "... and should return the correct value";
 }
 
 sub records_read_count : Test(5) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'records_read_count';
-	is $self->obj->records_read_count, 0, "... and should return the correct value";
+	has_attribute_ok($self->obj(0), 'records_read_count');
+	is $self->obj(0)->records_read_count, 0, "... and should return the correct value";
 	
-	$self->obj->next_record();
-	is $self->obj->records_read_count, 1, "... and should return the correct value again";
+	$self->obj(0)->next_record();
+	is $self->obj(0)->records_read_count, 1, "... and should return the correct value again";
 	
-	$self->obj->next_record();
-	is $self->obj->records_read_count, 2, "... and again";
+	$self->obj(0)->next_record();
+	is $self->obj(0)->records_read_count, 2, "... and again";
 	
-	while ($self->obj->next_record()) {}
-	is $self->obj->records_read_count, 10, "... and again (when the whole file is read)";
-}
-
-sub init_record_header_cache : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'init_record_header_cache';
-	
-	$self->obj->set_record_header_cache('test');
-	$self->obj->init_record_header_cache;
-	is $self->obj->record_header_cache, undef, "... and should empty header cache";
-}
-
-sub init_seq_cache : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'init_seq_cache';
-	
-	$self->obj->add_to_seq_cache('test');
-	$self->obj->init_seq_cache;
-	is $self->obj->record_seq_cache, undef, "... and should empty seq cache";
-}
-
-sub init_records_read_count : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'init_records_read_count';
-	
-	$self->obj->increment_records_read_count;
-	$self->obj->init_records_read_count;
-	is $self->obj->records_read_count, 0, "... and should return the correct value";
-}
-
-sub increment_records_read_count : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'increment_records_read_count';
-	
-	$self->obj->increment_records_read_count();
-	is $self->obj->records_read_count, 1, "... and should result in the correct value";
-}
-
-sub set_record_header_cache : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'set_record_header_cache';
-	
-	$self->obj->set_record_header_cache('test');
-	is $self->obj->record_header_cache, 'test', "... and should return the correct value";
-}
-
-sub add_to_seq_cache : Test(3) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'add_to_seq_cache';
-	
-	$self->obj->add_to_seq_cache('test');
-	is $self->obj->record_seq_cache, 'test', "... and should return the correct value";
-	$self->obj->add_to_seq_cache('test');
-	is $self->obj->record_seq_cache, 'testtest', "... and should return the correct value again";
+	while ($self->obj(0)->next_record()) {}
+	is $self->obj(0)->records_read_count, 10, "... and again (when the whole file is read)";
 }
 
 sub next_record : Test(7) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'next_record';
+	can_ok $self->obj(0), 'next_record';
 	
-	my $record = $self->obj->next_record;
+	my $record = $self->obj(0)->next_record;
 	isa_ok $record, 'GenOO::Data::File::FASTA::Record', "... and the returned object";
 	is $record->header, 'HWI-asadasASooo_1',  "... and should return the correct value";
 	is $record->sequence, 'AAATANNCGTCGAAGATGTAAAGAAAACCGACTTTAATAATGT',  "... and should return the correct value";
 	
-	$record = $self->obj->next_record;
+	$record = $self->obj(0)->next_record;
 	isa_ok $record, 'GenOO::Data::File::FASTA::Record', "... and the returned object";
 	is $record->header, 'HWI-asadasASooo_2',  "... and should return the correct value";
 	is $record->sequence, 'TTTTANNTAAATTTATGCATAGACCGACTTTAATAATGT',  "... and should return the correct value";
 }
 
-sub line_looks_like_record_header : Test(3) {
+#######################################################################
+########################   Class Private Tests   ######################
+#######################################################################
+sub eof : Test(4) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'line_looks_like_record_header';
+	has_attribute_ok($self->obj(0), '_eof');
+	ok(!$self->obj(0)->_reached_eof, "... and should start as false");
 	
-	my $line = '>test';
-	is $self->obj->line_looks_like_record_header($line), 1, "... and should return the correct value";
-
-	$line = ' test ';
-	is $self->obj->line_looks_like_record_header($line), 0, "... and should return the correct value again";
+	$self->obj(0)->next_record;
+	ok(!$self->obj(0)->_reached_eof, "... and should remain false");
+	
+	while ($self->obj(0)->next_record) {}
+	ok($self->obj(0)->_reached_eof, "... and should be true after reading the whole file");
 }
 
-sub line_looks_like_sequence : Test(6) {
+sub stored_record_header : Test(3) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'line_looks_like_sequence';
-	
-	my $line = 'cctFa';
-	is $self->obj->line_looks_like_sequence($line), 1, "... and should return the correct value";
-	
-	$line = '>test';
-	is $self->obj->line_looks_like_sequence($line), 0, "... and should return the correct value again";
-	
-	$line = '';
-	is $self->obj->line_looks_like_sequence($line), 0, "... and should return the correct value again";
-	
-	$line = "\t\t  \t\n";
-	is $self->obj->line_looks_like_sequence($line), 0, "... and should return the correct value again";
-	
-	$line = "\n";
-	is $self->obj->line_looks_like_sequence($line), 0, "... and should return the correct value again";
+	has_attribute_ok($self->obj(0), '_stored_record_header');
+	is $self->obj(0)->_stored_record_header, undef, "... and should be undefined";
+	ok(!$self->obj(0)->_has_stored_record_header, "... and should predicate to false");
 }
 
-sub record_header_cache_not_empty : Test(3) {
+sub stored_record_sequence : Test(3) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'record_header_cache_not_empty';
-	is $self->obj->record_header_cache_not_empty, 0, "... and should return the correct value";
-	
-	$self->obj->next_record;
-	is $self->obj->record_header_cache_not_empty, 1, "... and should return the correct value again";
+	has_attribute_ok($self->obj(0), '_stored_record_sequence');
+	is $self->obj(0)->_stored_record_sequence, undef, "... and should be undefined";
+	ok(!$self->obj(0)->_has_stored_record_sequence, "... and should predicate to false");
 }
 
-sub record_header_cache_is_empty : Test(3) {
+sub concatenate_to_stored_record_sequence : Test(3) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'record_header_cache_is_empty';
-	is $self->obj->record_header_cache_is_empty, 1, "... and should return the correct value";
+	can_ok $self->obj(0), '_concatenate_to_stored_record_sequence';
 	
-	$self->obj->next_record;
-	is $self->obj->record_header_cache_is_empty, 0, "... and should return the correct value again";
+	$self->obj(0)->_concatenate_to_stored_record_sequence('test');
+	is $self->obj(0)->_stored_record_sequence, 'test', "... and should return the correct value";
+	$self->obj(0)->_concatenate_to_stored_record_sequence('test');
+	is $self->obj(0)->_stored_record_sequence, 'testtest', "... and should return the correct value again";
 }
-
-sub is_eof_reached : Test(4) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'is_eof_reached';
-	
-	is $self->obj->is_eof_reached, 0, "... and should return the correct value";
-	
-	$self->obj->next_record();
-	is $self->obj->is_eof_reached, 0, "... and should return the correct value again";
-	
-	while ($self->obj->next_record()) {}
-	is $self->obj->is_eof_reached, 1, "... and again (when the whole file is read)";
-}
-
 
 #######################################################################
-##########################   Helper Methods   #########################
+###############   Class method to create test objects   ###############
 #######################################################################
-sub obj {
-	my ($self) = @_;
-	return $self->{OBJ};
+sub test_objects {
+	my ($test_class) = @_;
+	
+	eval "require ".$test_class->class;
+	
+	my @test_objects;
+	push @test_objects, $test_class->class->new(
+		file => 't/sample_data/sample.fa.gz'
+	);
+	
+	return \@test_objects;
 }
-
 
 1;
