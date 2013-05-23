@@ -56,3 +56,11 @@ State
 --------------
 The framework is under development and functionality is added regularly.
 The core of the framework is considered stable.
+
+Copyright
+--------------
+Copyright (c) 2013 Emmanouil Maragkakis and Panagiotis Alexiou.
+
+License
+--------------
+This library is free software and may be distributed under the same terms as perl itself.
