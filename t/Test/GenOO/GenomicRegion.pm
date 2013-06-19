@@ -241,10 +241,19 @@ sub overlaps : Test(8) {
 	is $self->obj(0)->overlaps($self->obj(1)), 1, "... and returns the correct value";
 	is $self->obj(0)->overlaps($self->obj(6)), 0, "... and returns the correct value";
 	is $self->obj(6)->overlaps($self->obj(7)), 1, "... and returns the correct value";
-	is $self->obj(11)->overlaps($self->obj(12)), 0, "... and returns the correct value"; # without span
-	is $self->obj(11)->overlaps($self->obj(12), 10), 1, "... and returns the correct value"; # with span
 	is $self->obj(12)->overlaps($self->obj(13)), 0, "... and returns the correct value"; # strand sensitive
-	is $self->obj(12)->overlaps($self->obj(13), 0, 0), 1, "... and returns the correct value"; # strand insensitive
+	is $self->obj(12)->overlaps($self->obj(13), 0), 1, "... and returns the correct value"; # strand insensitive
+}
+
+sub overlaps_with_offset : Test(6) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'overlaps_with_offset';
+	is $self->obj(0)->overlaps_with_offset($self->obj(1)), 1, "... and returns the correct value";
+	is $self->obj(11)->overlaps_with_offset($self->obj(12)), 0, "... and returns the correct value"; # without span
+	is $self->obj(11)->overlaps_with_offset($self->obj(12), 1, 10), 1, "... and returns the correct value"; # with span
+	is $self->obj(12)->overlaps_with_offset($self->obj(13)), 0, "... and returns the correct value"; # strand sensitive
+	is $self->obj(12)->overlaps_with_offset($self->obj(13), 0), 1, "... and returns the correct value"; # strand insensitive
 }
 
 sub overlap_length : Test(5) {
