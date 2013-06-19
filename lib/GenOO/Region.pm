@@ -158,29 +158,26 @@ sub to_string {
 }
 
 sub overlaps {
-	my ($self,$region2,$params) = @_;
+	my ($self, $region2, $span, $use_strand) = @_;
 	
-	if ((!defined $params) or (UNIVERSAL::isa( $params, "HASH" ))){
-		my $offset = defined $params->{OFFSET} ? $params->{OFFSET} : 0;
-		my $use_strand = defined $params->{USE_STRAND} ? $params->{USE_STRAND} : 0;
+	$span = 0 if !defined $span;
+	$use_strand = 1 if !defined $use_strand;
+	
+	if (UNIVERSAL::isa($span, 'HASH')) {
+		my $params = $span;
+		$span = $params->{OFFSET} if defined $params->{OFFSET};
+		$use_strand = $params->{USE_STRAND} if defined $params->{USE_STRAND};
+		warn 'Deprecated call with hash reference as argument for method "overlaps" in '.(caller)[1].' line '.(caller)[2].'. ';
+	}
 		
-		if ((($use_strand == 0) or ($self->strand eq $region2->strand)) and ($self->rname eq $region2->rname) and (($self->start-$offset) <= $region2->stop) and ($region2->start <= ($self->stop+$offset))) {
-			return 1; #overlap
-		}
-		else {
-			return 0; #no overlap
-		}
+	if (($use_strand == 0 or $self->strand eq $region2->strand) and ($self->rname eq $region2->rname) and (($self->start-$span) <= $region2->stop) and ($region2->start <= ($self->stop+$span))) {
+		return 1; #overlap
 	}
 	else {
-		die "\n\nUnknown or no method provided when calling ".(caller(0))[3]." in script $0\n\n";
+		return 0; #no overlap
 	}
 }
 
-=head2 get_overlap_length
-  Arg [1]    : locus. Locus object self is compared to.
-  Description: Return the number of nucleotides of self that are covered by provided locus
-  Returntype : int
-=cut
 sub overlap_length {
 	my ($self, $region2) = @_;
 	

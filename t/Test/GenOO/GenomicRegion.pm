@@ -234,22 +234,27 @@ sub to_string : Test(2) {
 	is $self->obj(0)->to_string, 'chr1:3-10:1', "... and returns the correct value";
 }
 
-sub overlaps : Test(4) {
+sub overlaps : Test(8) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'overlaps';
 	is $self->obj(0)->overlaps($self->obj(1)), 1, "... and returns the correct value";
 	is $self->obj(0)->overlaps($self->obj(6)), 0, "... and returns the correct value";
 	is $self->obj(6)->overlaps($self->obj(7)), 1, "... and returns the correct value";
+	is $self->obj(11)->overlaps($self->obj(12)), 0, "... and returns the correct value"; # without span
+	is $self->obj(11)->overlaps($self->obj(12), 10), 1, "... and returns the correct value"; # with span
+	is $self->obj(12)->overlaps($self->obj(13)), 0, "... and returns the correct value"; # strand sensitive
+	is $self->obj(12)->overlaps($self->obj(13), 0, 0), 1, "... and returns the correct value"; # strand insensitive
 }
 
-sub overlap_length : Test(4) {
+sub overlap_length : Test(5) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'overlap_length';
 	is $self->obj(0)->overlap_length($self->obj(1)), 8, "... and returns the correct value";
 	is $self->obj(0)->overlap_length($self->obj(6)), 0, "... and returns the correct value";
 	is $self->obj(6)->overlap_length($self->obj(7)), 9, "... and returns the correct value";
+	is $self->obj(12)->overlap_length($self->obj(13)), 0, "... and returns the correct value";
 }
 
 sub contains : Test(6) {
@@ -320,7 +325,8 @@ sub test_objects {
 	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr4', start => 31, stop => 35);
 	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr4', start => 33, stop => 40);
 	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr4', start => 32, stop => 40);
-	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr4', start => 50, stop => 65); # No 12
+	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr4', start => 50, stop => 65);
+	push @test_objects, $test_class->class->new(strand => '+', chromosome => 'chr4', start => 50, stop => 65); # No 13
 	
 	
 	return \@test_objects;

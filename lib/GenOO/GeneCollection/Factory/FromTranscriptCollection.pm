@@ -125,7 +125,7 @@ sub _merge {
 	foreach my $region (@sorted_regions) {
 		
 		my $merged_region = $merged_regions[-1];
-		if (defined $merged_region and $merged_region->overlaps($region,{OFFSET=>$offset, USE_STRAND=>$use_strand})) {
+		if (defined $merged_region and $merged_region->overlaps($region, $offset, $use_strand)) {
 			if (wantarray) {
 				push @{$included_regions[-1]}, $region;
 			}
