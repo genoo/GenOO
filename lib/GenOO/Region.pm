@@ -160,8 +160,8 @@ sub to_string {
 sub overlaps {
 	my ($self, $region2, $span, $use_strand) = @_;
 	
-	$span = 0 if !defined $span;
-	$use_strand = 1 if !defined $use_strand;
+	$span //= 0;
+	$use_strand //= 1;
 	
 	if (UNIVERSAL::isa($span, 'HASH')) {
 		my $params = $span;
@@ -170,7 +170,7 @@ sub overlaps {
 		warn 'Deprecated call with hash reference as argument for method "overlaps" in '.(caller)[1].' line '.(caller)[2].'. ';
 	}
 		
-	if (($use_strand == 0 or $self->strand eq $region2->strand) and ($self->rname eq $region2->rname) and (($self->start-$span) <= $region2->stop) and ($region2->start <= ($self->stop+$span))) {
+	if (($use_strand == 0 or $self->strand == $region2->strand) and ($self->rname eq $region2->rname) and (($self->start-$span) <= $region2->stop) and ($region2->start <= ($self->stop+$span))) {
 		return 1; #overlap
 	}
 	else {
@@ -192,26 +192,15 @@ sub overlap_length {
 }
 
 sub contains {
-	my ($self,$region2,$params) = @_;
+	my ($self, $region2, $use_strand) = @_;
 	
-	if (!defined $params or UNIVERSAL::isa($params, 'HASH')) {
-		my $percent = defined $params->{PERCENT} ? $params->{PERCENT} : 1;
-		my $overhang = 0;
-		my $left_overhang = ($self->start - $region2->start);
-		my $right_overhang = ($region2->stop - $self->stop);
-		if ($left_overhang > 0) {
-			$overhang += $left_overhang;
-		}
-		if ($right_overhang > 0) {
-			$overhang += $right_overhang;
-		}
-		if (($overhang / $region2->length) <= (1-$percent)) {
-			return 1;
-		}
-		return 0;
+	$use_strand //= 1;
+	
+	if (($use_strand == 0 or $self->strand == $region2->strand) and ($self->rname eq $region2->rname) and ($self->start <= $region2->start) and ($region2->stop <= $self->stop)) {
+		return 1;
 	}
 	else {
-		die "\n\nUnknown or no method provided when calling ".(caller(0))[3]." in script $0\n\n";
+		return 0;
 	}
 }
 

@@ -257,7 +257,7 @@ sub overlap_length : Test(5) {
 	is $self->obj(12)->overlap_length($self->obj(13)), 0, "... and returns the correct value";
 }
 
-sub contains : Test(6) {
+sub contains : Test(7) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'contains';
@@ -266,6 +266,7 @@ sub contains : Test(6) {
 	is $self->obj(0)->contains($self->obj(6)), 0, "... and returns the correct value";
 	is $self->obj(6)->contains($self->obj(7)), 1, "... and returns the correct value";
 	is $self->obj(7)->contains($self->obj(6)), 0, "... and returns the correct value";
+	is $self->obj(12)->contains($self->obj(13)), 0, "... and returns the correct value";
 }
 
 sub contains_position : Test(5) {
@@ -319,7 +320,7 @@ sub test_objects {
 	push @test_objects, $test_class->class->new(strand => '+', chromosome => 'chr2', start => 11, stop => 20);
 	push @test_objects, $test_class->class->new(strand => '+', chromosome => 'chr2', start => 12, stop => 21);
 	push @test_objects, $test_class->class->new(strand => '+', chromosome => 'chr2', start => 13, stop => 20);
-	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr3', start => 21, stop => 30);
+	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr3', start => 21, stop => 30); # No 6
 	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr3', start => 22, stop => 30);
 	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr3', start => 23, stop => 30);
 	push @test_objects, $test_class->class->new(strand => '-', chromosome => 'chr4', start => 31, stop => 35);
