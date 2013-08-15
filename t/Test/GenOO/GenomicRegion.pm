@@ -234,7 +234,7 @@ sub to_string : Test(2) {
 	is $self->obj(0)->to_string, 'chr1:3-10:1', "... and returns the correct value";
 }
 
-sub overlaps : Test(8) {
+sub overlaps : Test(6) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'overlaps';
