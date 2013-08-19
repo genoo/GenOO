@@ -203,18 +203,23 @@ sub _parse_record_line {
 	my $comment_string = $1;
 	my ($seqname, $source, $feature, $start, $end, $score, $strand, $frame, $attributes_string) = split(/\t/,$line);
 	my @attributes = split(/;\s*/,$attributes_string);
+	my %attributes_hash;
+	foreach my $attribute (@attributes) {
+		$attribute =~ /(.+)="(.+)"/;
+		$attributes_hash{$1} = $2;
+	}
 	
 	return GenOO::Data::File::GFF::Record->new({
-		SEQNAME     => $seqname,
-		SOURCE      => $source,
-		FEATURE     => $feature,
-		START_1     => $start, # 1-based
-		STOP_1      => $end, # 1-based
-		SCORE       => $score,
-		STRAND      => $strand,
-		FRAME       => $frame,
-		ATTRIBUTES  => \@attributes,
-		COMMENT     => $comment_string,
+		seqname       => $seqname,
+		source        => $source,
+		feature       => $feature,
+		start_1_based => $start, # 1-based
+		stop_1_based  => $end, # 1-based
+		score         => $score,
+		strand        => $strand,
+		frame         => $frame,
+		attributes    => \%attributes_hash,
+		comment       => $comment_string,
 	});
 }
 
