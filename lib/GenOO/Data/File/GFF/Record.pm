@@ -9,170 +9,152 @@ GenOO::Data::File::GFF::Record - Object representing a record of a gff file
     # Object representing a record of a gff file 
 
     # To initialize 
-    my $record = GenOO::Data::File::GFF::Record->new({
-        SEQNAME      => undef,
-        SOURCE       => undef,
-        FEATURE      => undef,
-        START_1      => undef,
-        STOP_1       => undef,
-        SCORE        => undef,
-        STRAND       => undef,
-        FRAME        => undef,
-        ATTRIBUTES   => undef,
-        COMMENT      => undef,
-        EXTRA_INFO   => undef,
-    });
+    my $record = GenOO::Data::File::GFF::Record->new(
+        seqname       => undef,
+        source        => undef,
+        feature       => undef,
+        start_1_based => undef,
+        stop_1_based  => undef,
+        score         => undef,
+        strand        => undef,
+        frame         => undef,
+        attributes    => undef,
+        comment       => undef,
+        extra_info    => undef,
+    );
 
 
 =head1 DESCRIPTION
 
     This object represents a record of a gff file and offers methods for accessing the different attributes.
-    It implements several additional methods that transform original attributes in more manageable attributes.
+    It transforms original attributes into ones compatible with the rest of the framework eg 1-based to 0-based.
 
 =head1 EXAMPLES
 
     # Return 1 or -1 for the strand
     my $strand = $record->strand();
 
-=head1 AUTHOR - Manolis Maragkakis
-
-Email em.maragkakis@gmail.com
-
 =cut
 
 # Let the code begin...
 
+
 package GenOO::Data::File::GFF::Record;
-use strict;
 
-use base qw( GenOO::_Initializable );
-
-our $VERSION = '1.0';
-
-sub _init {
-	my ($self,$data) = @_;
-	
-	$self->set_seqname($$data{SEQNAME});       # The name of the sequence.
-	$self->set_source($$data{SOURCE});         # The source of this feature.
-	$self->set_feature($$data{FEATURE});       # The feature type name.
-	$self->set_start($$data{START_1});         # 1-based
-	$self->set_stop($$data{STOP_1});           # 1-based
-	$self->set_score($$data{SCORE});           # A floating point value.
-	$self->set_strand($$data{STRAND});         # One of '+', '-' or '.'.
-	$self->set_frame($$data{FRAME});           # '0', '1', '2', '.'. Specifies if region is in frame
-	$self->set_attributes($$data{ATTRIBUTES}); # Array reference with tag-value strings
-	$self->set_comment($$data{COMMENT});       # A comment
-}
 
 #######################################################################
-########################   Attribute Setters   ########################
+#######################   Load External modules   #####################
 #######################################################################
-sub set_seqname {
-	my ($self,$value) = @_;
-	$self->{SEQNAME} = $value if defined $value;
-}
-sub set_source {
-	my ($self,$value) = @_;
-	$self->{SOURCE} = $value if defined $value;
-}
-sub set_feature {
-	my ($self,$value) = @_;
-	$self->{FEATURE} = $value if defined $value;
-}
-sub set_start {
-	my ($self,$value) = @_;
-	$self->{START} = $value - 1 if defined $value;
-}
-sub set_stop {
-	my ($self,$value) = @_;
-	$self->{STOP} = $value - 1 if defined $value;
-}
-sub set_score {
-	my ($self,$value) = @_;
-	$self->{SCORE} = $value if defined $value;
-}
-sub set_strand {
-	my ($self,$value) = @_;
-	if (defined $value) {
-		$value =~ s/^\+$/1/;
-		$value =~ s/^\-$/-1/;
-		$value =~ s/^\.$/0/;
-		$self->{STRAND} = $value;
-	}
-}
-sub set_frame {
-	my ($self,$value) = @_;
-	$self->{FRAME} = $value if defined $value;
-}
-sub set_attributes {
-	my ($self,$value) = @_;
-	
-	if (defined $value) {
-		unless (exists $self->{ATTRIBUTES}) {
-			$self->{ATTRIBUTES} = {};
-		}
-		foreach my $attribute_var (@$value) {
-			$attribute_var =~ /(.+)="(.+)"/;
-			$self->attributes->{$1} = $2;
-		}
-	}
-}
-sub set_comment {
-	my ($self,$value) = @_;
-	$self->{COMMENT} = $value if defined $value;
-}
+use Moose;
+use Moose::Util::TypeConstraints;
+use namespace::autoclean;
+
 
 #######################################################################
-########################   Attribute Getters   ########################
+#######################   Subtypes & Coercions   ######################
 #######################################################################
-sub seqname {
-	my ($self) = @_;
-	return $self->{SEQNAME};
-}
-sub source {
-	my ($self) = @_;
-	return $self->{SOURCE};
-}
-sub feature {
-	my ($self) = @_;
-	return $self->{FEATURE};
-}
-sub start {
-	my ($self) = @_;
-	return $self->{START};
-}
-sub stop {
-	my ($self) = @_;
-	return $self->{STOP};
-}
-sub score {
-	my ($self) = @_;
-	return $self->{SCORE};
-}
-sub strand {
-	my ($self) = @_;
-	return $self->{STRAND};
-}
-sub frame {
-	my ($self) = @_;
-	return $self->{FRAME};
-}
-sub attributes {
-	my ($self) = @_;
-	return $self->{ATTRIBUTES};
-}
-sub comment {
-	my ($self) = @_;
-	return $self->{COMMENT};
-}
+subtype 'GenOO::Data::File::GFF::Record::Strand', as 'Int', where {($_ == 1) or ($_ == -1) or ($_ == 0)};
+coerce 'GenOO::Data::File::GFF::Record::Strand', from 'Str', via { _sanitize_strand($_) };
+
+
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+has 'seqname' => (
+	isa      => 'Str',
+	is       => 'ro',
+	required => 1
+); # The name of the sequence
+
+has 'source' => (
+	isa      => 'Str',
+	is       => 'ro',
+	required => 1
+); # The source of the feature
+
+has 'feature' => (
+	isa      => 'Str',
+	is       => 'ro',
+	required => 1
+); # The feature type name
+
+has 'start_1_based' => (
+	isa      => 'Int',
+	is       => 'ro',
+	required => 1
+); # 1-based
+
+has 'stop_1_based' => (
+	isa      => 'Int',
+	is       => 'ro',
+	required => 1
+); # 1-based
+
+has 'score' => (
+	is       => 'ro',
+	required => 1
+); # A floating point value.
+
+has 'strand' => (
+	isa      => 'GenOO::Data::File::GFF::Record::Strand',
+	is       => 'ro',
+	required => 1,
+	coerce => 1
+); # One of +, - or .
+
+has 'frame' => (
+	is       => 'ro',
+	required => 1
+); # 0, 1, 2, .. Is region in frame?
+
+has 'comment' => (
+	isa      => 'Maybe[Str]',
+	is       => 'ro',
+	required => 1
+); # A comment
+
+has 'attributes' => (
+	traits    => ['Hash'],
+	is        => 'ro',
+	isa       => 'HashRef[Str]',
+	default   => sub { {} },
+	handles   => {
+		set_attribute => 'set',
+		attribute     => 'get',
+	},
+); # Hash with attribute-value (strings)
+
+has 'rname' => (
+	isa      => 'Str',
+	is       => 'ro',
+	builder  => '_set_rname',
+	lazy     => 1
+);
+
+has 'start' => (
+	isa      => 'Int',
+	is       => 'ro',
+	builder  => '_calculate_start',
+	lazy     => 1
+);
+
+has 'stop' => (
+	isa      => 'Int',
+	is       => 'ro',
+	builder  => '_calculate_stop',
+	lazy     => 1
+);
+
+with 'GenOO::Region';
+
 
 #######################################################################
 ############################   Accessors   ############################
 #######################################################################
-sub length {
-	my ($self) = @_;
-	return $self->stop - $self->start + 1;
+sub copy_number {
+	return 1;
 }
+
 sub strand_symbol {
 	my ($self) = @_;
 	
@@ -192,17 +174,40 @@ sub strand_symbol {
 		return undef;
 	}
 }
-sub attribute {
-	my ($self, $attribute) = @_;
-	
-	if (defined $self->attributes and defined $attribute) {
-		return $self->attributes->{$attribute};
-	}
-	return;
-}
 
 #######################################################################
-#########################   General Methods   #########################
+#########################   Private methods  ##########################
 #######################################################################
+sub _sanitize_strand {
+	my ($value) = @_;
+	
+	if ($value eq '+') {
+		return 1;
+	}
+	elsif ($value eq '-') {
+		return -1;
+	}
+	elsif ($value eq '.') {
+		return 0;
+	}
+}
+
+sub _set_rname {
+	my ($self) = @_;
+	
+	return $self->seqname;
+}
+
+sub _calculate_start {
+	my ($self) = @_;
+	
+	return $self->start_1_based - 1;
+}
+
+sub _calculate_stop {
+	my ($self) = @_;
+	
+	return $self->stop_1_based - 1;
+}
 
 1;
