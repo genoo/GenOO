@@ -20,7 +20,7 @@ sub new_object : Test(setup) {
 	my ($self) = @_;
 	
 	$self->{OBJ} = GenOO::Data::Structure::DoubleHashArray->new(
-		sorting_code_block => sub {return $_[0] <=> $_[1]}
+		SORTING_CODE_BLOCK => sub {return $_[0] <=> $_[1]}
 	);
 	$self->obj->add_entry(1, 'chr1', 1);
 	$self->obj->add_entry(1, 'chr1', 3);
@@ -152,13 +152,15 @@ sub is_not_empty : Test(3) {
 	is $self->obj->is_not_empty, 1, "... and should return the correct value";
 }
 
-sub sort_entries : Test(3) {
+sub sort_entries : Test(5) {
 	my ($self) = @_;
 	
 	can_ok $self->obj, 'sort_entries';
-	is_deeply $self->obj->entries_ref_for_keys(1,'chr1'), [1,3,2], "... and should start unsorted";
+	is $self->obj->is_not_sorted, 1, "... and initially should say that it is unsorted";
+	is_deeply $self->obj->entries_ref_for_keys(1,'chr1'), [1,3,2], "... and should be unsorted";
 	$self->obj->sort_entries;
-	is_deeply $self->obj->entries_ref_for_keys(1,'chr1'), [1,2,3], "... and should get sorted";
+	is $self->obj->is_sorted, 1, "... and then it should say that it is sorted";
+	is_deeply $self->obj->entries_ref_for_keys(1,'chr1'), [1,2,3], "... and should be sorted";
 }
 
 
