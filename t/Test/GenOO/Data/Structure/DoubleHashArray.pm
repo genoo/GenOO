@@ -19,16 +19,18 @@ sub _check_loading : Test(startup => 1) {
 sub new_object : Test(setup) {
 	my ($self) = @_;
 	
-	$self->{OBJ} = GenOO::Data::Structure::DoubleHashArray->new();
+	$self->{OBJ} = GenOO::Data::Structure::DoubleHashArray->new(
+		SORTING_CODE_BLOCK => sub {return $_[0] <=> $_[1]}
+	);
 	$self->obj->add_entry(1, 'chr1', 1);
-	$self->obj->add_entry(1, 'chr1', 2);
 	$self->obj->add_entry(1, 'chr1', 3);
+	$self->obj->add_entry(1, 'chr1', 2);
 	$self->obj->add_entry(1, 'chr2', 11);
 	$self->obj->add_entry(1, 'chr2', 12);
 	$self->obj->add_entry(1, 'chr2', 13);
 	$self->obj->add_entry(-1, 'chr3', 21);
-	$self->obj->add_entry(-1, 'chr3', 22);
 	$self->obj->add_entry(-1, 'chr3', 23);
+	$self->obj->add_entry(-1, 'chr3', 22);
 	$self->obj->add_entry(-1, 'chr4', 31);
 	$self->obj->add_entry(-1, 'chr4', 32);
 	$self->obj->add_entry(-1, 'chr4', 33);
@@ -46,8 +48,8 @@ sub _isa_test : Test(1) {
 sub structure : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'structure';
-	isa_ok $self->obj->structure, 'HASH', "... and returned object";
+	can_ok $self->obj, '_structure';
+	isa_ok $self->obj->_structure, 'HASH', "... and returned object";
 }
 
 sub entries_count : Test(2) {
@@ -55,16 +57,6 @@ sub entries_count : Test(2) {
 	
 	can_ok $self->obj, 'entries_count';
 	is $self->obj->entries_count, 12, "... and should return the correct value";
-}
-
-sub init : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj, 'init';
-	
-	$self->obj->init;
-	my @primary_keys = $self->obj->primary_keys;
-	is @primary_keys, 0, "... and should be empty";
 }
 
 sub foreach_entry_do : Test(2) {
@@ -106,12 +98,12 @@ sub add_entry : Test(2) {
 	is $self->obj->entries_count, 13, "... and should result in the correct number of entries";
 }
 
-sub increment_entries_count : Test(2) {
+sub inc_entries_count : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj, 'increment_entries_count';
+	can_ok $self->obj, '_inc_entries_count';
 	
-	$self->obj->increment_entries_count;
+	$self->obj->_inc_entries_count;
 	is $self->obj->entries_count, 13, "... and should result in the correct number of entries";
 }
 
@@ -141,7 +133,7 @@ sub entries_ref_for_keys : Test(2) {
 	my ($self) = @_;
 	
 	can_ok $self->obj, 'entries_ref_for_keys';
-	is_deeply $self->obj->entries_ref_for_keys(1,'chr1'), [1,2,3], "... and should return the correct value";
+	is_deeply $self->obj->entries_ref_for_keys(1,'chr1'), [1,3,2], "... and should return the correct value";
 }
 
 sub is_empty : Test(3) {
@@ -158,6 +150,17 @@ sub is_not_empty : Test(3) {
 	can_ok $self->obj, 'is_not_empty';
 	is GenOO::Data::Structure::DoubleHashArray->new->is_not_empty, 0, "... and should return the correct value";
 	is $self->obj->is_not_empty, 1, "... and should return the correct value";
+}
+
+sub sort_entries : Test(5) {
+	my ($self) = @_;
+	
+	can_ok $self->obj, 'sort_entries';
+	is $self->obj->is_not_sorted, 1, "... and initially should say that it is unsorted";
+	is_deeply $self->obj->entries_ref_for_keys(1,'chr1'), [1,3,2], "... and should be unsorted";
+	$self->obj->sort_entries;
+	is $self->obj->is_sorted, 1, "... and then it should say that it is sorted";
+	is_deeply $self->obj->entries_ref_for_keys(1,'chr1'), [1,2,3], "... and should be sorted";
 }
 
 

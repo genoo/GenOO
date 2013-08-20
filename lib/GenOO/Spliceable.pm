@@ -138,14 +138,14 @@ sub exon_exon_junctions {
 	
 	my $junctions_count = @junction_starts == @junction_stops ? @junction_starts : die "Junctions starts are not of the same size as junction stops\n";
 	for (my $i=0;$i<$junctions_count;$i++) {
-		push @junctions, GenOO::Junction->new({
-			SPECIES      => $self->species,
-			STRAND       => $self->strand,
-			CHR          => $self->rname,
-			START        => $junction_starts[$i],
-			STOP         => $junction_stops[$i],
-			SLICE        => $self,
-		});
+		push @junctions, GenOO::Junction->new(
+			species      => $self->species,
+			strand       => $self->strand,
+			chromosome   => $self->chromosome,
+			start        => $junction_starts[$i],
+			stop         => $junction_stops[$i],
+			part_of      => $self,
+		);
 	}
 	return \@junctions;
 }
