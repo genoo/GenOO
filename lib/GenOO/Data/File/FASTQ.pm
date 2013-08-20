@@ -28,19 +28,52 @@ GenOO::Data::File::FASTQ - Object implementing methods for accessing fastq forma
 
 package GenOO::Data::File::FASTQ;
 
+
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
 use Modern::Perl;
 use Moose;
 use namespace::autoclean;
+
+
+#######################################################################
+#########################   Load GenOO modules   ######################
+#######################################################################
 use GenOO::Data::File::FASTQ::Record;
 
-has 'file'  => (isa => 'Maybe[Str]', is => 'rw', required => 1);
 
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+has 'file'  => (
+	isa      => 'Maybe[Str]',
+	is       => 'rw',
+	required => 1
+);
+
+has 'records_read_count' => (
+	traits  => ['Counter'],
+	is      => 'ro',
+	isa     => 'Num',
+	default => 0,
+	handles => {
+		_inc_records_read_count   => 'inc',
+		_reset_records_read_count => 'reset',
+	},
+);
+
+
+#######################################################################
+########################   Private attributes   #######################
+#######################################################################
 has '_filehandle' => (
 	is        => 'ro',
 	builder   => '_open_filehandle',
 	init_arg  => undef,
 	lazy      => 1,
 );
+
 
 #######################################################################
 ########################   Interface Methods   ########################
@@ -56,6 +89,7 @@ sub next_record {
 			$filehandle->getline; #unused line
 			my $quality = $filehandle->getline; chomp($quality);
 			
+			$self->_inc_records_read_count;
 			return $self->_create_record($id, $seq, $quality);
 		}
 	}
