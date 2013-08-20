@@ -26,66 +26,95 @@ GenOO::Data::Structure::DoubleHashArray - Object for a data structure which corr
 # Let the code begin...
 
 package GenOO::Data::Structure::DoubleHashArray;
-use strict;
 
-use base qw(GenOO::_Initializable);
-
-sub _init {
-	my ($self,$data) = @_;
-	
-	$self->set_sorting_code_block($$data{SORTING_CODE_BLOCK});
-	$self->init;
-	
-	return $self;
-}
 
 #######################################################################
-########################   Accessor Methods   #########################
+#######################   Load External modules   #####################
 #######################################################################
-sub sorting_code_block {
-	my ($self) = @_;
-	return $self->{SORTING_CODE_BLOCK};
-}
+use Modern::Perl;
+use autodie;
+use Moose;
+use namespace::autoclean;
 
-sub structure {
-	my ($self) = @_;
-	return $self->{STRUCTURE};
-}
 
-sub entries_count {
-	my ($self) = @_;
-	return $self->{ENTRY_COUNT};
-}
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+has 'sorting_code_block' => (
+	isa      => 'CodeRef',
+	is       => 'ro',
+	default  => sub {sub {return $_[0]->start <=> $_[1]->start}}
+);
 
-sub sorted {
-	my ($self) = @_;
-	return $self->{SORTED};
-}
+has 'entries_count' => (
+	traits  => ['Counter'],
+	is      => 'ro',
+	isa     => 'Num',
+	default => 0,
+	handles => {
+		_inc_entries_count   => 'inc',
+		_reset_entries_count => 'reset',
+	},
+);
+
+
+#######################################################################
+########################   Private attributes   #######################
+#######################################################################
+has '_structure' => (
+	traits    => ['Hash'],
+	is        => 'ro',
+	isa       => 'HashRef[HashRef[ArrayRef]]',
+	default   => sub { {} },
+);
+
+has '_is_sorted' => (
+	traits  => ['Bool'],
+	is      => 'rw',
+	isa     => 'Bool',
+	default => 0,
+	handles => {
+		_set_is_sorted   => 'set',
+		_unset_is_sorted => 'unset',
+		_is_not_sorted   => 'not',
+	},
+);
+
+
+#######################################################################
+###############################   BUILD   #############################
+#######################################################################
+around BUILDARGS => sub {
+	my $orig  = shift;
+	my $class = shift;
+	
+	my $argv_hash_ref = $class->$orig(@_);
+	
+	if (exists $argv_hash_ref->{SORTING_CODE_BLOCK}) {
+		$argv_hash_ref->{sorting_code_block} = delete $argv_hash_ref->{SORTING_CODE_BLOCK};
+		warn 'Deprecated use of "SORTING_CODE_BLOCK" in GenOO::Data::Structure::DoubleHashArray constructor. '.
+		     'Use "sorting_code_block" instead.'."\n";
+	}
+	
+	return $argv_hash_ref;
+};
+
 
 #######################################################################
 #########################   General Methods   #########################
 #######################################################################
-sub set_sorting_code_block {
-	my ($self, $block) = @_;
-	$self->{SORTING_CODE_BLOCK} = $block;
-}
-
-sub init {
-	my ($self) = @_;
-	$self->{STRUCTURE} = {};
-}
-
 sub reset {
 	my ($self) = @_;
-	delete $self->{SORTED};
+	
+	$self->_unset_is_sorted
 }
 
 sub foreach_entry_do {
 	my ($self, $block) = @_;
 	
-	foreach my $primary_key (keys %{$self->structure}) {
-		foreach my $secondary_key (keys %{$self->structure->{$primary_key}}) {
-			foreach my $entry (@{$self->structure->{$primary_key}->{$secondary_key}}) {
+	foreach my $primary_key (keys %{$self->_structure}) {
+		foreach my $secondary_key (keys %{$self->_structure->{$primary_key}}) {
+			foreach my $entry (@{$self->_structure->{$primary_key}->{$secondary_key}}) {
 				$block->($entry);
 			}
 		}
@@ -95,9 +124,9 @@ sub foreach_entry_do {
 sub foreach_entry_on_secondary_key_do {
 	my ($self, $secondary_key, $block) = @_;
 	
-	foreach my $primary_key (keys %{$self->structure}) {
-		next if not defined $self->structure->{$primary_key}->{$secondary_key};
-		foreach my $entry (@{$self->structure->{$primary_key}->{$secondary_key}}) {
+	foreach my $primary_key (keys %{$self->_structure}) {
+		next if not defined $self->_structure->{$primary_key}->{$secondary_key};
+		foreach my $entry (@{$self->_structure->{$primary_key}->{$secondary_key}}) {
 			$block->($entry);
 		}
 	}
@@ -106,27 +135,22 @@ sub foreach_entry_on_secondary_key_do {
 sub add_entry {
 	my ($self, $primary_key, $secondary_key, $entry) = @_;
 	
-	unless (exists $self->structure->{$primary_key}) {
-		$self->structure->{$primary_key} = {};
+	unless (exists $self->_structure->{$primary_key}) {
+		$self->_structure->{$primary_key} = {};
 	}
-	push @{$self->structure->{$primary_key}->{$secondary_key}},$entry;
-	$self->increment_entries_count;
+	push @{$self->_structure->{$primary_key}->{$secondary_key}},$entry;
+	$self->_inc_entries_count;
 	$self->reset;
-}
-
-sub increment_entries_count {
-	my ($self) = @_;
-	$self->{ENTRY_COUNT}++;
 }
 
 sub primary_keys {
 	my ($self) = @_;
-	return sort keys %{$self->structure};
+	return sort keys %{$self->_structure};
 }
 
 sub secondary_keys_for_primary_key {
 	my ($self, $primary_key) = @_;
-	return sort keys %{$self->structure->{$primary_key}};
+	return sort keys %{$self->_structure->{$primary_key}};
 }
 
 sub secondary_keys_for_all_primary_keys {
@@ -144,8 +168,8 @@ sub secondary_keys_for_all_primary_keys {
 sub entries_ref_for_keys {
 	my ($self, $primary_key, $secondary_key) = @_;
 	
-	if (exists $self->structure->{$primary_key}) {
-		return $self->structure->{$primary_key}->{$secondary_key};
+	if (exists $self->_structure->{$primary_key}) {
+		return $self->_structure->{$primary_key}->{$secondary_key};
 	}
 	else {
 		return undef;
@@ -177,20 +201,15 @@ sub is_not_empty {
 sub sort_entries {
 	my ($self) = @_;
 	
-	if (not $self->sorted) {
-		foreach my $primary_key (keys %{$self->structure}) {
-			foreach my $secondary_key (keys %{$self->structure->{$primary_key}}) {
-				my $entries_ref = $self->structure->{$primary_key}->{$secondary_key};
+	if ($self->_is_not_sorted) {
+		foreach my $primary_key (keys %{$self->_structure}) {
+			foreach my $secondary_key (keys %{$self->_structure->{$primary_key}}) {
+				my $entries_ref = $self->_structure->{$primary_key}->{$secondary_key};
 				@$entries_ref = sort {$self->sorting_code_block->($a,$b)} @$entries_ref;
 			}
 		}
-		$self->set_sorted();
+		$self->_set_is_sorted();
 	}
-}
-
-sub set_sorted {
-	my ($self) = @_;
-	$self->{SORTED} = 1;
 }
 
 1;
