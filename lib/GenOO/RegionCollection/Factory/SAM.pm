@@ -62,9 +62,9 @@ sub read_collection {
 	
 	my $collection = GenOO::RegionCollection::Type::DoubleHashArray->new;
 	
-	my $parser = GenOO::Data::File::SAM->new({
-		FILE => $self->file,
-	});
+	my $parser = GenOO::Data::File::SAM->new(
+		file => $self->file,
+	);
 	while (my $record = $parser->next_record) {
 		if ($record->is_mapped) {
 			$collection->add_record($record);

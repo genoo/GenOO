@@ -194,7 +194,7 @@ sub total_copy_number {
 #######################################################################
 sub _build_container {
 	return GenOO::Data::Structure::DoubleHashArray->new({
-		SORTING_CODE_BLOCK => sub {return $_[0]->start <=> $_[1]->start}
+		sorting_code_block => sub {return $_[0]->start <=> $_[1]->start}
 	});
 }
 
