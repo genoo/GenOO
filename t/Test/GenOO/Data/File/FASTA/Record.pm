@@ -59,6 +59,14 @@ sub length : Test(3) {
 	is $self->obj(1)->length, 25, "... and returns the correct value";
 }
 
+sub to_string : Test(3) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'to_string';
+	is $self->obj(0)->to_string, ">test1\nCGATGCTAGCTAGCTGATCG", "... and returns the correct value";
+	is $self->obj(1)->to_string, ">test2\nctagCTGATCTAGCTAATggccgat", "... and returns the correct value";
+}
+
 #######################################################################
 ###############   Class method to create test objects   ###############
 #######################################################################
