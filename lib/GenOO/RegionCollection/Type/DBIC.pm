@@ -73,7 +73,7 @@ has 'schema' => (
 );
 
 has 'resultset' => (
-	is        => 'ro',
+	is        => 'rw',
 	builder   => '_init_resultset',
 	init_arg  => undef,
 	lazy      => 1,
@@ -211,6 +211,13 @@ sub total_copy_number {
 	return $self->resultset->get_column('copy_number')->sum || 0;
 }
 
+sub filter_by_length {
+	my ($self, $min_length, $max_length) = @_;
+	
+	my $rs = $self->resultset->search(\[ '(stop - start + 1) BETWEEN ? AND ?', [ plain_value => $min_length],  [ plain_value => $max_length] ]);
+	$self->resultset($rs);
+}
+
 #######################################################################
 #########################   Private methods  ##########################
 #######################################################################
@@ -220,6 +227,7 @@ sub _init_schema {
 	my $connection_str = 'dbi:'.$self->driver.':dbname='.$self->database.';host='.$self->host.';port='.$self->port;
 	
 	return GenOO::Data::DB::DBIC::Species::Schema->connect($connection_str, $self->user, $self->password);
+# 	return GenOO::Data::DB::DBIC::Species::Schema->connect($connection_str, $self->user, $self->password, {quote_names => 1});
 }
 
 sub _init_resultset {

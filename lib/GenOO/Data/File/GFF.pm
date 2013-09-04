@@ -2,17 +2,16 @@
 
 =head1 NAME
 
-GenOO::Data::File::GFF - Object implementing methods for accessing gff formatted files (http://www.sanger.ac.uk/resources/software/gff/spec.html)
+GenOO::Data::File::GFF - Object implementing methods for accessing GFF formatted files (http://www.sanger.ac.uk/resources/software/gff/spec.html)
 
 =head1 SYNOPSIS
 
     # Object that manages a gff file. 
 
     # To initialize 
-    my $gff_file = GenOO::Data::File::GFF->new({
-        FILE            => undef,
-        EXTRA_INFO      => undef,
-    });
+    my $gff_file = GenOO::Data::File::GFF->new(
+        file            => undef,
+    );
 
 
 =head1 DESCRIPTION
@@ -22,9 +21,9 @@ GenOO::Data::File::GFF - Object implementing methods for accessing gff formatted
 =head1 EXAMPLES
 
     # Create object
-    my $gff_file = GenOO::Data::File::GFF->new({
-          FILE => 't/sample_data/sample.gff.gz'
-    });
+    my $gff_file = GenOO::Data::File::GFF->new(
+          file => 't/sample_data/sample.gff.gz'
+    );
     
     # Read one record at a time
     my $record = $gff_file->next_record();
@@ -33,191 +32,170 @@ GenOO::Data::File::GFF - Object implementing methods for accessing gff formatted
 
 # Let the code begin...
 
-package GenOO::Data::File::GFF;
-use strict;
-use FileHandle;
 
+package GenOO::Data::File::GFF;
+
+
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
+use Modern::Perl;
+use autodie;
+use Moose;
+use namespace::autoclean;
+
+
+#######################################################################
+#########################   Load GenOO modules   ######################
+#######################################################################
 use GenOO::Data::File::GFF::Record;
 
-use base qw(GenOO::_Initializable);
 
-our $VERSION = '1.0';
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+has 'file'  => (isa => 'Maybe[Str]', is => 'rw', required => 1);
 
-sub _init {
-	my ($self,$data) = @_;
+has 'records_read_count' => (
+	traits  => ['Counter'],
+	is      => 'ro',
+	isa     => 'Num',
+	default => 0,
+	handles => {
+		_inc_records_read_count   => 'inc',
+		_reset_records_read_count => 'reset',
+	},
+);
+
+
+#######################################################################
+########################   Private attributes   #######################
+#######################################################################
+has '_filehandle' => (
+	is        => 'ro',
+	builder   => '_open_filehandle',
+	init_arg  => undef,
+	lazy      => 1,
+);
+
+has '_eof_reached' => (
+	is        => 'rw',
+	default   => 0,
+	init_arg  => undef,
+	lazy      => 1,
+);
+
+has '_header' => (
+	is        => 'ro',
+	default   => sub {{}},
+	init_arg  => undef,
+	lazy      => 1,
+);
+
+has '_cached_records' => (
+	traits  => ['Array'],
+	is      => 'ro',
+	isa     => 'ArrayRef[GenOO::Data::File::GFF::Record]',
+	default => sub { [] },
+	handles => {
+		_all_cached_records    => 'elements',
+		_add_record_in_cache   => 'push',
+		_shift_cached_record   => 'shift',
+		_has_cached_records    => 'count',
+		_has_no_cached_records => 'is_empty',
+	},
+);
+
+
+#######################################################################
+###############################   BUILD   #############################
+#######################################################################
+sub BUILD {
+	my $self = shift;
 	
-	$self->set_file($$data{FILE});
-	$self->set_extra($$data{EXTRA_INFO});
+	$self->_parse_header_section;
+}
+
+around BUILDARGS => sub {
+	my $orig  = shift;
+	my $class = shift;
 	
-	$self->open($self->file);
+	my $argv_hash_ref = $class->$orig(@_);
 	
-	$self->init_header;
-	$self->init_records_cache;
-	$self->init_records_read_count;
+	if (exists $argv_hash_ref->{FILE}) {
+		my $file = delete $argv_hash_ref->{FILE};
+		$argv_hash_ref->{file} = $file;
+		warn 'Deprecated use of "FILE" in GenOO::Data::File::GFF constructor. Use "file" instead.'."\n";
+	}
 	
-	$self->parse_header_section;
-}
+	return $argv_hash_ref;
+};
 
-sub open {
-	my ($self, $filename) = @_;
+
+#######################################################################
+########################   Interface Methods   ########################
+#######################################################################
+sub next_record {
+	my ($self) = @_;
 	
-	my $read_mode = ($filename !~ /\.gz$/) ? '<' : '<:gzip';
-	$self->{FILEHANDLE} = FileHandle->new($filename, $read_mode) or die "Cannot open file \"$filename\". $!";
-}
-
-#######################################################################
-########################   Attribute Setters   ########################
-#######################################################################
-sub set_file {
-	my ($self, $value) = @_;
-	$self->{FILE} = $value if defined $value;
-}
-
-sub set_eof {
-	my ($self) = @_;
-	$self->{EOF} = 1;
-}
-#######################################################################
-########################   Attribute Getters   ########################
-#######################################################################
-sub file {
-	my ($self) = @_;
-	return $self->{FILE};
-}
-
-sub eof {
-	my ($self) = @_;
-	return $self->{EOF};
-}
-
-#######################################################################
-############################   Accessors   ############################
-#######################################################################
-sub filehandle {
-	my ($self) = @_;
-	return $self->{FILEHANDLE};
-}
-
-sub header {
-	my ($self) = @_;
-	return $self->{HEADER};
-}
-
-sub records_cache {
-	my ($self) = @_;
-	return $self->{RECORDS_CACHE};
-}
-
-sub records_read_count {
-	my ($self) = @_;
-	return $self->{RECORDS_READ_COUNT};
+	my $record;
+	if ($self->_has_cached_records) {
+		$record = $self->_shift_cached_record;
+	}
+	else {
+		$record = $self->_next_record_from_file;
+	}
+	
+	if (defined $record) {
+		$self->_inc_records_read_count;
+	}
+	return $record;
 }
 
 sub version {
 	my ($self) = @_;
-	return $self->header->{VERSION};
+	return $self->_header->{VERSION};
 }
+
 
 #######################################################################
-#########################   General Methods   #########################
+#########################   Private Methods   #########################
 #######################################################################
-sub init_header {
-	my ($self) = @_;
-	$self->{HEADER} = {};
-}
-
-sub init_records_cache {
-	my ($self) = @_;
-	$self->{RECORDS_CACHE} = [];
-}
-
-sub init_records_read_count {
-	my ($self) = @_;
-	$self->{RECORDS_READ_COUNT} = 0;
-}
-
-sub increment_records_read_count {
-	my ($self) = @_;
-	$self->{RECORDS_READ_COUNT}++;
-}
-
-sub parse_header_section {
+sub _parse_header_section {
 	my ($self) = @_;
 	
-	my $filehandle = $self->filehandle;
+	my $filehandle = $self->_filehandle;
 	while (my $line = $filehandle->getline) {
-		if ($self->line_looks_like_header($line)) {
-			$self->recognize_and_store_header_line($line);
+		if ($self->_line_looks_like_header($line)) {
+			$self->_recognize_and_store_header_line($line);
 		}
-		elsif ($self->line_looks_like_record($line)) {
-			$self->add_to_records_cache($line); # unfortunatelly the while reads the first line after the header section and in zipped files we cannot go back
+		elsif ($self->_line_looks_like_record($line)) {
+			# When the while reads the first line after the header section
+			# we need to process it immediatelly because in zipped files we cannot go back
+			my $record = $self->_parse_record_line($line);
+			$self->_add_record_in_cache($record); 
 			return;
 		}
 	}
 }
 
-sub recognize_and_store_header_line {
-	my ($self, $line) = @_;
-	if ($self->line_looks_like_version($line)) {
-		$self->parse_and_store_version_line($line);
-		
-	}
-	else {
-		$self->parse_and_store_generic_header_line($line);
-	}
-}
-
-sub add_to_records_cache {
-	my ($self, $line) = @_;
-	push @{$self->{RECORDS_CACHE}}, $line,
-}
-
-sub next_record {
+sub _next_record_from_file {
 	my ($self) = @_;
 	
-	my $record;
-	if ($self->record_cache_not_empty) {
-		$record = $self->next_record_from_cache;
-	}
-	else {
-		$record = $self->next_record_from_file;
-	}
-	
-	if (defined $record) {
-		$self->increment_records_read_count;
-	}
-	return $record;
-}
-
-sub next_record_from_file {
-	my ($self) = @_;
-	
-	while (my $line = $self->filehandle->getline) {
-		if ($self->line_looks_like_record($line)) {
-			return $self->parse_record_line($line);
+	while (my $line = $self->_filehandle->getline) {
+		if ($self->_line_looks_like_record($line)) {
+			return $self->_parse_record_line($line);
 		}
-		elsif ($self->line_looks_like_header) {
+		elsif ($self->_line_looks_like_header) {
 			die "A record was expected but line looks like a header - the header should have been parsed already. $line\n";
 		}
 	}
 	
-	$self->set_eof; # When you reach this point the file has finished
+	$self->_eof_reached(1); # When you reach this point the file has finished
 	return undef;
 }
 
-sub next_record_from_cache {
-	my ($self) = @_;
-	
-	my $line = shift @{$self->{RECORDS_CACHE}};
-	if (defined $line) {
-		return $self->parse_record_line($line);
-	}
-	else {
-		return undef;
-	}
-}
-
-sub parse_record_line {
+sub _parse_record_line {
 	my ($self, $line) = @_;
 	
 	chomp $line;
@@ -225,68 +203,82 @@ sub parse_record_line {
 	my $comment_string = $1;
 	my ($seqname, $source, $feature, $start, $end, $score, $strand, $frame, $attributes_string) = split(/\t/,$line);
 	my @attributes = split(/;\s*/,$attributes_string);
+	my %attributes_hash;
+	foreach my $attribute (@attributes) {
+		$attribute =~ /(.+)="(.+)"/;
+		$attributes_hash{$1} = $2;
+	}
 	
 	return GenOO::Data::File::GFF::Record->new({
-		SEQNAME     => $seqname,
-		SOURCE      => $source,
-		FEATURE     => $feature,
-		START_1     => $start, # 1-based
-		STOP_1      => $end, # 1-based
-		SCORE       => $score,
-		STRAND      => $strand,
-		FRAME       => $frame,
-		ATTRIBUTES  => \@attributes,
-		COMMENT     => $comment_string,
+		seqname       => $seqname,
+		source        => $source,
+		feature       => $feature,
+		start_1_based => $start, # 1-based
+		stop_1_based  => $end, # 1-based
+		score         => $score,
+		strand        => $strand,
+		frame         => $frame,
+		attributes    => \%attributes_hash,
+		comment       => $comment_string,
 	});
 }
 
-sub parse_and_store_version_line {
+sub _recognize_and_store_header_line {
+	my ($self, $line) = @_;
+	
+	if ($self->_line_looks_like_version($line)) {
+		$self->_parse_line_and_store_version($line);
+	}
+	else {
+		$self->_parse_and_store_generic_header_line($line);
+	}
+}
+
+sub _parse_line_and_store_version {
 	my ($self, $line) = @_;
 	
 	my $version = (split(/\s+/,$line))[1];
-	$self->header->{VERSION} = $version;
+	$self->_header->{VERSION} = $version;
 }
 
-sub parse_and_store_generic_header_line {
+sub _parse_and_store_generic_header_line {
 	my ($self, $line) = @_;
 	
-	my ($key,@values) = split(/\s+/,$line);
-	$self->header->{$key} = join(' ',@values);
+	my ($key, @values) = split(/\s+/,$line);
+	$self->_header->{$key} = join(' ', @values);
 }
 
-sub line_looks_like_comment {
-	my ($self, $line) = @_;
-	return ($line !~ /^#{2}/) ? 1 : 0;
-}
-
-sub line_looks_like_header {
+sub _line_looks_like_header {
 	my ($self, $line) = @_;
 	return ($line =~ /^#{2}/) ? 1 : 0;
 }
 
-sub line_looks_like_record {
+sub _line_looks_like_record {
 	my ($self, $line) = @_;
 	return ($line !~ /^#/) ? 1 : 0;
 }
 
-sub line_looks_like_version {
+sub _line_looks_like_version {
 	my ($self, $line) = @_;
 	return ($line =~ /^##gff-version/) ? 1 : 0;
 }
 
-sub record_cache_not_empty {
+sub _open_filehandle {
 	my ($self) = @_;
-	return ($self->record_cache_size > 0) ? 1 : 0;
-}
-
-sub record_cache_is_empty {
-	my ($self) = @_;
-	return ($self->record_cache_size == 0) ? 1 : 0;
-}
-
-sub record_cache_size {
-	my ($self) = @_;
-	return scalar @{$self->records_cache};
+	
+	my $read_mode;
+	if (!defined $self->file) {
+		$read_mode = '<-';
+	}
+	elsif ($self->file =~ /\.gz$/) {
+		$read_mode = '<:gzip';
+	}
+	else {
+		$read_mode = '<';
+	}
+	open (my $HANDLE, $read_mode, $self->file);
+	
+	return $HANDLE;
 }
 
 1;

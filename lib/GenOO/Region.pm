@@ -167,10 +167,8 @@ sub to_string {
 	
 	my $method = delete $params->{'METHOD'};
 	if (defined $method and ($method eq 'BED')) {
-		warn 'Deprecated call of "to_string" in '.
-		     (caller)[1].' line '.(caller)[2].'. '.
-		     'Classes implementing the role should '.
-		     'provide their own "to_string" method for advanced calls';
+		warn 'Deprecated call of "to_string" in '.(caller)[1].' line '.(caller)[2].'. '.
+		     'Classes implementing the role should provide their own "to_string" method for advanced calls';
 		return $self->_to_string_bed;
 	}
 	else {
@@ -178,30 +176,42 @@ sub to_string {
 	}
 }
 
-sub overlaps {
-	my ($self,$region2,$params) = @_;
+sub overlaps_with_offset {
+	my ($self, $region2, $use_strand, $offset) = @_;
 	
-	if ((!defined $params) or (UNIVERSAL::isa( $params, "HASH" ))){
-		my $offset = defined $params->{OFFSET} ? $params->{OFFSET} : 0;
-		my $use_strand = defined $params->{USE_STRAND} ? $params->{USE_STRAND} : 0;
-		
-		if ((($use_strand == 0) or ($self->strand eq $region2->strand)) and ($self->rname eq $region2->rname) and (($self->start-$offset) <= $region2->stop) and ($region2->start <= ($self->stop+$offset))) {
-			return 1; #overlap
-		}
-		else {
-			return 0; #no overlap
-		}
+	$offset //= 0;
+	$use_strand //= 1;
+	
+	if (($use_strand == 0 or $self->strand == $region2->strand) and ($self->rname eq $region2->rname) and (($self->start-$offset) <= $region2->stop) and ($region2->start <= ($self->stop+$offset))) {
+		return 1; #overlap
 	}
 	else {
-		die "\n\nUnknown or no method provided when calling ".(caller(0))[3]." in script $0\n\n";
+		return 0; #no overlap
 	}
 }
 
-=head2 get_overlap_length
-  Arg [1]    : locus. Locus object self is compared to.
-  Description: Return the number of nucleotides of self that are covered by provided locus
-  Returntype : int
-=cut
+sub overlaps {
+	my ($self, $region2, $use_strand) = @_;
+	
+	if (UNIVERSAL::isa($use_strand, 'HASH')) {
+		warn 'Deprecated use of HASH reference in method "overlaps" at '.(caller)[1].' line '.(caller)[2].'. ';
+		my $params = $use_strand;
+		if (defined $params->{OFFSET}) {
+			die 'OFFSET option is no longer supported for method "overlaps" in '.(caller)[1].' line '.(caller)[2].'. Use overlaps_with_offset instead.';
+		}
+		$use_strand = defined $params->{USE_STRAND} ? $params->{USE_STRAND} : 1;
+	}
+	
+	$use_strand //= 1;
+	
+	if (($use_strand == 0 or $self->strand == $region2->strand) and ($self->rname eq $region2->rname) and ($self->start <= $region2->stop) and ($region2->start <= $self->stop)) {
+		return 1; #overlap
+	}
+	else {
+		return 0; #no overlap
+	}
+}
+
 sub overlap_length {
 	my ($self, $region2) = @_;
 	
@@ -216,26 +226,15 @@ sub overlap_length {
 }
 
 sub contains {
-	my ($self,$region2,$params) = @_;
+	my ($self, $region2, $use_strand) = @_;
 	
-	if (!defined $params or UNIVERSAL::isa($params, 'HASH')) {
-		my $percent = defined $params->{PERCENT} ? $params->{PERCENT} : 1;
-		my $overhang = 0;
-		my $left_overhang = ($self->start - $region2->start);
-		my $right_overhang = ($region2->stop - $self->stop);
-		if ($left_overhang > 0) {
-			$overhang += $left_overhang;
-		}
-		if ($right_overhang > 0) {
-			$overhang += $right_overhang;
-		}
-		if (($overhang / $region2->length) <= (1-$percent)) {
-			return 1;
-		}
-		return 0;
+	$use_strand //= 1;
+	
+	if (($use_strand == 0 or $self->strand == $region2->strand) and ($self->rname eq $region2->rname) and ($self->start <= $region2->start) and ($region2->stop <= $self->stop)) {
+		return 1;
 	}
 	else {
-		die "\n\nUnknown or no method provided when calling ".(caller(0))[3]." in script $0\n\n";
+		return 0;
 	}
 }
 
