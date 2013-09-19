@@ -47,6 +47,13 @@ use GenOO::Data::File::BED::Record;
 ############################   Attributes   ###########################
 #######################################################################
 has 'file'  => (isa => 'Maybe[Str]', is => 'rw', required => 1);
+has 'redirect_score_to_copy_number' => (
+      traits  => ['Bool'],
+      is      => 'rw',
+      isa     => 'Bool',
+      default => 0,
+      lazy    => 1
+);
 
 has '_filehandle' => (
 	is        => 'ro',
@@ -227,6 +234,7 @@ sub parse_record_line {
 		strand_symbol     => $strand,
 	};
 	
+	($data->{copy_number}       = $score) if $self->redirect_score_to_copy_number;
 	($data->{thick_start}       = $thick_start) if defined $thick_start;
 	($data->{thick_stop_1based} = $thick_stop) if defined $thick_stop;
 	($data->{rgb}               = $rgb) if defined $rgb;

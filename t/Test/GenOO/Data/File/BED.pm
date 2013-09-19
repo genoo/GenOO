@@ -20,7 +20,8 @@ sub new_object : Test(setup => 1) {
 	my ($self) = @_;
 	
 	ok $self->{OBJ} = GenOO::Data::File::BED->new({
-		file => 't/sample_data/sample.bed.gz'
+		file => 't/sample_data/sample.bed.gz',
+		redirect_score_to_copy_number => 1,
 	});
 };
 
@@ -110,11 +111,11 @@ sub next_record_from_cache : Test(2) {
 	isa_ok $self->obj->next_record_from_cache, 'GenOO::Data::File::BED::Record', "... and the returned object";
 }
 
-sub parse_record_line : Test(14) {
+sub parse_record_line : Test(15) {
 	my ($self) = @_;
 	
 	my $line = join("\t",
-		'chr7','127471196','127472363','Pos1','0','+','127471196','127472363',
+		'chr7','127471196','127472363','Pos1','4','+','127471196','127472363',
 		'255,0,0','2','100,200','0,900'
 	);
 	
@@ -127,7 +128,7 @@ sub parse_record_line : Test(14) {
 	is $record->start, 127471196, "... and again";
 	is $record->stop, 127472362, "... and again";
 	is $record->name, 'Pos1', "... and again";
-	is $record->score, 0, "... and again";
+	is $record->score, 4, "... and again";
 	is $record->strand, 1, "... and again";
 	is $record->thick_start, 127471196, "... and again";
 	is $record->thick_stop_1based, 127472363, "... and again";
@@ -135,6 +136,7 @@ sub parse_record_line : Test(14) {
 	is $record->block_count, 2, "... and again";
 	is_deeply $record->block_sizes, [100,200], "... and again";
 	is_deeply $record->block_starts, [0,900], "... and again";
+	is $record->copy_number, $record->score, "... and again";
 }
 
 sub line_looks_like_comment : Test(2) {

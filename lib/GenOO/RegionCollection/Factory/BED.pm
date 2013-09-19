@@ -51,6 +51,13 @@ use GenOO::RegionCollection::Type::DoubleHashArray;
 use GenOO::Data::File::BED;
 
 has 'file' => (is => 'Str', is => 'ro', required => 1);
+has 'redirect_score_to_copy_number' => (
+      traits  => ['Bool'],
+      is      => 'rw',
+      isa     => 'Bool',
+      default => 0,
+      lazy    => 1
+);
 
 with 'GenOO::RegionCollection::Factory::Requires';
 
@@ -64,6 +71,7 @@ sub read_collection {
 	
 	my $parser = GenOO::Data::File::BED->new(
 		file => $self->file,
+		redirect_score_to_copy_number => $self->redirect_score_to_copy_number,
 	);
 	while (my $record = $parser->next_record) {
 		$collection->add_record($record);
