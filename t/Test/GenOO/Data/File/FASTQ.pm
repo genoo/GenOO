@@ -57,6 +57,22 @@ sub next_record : Test(9) {
 	is $record->quality, 'BB?CCBB:%<BBCB<B=0@BBBCBCBA<%',  "... and should return the correct value";
 }
 
+sub records_read_count : Test(5) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'records_read_count';
+	is $self->obj(0)->records_read_count, 0, "... and should return the correct value";
+	
+	$self->obj(0)->next_record();
+	is $self->obj(0)->records_read_count, 1, "... and should return the correct value again";
+	
+	$self->obj(0)->next_record();
+	is $self->obj(0)->records_read_count, 2, "... and again";
+	
+	while ($self->obj(0)->next_record()) {}
+	is $self->obj(0)->records_read_count, 40, "... and again (when the whole file is read)";
+}
+
 #######################################################################
 ##########################   Helper Methods   #########################
 #######################################################################

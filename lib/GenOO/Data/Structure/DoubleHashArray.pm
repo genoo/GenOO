@@ -104,10 +104,10 @@ around BUILDARGS => sub {
 sub foreach_entry_do {
 	my ($self, $block) = @_;
 	
-	foreach my $primary_key (keys %{$self->_structure}) {
+	A: foreach my $primary_key (keys %{$self->_structure}) {
 		foreach my $secondary_key (keys %{$self->_structure->{$primary_key}}) {
 			foreach my $entry (@{$self->_structure->{$primary_key}->{$secondary_key}}) {
-				$block->($entry);
+				last A if $block->($entry);
 			}
 		}
 	}
@@ -116,10 +116,10 @@ sub foreach_entry_do {
 sub foreach_entry_on_secondary_key_do {
 	my ($self, $secondary_key, $block) = @_;
 	
-	foreach my $primary_key (keys %{$self->_structure}) {
+	A: foreach my $primary_key (keys %{$self->_structure}) {
 		next if not defined $self->_structure->{$primary_key}->{$secondary_key};
 		foreach my $entry (@{$self->_structure->{$primary_key}->{$secondary_key}}) {
-			$block->($entry);
+			last A if $block->($entry);
 		}
 	}
 }
@@ -204,5 +204,11 @@ sub entries_ref_for_keys {
 		return undef;
 	}
 }
+
+
+#######################################################################
+############################   Finalize   #############################
+#######################################################################
+__PACKAGE__->meta->make_immutable;
 
 1;

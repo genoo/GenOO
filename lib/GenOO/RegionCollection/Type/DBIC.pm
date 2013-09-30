@@ -103,7 +103,7 @@ sub foreach_record_do {
 	my ($self, $block) = @_;
 	
 	while (my $record = $self->resultset->next) {
-		$block->($record);
+		last if $block->($record); # break the loop if the routine returns a value
 	}
 }
 
@@ -112,7 +112,7 @@ sub foreach_record_on_rname_do {
 	
 	my $rs = $self->resultset->search({rname => $rname});
 	while (my $record = $rs->next) {
-		$block->($record);
+		last if $block->($record); # break the loop if the routine returns a value
 	}
 }
 
@@ -179,7 +179,7 @@ sub foreach_overlapping_record_do {
 	});
 	
 	while (my $record = $rs->next) {
-		$block->($record);
+		last if $block->($record); # break the loop if the routine returns a value
 	}
 }
 
