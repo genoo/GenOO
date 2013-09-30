@@ -154,7 +154,7 @@ sub foreach_overlapping_record_do {
 			my $record = $records_ref->[$index];
 			if ($record->start <= $stop) {
 				if ($start <= $record->stop) {
-					$block->($record);
+					last if $block->($record);
 				}
 			}
 			else {
@@ -188,6 +188,14 @@ sub total_copy_number {
 	return $total_copy_number;
 }
 
+sub total_copy_number_for_records_contained_in_region {
+	my ($self, $strand, $rname, $start, $stop) = @_;
+	
+	my $total_copy_number = 0;
+	$self->foreach_overlapping_record_do( $strand, $rname, $start, $stop, sub {$total_copy_number += $_[0]->copy_number} );
+	
+	return $total_copy_number;
+}
 
 #######################################################################
 #########################   Private methods  ##########################
