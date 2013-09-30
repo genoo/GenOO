@@ -20,7 +20,7 @@ sub new_object : Test(setup) {
 	my ($self) = @_;
 	
 	$self->{OBJ} = GenOO::Data::Structure::DoubleHashArray->new(
-		SORTING_CODE_BLOCK => sub {return $_[0] <=> $_[1]}
+		sorting_code_block => sub {return $_[0] <=> $_[1]}
 	);
 	$self->obj->add_entry(1, 'chr1', 1);
 	$self->obj->add_entry(1, 'chr1', 3);
@@ -59,7 +59,7 @@ sub entries_count : Test(2) {
 	is $self->obj->entries_count, 12, "... and should return the correct value";
 }
 
-sub foreach_entry_do : Test(2) {
+sub foreach_entry_do : Test(3) {
 	my ($self) = @_;
 	
 	can_ok $self->obj, 'foreach_entry_do';
@@ -67,11 +67,17 @@ sub foreach_entry_do : Test(2) {
 	my $iterations = 0;
 	$self->obj->foreach_entry_do(sub{
 		my ($arg) = @_;
-		if ($arg =~ /^\d+$/) {
-			$iterations++;
-		}
+		$iterations++ if ($arg =~ /^\d+$/);
 	});
 	is $iterations, $self->obj->entries_count, "... and should do the correct number of iterations";
+	
+	$iterations = 0;
+	$self->obj->foreach_entry_do(sub{
+		my ($arg) = @_;
+		$iterations++ if ($arg =~ /^\d+$/);
+		return 'break_loop' if ($iterations == 3)
+	});
+	is $iterations, 3, "... and should break when requested";
 }
 
 sub foreach_entry_on_secondary_key_do : Test(2) {

@@ -154,7 +154,7 @@ sub foreach_overlapping_record_do {
 			my $record = $records_ref->[$index];
 			if ($record->start <= $stop) {
 				if ($start <= $record->stop) {
-					last if $block->($record);
+					last if $block->($record) eq 'break_loop';
 				}
 			}
 			else {

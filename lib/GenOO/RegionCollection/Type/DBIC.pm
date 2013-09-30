@@ -103,7 +103,7 @@ sub foreach_record_do {
 	my ($self, $block) = @_;
 	
 	while (my $record = $self->resultset->next) {
-		last if $block->($record); # break the loop if the routine returns a value
+		last if $block->($record) eq 'break_loop'; # break the loop if the routine returns 'break_loop'
 	}
 }
 

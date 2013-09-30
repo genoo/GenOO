@@ -107,10 +107,11 @@ sub foreach_entry_do {
 	A: foreach my $primary_key (keys %{$self->_structure}) {
 		foreach my $secondary_key (keys %{$self->_structure->{$primary_key}}) {
 			foreach my $entry (@{$self->_structure->{$primary_key}->{$secondary_key}}) {
-				last A if $block->($entry);
+				last A if $block->($entry) eq 'break_loop';
 			}
 		}
 	}
+	return 0;
 }
 
 sub foreach_entry_on_secondary_key_do {
@@ -119,7 +120,7 @@ sub foreach_entry_on_secondary_key_do {
 	A: foreach my $primary_key (keys %{$self->_structure}) {
 		next if not defined $self->_structure->{$primary_key}->{$secondary_key};
 		foreach my $entry (@{$self->_structure->{$primary_key}->{$secondary_key}}) {
-			last A if $block->($entry);
+			last A if $block->($entry) eq 'break_loop';
 		}
 	}
 }
