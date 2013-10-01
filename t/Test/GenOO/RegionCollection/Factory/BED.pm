@@ -1,9 +1,8 @@
 package Test::GenOO::RegionCollection::Factory::BED;
-use strict;
 
 use base qw(Test::GenOO);
-use Test::Most;
 use Test::Moose;
+use Test::Most;
 
 #######################################################################
 ################   Startup (Runs once in the begining  ################
@@ -46,7 +45,7 @@ sub file : Test(2) {
 	is $self->obj(0)->file, 't/sample_data/sample.bed.gz', "... and returns the correct value";
 }
 
-sub read_collection : Test(3) {
+sub read_collection : Test(4) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'read_collection';
@@ -54,23 +53,10 @@ sub read_collection : Test(3) {
 	my $collection = $self->obj(0)->read_collection;
 	does_ok($collection, 'GenOO::RegionCollection', "... and the returned object does the GenOO::RegionCollection role");
 	is $collection->records_count, 9, "... and it contains the correct number of records";
-}
-
-#######################################################################
-##########################   Helper Methods   #########################
-#######################################################################
-sub obj {
-	my ($self, $index) = @_;
 	
-	return $self->{TEST_OBJECTS}->[$index];
+	my $collection_filtered = $self->obj(1)->read_collection;
+	is $collection_filtered->records_count, 1, "... and it contains the correct number of records";
 }
-
-sub objs {
-	my ($self) = @_;
-	
-	return @{$self->{TEST_OBJECTS}};
-}
-
 
 #######################################################################
 ###############   Class method to create test objects   ###############
@@ -84,6 +70,11 @@ sub test_objects {
 	
 	push @test_objects, $test_class->class->new(
 		file => 't/sample_data/sample.bed.gz'
+	);
+	
+	push @test_objects, $test_class->class->new(
+		file        => 't/sample_data/sample.bed.gz',
+		filter_code => sub {return $_[0]->rname eq 'chrX' ? 1 : 0}
 	);
 	
 	return \@test_objects;

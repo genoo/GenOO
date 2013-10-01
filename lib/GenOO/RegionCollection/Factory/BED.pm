@@ -44,13 +44,30 @@ GenOO::RegionCollection::Factory::BED - Factory for creating GenOO::RegionCollec
 
 package GenOO::RegionCollection::Factory::BED;
 
+
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
 use Moose;
 use namespace::autoclean;
 
+
+#######################################################################
+#########################   Load GenOO modules   ######################
+#######################################################################
 use GenOO::RegionCollection::Type::DoubleHashArray;
 use GenOO::Data::File::BED;
 
-has 'file' => (is => 'Str', is => 'ro', required => 1);
+
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+has 'file' => (
+	isa      => 'Str',
+	is       => 'ro',
+	required => 1
+);
+
 has 'redirect_score_to_copy_number' => (
       traits  => ['Bool'],
       is      => 'rw',
@@ -59,7 +76,18 @@ has 'redirect_score_to_copy_number' => (
       lazy    => 1
 );
 
+has 'filter_code' => (
+	isa      => 'CodeRef',
+	is       => 'ro',
+	default  => sub { sub {return 1} }
+);
+
+
+#######################################################################
+##########################   Consumed roles   #########################
+#######################################################################
 with 'GenOO::RegionCollection::Factory::Requires';
+
 
 #######################################################################
 ########################   Interface Methods   ########################
@@ -70,11 +98,12 @@ sub read_collection {
 	my $collection = GenOO::RegionCollection::Type::DoubleHashArray->new;
 	
 	my $parser = GenOO::Data::File::BED->new(
-		file => $self->file,
+		file                          => $self->file,
 		redirect_score_to_copy_number => $self->redirect_score_to_copy_number,
 	);
+	
 	while (my $record = $parser->next_record) {
-		$collection->add_record($record);
+		$collection->add_record($record) if $self->filter_code->($record);
 	}
 	
 	return $collection;
