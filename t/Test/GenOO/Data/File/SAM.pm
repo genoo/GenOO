@@ -65,6 +65,12 @@ sub next_record : Test(2) {
 	isa_ok $self->obj(0)->next_record, 'GenOO::Data::File::SAM::Record', "... and the returned object";
 }
 
+sub header : Test(1) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'header';
+}
+
 #######################################################################
 ###########################   Private Tests   #########################
 #######################################################################

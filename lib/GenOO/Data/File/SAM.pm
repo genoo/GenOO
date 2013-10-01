@@ -167,6 +167,12 @@ sub next_record {
 	return $record;
 }
 
+sub header {
+	my ($self) = @_;
+	
+	return join("\n", $self->_all_cached_header_lines);
+}
+
 
 #######################################################################
 #########################   Private Methods   #########################
