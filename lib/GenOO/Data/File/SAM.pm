@@ -54,9 +54,10 @@ use GenOO::Data::File::SAM::Record;
 #######################   Interface attributes   ######################
 #######################################################################
 has 'file' => (
-	isa      => 'Maybe[Str]',
-	is       => 'rw',
-	required => 1
+	isa      => 'Str',
+	is       => 'ro',
+	required => 1,
+	trigger  => \&_init,
 );
 
 has 'records_read_count' => (
@@ -74,10 +75,8 @@ has 'records_read_count' => (
 ########################   Private attributes   #######################
 #######################################################################
 has '_filehandle' => (
-	is        => 'ro',
-	builder   => '_open_filehandle',
-	init_arg  => undef,
-	lazy      => 1,
+	is        => 'rw',
+	init_arg  => undef
 );
 
 has '_is_eof_reached' => (
@@ -103,34 +102,20 @@ has '_cached_header_lines' => (
 		_has_cached_header_lines    => 'count',
 		_has_no_cached_header_lines => 'is_empty',
 		_cached_header_lines_count  => 'count',
+		_clear_cached_header_lines  => 'clear'
 	},
 );
 
-has '_cached_records' => (
-	traits  => ['Array'],
-	is      => 'ro',
-	isa     => 'ArrayRef[GenOO::Data::File::SAM::Record]',
-	default => sub { [] },
-	handles => {
-		_all_cached_records    => 'elements',
-		_add_record_in_cache   => 'push',
-		_shift_cached_record   => 'shift',
-		_has_cached_records    => 'count',
-		_has_no_cached_records => 'is_empty',
-		_cached_records_count  => 'count',
-	},
+has '_cached_record' => (
+	is        => 'rw',
+	clearer   => '_clear_cached_record',
+	predicate => '_has_cached_record',
 );
 
 
 #######################################################################
 ###############################   BUILD   #############################
 #######################################################################
-sub BUILD {
-	my $self = shift;
-	
-	$self->_parse_header_section;
-}
-
 around BUILDARGS => sub {
 	my $orig  = shift;
 	my $class = shift;
@@ -154,16 +139,16 @@ sub next_record {
 	my ($self) = @_;
 	
 	my $record;
-	if ($self->_has_cached_records) {
-		$record = $self->_shift_cached_record;
+	if ($self->_has_cached_record) {
+		$record = $self->_cached_record;
+		$self->_clear_cached_record;
 	}
 	else {
 		$record = $self->_next_record_from_file;
 	}
 	
-	if (defined $record) {
-		$self->_inc_records_read_count;
-	}
+	$self->_inc_records_read_count if defined $record;
+	
 	return $record;
 }
 
@@ -177,11 +162,21 @@ sub header {
 #######################################################################
 #########################   Private Methods   #########################
 #######################################################################
+sub _init {
+	my $self = shift;
+	
+	$self->_init_filehandle;
+	$self->_unset_eof_reached;
+	$self->_reset_records_read_count;
+	$self->_clear_cached_record;
+	$self->_clear_cached_header_lines;
+	$self->_parse_header_section;
+}
+
 sub _parse_header_section {
 	my ($self) = @_;
 	
-	my $filehandle = $self->_filehandle;
-	while (my $line = $filehandle->getline) {
+	while (my $line = $self->_filehandle->getline) {
 		if ($line =~ /^\@/) {
 			chomp($line);
 			$self->_add_header_line_in_cache($line);
@@ -190,7 +185,7 @@ sub _parse_header_section {
 			# When the while reads the first line after the header section
 			# we need to process it immediatelly because in zipped files we cannot go back
 			my $record = $self->_parse_record_line($line);
-			$self->_add_record_in_cache($record);
+			$self->_cached_record($record);
 			return;
 		}
 	}
@@ -201,12 +196,7 @@ sub _next_record_from_file {
 	
 	my $line = $self->_filehandle->getline;
 	if (defined $line) {
-		if ($line !~ /^\@/) {
-			return $self->_parse_record_line($line);
-		}
-		else {
-			die "A record is requested but the line looks like a header - header section should have been parsed. $line\n";
-		}
+		return $self->_parse_record_line($line);
 	}
 	else {
 		$self->_set_eof_reached;
@@ -236,7 +226,7 @@ sub _parse_record_line {
 	});
 }
 
-sub _open_filehandle {
+sub _init_filehandle {
 	my ($self) = @_;
 	
 	my $read_mode;
@@ -251,7 +241,7 @@ sub _open_filehandle {
 	}
 	open (my $HANDLE, $read_mode, $self->file);
 	
-	return $HANDLE;
+	$self->_filehandle($HANDLE);
 }
 
 

@@ -94,15 +94,15 @@ sub cached_header_lines : Test(4) {
 	is $self->obj(0)->_cached_header_lines_count, 21, "... and should be able to gracefully read all remaining";
 }
 
-sub cached_records : Test(4) {
+sub cached_record : Test(4) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), '_cached_records', "... has the '_cached_records' attribute");
-	isa_ok $self->obj(0)->_cached_records, 'ARRAY', "... and the returned object";
+	has_attribute_ok($self->obj(0), '_cached_record', "... has the '_cached_records' attribute");
+	isa_ok $self->obj(0)->_cached_record, 'GenOO::Data::File::SAM::Record', "... and the returned object";
 	
-	is $self->obj(0)->_has_cached_records, 1, "... and should contain cached records";
+	is $self->obj(0)->_has_cached_record, 1, "... and should contain cached records";
 	$self->obj(0)->next_record;
-	is $self->obj(0)->_has_no_cached_records, 1, "... and should empty after the ->next_record call";
+	is !$self->obj(0)->_has_cached_record, 1, "... and should empty after the ->next_record call";
 }
 
 sub next_record_from_file : Test(2) {
@@ -110,13 +110,6 @@ sub next_record_from_file : Test(2) {
 	
 	can_ok $self->obj(0), '_next_record_from_file';
 	isa_ok $self->obj(0)->_next_record_from_file, 'GenOO::Data::File::SAM::Record', "... and the returned object";
-}
-
-sub shift_cached_record : Test(2) {
-	my ($self) = @_;
-	
-	can_ok $self->obj(0), '_shift_cached_record';
-	isa_ok $self->obj(0)->_shift_cached_record, 'GenOO::Data::File::SAM::Record', "... and the returned object";
 }
 
 sub parse_record_line : Test(22) {
