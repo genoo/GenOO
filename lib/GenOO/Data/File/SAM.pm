@@ -208,22 +208,8 @@ sub _parse_record_line {
 	my ($self,$line) = @_;
 	
 	chomp $line;
-	my ($qname, $flag, $rname, $pos, $mapq, $cigar, $rnext, $pnext, $tlen, $seq, $qual, @tags) = split(/\t/,$line);
-	
-	return GenOO::Data::File::SAM::Record->new({
-		qname      => $qname,
-		flag       => $flag,
-		rname      => $rname,
-		'pos'        => $pos,
-		mapq       => $mapq,
-		cigar      => $cigar,
-		rnext      => $rnext,
-		pnext      => $pnext,
-		tlen       => $tlen,
-		seq        => $seq,
-		qual       => $qual,
-		tags       => \@tags,
-	});
+	my @fields = split(/\t/,$line);
+	return GenOO::Data::File::SAM::Record->new(fields => \@fields);
 }
 
 sub _init_filehandle {
