@@ -233,27 +233,6 @@ sub mdz {
 	return $self->tag('MD:Z');
 }
 
-sub number_of_best_hits {
-	my ($self) = @_;
-	return $self->tag('X0:i');
-}
-
-sub number_of_suboptimal_hits {
-	my ($self) = @_;
-	return $self->tag('X1:i');
-}
-
-sub alternative_mappings {
-	my ($self) = @_;
-	
-	my @alternative_mappings;
-	my $value = $self->tag('XA:Z');
-	if (defined $value) {
-		@alternative_mappings = split(/;/,$value);
-	}
-	return @alternative_mappings;
-}
-
 sub to_string {
 	my ($self) = @_;
 	
