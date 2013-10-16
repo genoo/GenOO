@@ -45,19 +45,12 @@ use namespace::autoclean;
 
 
 #######################################################################
-#########################   Load GenOO modules   ######################
-#######################################################################
-use GenOO::Data::File::SAM::Record;
-
-
-#######################################################################
 #######################   Interface attributes   ######################
 #######################################################################
 has 'file' => (
 	isa      => 'Str',
 	is       => 'ro',
 	required => 1,
-	trigger  => \&_init,
 );
 
 has 'records_read_count' => (
@@ -69,6 +62,11 @@ has 'records_read_count' => (
 		_inc_records_read_count   => 'inc',
 		_reset_records_read_count => 'reset',
 	},
+);
+
+has 'records_class' => (
+	is        => 'ro',
+	default   => 'GenOO::Data::File::SAM::Record',
 );
 
 #######################################################################
@@ -114,22 +112,15 @@ has '_cached_record' => (
 
 
 #######################################################################
-###############################   BUILD   #############################
+##############################   BUILD   ##############################
 #######################################################################
-around BUILDARGS => sub {
-	my $orig  = shift;
-	my $class = shift;
+sub BUILD {
+	my $self = shift;
 	
-	my $argv_hash_ref = $class->$orig(@_);
-	
-	if (exists $argv_hash_ref->{FILE}) {
-		$argv_hash_ref->{file} = delete $argv_hash_ref->{FILE};
-		warn 'Deprecated use of "FILE" in GenOO::Data::File::SAM constructor. '.
-		     'Use "file" instead.'."\n";
-	}
-	
-	return $argv_hash_ref;
-};
+	eval "require ".$self->records_class;
+	$self->_init_filehandle;
+	$self->_parse_header_section;
+}
 
 
 #######################################################################
@@ -162,17 +153,6 @@ sub header {
 #######################################################################
 #########################   Private Methods   #########################
 #######################################################################
-sub _init {
-	my $self = shift;
-	
-	$self->_init_filehandle;
-	$self->_unset_eof_reached;
-	$self->_reset_records_read_count;
-	$self->_clear_cached_record;
-	$self->_clear_cached_header_lines;
-	$self->_parse_header_section;
-}
-
 sub _parse_header_section {
 	my ($self) = @_;
 	
@@ -209,7 +189,7 @@ sub _parse_record_line {
 	
 	chomp $line;
 	my @fields = split(/\t/,$line);
-	return GenOO::Data::File::SAM::Record->new(fields => \@fields);
+	return $self->records_class->new(fields => \@fields);
 }
 
 sub _init_filehandle {
