@@ -56,6 +56,8 @@ sub location {
 sub strand_symbol {
 	my ($self) = @_;
 	
+	return undef if !defined $self->strand;
+	
 	if ($self->strand == 1) {
 		return '+';
 	}

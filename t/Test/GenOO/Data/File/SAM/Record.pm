@@ -34,131 +34,124 @@ sub _isa_test : Test(1) {
 sub qname : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'qname', "... test object has the 'qname' attribute");
+	can_ok $self->obj(0), 'qname';
 	is $self->obj(0)->qname, 'HWI-EAS235_25:1:1:4282:1093', "... and returns the correct value";
 }
 
 sub flag : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'flag', "... test object has the 'flag' attribute");
+	can_ok $self->obj(0), 'flag';
 	is $self->obj(0)->flag, 16, "... and returns the correct value";
 }
 
 sub rname : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'rname', "... test object has the 'rname' attribute");
+	can_ok $self->obj(0), 'rname';
 	is $self->obj(0)->rname, 'chr18', "... and returns the correct value";
 }
 
 sub pos : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'pos', "... test object has the 'pos' attribute");
+	can_ok $self->obj(0), 'pos';
 	is $self->obj(0)->pos, 85867636, "... and returns the correct value";
 }
 
 sub mapq : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'mapq', "... test object has the 'mapq' attribute");
+	can_ok $self->obj(0), 'mapq';
 	is $self->obj(0)->mapq, 0, "... and returns the correct value";
 }
 
 sub cigar : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'cigar', "... test object has the 'cigar' attribute");
+	can_ok $self->obj(0), 'cigar';
 	is $self->obj(0)->cigar, '32M', "... and returns the correct value";
 }
 
 sub rnext : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'rnext', "... test object has the 'rnext' attribute");
+	can_ok $self->obj(0), 'rnext';
 	is $self->obj(0)->rnext, '*', "... and returns the correct value";
 }
 
 sub pnext : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'pnext', "... test object has the 'pnext' attribute");
+	can_ok $self->obj(0), 'pnext';
 	is $self->obj(0)->pnext, 0, "... and returns the correct value";
 }
 
 sub tlen : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'tlen', "... test object has the 'tlen' attribute");
+	can_ok $self->obj(0), 'tlen';
 	is $self->obj(0)->tlen, 0, "... and returns the correct value";
 }
 
 sub seq : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'seq', "... test object has the 'seq' attribute");
+	can_ok $self->obj(0), 'seq';
 	is $self->obj(0)->seq, 'ATTCGGCAGGTGAGTTGTTACACACTCCTTAG', "... and returns the correct value";
 }
 
 sub qual : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'qual', "... test object has the 'qual' attribute");
+	can_ok $self->obj(0), 'qual';
 	is $self->obj(0)->qual, 'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG', "... and returns the correct value";
 }
 
-sub tags : Test(11) {
+sub tags : Test(1) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'tags', "... test object has the 'tags' attribute");
-	is $self->obj(0)->tag('XT:A'), 'R', "... and returns the correct value";
-	is $self->obj(0)->tag('NM:i'), 0, "... and returns the correct value";
-	is $self->obj(0)->tag('X0:i'), 2, "... and returns the correct value";
-	is $self->obj(0)->tag('X1:i'), 0, "... and returns the correct value";
-	is $self->obj(0)->tag('XM:i'), 0, "... and returns the correct value";
-	is $self->obj(0)->tag('XO:i'), 0, "... and returns the correct value";
-	is $self->obj(0)->tag('XG:i'), 0, "... and returns the correct value";
-	is $self->obj(0)->tag('MD:Z'), 32, "... and returns the correct value";
-	is $self->obj(0)->tag('XA:Z'), 'chr9,+110183777,32M,0;chr8,+110183756,30M1I,0;',  "... and returns the correct value";
-	
-	is $self->obj(3)->tag('XT:A'), 'U',  "... and returns the correct value";
+	can_ok $self->obj(0), 'tags';
 }
 
-sub alignment_length : Test(5) {
+sub alignment_length : Test(7) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'alignment_length', "... test object has the 'alignment_length' attribute");
+	can_ok $self->obj(0), 'alignment_length';
 	is $self->obj(0)->alignment_length, 32, "... and returns the correct value";
 	is $self->obj(1)->alignment_length, 102, "... and returns the correct value";
 	is $self->obj(2)->alignment_length, 102, "... and returns the correct value";
 	is $self->obj(3)->alignment_length, 102, "... and returns the correct value";
+	is $self->obj(6)->alignment_length, 23, "... and returns the correct value";
+	is $self->obj(7)->alignment_length, 23, "... and returns the correct value";
 }
 
 sub start : Test(5) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'start', "... test object has the 'start' attribute");
+	can_ok $self->obj(0), 'start';
 	is $self->obj(0)->start, 85867635, "... and returns the correct value";
 	is $self->obj(1)->start, 22051062, "... and returns the correct value";
 	is $self->obj(2)->start, 187239349, "... and returns the correct value";
 	is $self->obj(3)->start, 22985443, "... and returns the correct value";
 }
 
-sub stop : Test(5) {
+sub stop : Test(7) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'stop', "... test object has the 'stop' attribute");	
+	can_ok $self->obj(0), 'stop';
 	is $self->obj(0)->stop, 85867666, "... and returns the correct value";
 	is $self->obj(1)->stop, 22051163, "... and returns the correct value";
 	is $self->obj(2)->stop, 187239450, "... and returns the correct value";
 	is $self->obj(3)->stop, 22985544, "... and returns the correct value";
+	is $self->obj(6)->stop, 356788, "... and returns the correct value";
+	is $self->obj(7)->stop, 356788, "... and returns the correct value";
 }
 
 sub strand : Test(6) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'strand', "... test object has the 'strand' attribute");	
+	can_ok $self->obj(0), 'strand';
 	is $self->obj(0)->strand, -1, "... and returns the correct value";
 	is $self->obj(1)->strand, -1, "... and returns the correct value";
 	is $self->obj(2)->strand, 1, "... and returns the correct value";
@@ -172,25 +165,18 @@ sub strand_symbol : Test(6) {
 	can_ok $self->obj(0), 'strand_symbol';
 	
 	is $self->obj(0)->strand_symbol, '-', "... and returns the correct value";
-	is $self->obj(1)->strand_symbol, '-', "... and returns the correct value";
 	is $self->obj(2)->strand_symbol, '+', "... and returns the correct value";
-	is $self->obj(3)->strand_symbol, '+', "... and returns the correct value";
 	is $self->obj(4)->strand_symbol, undef, "... and returns the correct value";
 }
 
-sub query_seq : Test(6) {
+sub query_seq : Test(2) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'query_seq';
-	
 	is $self->obj(0)->query_seq, 'CTAAGGAGTGTGTAACAACTCACCTGCCGAAT', "... and returns the correct value";
-	is $self->obj(1)->query_seq, 'TGAAGCACAAAAGGACTTGGCCACTGTGAATACCAATCNATTTGATGAACCTGATGTAACAGAATTAAATCCATTTGGAGATCCTGACTCAGAAGAACCAA', "... and returns the correct value";
-	is $self->obj(2)->query_seq, 'AGGAGCAGGAGAAAGGGCAACAGTGGAGGAGAGCAGCCTAGGCATGAGCTCTGGGAAGTCTAGCACACAGTTACTCCTGAAAGGGGCTTCCCGGAGCAGGA', "... and returns the correct value";
-	is $self->obj(3)->query_seq, 'CAACACGTAAAGATCTATTTCAACGCTTCTTGCTTGTTTCTATATTGCTGAATACTAAGTAAGCCACATTGAAAAAGTAAAAGCAAGATTGCTTAGCTCTC', "... and returns the correct value";
-	is $self->obj(4)->query_seq, 'TNNNNNNNNCCAAGTGAAAG', "... and returns the correct value";
 }
 
-sub query_length : Test(6) {
+sub query_length : Test(8) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'query_length';
@@ -200,53 +186,76 @@ sub query_length : Test(6) {
 	is $self->obj(2)->query_length, 101, "... and returns the correct value";
 	is $self->obj(3)->query_length, 101, "... and returns the correct value";
 	is $self->obj(4)->query_length, 20, "... and returns the correct value";
+	is $self->obj(6)->query_length, 18, "... and returns the correct value";
+	is $self->obj(7)->query_length, 18, "... and returns the correct value";
 }
 
-sub tag : Test(4) {
+sub tag : Test(3) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'tag';
 	
-	is $self->obj(0)->tag('XT:A'), 'R', "... and returns the correct value";
 	is $self->obj(0)->tag('NM:i'), 0, "... and returns the correct value";
-	is $self->obj(3)->tag('XT:A'), 'U',  "... and returns the correct value";
+	is $self->obj(0)->tag('MD:Z'), 32, "... and returns the correct value";
 }
 
-sub number_of_best_hits : Test(6) {
+sub M_count : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'number_of_best_hits';
-	
-	is $self->obj(0)->number_of_best_hits, 2, "... and returns the correct value";
-	is $self->obj(1)->number_of_best_hits, 1, "... and returns the correct value";
-	is $self->obj(2)->number_of_best_hits, 1, "... and returns the correct value";
-	is $self->obj(3)->number_of_best_hits, 1, "... and returns the correct value";
-	is $self->obj(4)->number_of_best_hits, undef, "... and returns the correct value";
+	can_ok $self->obj(0), 'M_count';
+	is $self->obj(7)->M_count, 15, "... and returns the correct value";
 }
 
-sub number_of_suboptimal_hits : Test(6) {
+sub I_count : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'number_of_suboptimal_hits';
-	
-	is $self->obj(0)->number_of_suboptimal_hits, 0, "... and returns the correct value";
-	is $self->obj(1)->number_of_suboptimal_hits, 0, "... and returns the correct value";
-	is $self->obj(2)->number_of_suboptimal_hits, 0, "... and returns the correct value";
-	is $self->obj(3)->number_of_suboptimal_hits, 0, "... and returns the correct value";
-	is $self->obj(4)->number_of_suboptimal_hits, undef, "... and returns the correct value";
+	can_ok $self->obj(0), 'I_count';
+	is $self->obj(7)->I_count, 3, "... and returns the correct value";
 }
 
-sub alternative_mappings : Test(3) {
+sub D_count : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'alternative_mappings';
-	
-	my @values = $self->obj(0)->alternative_mappings;
-	is $values[0], 'chr9,+110183777,32M,0', "... and should return the correct value";
-	is $values[1], 'chr8,+110183756,30M1I,0', "... and again";
+	can_ok $self->obj(0), 'D_count';
+	is $self->obj(7)->D_count, 4, "... and returns the correct value";
 }
 
-sub insertion_count : Test(6) {
+sub N_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'N_count';
+	is $self->obj(7)->N_count, 4, "... and returns the correct value";
+}
+
+sub S_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'S_count';
+	is $self->obj(7)->S_count, 0, "... and returns the correct value";
+}
+
+sub H_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'H_count';
+	is $self->obj(7)->H_count, 0, "... and returns the correct value";
+}
+
+sub EQ_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'EQ_count';
+	is $self->obj(6)->EQ_count, 12, "... and returns the correct value";
+}
+
+sub X_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'X_count';
+	is $self->obj(6)->X_count, 3, "... and returns the correct value";
+}
+
+sub insertion_count : Test(7) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'insertion_count';
@@ -255,12 +264,11 @@ sub insertion_count : Test(6) {
 	is $self->obj(1)->insertion_count, 1, "... and returns the correct value";
 	is $self->obj(2)->insertion_count, 1, "... and returns the correct value";
 	is $self->obj(3)->insertion_count, 0, "... and returns the correct value";
-	
-	$self->obj(0)->cigar('14M1I5M2I5M');
-	is $self->obj(0)->insertion_count, 3, "... and should return the correct value again";
+	is $self->obj(6)->insertion_count, 3, "... and returns the correct value";
+	is $self->obj(7)->insertion_count, 3, "... and returns the correct value";
 }
 
-sub deletion_count : Test(6) {
+sub deletion_count : Test(7) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'deletion_count';
@@ -269,46 +277,37 @@ sub deletion_count : Test(6) {
 	is $self->obj(1)->deletion_count, 2, "... and returns the correct value";
 	is $self->obj(2)->deletion_count, 2, "... and returns the correct value";
 	is $self->obj(3)->deletion_count, 1, "... and returns the correct value";
-	
-	$self->obj(0)->cigar('14M1D5M2D5M');
-	is $self->obj(0)->deletion_count, 3, "... and should return the correct value again";
+	is $self->obj(6)->deletion_count, 4, "... and returns the correct value";
+	is $self->obj(7)->deletion_count, 4, "... and returns the correct value";
 }
 
-sub deletion_positions_on_query : Test(5) {
+sub deletion_positions_on_query : Test(7) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'deletion_positions_on_query';
 	
 	is_deeply [$self->obj(0)->deletion_positions_on_query], [], "... and returns the correct value";
-	is_deeply [$self->obj(1)->deletion_positions_on_query], [95], "... and returns the correct value";
-	is_deeply [$self->obj(2)->deletion_positions_on_query], [36], "... and returns the correct value";
-	is_deeply [$self->obj(3)->deletion_positions_on_query], [56], "... and returns the correct value";
+	is_deeply [$self->obj(1)->deletion_positions_on_query], [94], "... and returns the correct value";
+	is_deeply [$self->obj(2)->deletion_positions_on_query], [35], "... and returns the correct value";
+	is_deeply [$self->obj(3)->deletion_positions_on_query], [55], "... and returns the correct value";
+	is_deeply [$self->obj(6)->deletion_positions_on_query], [8,16], "... and returns the correct value";
+	is_deeply [$self->obj(7)->deletion_positions_on_query], [8,16], "... and returns the correct value";
 }
 
-sub deletion_positions_on_reference : Test(5) {
+sub insertion_positions_on_query : Test(7) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'deletion_positions_on_reference';
+	can_ok $self->obj(0), 'insertion_positions_on_query';
 	
-	is_deeply [$self->obj(0)->deletion_positions_on_reference], [], "... and returns the correct value";
-	is_deeply [$self->obj(1)->deletion_positions_on_reference], [22051067,22051068], "... and returns the correct value";
-	is_deeply [$self->obj(2)->deletion_positions_on_reference], [187239385,187239386], "... and returns the correct value";
-	is_deeply [$self->obj(3)->deletion_positions_on_reference], [22985499], "... and returns the correct value";
+	is_deeply [$self->obj(0)->insertion_positions_on_query], [], "... and returns the correct value";
+	is_deeply [$self->obj(1)->insertion_positions_on_query], [98], "... and returns the correct value";
+	is_deeply [$self->obj(2)->insertion_positions_on_query], [38], "... and returns the correct value";
+	is_deeply [$self->obj(3)->insertion_positions_on_query], [], "... and returns the correct value";
+	is_deeply [$self->obj(6)->insertion_positions_on_query], [2,10,14], "... and returns the correct value";
+	is_deeply [$self->obj(7)->insertion_positions_on_query], [2,10,14], "... and returns the correct value";
 }
 
-sub mismatch_positions_on_reference : Test(6) {
-	my ($self) = @_;
-	
-	can_ok $self->obj(0), 'mismatch_positions_on_reference';
-	
-	is_deeply [$self->obj(0)->mismatch_positions_on_reference], [], "... and returns the correct value";
-	is_deeply [$self->obj(1)->mismatch_positions_on_reference], [22051062,22051125], "... and returns the correct value";
-	is_deeply [$self->obj(2)->mismatch_positions_on_reference], [187239361,187239398], "... and returns the correct value";
-	is_deeply [$self->obj(3)->mismatch_positions_on_reference], [22985517,22985530,22985542,22985544], "... and returns the correct value";
-	is_deeply [$self->obj(5)->mismatch_positions_on_reference], [22985516,22985529,22985541,22985543], "... and returns the correct value";
-}
-
-sub mismatch_positions_on_query : Test(6) {
+sub mismatch_positions_on_query : Test(8) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'mismatch_positions_on_query';
@@ -318,6 +317,35 @@ sub mismatch_positions_on_query : Test(6) {
 	is_deeply [$self->obj(2)->mismatch_positions_on_query], [12,48], "... and returns the correct value";
 	is_deeply [$self->obj(3)->mismatch_positions_on_query], [73,86,98,100], "... and returns the correct value";
 	is_deeply [$self->obj(5)->mismatch_positions_on_query], [73,86,98,100], "... and returns the correct value";
+	is_deeply [$self->obj(6)->mismatch_positions_on_query], [4,7,13], "... and returns the correct value";
+	is_deeply [$self->obj(7)->mismatch_positions_on_query], [4,7,13], "... and returns the correct value";
+}
+
+sub deletion_positions_on_reference : Test(7) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'deletion_positions_on_reference';
+	
+	is_deeply [$self->obj(0)->deletion_positions_on_reference], [], "... and returns the correct value";
+	is_deeply [$self->obj(1)->deletion_positions_on_reference], [22051067,22051068], "... and returns the correct value";
+	is_deeply [$self->obj(2)->deletion_positions_on_reference], [187239385,187239386], "... and returns the correct value";
+	is_deeply [$self->obj(3)->deletion_positions_on_reference], [22985499], "... and returns the correct value";
+	is_deeply [$self->obj(6)->deletion_positions_on_reference], [356778,356779,356780,356787], "... and returns the correct value";
+	is_deeply [$self->obj(7)->deletion_positions_on_reference], [356778,356779,356780,356787], "... and returns the correct value";
+}
+
+sub mismatch_positions_on_reference : Test(8) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'mismatch_positions_on_reference';
+	
+	is_deeply [$self->obj(0)->mismatch_positions_on_reference], [], "... and returns the correct value";
+	is_deeply [$self->obj(1)->mismatch_positions_on_reference], [22051062,22051125], "... and returns the correct value";
+	is_deeply [$self->obj(2)->mismatch_positions_on_reference], [187239361,187239398], "... and returns the correct value";
+	is_deeply [$self->obj(3)->mismatch_positions_on_reference], [22985517,22985530,22985542,22985544], "... and returns the correct value";
+	is_deeply [$self->obj(5)->mismatch_positions_on_reference], [22985516,22985529,22985541,22985543], "... and returns the correct value";
+	is_deeply [$self->obj(6)->mismatch_positions_on_reference], [356769,356776,356784], "... and returns the correct value";
+	is_deeply [$self->obj(7)->mismatch_positions_on_reference], [356769,356776,356784], "... and returns the correct value";
 }
 
 sub cigar_relative_to_query : Test(6) {
@@ -337,21 +365,11 @@ sub to_string : Test(2) {
 	
 	can_ok $self->obj(0), 'to_string';
 	
-	my $expected = join("\t",
-		'HWI-EAS235_25:1:1:4282:1093',
-		'16',
-		'chr18',
-		'85867636',
-		'0',
-		'32M',
-		'*',
-		'0',
-		'0',
-		'ATTCGGCAGGTGAGTTGTTACACACTCCTTAG',
-		'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG',
-		'MD:Z:32', 'NM:i:0', 'X0:i:2', 'X1:i:0', 'XA:Z:chr9,+110183777,32M,0;chr8,+110183756,30M1I,0;',
-		'XG:i:0', 'XM:i:0', 'XO:i:0',  'XT:A:R'
-	);
+	my $expected = join("\t", 'HWI-EAS235_25:1:1:4282:1093', '16', 'chr18', 
+	                          '85867636', '0', '32M', '*', '0', '0',
+	                          'ATTCGGCAGGTGAGTTGTTACACACTCCTTAG',
+	                          'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG',
+	                          'NM:i:0', 'MD:Z:32');
 	
 	is $self->obj(0)->to_string, $expected, "... and returns the correct value";
 }
@@ -362,9 +380,7 @@ sub is_mapped : Test(6) {
 	can_ok $self->obj(0), 'is_mapped';
 	
 	is $self->obj(0)->is_mapped, 1, "... and returns the correct value";
-	is $self->obj(1)->is_mapped, 1, "... and returns the correct value";
 	is $self->obj(2)->is_mapped, 1, "... and returns the correct value";
-	is $self->obj(3)->is_mapped, 1, "... and returns the correct value";
 	is $self->obj(4)->is_mapped, 0, "... and again";
 }
 
@@ -374,26 +390,10 @@ sub is_unmapped : Test(6) {
 	can_ok $self->obj(0), 'is_unmapped';
 	
 	is $self->obj(0)->is_unmapped, 0, "... and returns the correct value";
-	is $self->obj(1)->is_unmapped, 0, "... and returns the correct value";
 	is $self->obj(2)->is_unmapped, 0, "... and returns the correct value";
-	is $self->obj(3)->is_unmapped, 0, "... and returns the correct value";
 	is $self->obj(4)->is_unmapped, 1, "... and again";
 }
 
-#######################################################################
-##########################   Helper Methods   #########################
-#######################################################################
-sub obj {
-	my ($self, $index) = @_;
-	
-	return $self->{TEST_OBJECTS}->[$index];
-}
-
-sub objs {
-	my ($self) = @_;
-	
-	return @{$self->{TEST_OBJECTS}};
-}
 
 #######################################################################
 ###############   Class method to create test objects   ###############
@@ -405,113 +405,25 @@ sub test_objects {
 	
 	my @test_objects;
 	
-	push @test_objects, $test_class->class->new({
-		qname      => 'HWI-EAS235_25:1:1:4282:1093',
-		flag       => '16',
-		rname      => 'chr18',
-		pos        => '85867636',
-		mapq       => '0',
-		cigar      => '32M',
-		rnext      => '*',
-		pnext      => '0',
-		tlen       => '0',
-		seq        => 'ATTCGGCAGGTGAGTTGTTACACACTCCTTAG',
-		qual       => 'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG',
-		tags       => ['XT:A:R','NM:i:0','X0:i:2','X1:i:0','XM:i:0','XO:i:0','XG:i:0','MD:Z:32','XA:Z:chr9,+110183777,32M,0;chr8,+110183756,30M1I,0;'],
-	});
+	push @test_objects, $test_class->class->new(fields => ['HWI-EAS235_25:1:1:4282:1093', '16', 'chr18', '85867636', '0', '32M', '*', '0', '0', 'ATTCGGCAGGTGAGTTGTTACACACTCCTTAG', 'GHHGHHHGHHGGGDGEGHHHFHGG<GG>?BGG', 'NM:i:0', 'MD:Z:32']);
 	
-	push @test_objects, $test_class->class->new({
-		qname      => 'HWI-EAS235_32:2:20:11311:1509',
-		flag       => '16',
-		rname      => 'chr11',
-		pos        => '22051063',
-		mapq       => '37',
-		cigar      => '2M1I3M2D95M',
-		rnext      => '*',
-		pnext      => '0',
-		tlen       => '0',
-		seq        => 'TTGGTTCTTCTGAGTCAGGATCTCCAAATGGATTTAATTCTGTTACATCAGGTTCATCAAATNGATTGGTATTCACAGTGGCCAAGTCCTTTTGTGCTTCA',
-		qual       => 'B>D>EEBGHGEGCGGHFCGEEFB@HFFFGFDAEC?C>G@EFBDD@DHHFHHGGB<D8>@@@/#869>EGGEG@<DGBH<EHHHHHHHHHHHDEG@EGGGFG',
-		tags       => ['XT:A:U', 'NM:i:5', 'X0:i:1', 'X1:i:0', 'XM:i:4', 'XO:i:1', 'XG:i:1', 'MD:Z:0A4^AC56G38'],
-	});
+	push @test_objects, $test_class->class->new(fields => ['HWI-EAS235_32:2:20:11311:1509', '16', 'chr11', '22051063', '37', '2M1I3M2D95M', '*', '0', '0', 'TTGGTTCTTCTGAGTCAGGATCTCCAAATGGATTTAATTCTGTTACATCAGGTTCATCAAATNGATTGGTATTCACAGTGGCCAAGTCCTTTTGTGCTTCA', 'B>D>EEBGHGEGCGGHFCGEEFB@HFFFGFDAEC?C>G@EFBDD@DHHFHHGGB<D8>@@@/#869>EGGEG@<DGBH<EHHHHHHHHHHHDEG@EGGGFG', 'NM:i:5', 'MD:Z:0A4^AC56G38']);
 	
-	push @test_objects, $test_class->class->new({
-		qname      => 'HWI-EAS235_32:2:20:9009:10694',
-		flag       => '0',
-		rname      => 'chr1',
-		pos        => '187239350',
-		mapq       => '37',
-		cigar      => '36M2D2M1I62M',
-		rnext      => '*',
-		pnext      => '0',
-		tlen       => '0',
-		seq        => 'AGGAGCAGGAGAAAGGGCAACAGTGGAGGAGAGCAGCCTAGGCATGAGCTCTGGGAAGTCTAGCACACAGTTACTCCTGAAAGGGGCTTCCCGGAGCAGGA',
-		qual       => '4*24.7*0*9B;B=;9:2=0/531.+*288===>=@BB03=8*==?==/1A8@?@;8BB=8??=@1@688,7@89CCCCCCCCCAC6CC@CC@C@C<<@C9',
-		tags       => ['XT:A:U', 'NM:i:5', 'X0:i:1', 'X1:i:0', 'XM:i:4', 'XO:i:1', 'XG:i:1', 'MD:Z:12G23^GT11A52'],
-	});
+	push @test_objects, $test_class->class->new(fields => ['HWI-EAS235_32:2:20:9009:10694', '0', 'chr1', '187239350', '37', '36M2D2M1I62M', '*', '0', '0', 'AGGAGCAGGAGAAAGGGCAACAGTGGAGGAGAGCAGCCTAGGCATGAGCTCTGGGAAGTCTAGCACACAGTTACTCCTGAAAGGGGCTTCCCGGAGCAGGA', '4*24.7*0*9B;B=;9:2=0/531.+*288===>=@BB03=8*==?==/1A8@?@;8BB=8??=@1@688,7@89CCCCCCCCCAC6CC@CC@C@C<<@C9', 'NM:i:5', 'MD:Z:12G23^GT11A52']);
 	
-	push @test_objects, $test_class->class->new({
-		qname      => 'HWI-EAS235_32:2:19:14059:2128',
-		flag       => '0',
-		rname      => 'chr5',
-		pos        => '22985444',
-		mapq       => '37',
-		cigar      => '56M1D45M',
-		rnext      => '*',
-		pnext      => '0',
-		tlen       => '0',
-		seq        => 'CAACACGTAAAGATCTATTTCAACGCTTCTTGCTTGTTTCTATATTGCTGAATACTAAGTAAGCCACATTGAAAAAGTAAAAGCAAGATTGCTTAGCTCTC',
-		qual       => 'DDGE<EF8BFFGDDFHBGHHHHHHHGHH@GHHGHHD2@==FEEGEDBGGGGH@GFGDD@,EE8AAAACCCAAC;CA<8AE@;+)9<3:08<===<=*A>@5',
-		tags       => {
-			'XT:A' => 'U',
-			'NM:i' => '5',
-			'X0:i' => '1',
-			'X1:i' => '0',
-			'XM:i' => '4',
-			'XO:i' => '1',
-			'XG:i' => '1',
-			'MD:Z' => '56^A17C12A11A1A0'
-		},
-	});
+	push @test_objects, $test_class->class->new(fields => ['HWI-EAS235_32:2:19:14059:2128', '0', 'chr5', '22985444', '37', '56M1D45M', '*', '0', '0', 'CAACACGTAAAGATCTATTTCAACGCTTCTTGCTTGTTTCTATATTGCTGAATACTAAGTAAGCCACATTGAAAAAGTAAAAGCAAGATTGCTTAGCTCTC', 'DDGE<EF8BFFGDDFHBGHHHHHHHGHH@GHHGHHD2@==FEEGEDBGGGGH@GFGDD@,EE8AAAACCCAAC;CA<8AE@;+)9<3:08<===<=*A>@5', 'NM:i:5', 'MD:Z:56^A17C12A11A1A0']);
 	
-	push @test_objects, $test_class->class->new({
-		qname      => 'HWI-EAS235_32:1:1:7112:1235',
-		flag       => '4',
-		rname      => '*',
-		pos        => '0',
-		mapq       => '0',
-		cigar      => '*',
-		rnext      => '*',
-		pnext      => '0',
-		tlen       => '0',
-		seq        => 'TNNNNNNNNCCAAGTGAAAG',
-		qual       => '?########20;<73@@B@@',
-		tags       => [],
-	});
+	push @test_objects, $test_class->class->new(fields => ['HWI-EAS235_32:1:1:7112:1235', '4', '*', '0', '0', '*', '*', '0', '0', 'TNNNNNNNNCCAAGTGAAAG', '?########20;<73@@B@@']);
 	
-	push @test_objects, $test_class->class->new({
-		qname      => 'HWI-EAS235_32:2:19:14059:2128',
-		flag       => '0',
-		rname      => 'chr5',
-		pos        => '22985444',
-		mapq       => '37',
-		cigar      => '101M',
-		rnext      => '*',
-		pnext      => '0',
-		tlen       => '0',
-		seq        => 'CAACACGTAAAGATCTATTTCAACGCTTCTTGCTTGTTTCTATATTGCTGAATACTAAGTAAGCCACATTGAAAAAGTAAAAGCAAGATTGCTTAGCTCTC',
-		qual       => 'DDGE<EF8BFFGDDFHBGHHHHHHHGHH@GHHGHHD2@==FEEGEDBGGGGH@GFGDD@,EE8AAAACCCAAC;CA<8AE@;+)9<3:08<===<=*A>@5',
-		tags       => {
-			'XT:A' => 'U',
-			'NM:i' => '5',
-			'X0:i' => '1',
-			'X1:i' => '0',
-			'XM:i' => '4',
-			'XO:i' => '1',
-			'XG:i' => '1',
-			'MD:Z' => '73C12A11A1A0'
-		},
-	});
+	push @test_objects, $test_class->class->new(fields => ['HWI-EAS235_32:2:19:14059:2128', '0', 'chr5', '22985444', '37', '101M', '*', '0', '0', 'CAACACGTAAAGATCTATTTCAACGCTTCTTGCTTGTTTCTATATTGCTGAATACTAAGTAAGCCACATTGAAAAAGTAAAAGCAAGATTGCTTAGCTCTC', 'DDGE<EF8BFFGDDFHBGHHHHHHHGHH@GHHGHHD2@==FEEGEDBGGGGH@GFGDD@,EE8AAAACCCAAC;CA<8AE@;+)9<3:08<===<=*A>@5', 'NM:i:5', 'MD:Z:73C12A11A1A0']);
+	
+	
+	# AGTGAT____GGA---GTGACTCA-C -> CIGAR: 2M1I3M4N3M3D1M1I3M1I2M1D1M  /  2=1I1=1X1=4N1=1X1=3D1=1I2=1X1I2=1D1=
+    #     -      -        -
+    # AG-GCTNNNNGTAGAGG-GAG-CAGC -> MD:Z:  3C1^NNNN1T1^GAG3G2^G1
+	push @test_objects, $test_class->class->new(fields => ['Test6', '0', 'chr1', '356767', '37', '2=1I1=1X1=4N1=1X1=3D1=1I2=1X1I2=1D1=', '*', '0', '0', 'AGTGATGGAGTGACTCAC', 'B>D>EEBGHGEGCGGHFC', 'NM:i:5', 'MD:Z:3C1^NNNN1T1^GAG3G2^G1']);
+	
+	push @test_objects, $test_class->class->new(fields => ['Test7', '0', 'chr1', '356767', '37', '2M1I3M4N3M3D1M1I3M1I2M1D1M', '*', '0', '0', 'AGTGATGGAGTGACTCAC', 'B>D>EEBGHGEGCGGHFC', 'NM:i:5', 'MD:Z:3C1^NNNN1T1^GAG3G2^G1']);
 	
 	return \@test_objects;
 }

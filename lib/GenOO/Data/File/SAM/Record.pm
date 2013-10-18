@@ -9,21 +9,10 @@ GenOO::Data::File::SAM::Record - Object representing a record of a sam file
     # Object representing a record of a sam file 
 
     # To initialize 
-    my $sam_record = GenOO::Data::File::SAM::Record->new({
-        qname      => undef,
-        flag       => undef,
-        rname      => undef,
-        pos        => undef,
-        mapq       => undef,
-        cigar      => undef,
-        rnext      => undef,
-        pnext      => undef,
-        tlen       => undef,
-        seq        => undef,
-        qual       => undef,
-        tags       => undef,
-        extra      => undef,
-    });
+    my $sam_record = GenOO::Data::File::SAM::Record->new(
+        fields => [qname,flag, rname, pos, mapq, cigar,
+                   rnext, pnext, tlen, seq, qual, tags]
+    );
 
 
 =head1 DESCRIPTION
@@ -49,26 +38,44 @@ GenOO::Data::File::SAM::Record - Object representing a record of a sam file
 
 package GenOO::Data::File::SAM::Record;
 
+
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
 use Moose;
-use Moose::Util::TypeConstraints;
 use namespace::autoclean;
 
-subtype 'HashRefOfTags', as 'HashRef';
-coerce 'HashRefOfTags', from 'ArrayRef',via { _coerce_arrayref_to_hashref_for_tags($_) };
 
-has 'qname' => (isa => 'Str', is => 'rw'); # String [!-?A-~]f1,255g Query template NAME
-has 'flag'  => (isa => 'Int', is => 'rw'); # Int [0,216-1] bitwise FLAG
-has 'rname' => (isa => 'Str', is => 'rw'); # String \*|[!-()+-<>-~][!-~]* Reference sequence NAME
-has 'pos'   => (isa => 'Int', is => 'rw'); # Int [0,229-1] 1-based leftmost mapping POSition
-has 'mapq'  => (isa => 'Int', is => 'rw'); # Int [0,28-1] MAPping Quality
-has 'cigar' => (isa => 'Str', is => 'rw'); # String \*|([0-9]+[MIDNSHPX=])+ CIGAR string
-has 'rnext' => (isa => 'Str', is => 'rw'); # String \*|=|[!-()+-<>-~][!-~]* Ref. name of the mate/next segment
-has 'pnext' => (isa => 'Int', is => 'rw'); # Int [0,229-1] Position of the mate/next segment
-has 'tlen'  => (isa => 'Int', is => 'rw'); # Int [-229+1,229-1] observed Template LENgth
-has 'seq'   => (isa => 'Str', is => 'rw'); # String \*|[A-Za-z=.]+ segment SEQuence
-has 'qual'  => (isa => 'Str', is => 'rw'); # String [!-~]+ ASCII of Phred-scaled base QUALity+33
-has 'tags'  => (isa => 'HashRefOfTags', is => 'rw', coerce => 1,); # Extra tags
-has 'extra' => (is => 'rw');
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+has 'fields' => (
+	traits  => ['Array'],
+	is      => 'ro',
+	isa     => 'ArrayRef[Str]',
+	default => sub { [] },
+	handles => {
+		all_fields    => 'elements',
+		add_field     => 'push',
+		map_fields    => 'map',
+		filter_fields => 'grep',
+		find_field    => 'first',
+		get_field     => 'get',
+		join_fields   => 'join',
+		count_fields  => 'count',
+		has_fields    => 'count',
+		has_no_fields => 'is_empty',
+		sorted_fields => 'sort',
+	},
+	required => 1,
+);
+
+has 'tags' => (
+	is        => 'ro',
+	builder   => '_read_tags',
+	init_arg  => undef,
+	lazy      => 1,
+);
 
 has 'alignment_length' => (
 	is        => 'ro',
@@ -98,27 +105,91 @@ has 'strand' => (
 	lazy      => 1,
 );
 
-has 'copy_number' => (isa => 'Int', is => 'ro', default => 1, lazy => 1);
+has 'copy_number' => (
+	is      => 'ro',
+	default => 1,
+	lazy    => 1
+);
 
-# Consume roles
+has 'extra' => (
+	is        => 'rw',
+	init_arg  => undef,
+);
+
+
+#######################################################################
+##########################   Consumed Roles   #########################
+#######################################################################
 with 'GenOO::Region', 'GenOO::Data::File::SAM::CigarAndMDZ';
+
 
 #######################################################################
 ########################   Interface Methods   ########################
 #######################################################################
-sub strand_symbol {
+sub qname { # String [!-?A-~]f1,255g Query template NAME
 	my ($self) = @_;
 	
-	my $strand = $self->strand;
-	if (defined $strand) {
-		if ($strand == 1) {
-			return '+';
-		}
-		elsif ($strand == -1) {
-			return '-';
-		}
-	}
-	return undef;
+	return $self->fields->[0];
+}
+
+sub flag { # Int [0,216-1] bitwise FLAG
+	my ($self) = @_;
+	
+	return $self->fields->[1];
+}
+
+sub rname { # String \*|[!-()+-<>-~][!-~]* Reference sequence NAME
+	my ($self) = @_;
+	
+	return $self->fields->[2];
+}
+
+sub pos { # Int [0,229-1] 1-based leftmost mapping POSition
+	my ($self) = @_;
+	
+	return $self->fields->[3];
+}
+
+sub mapq { # Int [0,28-1] MAPping Quality
+	my ($self) = @_;
+	
+	return $self->fields->[4];
+}
+
+sub cigar { # String \*|([0-9]+[MIDNSHPX=])+ CIGAR string
+	my ($self) = @_;
+	
+	return $self->fields->[5];
+}
+
+sub rnext { # String \*|=|[!-()+-<>-~][!-~]* Ref. name of the mate/next segment
+	my ($self) = @_;
+	
+	return $self->fields->[6];
+}
+
+sub pnext { # Int [0,229-1] Position of the mate/next segment
+	my ($self) = @_;
+	
+	return $self->fields->[7];
+}
+
+sub tlen { # Int [-229+1,229-1] observed Template LENgth
+	my ($self) = @_;
+	
+	return $self->fields->[8];
+}
+
+sub seq { # String \*|[A-Za-z=.]+ segment SEQuence
+	my ($self) = @_;
+	
+	return $self->fields->[9];
+}
+
+sub qual { # String [!-~]+ ASCII of Phred-scaled base QUALity+33
+	my ($self) = @_;
+	
+	return $self->fields->[10];
 }
 
 sub query_seq {
@@ -144,6 +215,7 @@ sub query_seq {
 
 sub query_length {
 	my ($self) = @_;
+	
 	return CORE::length($self->seq); # using seq to avoid costs of query_seq
 }
 
@@ -161,32 +233,10 @@ sub mdz {
 	return $self->tag('MD:Z');
 }
 
-sub number_of_best_hits {
-	my ($self) = @_;
-	return $self->tag('X0:i');
-}
-
-sub number_of_suboptimal_hits {
-	my ($self) = @_;
-	return $self->tag('X1:i');
-}
-
-sub alternative_mappings {
-	my ($self) = @_;
-	
-	my @alternative_mappings;
-	my $value = $self->tag('XA:Z');
-	if (defined $value) {
-		@alternative_mappings = split(/;/,$value);
-	}
-	return @alternative_mappings;
-}
-
 sub to_string {
 	my ($self) = @_;
 	
-	my $tags_string = join("\t", map{$_.':'.$self->tag($_)} sort keys %{$self->tags});
-	return join("\t",$self->qname, $self->flag, $self->rname, $self->pos, $self->mapq, $self->cigar, $self->rnext, $self->pnext, $self->tlen, $self->seq, $self->qual, $tags_string);
+	return $self->join_fields("\t");
 }
 
 sub is_mapped {
@@ -211,22 +261,26 @@ sub is_unmapped {
 	}
 }
 
+
 #######################################################################
 #########################   Private methods  ##########################
 #######################################################################
 sub _calculate_alignment_length {
 	my ($self) = @_;
-	return $self->stop - $self->start + 1;
+	
+	return $self->length;
 }
 
 sub _calculate_start {
 	my ($self) = @_;
+	
 	return $self->pos - 1;
 }
 
 sub _calculate_stop {
 	my ($self) = @_;
-	return $self->start + $self->query_length - 1 - $self->insertion_count + $self->deletion_count;
+	
+	return $self->start + $self->M_count + $self->D_count + $self->N_count + $self->EQ_count  + $self->X_count  + $self->P_count - 1;
 }
 
 sub _calculate_strand {
@@ -243,42 +297,20 @@ sub _calculate_strand {
 	}
 }
 
-#######################################################################
-#######################   Private Methods  ############################
-#######################################################################
-sub _coerce_arrayref_to_hashref_for_tags {
-	my ($value) = @_;
-	
-	my $hash_ref = {};
-	if (defined $value) {
-		foreach my $tag_var (@$value) { #"XT:A:R\tNM:i:0\tX0:i:2\tX1:i:0\tXM:i:0\tXO:i:0\tXG:i:0\tMD:Z:32\tXA:Z:chr9,+110183777,32M,0;"
-			my ($tag, $tag_type, $tag_value) = split(/:/,$tag_var);
-			$hash_ref->{"$tag:$tag_type"} = $tag_value;
-		}
-	}
-	return $hash_ref;
-}
-
-sub _how_many_are_smaller {
-	my ($value, $array) = @_;
-	
-	my $count = 0;
-	foreach my $array_value (@$array) {
-		if ($array_value < $value) {
-			$count++;
-		}
-	}
-	return $count;
-}
-
-#######################################################################
-#######################   Deprecated Methods   ########################
-#######################################################################
-sub length {
+sub _read_tags {
 	my ($self) = @_;
-	warn 'Deprecated method "length". Consider using "alignment_length" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->alignment_length;
+	
+	my %tags;
+	
+	my @tags_array = @{$self->fields}[11..$self->count_fields-1];
+	foreach my $tag_var (@tags_array) { 
+		my ($tag, $tag_type, $tag_value) = split(/:/,$tag_var);
+		$tags{"$tag:$tag_type"} = $tag_value;
+	}
+	
+	return \%tags;
 }
+
 
 #######################################################################
 ############################   Finalize   #############################
