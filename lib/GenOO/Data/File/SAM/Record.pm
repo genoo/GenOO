@@ -280,7 +280,7 @@ sub _calculate_start {
 sub _calculate_stop {
 	my ($self) = @_;
 	
-	return $self->start + $self->query_length - 1 - $self->insertion_count + $self->deletion_count;
+	return $self->start + $self->M_count + $self->D_count + $self->N_count + $self->EQ_count  + $self->X_count  + $self->P_count - 1;
 }
 
 sub _calculate_strand {

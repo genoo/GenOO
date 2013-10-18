@@ -114,7 +114,7 @@ sub tags : Test(1) {
 	can_ok $self->obj(0), 'tags';
 }
 
-sub alignment_length : Test(5) {
+sub alignment_length : Test(7) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'alignment_length';
@@ -122,6 +122,8 @@ sub alignment_length : Test(5) {
 	is $self->obj(1)->alignment_length, 102, "... and returns the correct value";
 	is $self->obj(2)->alignment_length, 102, "... and returns the correct value";
 	is $self->obj(3)->alignment_length, 102, "... and returns the correct value";
+	is $self->obj(6)->alignment_length, 23, "... and returns the correct value";
+	is $self->obj(7)->alignment_length, 23, "... and returns the correct value";
 }
 
 sub start : Test(5) {
@@ -134,7 +136,7 @@ sub start : Test(5) {
 	is $self->obj(3)->start, 22985443, "... and returns the correct value";
 }
 
-sub stop : Test(5) {
+sub stop : Test(7) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'stop';
@@ -142,6 +144,8 @@ sub stop : Test(5) {
 	is $self->obj(1)->stop, 22051163, "... and returns the correct value";
 	is $self->obj(2)->stop, 187239450, "... and returns the correct value";
 	is $self->obj(3)->stop, 22985544, "... and returns the correct value";
+	is $self->obj(6)->stop, 356788, "... and returns the correct value";
+	is $self->obj(7)->stop, 356788, "... and returns the correct value";
 }
 
 sub strand : Test(6) {
@@ -172,7 +176,7 @@ sub query_seq : Test(2) {
 	is $self->obj(0)->query_seq, 'CTAAGGAGTGTGTAACAACTCACCTGCCGAAT', "... and returns the correct value";
 }
 
-sub query_length : Test(6) {
+sub query_length : Test(8) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'query_length';
@@ -182,6 +186,8 @@ sub query_length : Test(6) {
 	is $self->obj(2)->query_length, 101, "... and returns the correct value";
 	is $self->obj(3)->query_length, 101, "... and returns the correct value";
 	is $self->obj(4)->query_length, 20, "... and returns the correct value";
+	is $self->obj(6)->query_length, 18, "... and returns the correct value";
+	is $self->obj(7)->query_length, 18, "... and returns the correct value";
 }
 
 sub tag : Test(3) {
@@ -193,7 +199,63 @@ sub tag : Test(3) {
 	is $self->obj(0)->tag('MD:Z'), 32, "... and returns the correct value";
 }
 
-sub insertion_count : Test(5) {
+sub M_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'M_count';
+	is $self->obj(7)->M_count, 15, "... and returns the correct value";
+}
+
+sub I_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'I_count';
+	is $self->obj(7)->I_count, 3, "... and returns the correct value";
+}
+
+sub D_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'D_count';
+	is $self->obj(7)->D_count, 4, "... and returns the correct value";
+}
+
+sub N_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'N_count';
+	is $self->obj(7)->N_count, 4, "... and returns the correct value";
+}
+
+sub S_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'S_count';
+	is $self->obj(7)->S_count, 0, "... and returns the correct value";
+}
+
+sub H_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'H_count';
+	is $self->obj(7)->H_count, 0, "... and returns the correct value";
+}
+
+sub EQ_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'EQ_count';
+	is $self->obj(6)->EQ_count, 12, "... and returns the correct value";
+}
+
+sub X_count : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'X_count';
+	is $self->obj(6)->X_count, 3, "... and returns the correct value";
+}
+
+sub insertion_count : Test(7) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'insertion_count';
@@ -202,9 +264,11 @@ sub insertion_count : Test(5) {
 	is $self->obj(1)->insertion_count, 1, "... and returns the correct value";
 	is $self->obj(2)->insertion_count, 1, "... and returns the correct value";
 	is $self->obj(3)->insertion_count, 0, "... and returns the correct value";
+	is $self->obj(6)->insertion_count, 3, "... and returns the correct value";
+	is $self->obj(7)->insertion_count, 3, "... and returns the correct value";
 }
 
-sub deletion_count : Test(5) {
+sub deletion_count : Test(7) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'deletion_count';
@@ -213,43 +277,37 @@ sub deletion_count : Test(5) {
 	is $self->obj(1)->deletion_count, 2, "... and returns the correct value";
 	is $self->obj(2)->deletion_count, 2, "... and returns the correct value";
 	is $self->obj(3)->deletion_count, 1, "... and returns the correct value";
+	is $self->obj(6)->deletion_count, 4, "... and returns the correct value";
+	is $self->obj(7)->deletion_count, 4, "... and returns the correct value";
 }
 
-sub deletion_positions_on_query : Test(5) {
+sub deletion_positions_on_query : Test(7) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'deletion_positions_on_query';
 	
 	is_deeply [$self->obj(0)->deletion_positions_on_query], [], "... and returns the correct value";
-	is_deeply [$self->obj(1)->deletion_positions_on_query], [95], "... and returns the correct value";
-	is_deeply [$self->obj(2)->deletion_positions_on_query], [36], "... and returns the correct value";
-	is_deeply [$self->obj(3)->deletion_positions_on_query], [56], "... and returns the correct value";
+	is_deeply [$self->obj(1)->deletion_positions_on_query], [94], "... and returns the correct value";
+	is_deeply [$self->obj(2)->deletion_positions_on_query], [35], "... and returns the correct value";
+	is_deeply [$self->obj(3)->deletion_positions_on_query], [55], "... and returns the correct value";
+	is_deeply [$self->obj(6)->deletion_positions_on_query], [8,16], "... and returns the correct value";
+	is_deeply [$self->obj(7)->deletion_positions_on_query], [8,16], "... and returns the correct value";
 }
 
-sub deletion_positions_on_reference : Test(5) {
+sub insertion_positions_on_query : Test(7) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'deletion_positions_on_reference';
+	can_ok $self->obj(0), 'insertion_positions_on_query';
 	
-	is_deeply [$self->obj(0)->deletion_positions_on_reference], [], "... and returns the correct value";
-	is_deeply [$self->obj(1)->deletion_positions_on_reference], [22051067,22051068], "... and returns the correct value";
-	is_deeply [$self->obj(2)->deletion_positions_on_reference], [187239385,187239386], "... and returns the correct value";
-	is_deeply [$self->obj(3)->deletion_positions_on_reference], [22985499], "... and returns the correct value";
+	is_deeply [$self->obj(0)->insertion_positions_on_query], [], "... and returns the correct value";
+	is_deeply [$self->obj(1)->insertion_positions_on_query], [98], "... and returns the correct value";
+	is_deeply [$self->obj(2)->insertion_positions_on_query], [38], "... and returns the correct value";
+	is_deeply [$self->obj(3)->insertion_positions_on_query], [], "... and returns the correct value";
+	is_deeply [$self->obj(6)->insertion_positions_on_query], [2,10,14], "... and returns the correct value";
+	is_deeply [$self->obj(7)->insertion_positions_on_query], [2,10,14], "... and returns the correct value";
 }
 
-sub mismatch_positions_on_reference : Test(6) {
-	my ($self) = @_;
-	
-	can_ok $self->obj(0), 'mismatch_positions_on_reference';
-	
-	is_deeply [$self->obj(0)->mismatch_positions_on_reference], [], "... and returns the correct value";
-	is_deeply [$self->obj(1)->mismatch_positions_on_reference], [22051062,22051125], "... and returns the correct value";
-	is_deeply [$self->obj(2)->mismatch_positions_on_reference], [187239361,187239398], "... and returns the correct value";
-	is_deeply [$self->obj(3)->mismatch_positions_on_reference], [22985517,22985530,22985542,22985544], "... and returns the correct value";
-	is_deeply [$self->obj(5)->mismatch_positions_on_reference], [22985516,22985529,22985541,22985543], "... and returns the correct value";
-}
-
-sub mismatch_positions_on_query : Test(6) {
+sub mismatch_positions_on_query : Test(8) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'mismatch_positions_on_query';
@@ -259,6 +317,35 @@ sub mismatch_positions_on_query : Test(6) {
 	is_deeply [$self->obj(2)->mismatch_positions_on_query], [12,48], "... and returns the correct value";
 	is_deeply [$self->obj(3)->mismatch_positions_on_query], [73,86,98,100], "... and returns the correct value";
 	is_deeply [$self->obj(5)->mismatch_positions_on_query], [73,86,98,100], "... and returns the correct value";
+	is_deeply [$self->obj(6)->mismatch_positions_on_query], [4,7,13], "... and returns the correct value";
+	is_deeply [$self->obj(7)->mismatch_positions_on_query], [4,7,13], "... and returns the correct value";
+}
+
+sub deletion_positions_on_reference : Test(7) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'deletion_positions_on_reference';
+	
+	is_deeply [$self->obj(0)->deletion_positions_on_reference], [], "... and returns the correct value";
+	is_deeply [$self->obj(1)->deletion_positions_on_reference], [22051067,22051068], "... and returns the correct value";
+	is_deeply [$self->obj(2)->deletion_positions_on_reference], [187239385,187239386], "... and returns the correct value";
+	is_deeply [$self->obj(3)->deletion_positions_on_reference], [22985499], "... and returns the correct value";
+	is_deeply [$self->obj(6)->deletion_positions_on_reference], [356778,356779,356780,356787], "... and returns the correct value";
+	is_deeply [$self->obj(7)->deletion_positions_on_reference], [356778,356779,356780,356787], "... and returns the correct value";
+}
+
+sub mismatch_positions_on_reference : Test(8) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'mismatch_positions_on_reference';
+	
+	is_deeply [$self->obj(0)->mismatch_positions_on_reference], [], "... and returns the correct value";
+	is_deeply [$self->obj(1)->mismatch_positions_on_reference], [22051062,22051125], "... and returns the correct value";
+	is_deeply [$self->obj(2)->mismatch_positions_on_reference], [187239361,187239398], "... and returns the correct value";
+	is_deeply [$self->obj(3)->mismatch_positions_on_reference], [22985517,22985530,22985542,22985544], "... and returns the correct value";
+	is_deeply [$self->obj(5)->mismatch_positions_on_reference], [22985516,22985529,22985541,22985543], "... and returns the correct value";
+	is_deeply [$self->obj(6)->mismatch_positions_on_reference], [356769,356776,356784], "... and returns the correct value";
+	is_deeply [$self->obj(7)->mismatch_positions_on_reference], [356769,356776,356784], "... and returns the correct value";
 }
 
 sub cigar_relative_to_query : Test(6) {
@@ -307,20 +394,6 @@ sub is_unmapped : Test(6) {
 	is $self->obj(4)->is_unmapped, 1, "... and again";
 }
 
-#######################################################################
-##########################   Helper Methods   #########################
-#######################################################################
-sub obj {
-	my ($self, $index) = @_;
-	
-	return $self->{TEST_OBJECTS}->[$index];
-}
-
-sub objs {
-	my ($self) = @_;
-	
-	return @{$self->{TEST_OBJECTS}};
-}
 
 #######################################################################
 ###############   Class method to create test objects   ###############
@@ -343,6 +416,14 @@ sub test_objects {
 	push @test_objects, $test_class->class->new(fields => ['HWI-EAS235_32:1:1:7112:1235', '4', '*', '0', '0', '*', '*', '0', '0', 'TNNNNNNNNCCAAGTGAAAG', '?########20;<73@@B@@']);
 	
 	push @test_objects, $test_class->class->new(fields => ['HWI-EAS235_32:2:19:14059:2128', '0', 'chr5', '22985444', '37', '101M', '*', '0', '0', 'CAACACGTAAAGATCTATTTCAACGCTTCTTGCTTGTTTCTATATTGCTGAATACTAAGTAAGCCACATTGAAAAAGTAAAAGCAAGATTGCTTAGCTCTC', 'DDGE<EF8BFFGDDFHBGHHHHHHHGHH@GHHGHHD2@==FEEGEDBGGGGH@GFGDD@,EE8AAAACCCAAC;CA<8AE@;+)9<3:08<===<=*A>@5', 'NM:i:5', 'MD:Z:73C12A11A1A0']);
+	
+	
+	# AGTGAT____GGA---GTGACTCA-C -> CIGAR: 2M1I3M4N3M3D1M1I3M1I2M1D1M  /  2=1I1=1X1=4N1=1X1=3D1=1I2=1X1I2=1D1=
+    #     -      -        -
+    # AG-GCTNNNNGTAGAGG-GAG-CAGC -> MD:Z:  3C1^NNNN1T1^GAG3G2^G1
+	push @test_objects, $test_class->class->new(fields => ['Test6', '0', 'chr1', '356767', '37', '2=1I1=1X1=4N1=1X1=3D1=1I2=1X1I2=1D1=', '*', '0', '0', 'AGTGATGGAGTGACTCAC', 'B>D>EEBGHGEGCGGHFC', 'NM:i:5', 'MD:Z:3C1^NNNN1T1^GAG3G2^G1']);
+	
+	push @test_objects, $test_class->class->new(fields => ['Test7', '0', 'chr1', '356767', '37', '2M1I3M4N3M3D1M1I3M1I2M1D1M', '*', '0', '0', 'AGTGATGGAGTGACTCAC', 'B>D>EEBGHGEGCGGHFC', 'NM:i:5', 'MD:Z:3C1^NNNN1T1^GAG3G2^G1']);
 	
 	return \@test_objects;
 }

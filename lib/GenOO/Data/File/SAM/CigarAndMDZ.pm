@@ -2,31 +2,25 @@
 
 =head1 NAME
 
-GenOO::Region - Role that represents a region on a reference sequence
+GenOO::Data::File::SAM::CigarAndMDZ - Role that combines SAM CIGAR string with MD:Z tag
 
 =head1 SYNOPSIS
 
     This role when consumed requires specific attributes and provides
-    methods that correspond to a region on a reference sequence.
+    methods to extract information from the CIGAR string in combination
+    with the MD:Z tag.
 
 =head1 DESCRIPTION
 
-    A region object is an area on another reference sequence. It has a
-    specific start and stop position on the reference and a specific 
-    direction (strand). It has methods that combine the direction with
-    the positional information a give positions for the head or the tail
-    of the region. It also offers methods that calculate distances or
-    overlaps with other object that also consume the role.
+    The cigar string does not usually contain information regarding the deletions.
+    For this the MD:Z tag is usually provided. Combining the CIGAR information with
+    the MD:Z tag we can extract information such as for example the deletion positions
+    on the query sequence.
 
 =head1 EXAMPLES
 
     # Get the location information on the reference sequence
-    $obj_with_role->start;   # 10
-    $obj_with_role->stop;    # 20
-    $obj_with_role->strand;  # -1
-    
-    # Get the head position on the reference sequence
-    $obj_with_role->head_position;  # 20
+    $obj_with_role->mismatch_positions_on_query_calculated_from_mdz;   # (10, 19)
 
 =cut
 
@@ -57,7 +51,7 @@ with 'GenOO::Data::File::SAM::Cigar', 'GenOO::Data::File::SAM::MDZ';
 #######################################################################
 ########################   Interface Methods   ########################
 #######################################################################
-sub mismatch_positions_on_query {
+sub mismatch_positions_on_query_calculated_from_mdz {
 	my ($self) = @_;
 	#Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA -> CIGAR: 2M1I7M6D26M
 	#            -   -
@@ -69,14 +63,14 @@ sub mismatch_positions_on_query {
 	my @deletion_positions;
 	my @insertion_positions;
 	my $position = 0;
-	while ($cigar =~ /(\d+)([A-Z])/g) {
+	while ($cigar =~ /(\d+)([MIDNSHP=X])/g) {
 		my $count = $1;
 		my $identifier = $2;
 		
-		if ($identifier eq 'D') {
+		if ($identifier eq 'D' or $identifier eq 'N' or $identifier eq 'P' or $identifier eq 'H') {
 			push (@deletion_positions, $position + $_) for (0..$count-1)
 		}
-		elsif ($identifier eq 'I') {
+		elsif ($identifier eq 'I' or $identifier eq 'S') {
 			push (@insertion_positions, $position + $_) for (0..$count-1)
 		}
 		$position += $count;
