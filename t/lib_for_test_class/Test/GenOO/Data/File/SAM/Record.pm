@@ -159,7 +159,7 @@ sub strand : Test(6) {
 	is $self->obj(4)->strand, undef, "... and returns the correct value";
 }
 
-sub strand_symbol : Test(6) {
+sub strand_symbol : Test(4) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'strand_symbol';
@@ -374,7 +374,7 @@ sub to_string : Test(2) {
 	is $self->obj(0)->to_string, $expected, "... and returns the correct value";
 }
 
-sub is_mapped : Test(6) {
+sub is_mapped : Test(4) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'is_mapped';
@@ -384,7 +384,7 @@ sub is_mapped : Test(6) {
 	is $self->obj(4)->is_mapped, 0, "... and again";
 }
 
-sub is_unmapped : Test(6) {
+sub is_unmapped : Test(4) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'is_unmapped';

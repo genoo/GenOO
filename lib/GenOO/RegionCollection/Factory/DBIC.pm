@@ -71,6 +71,8 @@ use GenOO::RegionCollection::Type::DBIC;
 has 'dsn' => (
 	isa      => 'Str',
 	is       => 'ro',
+	builder  => '_build_dsn',
+	lazy     => 1
 );
 
 has 'user' => (
@@ -91,28 +93,28 @@ has 'attributes' => (
 );
 
 has 'driver' => (
-	isa      => 'Str',
-	is       => 'ro',
-);
-
-has 'host' => (
-	isa => 'Maybe[Str]',
+	isa => 'Str',
 	is  => 'ro',
 );
 
 has 'database' => (
-	isa      => 'Str',
-	is       => 'ro',
+	isa => 'Str',
+	is  => 'ro',
+);
+
+has 'host' => (
+	isa => 'Str',
+	is  => 'ro',
 );
 
 has 'table' => (
-	isa      => 'Str',
-	is       => 'ro',
+	isa => 'Str',
+	is  => 'ro',
 );
 
 has 'port' => (
-	isa => 'Maybe[Int]',
-	is => 'ro',
+	isa => 'Int',
+	is  => 'ro',
 );
 
 
@@ -141,6 +143,19 @@ sub read_collection {
 	($init_data->{port}       = $self->port)       if defined $self->port;
 	
 	return GenOO::RegionCollection::Type::DBIC->new($init_data);
+}
+
+#######################################################################
+#########################   Private Methods   #########################
+#######################################################################
+sub _build_dsn {
+	my ($self) = @_;
+	
+	my $dsn = 'dbi:'.$self->driver.':database='.$self->database;
+	$dsn .= ';host='.$self->host if defined $self->host;
+	$dsn .= ';port='.$self->port if defined $self->port;
+	
+	return $dsn;
 }
 
 1;
