@@ -1,4 +1,4 @@
 #!/usr/bin/env perl -T
 use Modern::Perl;
 
-use Test::Class::Load qw(t/);
+use TestClassLoader qw(t/lib/);
