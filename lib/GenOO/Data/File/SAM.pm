@@ -48,7 +48,7 @@ use namespace::autoclean;
 #######################   Interface attributes   ######################
 #######################################################################
 has 'file' => (
-	isa      => 'Str',
+	isa      => 'Maybe[Str]', # undef value makes the parser read from STDIN
 	is       => 'ro',
 	required => 1,
 );
