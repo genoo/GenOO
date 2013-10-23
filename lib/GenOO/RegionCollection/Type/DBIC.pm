@@ -47,18 +47,72 @@ GenOO::RegionCollection::Type::DBIC - Class for a collection of GenOO::Region ob
 
 package GenOO::RegionCollection::Type::DBIC;
 
+
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
+use Modern::Perl;
+use autodie;
 use Moose;
 use namespace::autoclean;
 
+
+#######################################################################
+########################   Load GenOO modules   #######################
+#######################################################################
 use GenOO::Data::DB::DBIC::Species::Schema;
 
-has 'driver'      => (isa => 'Str', is => 'ro', default => 'mysql');
-has 'host'        => (isa => 'Str', is => 'ro', default => 'localhost');
-has 'database'    => (isa => 'Str', is => 'ro', required => 1);
-has 'table'       => (isa => 'Str', is => 'ro', required => 1);
-has 'user'        => (isa => 'Str', is => 'ro');
-has 'password'    => (isa => 'Str', is => 'ro');
-has 'port'        => (isa => 'Int', is => 'ro', default => 3306);
+
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+has 'dsn' => (
+	isa      => 'Str',
+	is       => 'ro',
+);
+
+has 'user' => (
+	isa => 'Maybe[Str]',
+	is => 'ro'
+);
+
+has 'password' => (
+	isa => 'Maybe[Str]',
+	is  => 'ro'
+);
+
+has 'attributes' => (
+	traits    => ['Hash'],
+	is        => 'ro',
+	isa       => 'HashRef[Str]',
+	default   => sub { {} },
+);
+
+has 'driver' => (
+	isa      => 'Str',
+	is       => 'ro',
+);
+
+has 'host' => (
+	isa => 'Maybe[Str]',
+	is  => 'ro',
+);
+
+has 'database' => (
+	isa      => 'Str',
+	is       => 'ro',
+);
+
+has 'table' => (
+	isa      => 'Str',
+	is       => 'ro',
+);
+
+has 'port' => (
+	isa => 'Maybe[Int]',
+	is => 'ro',
+);
+
 has 'name'        => (isa => 'Str', is => 'rw');
 has 'species'     => (isa => 'Str', is => 'rw');
 has 'description' => (isa => 'Str', is => 'rw');
@@ -227,7 +281,6 @@ sub _init_schema {
 	my $connection_str = 'dbi:'.$self->driver.':dbname='.$self->database.';host='.$self->host.';port='.$self->port;
 	
 	return GenOO::Data::DB::DBIC::Species::Schema->connect($connection_str, $self->user, $self->password);
-# 	return GenOO::Data::DB::DBIC::Species::Schema->connect($connection_str, $self->user, $self->password, {quote_names => 1});
 }
 
 sub _init_resultset {

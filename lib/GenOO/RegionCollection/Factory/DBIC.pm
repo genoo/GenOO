@@ -49,20 +49,78 @@ GenOO::RegionCollection::Factory::DB - Factory for creating GenOO::RegionCollect
 
 package GenOO::RegionCollection::Factory::DBIC;
 
+
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
+use Modern::Perl;
+use autodie;
 use Moose;
 use namespace::autoclean;
 
+
+#######################################################################
+########################   Load GenOO modules   #######################
+#######################################################################
 use GenOO::RegionCollection::Type::DBIC;
 
-has 'driver'      => (isa => 'Str', is => 'ro', default => 'mysql');
-has 'host'        => (isa => 'Str', is => 'ro', default => 'localhost');
-has 'database'    => (isa => 'Str', is => 'ro', required => 1);
-has 'table'       => (isa => 'Str', is => 'ro', required => 1);
-has 'user'        => (isa => 'Str', is => 'ro');
-has 'password'    => (isa => 'Str', is => 'ro');
-has 'port'        => (isa => 'Int', is => 'ro', default => 3306);
 
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+has 'dsn' => (
+	isa      => 'Str',
+	is       => 'ro',
+);
+
+has 'user' => (
+	isa => 'Maybe[Str]',
+	is => 'ro'
+);
+
+has 'password' => (
+	isa => 'Maybe[Str]',
+	is  => 'ro'
+);
+
+has 'attributes' => (
+	traits    => ['Hash'],
+	is        => 'ro',
+	isa       => 'HashRef[Str]',
+	default   => sub { {} },
+);
+
+has 'driver' => (
+	isa      => 'Str',
+	is       => 'ro',
+);
+
+has 'host' => (
+	isa => 'Maybe[Str]',
+	is  => 'ro',
+);
+
+has 'database' => (
+	isa      => 'Str',
+	is       => 'ro',
+);
+
+has 'table' => (
+	isa      => 'Str',
+	is       => 'ro',
+);
+
+has 'port' => (
+	isa => 'Maybe[Int]',
+	is => 'ro',
+);
+
+
+#######################################################################
+##########################   Consumed Roles   #########################
+#######################################################################
 with 'GenOO::RegionCollection::Factory::Requires';
+
 
 #######################################################################
 ########################   Interface Methods   ########################
@@ -74,11 +132,13 @@ sub read_collection {
 		database    => $self->database,
 		table       => $self->table,
 	};
-	($init_data->{driver}   = $self->driver)   if defined $self->driver;
-	($init_data->{host}     = $self->host)     if defined $self->host;
-	($init_data->{user}     = $self->user)     if defined $self->user;
-	($init_data->{password} = $self->password) if defined $self->password;
-	($init_data->{port}     = $self->port)     if defined $self->port;
+	($init_data->{dsn}        = $self->dsn)        if defined $self->dsn;
+	($init_data->{attributes} = $self->attributes) if defined $self->attributes;
+	($init_data->{driver}     = $self->driver)     if defined $self->driver;
+	($init_data->{host}       = $self->host)       if defined $self->host;
+	($init_data->{user}       = $self->user)       if defined $self->user;
+	($init_data->{password}   = $self->password)   if defined $self->password;
+	($init_data->{port}       = $self->port)       if defined $self->port;
 	
 	return GenOO::RegionCollection::Type::DBIC->new($init_data);
 }
