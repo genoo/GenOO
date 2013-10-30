@@ -2,13 +2,15 @@
 
 =head1 NAME
 
-GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v1 - DBIC Result class for sequenced reads
+GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v2 - DBIC Result class for sequenced reads
 
 =head1 SYNOPSIS
 
     # This class is not designed to be directly used in a DBIC schema because a 
     # table name is not defined. Rather it serves as a base class to be inherited
     # by an actual result class to provide a common column structure.
+    
+    # Offers more columns than GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v1
     
 =head1 DESCRIPTION
 
@@ -32,7 +34,7 @@ GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v1 - DBIC Result class
 
 # Let the code begin...
 
-package GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v1;
+package GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v2;
 
 
 #######################################################################
@@ -57,6 +59,7 @@ extends 'DBIx::Class::Core';
 # the table columns. These methods basically overide those created by
 # DBIx::Class. The column types are defined at the end of the class in
 # the "Package Methods" section
+
 has 'strand' => (
 	is => 'rw',
 );
@@ -89,6 +92,18 @@ has 'mdz' => (
 	is => 'rw',
 );
 
+has 'number_of_mappings' => (
+	is => 'rw',
+);
+
+has 'query_length' => (
+	is => 'rw',
+);
+
+has 'alignment_length' => (
+	is => 'rw',
+);
+
 has 'extra' => (
 	is => 'rw'
 );
@@ -106,13 +121,8 @@ with 'GenOO::Region', 'GenOO::Data::File::SAM::CigarAndMDZ';
 sub sequence_length {
 	my ($self) = @_;
 	
+	return $self->query_length if defined $self->query_length;
 	return CORE::length($self->sequence);
-}
-
-sub query_length {
-	my ($self) = @_;
-	
-	return $self->sequence_length;
 }
 
 
@@ -163,9 +173,20 @@ __PACKAGE__->add_columns(
 		is_nullable => 1,
 		size => 250
 	},
-	'number_of_best_hits', {
+	'number_of_mappings', {
 		data_type => 'integer',
+		extra => { unsigned => 1 },
 		is_nullable => 1
+	},
+	'query_length', {
+		data_type => 'integer',
+		extra => { unsigned => 1 },
+		is_nullable => 0
+	},
+	'alignment_length', {
+		data_type => 'integer',
+		extra => { unsigned => 1 },
+		is_nullable => 0
 	},
 );
 

@@ -59,6 +59,12 @@ GenOO::GenomicRegion - Object that corresponds to a region on a genome
 
 package GenOO::GenomicRegion;
 
+
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
+use Modern::Perl;
+use autodie;
 use Moose;
 use Moose::Util::TypeConstraints;
 use namespace::autoclean;
@@ -67,17 +73,67 @@ subtype 'RegionStrand', as 'Int', where {($_ == 1) or ($_ == -1)};
 
 coerce 'RegionStrand', from 'Str', via { _sanitize_strand($_) };
 
-has 'name'        => (isa => 'Str', is => 'rw');
-has 'species'     => (isa => 'Str', is => 'rw');
-has 'strand'      => (isa => 'RegionStrand', is => 'rw', required => 1, coerce => 1);
-has 'chromosome'  => (isa => 'Str', is => 'rw', required => 1);
-has 'start'       => (isa => 'Int', is => 'rw', required => 1);
-has 'stop'        => (isa => 'Int', is => 'rw', required => 1);
-has 'copy_number' => (isa => 'Int', is => 'rw', default => 1, lazy => 1);
-has 'sequence'    => (isa => 'Str', is => 'rw');
-has 'extra'       => (is => 'rw');
 
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+has 'name' => (
+	isa => 'Str',
+	is  => 'rw'
+);
+
+has 'species' => (
+	isa => 'Str',
+	is  => 'rw'
+);
+
+has 'strand' => (
+	isa      => 'RegionStrand',
+	is       => 'rw',
+	required => 1,
+	coerce   => 1
+);
+
+has 'chromosome' => (
+	isa      => 'Str',
+	is       => 'rw',
+	required => 1
+);
+
+has 'start' => (
+	isa      => 'Int',
+	is       => 'rw',
+	required => 1
+);
+
+has 'stop' => (
+	isa      => 'Int',
+	is       => 'rw',
+	required => 1
+);
+
+has 'copy_number' => (
+	isa     => 'Int',
+	is      => 'rw',
+	default => 1,
+	lazy    => 1
+);
+
+has 'sequence' => (
+	isa => 'Str',
+	is  => 'rw'
+);
+
+has 'extra' => (
+	is => 'rw'
+);
+
+
+#######################################################################
+##########################   Consumed Roles   #########################
+#######################################################################
 with 'GenOO::Region';
+
 
 #######################################################################
 ########################   Interface Methods   ########################
@@ -94,6 +150,7 @@ sub id {
 	return $self->location;
 }
 
+
 #######################################################################
 #########################   Private methods  ##########################
 #######################################################################
@@ -108,128 +165,9 @@ sub _sanitize_strand {
 	}
 }
 
-sub _sanitize_chromosome {
-	my ($self) = @_;
-	
-	if ($self->chromosome =~ /^>/) {
-		warn 'Deprecated chromosome value. Prefix ">" is no longer supported. Consider changing value before creating the object in '.(caller)[1].' line '.(caller)[2]."\n";
-		my $value = $self->chromosome;
-		$value =~ s/^>//;
-		$self->chromosome($value);
-	}
-}
-
 
 #######################################################################
-#######################   Deprecated Methods   ########################
+############################   Finalize   #############################
 #######################################################################
-sub get_5p {
-	my ($self) = @_;
-	warn 'Deprecated method "get_5p". Use "head_position" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->head_position;
-}
-
-sub get_3p {
-	my ($self) = @_;
-	warn 'Deprecated method "get_3p". Use "tail_position" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->tail_position;
-}
-
-sub get_5p_5p_distance_from {
-	my ($self, $from_region) = @_;
-	warn 'Deprecated method "get_5p_5p_distance_from". Use "head_head_distance_from" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->head_head_distance_from($from_region);
-}
-
-sub get_5p_3p_distance_from {
-	my ($self, $from_region) = @_;
-	warn 'Deprecated method "get_5p_3p_distance_from". Use "head_tail_distance_from" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->head_tail_distance_from($from_region);
-}
-
-sub get_3p_5p_distance_from {
-	my ($self, $from_region) = @_;
-	warn 'Deprecated method "get_3p_5p_distance_from". Use "tail_head_distance_from" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->tail_head_distance_from($from_region);
-}
-
-sub get_3p_3p_distance_from {
-	my ($self, $from_region) = @_;
-	warn 'Deprecated method "get_3p_3p_distance_from". Use "tail_tail_distance_from" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->tail_tail_distance_from($from_region);
-}
-
-sub get_species {
-	my ($self) = @_;
-	warn 'Deprecated method "get_species". Use "species" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->species;
-}
-
-sub get_strand {
-	my ($self) = @_;
-	warn 'Deprecated method "get_strand". Use "strand" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->strand;
-}
-
-sub chr {
-	my ($self) = @_;
-	warn 'Deprecated method "chr". Use "chromosome" instead '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->chromosome;
-}
-
-sub get_chr {
-	my ($self) = @_;
-	warn 'Deprecated method "get_chr". Use "chromosome" instead '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->chromosome;
-}
-
-sub get_start {
-	my ($self) = @_;
-	warn 'Deprecated method "get_start". Use "start" instead '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->start;
-}
-
-sub get_stop {
-	my ($self) = @_;
-	warn 'Deprecated method "get_stop". Use "stop" instead '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->stop;
-}
-
-sub get_sequence {
-	my ($self) = @_;
-	warn 'Deprecated method "get_sequence". Use "sequence" instead '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->sequence;
-}
-
-sub get_name {
-	my ($self) = @_;
-	warn 'Deprecated method "get_name". Use "name" instead '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->name;
-}
-
-sub get_length {
-	my ($self) = @_;
-	warn 'Deprecated method "get_length". Use "length" instead '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->length;
-}
-
-sub get_strand_symbol {
-	my ($self) = @_;
-	warn 'Deprecated method "get_strand_symbol". Use "strand_symbol" instead '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->strand_symbol;
-}
-
-sub get_id {
-	my ($self) = @_;
-	warn 'Deprecated method "get_id". Use "id" instead '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->id;
-}
-
-sub get_location {
-	my ($self) = @_;
-	warn 'Deprecated method "get_location". Use "location" instead '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->location;
-}
-
 __PACKAGE__->meta->make_immutable;
 1;

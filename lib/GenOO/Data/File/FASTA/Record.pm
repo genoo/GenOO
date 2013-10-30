@@ -29,7 +29,10 @@ GenOO::Data::File::FASTA::Record - Object representing a record of a fasta file
 
 package GenOO::Data::File::FASTA::Record;
 
-# Load external modules
+
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
 use Modern::Perl;
 use autodie;
 use Moose;
@@ -37,7 +40,7 @@ use namespace::autoclean;
 
 
 #######################################################################
-############################   Attributes   ###########################
+#######################   Interface attributes   ######################
 #######################################################################
 has 'header' => (
 	isa      => 'Str',
@@ -51,19 +54,15 @@ has 'sequence' => (
 	required => 1
 );
 
+
+#######################################################################
+##############################   BUILD   ##############################
+#######################################################################
 around BUILDARGS => sub {
 	my ($orig, $class) = @_;
 	
 	my $argv_hash_ref = $class->$orig(@_);
 	
-	if (exists $argv_hash_ref->{HEADER}) {
-		$argv_hash_ref->{header} = delete $argv_hash_ref->{HEADER};
-		warn 'Deprecated use of "HEADER" in '.__PACKAGE__.' constructor. Use "header" instead.'."\n";
-	}
-	if (exists $argv_hash_ref->{SEQUENCE}) {
-		$argv_hash_ref->{sequence} = delete $argv_hash_ref->{SEQUENCE};
-		warn 'Deprecated use of "SEQUENCE" in '.__PACKAGE__.' constructor. Use "sequence" instead.'."\n";
-	}
 	if (exists $argv_hash_ref->{header}) {
 		my $header = $argv_hash_ref->{header};
 		$header =~ s/^>//;
@@ -72,6 +71,7 @@ around BUILDARGS => sub {
 	
 	return $argv_hash_ref;
 };
+
 
 #######################################################################
 ########################   Interface Methods   ########################

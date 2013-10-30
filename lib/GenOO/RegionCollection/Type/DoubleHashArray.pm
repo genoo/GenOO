@@ -37,17 +37,41 @@ GenOO::RegionCollection::Type::DoubleHashArray - Object for a collection of GenO
 
 package GenOO::RegionCollection::Type::DoubleHashArray;
 
+
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
+use Modern::Perl;
+use autodie;
 use Moose;
 use namespace::autoclean;
 
+
+#######################################################################
+#########################   Load GenOO modules   ######################
+#######################################################################
 use GenOO::Module::Search::Binary;
 use GenOO::Data::Structure::DoubleHashArray;
 
 
-has 'name' => (isa => 'Str', is => 'rw');
-has 'species' => (isa => 'Str', is => 'rw');
-has 'description' => (isa => 'Str', is => 'rw');
-has 'extra' => (is => 'rw');
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+has 'name' => (
+	isa => 'Str',
+	is  => 'rw'
+);
+
+has 'species' => (
+	isa => 'Str',
+	is  => 'rw'
+);
+
+has 'description' => (
+	isa => 'Str',
+	is  => 'rw'
+);
+
 has 'longest_record' => (
 	is        => 'ro',
 	builder   => '_find_longest_record',
@@ -55,6 +79,15 @@ has 'longest_record' => (
 	init_arg  => undef,
 	lazy      => 1,
 );
+
+has 'extra' => (
+	is => 'rw'
+);
+
+
+#######################################################################
+########################   Private attributes   #######################
+#######################################################################
 has '_container' => (
 	is => 'ro',
 	builder => '_build_container',
@@ -62,7 +95,11 @@ has '_container' => (
 	lazy => 1
 );
 
+#######################################################################
+##########################   Consumed Roles   #########################
+#######################################################################
 with 'GenOO::RegionCollection';
+
 
 #######################################################################
 ########################   Interface Methods   ########################
@@ -201,9 +238,9 @@ sub total_copy_number_for_records_contained_in_region {
 #########################   Private methods  ##########################
 #######################################################################
 sub _build_container {
-	return GenOO::Data::Structure::DoubleHashArray->new({
+	return GenOO::Data::Structure::DoubleHashArray->new(
 		sorting_code_block => sub {return $_[0]->start <=> $_[1]->start}
-	});
+	);
 }
 
 sub _find_longest_record {
@@ -235,57 +272,9 @@ sub _reset {
 	$self->_clear_longest_record;
 }
 
+
 #######################################################################
-#######################   Deprecated Methods   ########################
+############################   Finalize   #############################
 #######################################################################
-sub longest_entry {
-	my ($self) = @_;
-	warn 'Deprecated method "longest_entry". Use "longest_record" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->longest_record;
-}
-
-sub add_entry {
-	my ($self, $record) = @_;
-	warn 'Deprecated method "add_entry". Use "add_record" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->add_record($record);
-}
-
-sub foreach_entry_do {
-	my ($self, $block) = @_;
-	warn 'Deprecated method "foreach_entry_do". Use "foreach_record_do" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->foreach_record_do($block);
-}
-
-sub longest_entry_length {
-	my ($self) = @_;
-	warn 'Deprecated method "longest_entry_length". Use "longest_record->length" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->longest_record->length;
-}
-
-sub entries_count {
-	my ($self) = @_;
-	warn 'Deprecated method "entries_count". Use "records_count" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->records_count;
-}
-
-sub entries_overlapping_region {
-	my ($self, $strand, $chr, $start, $stop) = @_;
-	warn 'Deprecated method "entries_overlapping_region". Use "records_overlapping_region" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->records_overlapping_region($strand, $chr, $start, $stop);
-}
-
-sub chromosomes_for_strand {
-	my ($self, $strand) = @_;
-	warn 'Deprecated method "chromosomes_for_strand". Use "rnames_for_strand" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->rnames_for_strand($strand);
-}
-
-sub chromosomes_for_all_strands {
-	my ($self, $strand) = @_;
-	warn 'Deprecated method "chromosomes_for_all_strands". Use "rnames_for_all_strands" instead in '.(caller)[1].' line '.(caller)[2]."\n";
-	return $self->rnames_for_all_strands;
-}
-
-
 __PACKAGE__->meta->make_immutable;
 1;
