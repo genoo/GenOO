@@ -2,22 +2,33 @@
 
 =head1 NAME
 
-GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v1 - Base class for DBIx::Class compatible sequencing sample
+GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v2 - DBIC Result class for sequenced reads
 
 =head1 SYNOPSIS
 
-    # The class contains the common structure of sequencing sample database tables
-    # It is not designed to be used as is but rather to be inherited.
+    # This class is not designed to be directly used in a DBIC schema because a 
+    # table name is not defined. Rather it serves as a base class to be inherited
+    # by an actual result class to provide a common column structure.
+    
+    # Offers more columns than GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v1
     
 =head1 DESCRIPTION
 
-    The class contains the basic common functionality for database tables that correspond to sequencing
-    samples. It offers accessor methods for table columns compatible with the rest of the GenOO framework.
-    It consumes the GenOO::Region role. 
+    In High Troughput Sequencing analysis we usually have many db tables with similar
+    structure and columns. DBIx::Class requires each Result class to specify the table name
+    explicitly. This means that we would have to explicitly create a Result class for
+    every db table. For this we created this class (does not specify a table name) which can
+    be inherited by other Result classes and provide a common table structure.
     
-    This class is not designed to be instantiated but should rather be used through inheritance. The most 
-    important reason why this happens is that it does not has a specific database table on which it can map.
-    The table used within this class is defined as "Unknown" and should be overriden by derived classes.
+    The class contains the basic common functionality for database tables that contain 
+    sequenced reads. It offers accessor methods for table columns compatible with the
+    rest of the GenOO framework. 
+    
+    It consumes the GenOO::Region role.
+    
+    As mentioned above this class should be used through inheritance. The reason for this
+    is that it does not have a specific database table on which it maps. The table used
+    within this class is defined as "Unknown" and should be specified by derived classes.
     
 =cut
 
@@ -25,24 +36,84 @@ GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v1 - Base class for DB
 
 package GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v2;
 
+
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
 use Modern::Perl;
 use Moose;
 use namespace::autoclean;
 use MooseX::MarkAsMethods autoclean => 1;
 
+
+#######################################################################
+############################   Inheritance   ##########################
+#######################################################################
 extends 'DBIx::Class::Core';
 
-has 'strand'      => (is => 'rw', required => 1);
-has 'rname'       => (isa => 'Str', is => 'rw', required => 1);
-has 'start'       => (isa => 'Int', is => 'rw', required => 1);
-has 'stop'        => (isa => 'Int', is => 'rw', required => 1);
-has 'copy_number' => (isa => 'Int', is => 'rw', required => 1);
-has 'sequence'    => (isa => 'Str', is => 'rw', required => 1);
-has 'cigar'       => (isa => 'Str', is => 'rw', required => 1);
-has 'mdz'         => (isa => 'Str', is => 'rw', required => 1);
-has 'extra'       => (is => 'rw');
 
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+# The interface attributes section provides Moose like accessors for
+# the table columns. These methods basically overide those created by
+# DBIx::Class. The column types are defined at the end of the class in
+# the "Package Methods" section
+
+has 'strand' => (
+	is => 'rw',
+);
+
+has 'rname' => (
+	is => 'rw',
+);
+
+has 'start' => (
+	is => 'rw',
+);
+
+has 'stop' => (
+	is => 'rw',
+);
+
+has 'copy_number' => (
+	is => 'rw', 
+);
+
+has 'sequence' => (
+	is => 'rw',
+);
+
+has 'cigar' => (
+	is => 'rw',
+);
+
+has 'mdz' => (
+	is => 'rw',
+);
+
+has 'number_of_mappings' => (
+	is => 'rw',
+);
+
+has 'query_length' => (
+	is => 'rw',
+);
+
+has 'alignment_length' => (
+	is => 'rw',
+);
+
+has 'extra' => (
+	is => 'rw'
+);
+
+
+#######################################################################
+##########################   Consumed roles   #########################
+#######################################################################
 with 'GenOO::Region', 'GenOO::Data::File::SAM::CigarAndMDZ';
+
 
 #######################################################################
 ########################   Interface Methods   ########################
@@ -50,17 +121,13 @@ with 'GenOO::Region', 'GenOO::Data::File::SAM::CigarAndMDZ';
 sub sequence_length {
 	my ($self) = @_;
 	
+	return $self->query_length if defined $self->query_length;
 	return CORE::length($self->sequence);
 }
 
-sub query_length {
-	my ($self) = @_;
-	
-	return $self->sequence_length;
-}
 
 #######################################################################
-#######################   Call Package Methods   ######################
+#########################   Package Methods   #########################
 #######################################################################
 __PACKAGE__->table('Unknown');
 
@@ -123,6 +190,10 @@ __PACKAGE__->add_columns(
 	},
 );
 
+
+#######################################################################
+############################   Finalize   #############################
+#######################################################################
 __PACKAGE__->meta->make_immutable(inline_constructor => 0);
 
 1;
