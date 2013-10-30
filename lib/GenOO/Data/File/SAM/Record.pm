@@ -42,6 +42,8 @@ package GenOO::Data::File::SAM::Record;
 #######################################################################
 #######################   Load External modules   #####################
 #######################################################################
+use Modern::Perl;
+use autodie;
 use Moose;
 use namespace::autoclean;
 

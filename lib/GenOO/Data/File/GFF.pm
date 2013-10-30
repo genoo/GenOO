@@ -54,7 +54,11 @@ use GenOO::Data::File::GFF::Record;
 #######################################################################
 #######################   Interface attributes   ######################
 #######################################################################
-has 'file'  => (isa => 'Maybe[Str]', is => 'rw', required => 1);
+has 'file'  => (
+	isa      => 'Maybe[Str]',
+	is       => 'rw',
+	required => 1
+);
 
 has 'records_read_count' => (
 	traits  => ['Counter'],
@@ -115,22 +119,6 @@ sub BUILD {
 	
 	$self->_parse_header_section;
 }
-
-around BUILDARGS => sub {
-	my $orig  = shift;
-	my $class = shift;
-	
-	my $argv_hash_ref = $class->$orig(@_);
-	
-	if (exists $argv_hash_ref->{FILE}) {
-		my $file = delete $argv_hash_ref->{FILE};
-		$argv_hash_ref->{file} = $file;
-		warn 'Deprecated use of "FILE" in GenOO::Data::File::GFF constructor. Use "file" instead.'."\n";
-	}
-	
-	return $argv_hash_ref;
-};
-
 
 #######################################################################
 ########################   Interface Methods   ########################
@@ -263,6 +251,10 @@ sub _line_looks_like_version {
 	return ($line =~ /^##gff-version/) ? 1 : 0;
 }
 
+
+#######################################################################
+#########################   Private Methods   #########################
+#######################################################################
 sub _open_filehandle {
 	my ($self) = @_;
 	

@@ -167,15 +167,7 @@ sub tail_tail_distance_from {
 sub to_string {
 	my ($self, $params) = @_;
 	
-	my $method = delete $params->{'METHOD'};
-	if (defined $method and ($method eq 'BED')) {
-		warn 'Deprecated call of "to_string" in '.(caller)[1].' line '.(caller)[2].'. '.
-		     'Classes implementing the role should provide their own "to_string" method for advanced calls';
-		return $self->_to_string_bed;
-	}
-	else {
-		return $self->location;
-	}
+	return $self->location;
 }
 
 sub overlaps_with_offset {
@@ -194,15 +186,6 @@ sub overlaps_with_offset {
 
 sub overlaps {
 	my ($self, $region2, $use_strand) = @_;
-	
-	if (UNIVERSAL::isa($use_strand, 'HASH')) {
-		warn 'Deprecated use of HASH reference in method "overlaps" at '.(caller)[1].' line '.(caller)[2].'. ';
-		my $params = $use_strand;
-		if (defined $params->{OFFSET}) {
-			die 'OFFSET option is no longer supported for method "overlaps" in '.(caller)[1].' line '.(caller)[2].'. Use overlaps_with_offset instead.';
-		}
-		$use_strand = defined $params->{USE_STRAND} ? $params->{USE_STRAND} : 1;
-	}
 	
 	$use_strand //= 1;
 	

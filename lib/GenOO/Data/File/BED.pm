@@ -34,27 +34,43 @@ GenOO::Data::File::BED - Object implementing methods for accessing bed formatted
 
 package GenOO::Data::File::BED;
 
-# Load external modules
+
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
 use Modern::Perl;
 use autodie;
 use Moose;
 use namespace::autoclean;
 
-# Load GenOO modules
+
+#######################################################################
+#########################   Load GenOO modules   ######################
+#######################################################################
 use GenOO::Data::File::BED::Record;
 
+
 #######################################################################
-############################   Attributes   ###########################
+#######################   Interface attributes   ######################
 #######################################################################
-has 'file'  => (isa => 'Maybe[Str]', is => 'rw', required => 1);
-has 'redirect_score_to_copy_number' => (
-      traits  => ['Bool'],
-      is      => 'rw',
-      isa     => 'Bool',
-      default => 0,
-      lazy    => 1
+has 'file' => (
+	isa      => 'Maybe[Str]',
+	is       => 'rw',
+	required => 1
 );
 
+has 'redirect_score_to_copy_number' => (
+	traits  => ['Bool'],
+	is      => 'rw',
+	isa     => 'Bool',
+	default => 0,
+	lazy    => 1
+);
+
+
+#######################################################################
+########################   Private attributes   #######################
+#######################################################################
 has '_filehandle' => (
 	is        => 'ro',
 	builder   => '_open_filehandle',
@@ -62,6 +78,10 @@ has '_filehandle' => (
 	lazy      => 1,
 );
 
+
+#######################################################################
+##############################   BUILD   ##############################
+#######################################################################
 sub BUILD {
 	my $self = shift;
 	
@@ -72,20 +92,6 @@ sub BUILD {
 	$self->parse_header_section;
 }
 
-around BUILDARGS => sub {
-	my $orig  = shift;
-	my $class = shift;
-	
-	my $argv_hash_ref = $class->$orig(@_);
-	
-	if (exists $argv_hash_ref->{FILE}) {
-		my $file = delete $argv_hash_ref->{FILE};
-		$argv_hash_ref->{file} = $file;
-		warn 'Deprecated use of "FILE" in GenOO::Data::File::BED constructor. Use "file" instead.'."\n";
-	}
-	
-	return $argv_hash_ref;
-};
 
 #######################################################################
 ########################   Interface Methods   ########################
@@ -111,6 +117,7 @@ sub next_record {
 	}
 	return $record;
 }
+
 
 #######################################################################
 #######################   Private Methods  ############################
@@ -280,6 +287,10 @@ sub is_eof_reached {
 	return $self->{EOF};
 }
 
+
+#######################################################################
+#########################   Private Methods   #########################
+#######################################################################
 sub _open_filehandle {
 	my ($self) = @_;
 	

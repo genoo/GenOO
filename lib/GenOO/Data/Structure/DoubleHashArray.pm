@@ -82,23 +82,6 @@ has '_structure' => (
 
 
 #######################################################################
-###############################   BUILD   #############################
-#######################################################################
-around BUILDARGS => sub {
-	my ($orig, $class) = (shift, shift);
-	
-	my $argv_hash_ref = $class->$orig(@_);
-	
-	if (exists $argv_hash_ref->{SORTING_CODE_BLOCK}) {
-		$argv_hash_ref->{sorting_code_block} = delete $argv_hash_ref->{SORTING_CODE_BLOCK};
-		warn qq{Deprecated attribute "SORTING_CODE_BLOCK" in $class. Use "sorting_code_block" instead.\n};
-	}
-	
-	return $argv_hash_ref;
-};
-
-
-#######################################################################
 ########################   Interface Methods   ########################
 #######################################################################
 sub foreach_entry_do {

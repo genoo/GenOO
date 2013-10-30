@@ -36,19 +36,30 @@ GenOO::Data::File::FASTA - Object implementing methods for accessing fasta forma
 
 package GenOO::Data::File::FASTA;
 
-# Load external modules
+
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
 use Modern::Perl;
 use autodie;
 use Moose;
 use namespace::autoclean;
 
-# Load GenOO modules
-use GenOO::Data::File::FASTA::Record;
 
 #######################################################################
-############################   Attributes   ###########################
+#########################   Load GenOO modules   ######################
 #######################################################################
-has 'file'  => (isa => 'Maybe[Str]', is => 'rw', required => 1);
+use GenOO::Data::File::FASTA::Record;
+
+
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+has 'file' => (
+	isa      => 'Maybe[Str]',
+	is       => 'rw',
+	required => 1
+);
 
 has 'records_read_count' => (
 	is        => 'rw',
@@ -85,24 +96,7 @@ has '_eof' => (
 
 
 #######################################################################
-#################   MANIPULATE INSTANCE ARGUMENTS     #################
-#######################################################################
-around BUILDARGS => sub {
-	my ($orig, $class)  = (shift, shift);
-	
-	my $argv_hash_ref = $class->$orig(@_);
-	
-	if (exists $argv_hash_ref->{FILE}) {
-		$argv_hash_ref->{file} = delete $argv_hash_ref->{FILE};
-		warn 'Deprecated use of "FILE" in GenOO::Data::File::FASTA constructor. Use "file" instead.'."\n";
-	}
-	
-	return $argv_hash_ref;
-};
-
-
-#######################################################################
-#########################   General Methods   #########################
+########################   Interface Methods   ########################
 #######################################################################
 sub next_record {
 	my ($self) = @_;
