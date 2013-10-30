@@ -29,7 +29,6 @@ requires qw (
 	name
 	species
 	description
-	extra
 	longest_record
 	add_record
 	foreach_record_do

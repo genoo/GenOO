@@ -46,13 +46,13 @@ extends 'DBIx::Class::Schema';
 ########################   Interface Methods   ########################
 #######################################################################
 sub sample_resultset {
-	my ($self, @args) = @_;
+	my ($self, $records_class, @args) = @_;
 	
 	my $table_name = $args[0];
 	my $class = ref($self) || $self;
 	
 	if (not $self->_source_exists($table_name)) {
-		$self->_create_and_register_result_class_for($table_name);
+		$self->_create_and_register_result_class_for($table_name, $records_class);
 	}
 	
 	return $self->resultset(@args);
@@ -73,27 +73,27 @@ sub _source_exists {
 }
 
 sub _create_and_register_result_class_for {
-	my ($self, $table_name) = @_;
+	my ($self, $table_name, $records_class) = @_;
 	
-	$self->_create_sample_result_class_for($table_name);
+	$self->_create_sample_result_class_for($table_name, $records_class);
 	$self->register_class($table_name, 'GenOO::Data::DB::DBIC::Species::Schema::Result::'.$table_name);
 }
 
 =head2 _create_sample_result_class_for
   Arg [1]    : The database table name for a sample table.
   Description: A result class is created using the provided table name
-               The new class inherits from GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v1
+               The new class inherits from $records_class
   Returntype : DBIx::Class Result class
 =cut
 sub _create_sample_result_class_for {
-	require GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v1;
+	my ($self, $table_name, $records_class) = @_;
 	
-	my ($self, $table_name) = @_;
+	eval "require $records_class";
 	
 	my $table_class = "GenOO::Data::DB::DBIC::Species::Schema::Result::$table_name";
 	{
 		no strict 'refs';
-		@{$table_class . '::ISA'} = qw/GenOO::Data::DB::DBIC::Species::Schema::SampleResultBase::v1/;
+		@{$table_class . '::ISA'} = ($records_class);
 	}
 	$table_class->table($table_name);
 }

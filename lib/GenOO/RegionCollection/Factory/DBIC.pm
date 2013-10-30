@@ -102,18 +102,22 @@ has 'database' => (
 	is  => 'ro',
 );
 
-has 'host' => (
-	isa => 'Str',
-	is  => 'ro',
-);
-
 has 'table' => (
 	isa => 'Str',
 	is  => 'ro',
 );
 
+has 'records_class' => (
+	is        => 'ro',
+);
+
+has 'host' => (
+	isa => 'Maybe[Str]',
+	is  => 'ro',
+);
+
 has 'port' => (
-	isa => 'Int',
+	isa => 'Maybe[Int]',
 	is  => 'ro',
 );
 
@@ -131,16 +135,13 @@ sub read_collection {
 	my ($self) = @_;
 	
 	my $init_data = {
-		database    => $self->database,
-		table       => $self->table,
+		dsn    => $self->dsn,
 	};
-	($init_data->{dsn}        = $self->dsn)        if defined $self->dsn;
-	($init_data->{attributes} = $self->attributes) if defined $self->attributes;
-	($init_data->{driver}     = $self->driver)     if defined $self->driver;
-	($init_data->{host}       = $self->host)       if defined $self->host;
-	($init_data->{user}       = $self->user)       if defined $self->user;
-	($init_data->{password}   = $self->password)   if defined $self->password;
-	($init_data->{port}       = $self->port)       if defined $self->port;
+	($init_data->{table}         = $self->table)         if defined $self->table;
+	($init_data->{attributes}    = $self->attributes)    if defined $self->attributes;
+	($init_data->{user}          = $self->user)          if defined $self->user;
+	($init_data->{password}      = $self->password)      if defined $self->password;
+	($init_data->{records_class} = $self->records_class) if defined $self->records_class;
 	
 	return GenOO::RegionCollection::Type::DBIC->new($init_data);
 }
