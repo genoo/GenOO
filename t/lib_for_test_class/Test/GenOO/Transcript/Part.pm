@@ -80,6 +80,13 @@ sub exonic_length : Test(2) {
 	is $self->obj(0)->exonic_length(), 223, "... and returns the correct value";
 }
 
+sub intronic_length : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'intronic_length';
+	is $self->obj(0)->intronic_length(), 177, "... and returns the correct value";
+}
+
 sub relative_exonic_position : Test(3) {
 	my ($self) = @_;
 	
