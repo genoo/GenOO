@@ -161,6 +161,13 @@ sub exonic_regions : Test(8) {
 	is $exonic_regions[2]->stop, 29225448, "... and returns the correct value";
 }
 
+sub exonic_length : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'exonic_length';
+	is $self->obj(0)->exonic_length, 1106, "... and returns the correct value";
+}
+
 #######################################################################
 ###############   Class method to create test objects   ###############
 #######################################################################
