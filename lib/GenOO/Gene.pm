@@ -236,6 +236,37 @@ sub has_coding_transcript {
 	return 0;
 }
 
+sub exonic_regions {
+	my ($self) = @_;
+	
+	my @all_exons;
+	foreach my $transcript (@{$self->transcripts}) {
+		foreach my $exon (@{$transcript->exons}) {
+			push @all_exons, $exon;
+		}
+	}
+	
+	my @sorted_exons = sort{$a->start <=> $b->start} @all_exons;
+	
+	my @exonic_regions;
+	foreach my $exon (@sorted_exons) {
+		my $merge_region = $exonic_regions[-1];
+		if (defined $merge_region and $merge_region->overlaps($exon)) {
+			$merge_region->stop($exon->stop) if $exon->stop > $merge_region->stop;
+		}
+		else {
+			push @exonic_regions, GenOO::GenomicRegion->new(
+				strand      => $exon->strand,
+				chromosome  => $exon->chromosome,
+				start       => $exon->start,
+				stop        => $exon->stop,
+			);
+		}
+	}
+	
+	return \@exonic_regions;
+}
+
 #######################################################################
 #########################   Private methods  ##########################
 #######################################################################
