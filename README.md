@@ -27,12 +27,7 @@ Installation
 If you want to verify that everything works
 ```bash
 cd path/to/genoo/clone/
-prove -l t/test_all.t
-```
-If you want to verify a particular package/class
-```bash
-cd path/to/genoo/clone/
-prove -mv -l -It/ t/Test/package_path.pm
+prove -l t/*.t
 ```
 
 Dependencies
