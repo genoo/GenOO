@@ -146,6 +146,28 @@ sub has_coding_transcript : Test(2) {
 	is $self->obj(0)->has_coding_transcript, 1, "... and returns the correct value";
 }
 
+sub exonic_regions : Test(8) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'exonic_regions';
+	
+	my @exonic_regions = @{$self->obj(0)->exonic_regions};
+	is @exonic_regions, 3, "... and returns the correct value";
+	is $exonic_regions[0]->start, 29222487, "... and returns the correct value";
+	is $exonic_regions[0]->stop, 29222607, "... and returns the correct value";
+	is $exonic_regions[1]->start, 29222625, "... and returns the correct value";
+	is $exonic_regions[1]->stop, 29222809, "... and returns the correct value";
+	is $exonic_regions[2]->start, 29224649, "... and returns the correct value";
+	is $exonic_regions[2]->stop, 29225448, "... and returns the correct value";
+}
+
+sub exonic_length : Test(2) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'exonic_length';
+	is $self->obj(0)->exonic_length, 1106, "... and returns the correct value";
+}
+
 #######################################################################
 ###############   Class method to create test objects   ###############
 #######################################################################

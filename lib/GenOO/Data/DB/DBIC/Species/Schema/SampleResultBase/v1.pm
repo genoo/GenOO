@@ -97,7 +97,13 @@ has 'extra' => (
 #######################################################################
 ##########################   Consumed roles   #########################
 #######################################################################
-with 'GenOO::Region', 'GenOO::Data::File::SAM::CigarAndMDZ';
+with
+	'GenOO::Region' => {
+		-alias    => { mid_position => 'region_mid_position' },
+		-excludes => 'mid_position',
+	},
+	'GenOO::Data::File::SAM::CigarAndMDZ' => {
+	};
 
 
 #######################################################################

@@ -181,6 +181,17 @@ sub exonic_length {
 	return $length;
 }
 
+sub intronic_length {
+	my ($self) = @_;
+	
+	my $length = 0;
+	foreach my $intron (@{$self->introns}) {
+		$length += $intron->length;
+	}
+	
+	return $length;
+}
+
 sub relative_exonic_position {
 	my ($self, $abs_pos) = @_;
 	

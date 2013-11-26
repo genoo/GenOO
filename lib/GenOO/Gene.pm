@@ -127,6 +127,18 @@ has 'stop' => (
 	lazy    => 1,
 );
 
+has 'exonic_regions' => (
+	traits  => ['Array'],
+	is      => 'ro',
+	builder => '_build_exonic_regions',
+	clearer => '_clear_exonic_regions',
+	handles => {
+		all_exonic_regions    => 'elements',
+		exonic_regions_count  => 'count',
+	},
+	lazy    => 1
+);
+
 #######################################################################
 ########################   Interface Methods   ########################
 #######################################################################
@@ -236,6 +248,17 @@ sub has_coding_transcript {
 	return 0;
 }
 
+sub exonic_length {
+	my ($self) = @_;
+	
+	my $exonic_length = 0;
+	foreach my $region ($self->all_exonic_regions) {
+		$exonic_length += $region->length
+	}
+	
+	return $exonic_length;
+}
+
 #######################################################################
 #########################   Private methods  ##########################
 #######################################################################
@@ -309,6 +332,37 @@ sub _find_stop {
 	else {
 		return $stop;
 	}
+}
+
+sub _build_exonic_regions {
+	my ($self) = @_;
+	
+	my @all_exons;
+	foreach my $transcript (@{$self->transcripts}) {
+		foreach my $exon (@{$transcript->exons}) {
+			push @all_exons, $exon;
+		}
+	}
+	
+	my @sorted_exons = sort{$a->start <=> $b->start} @all_exons;
+	
+	my @exonic_regions;
+	foreach my $exon (@sorted_exons) {
+		my $merge_region = $exonic_regions[-1];
+		if (defined $merge_region and $merge_region->overlaps($exon)) {
+			$merge_region->stop($exon->stop) if $exon->stop > $merge_region->stop;
+		}
+		else {
+			push @exonic_regions, GenOO::GenomicRegion->new(
+				strand      => $exon->strand,
+				chromosome  => $exon->chromosome,
+				start       => $exon->start,
+				stop        => $exon->stop,
+			);
+		}
+	}
+	
+	return \@exonic_regions;
 }
 
 sub _reset {
