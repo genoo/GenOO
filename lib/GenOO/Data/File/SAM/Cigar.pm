@@ -157,6 +157,40 @@ sub deletion_positions_on_query {
 	return @deletion_positions;
 }
 
+sub mid_position {
+	my ($self) = @_;
+	# Read:   AGTGAT____GGA---GTGACTCA-C -> CIGAR: 2M1I3M4N3M3D1M1I3M1I2M1D1M  /  2=1I1=1X1=4N1=1X1=3D1=1I2=1X1I2=1D1=
+    #             -      -        -
+    # Genome: AG-GCTNNNNGTAGAGG-GAG-CAGC -> MD:Z:  3C1^NNNN1T1^GAG3G2^G1
+	
+	my $mid_position = $self->start - 1;
+	my $mid_position_on_query = ($self->query_length - $self->S_count + 1) / 2;
+	my $cigar = $self->cigar;
+	
+	while ($cigar =~ /(\d+)([MIDNSHP=X])/g) {
+		my ($count, $identifier) = ($1, $2);
+		if ($identifier eq 'D' or $identifier eq 'N' or $identifier eq 'P' or $identifier eq 'H') {
+			$mid_position += $count;
+		}
+		elsif ($identifier eq 'M' or $identifier eq '=' or $identifier eq 'X') {
+			if ($mid_position_on_query < $count) {
+				return $mid_position + $mid_position_on_query;
+			}
+			$mid_position += $count;
+			$mid_position_on_query -= $count;
+		}
+		elsif ($identifier eq 'I') {
+			if ($mid_position_on_query < $count) {
+				return $mid_position + 0.5;
+			}
+			$mid_position_on_query -= $count;
+		}
+	}
+	
+	return;
+}
+
+
 sub insertion_positions_on_query {
 	my ($self) = @_;
 	#Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA -> CIGAR: 2M1I7M6D26M

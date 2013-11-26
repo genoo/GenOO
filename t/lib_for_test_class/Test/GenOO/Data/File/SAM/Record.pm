@@ -394,6 +394,21 @@ sub is_unmapped : Test(4) {
 	is $self->obj(4)->is_unmapped, 1, "... and again";
 }
 
+sub mid_position : Test(9) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'mid_position';
+	
+	is $self->obj(0)->mid_position,  $self->obj(0)->region_mid_position, "... and returns the correct value";
+	is $self->obj(1)->mid_position, 22051113, "... and returns the correct value";
+	is $self->obj(2)->mid_position, 187239400, "... and returns the correct value";
+	is $self->obj(3)->mid_position, 22985493, "... and returns the correct value";
+	is $self->obj(4)->mid_position, undef, "... and returns the correct value";
+	is $self->obj(5)->mid_position, 22985493, "... and returns the correct value";
+	is $self->obj(6)->mid_position, 356780.5, "... and returns the correct value";
+	is $self->obj(7)->mid_position, 356780.5, "... and returns the correct value";
+}
+
 
 #######################################################################
 ###############   Class method to create test objects   ###############
