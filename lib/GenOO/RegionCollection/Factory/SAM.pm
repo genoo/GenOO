@@ -51,6 +51,7 @@ use GenOO::RegionCollection::Type::DoubleHashArray;
 use GenOO::Data::File::SAM;
 
 has 'file' => (is => 'Str', is => 'ro');
+has 'filter_code' => (isa => 'CodeRef', is => 'ro', default => sub{sub{return 1;}} );
 
 with 'GenOO::RegionCollection::Factory::Requires';
 
@@ -66,7 +67,7 @@ sub read_collection {
 		file => $self->file,
 	);
 	while (my $record = $parser->next_record) {
-		if ($record->is_mapped) {
+		if (($record->is_mapped) and ($self->filter_code->($record))){
 			$collection->add_record($record);
 		}
 	}
