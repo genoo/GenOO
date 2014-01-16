@@ -139,6 +139,42 @@ has 'exonic_regions' => (
 	lazy    => 1
 );
 
+has 'utr5_exonic_regions' => (
+	traits  => ['Array'],
+	is      => 'ro',
+	builder => '_build_utr5_exonic_regions',
+	clearer => '_clear_utr5_exonic_regions',
+	handles => {
+		all_utr5_exonic_regions    => 'elements',
+		utr5_exonic_regions_count  => 'count',
+	},
+	lazy    => 1
+);
+
+has 'cds_exonic_regions' => (
+	traits  => ['Array'],
+	is      => 'ro',
+	builder => '_build_cds_exonic_regions',
+	clearer => '_clear_cds_exonic_regions',
+	handles => {
+		all_cds_exonic_regions    => 'elements',
+		cds_exonic_regions_count  => 'count',
+	},
+	lazy    => 1
+);
+
+has 'utr3_exonic_regions' => (
+	traits  => ['Array'],
+	is      => 'ro',
+	builder => '_build_utr3_exonic_regions',
+	clearer => '_clear_utr3_exonic_regions',
+	handles => {
+		all_utr3_exonic_regions    => 'elements',
+		utr3_exonic_regions_count  => 'count',
+	},
+	lazy    => 1
+);
+
 #######################################################################
 ########################   Interface Methods   ########################
 #######################################################################
@@ -259,6 +295,39 @@ sub exonic_length {
 	return $exonic_length;
 }
 
+sub utr5_exonic_length {
+	my ($self) = @_;
+	
+	my $exonic_length = 0;
+	foreach my $region ($self->all_utr5_exonic_regions) {
+		$exonic_length += $region->length
+	}
+	
+	return $exonic_length;
+}
+
+sub cds_exonic_length {
+	my ($self) = @_;
+	
+	my $exonic_length = 0;
+	foreach my $region ($self->all_cds_exonic_regions) {
+		$exonic_length += $region->length
+	}
+	
+	return $exonic_length;
+}
+
+sub utr3_exonic_length {
+	my ($self) = @_;
+	
+	my $exonic_length = 0;
+	foreach my $region ($self->all_utr3_exonic_regions) {
+		$exonic_length += $region->length
+	}
+	
+	return $exonic_length;
+}
+
 #######################################################################
 #########################   Private methods  ##########################
 #######################################################################
@@ -344,7 +413,57 @@ sub _build_exonic_regions {
 		}
 	}
 	
-	my @sorted_exons = sort{$a->start <=> $b->start} @all_exons;
+	return $self->_merge_exons(\@all_exons);
+}
+
+sub _build_utr5_exonic_regions {
+	my ($self) = @_;
+	
+	my @all_exons;
+	foreach my $transcript (@{$self->transcripts}) {
+		next if !$transcript->is_coding;
+		next if !defined $transcript->utr5;
+		foreach my $exon (@{$transcript->utr5->exons}) {
+			push @all_exons, $exon;
+		}
+	}
+	
+	return $self->_merge_exons(\@all_exons);
+}
+
+sub _build_cds_exonic_regions {
+	my ($self) = @_;
+	
+	my @all_exons;
+	foreach my $transcript (@{$self->transcripts}) {
+		next if !$transcript->is_coding;
+		foreach my $exon (@{$transcript->cds->exons}) {
+			push @all_exons, $exon;
+		}
+	}
+	
+	return $self->_merge_exons(\@all_exons);
+}
+
+sub _build_utr3_exonic_regions {
+	my ($self) = @_;
+	
+	my @all_exons;
+	foreach my $transcript (@{$self->transcripts}) {
+		next if !$transcript->is_coding;
+		next if !defined $transcript->utr3;
+		foreach my $exon (@{$transcript->utr3->exons}) {
+			push @all_exons, $exon;
+		}
+	}
+	
+	return $self->_merge_exons(\@all_exons);
+}
+
+sub _merge_exons {
+	my ($self, $exons) = @_;
+	
+	my @sorted_exons = sort{$a->start <=> $b->start} @$exons;
 	
 	my @exonic_regions;
 	foreach my $exon (@sorted_exons) {
@@ -372,6 +491,10 @@ sub _reset {
 	$self->_clear_chromosome;
 	$self->_clear_start;
 	$self->_clear_stop;
+	$self->_clear_exonic_regions;
+	$self->_clear_utr5_exonic_regions;
+	$self->_clear_cds_exonic_regions;
+	$self->_clear_utr3_exonic_regions;
 }
 
 __PACKAGE__->meta->make_immutable;

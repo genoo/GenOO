@@ -92,21 +92,21 @@ has 'gene' => (
 );
 
 has 'utr5' => (
-	isa       => 'GenOO::Transcript::UTR5',
+	isa       => 'Maybe[GenOO::Transcript::UTR5]',
 	is        => 'rw',
 	builder   => '_find_or_create_utr5',
 	lazy      => 1
 );
 
 has 'cds' => (
-	isa       => 'GenOO::Transcript::CDS',
+	isa       => 'Maybe[GenOO::Transcript::CDS]',
 	is        => 'rw',
 	builder   => '_find_or_create_cds',
 	lazy      => 1
 );
 
 has 'utr3' => (
-	isa       => 'GenOO::Transcript::UTR3',
+	isa       => 'Maybe[GenOO::Transcript::UTR3]',
 	is        => 'rw',
 	builder   => '_find_or_create_utr3',
 	lazy      => 1
@@ -159,6 +159,8 @@ sub _find_or_create_utr5 {
 		my $utr5_start = ($self->strand == 1) ? $self->start : $self->coding_stop + 1;
 		my $utr5_stop = ($self->strand == 1) ? $self->coding_start - 1 : $self->stop;
 		
+		return undef if $utr5_start > $utr5_stop; # there is no 5'UTR
+		
 		my ($splice_starts, $splice_stops) = _sanitize_splice_coords_within_limits(
 			$self->splice_starts,
 			$self->splice_stops,
@@ -176,6 +178,8 @@ sub _find_or_create_utr5 {
 			transcript    => $self
 		});
 	}
+	
+	return undef;
 }
 
 sub _find_or_create_cds {
@@ -199,6 +203,8 @@ sub _find_or_create_cds {
 			transcript    => $self
 		});
 	}
+	
+	return undef;
 }
 
 sub _find_or_create_utr3 {
@@ -207,6 +213,8 @@ sub _find_or_create_utr3 {
 	if (defined $self->coding_start and defined $self->coding_stop) {
 		my $utr3_start = ($self->strand == 1) ? $self->coding_stop + 1 : $self->start;
 		my $utr3_stop = ($self->strand == 1) ? $self->stop : $self->coding_start - 1;
+		
+		return undef if $utr3_start > $utr3_stop; # there is no 3'UTR
 		
 		my ($splice_starts, $splice_stops) = _sanitize_splice_coords_within_limits(
 			$self->splice_starts,
@@ -225,6 +233,8 @@ sub _find_or_create_utr3 {
 			transcript    => $self
 		});
 	}
+	
+	return undef;
 }
 
 sub _find_biotype {
