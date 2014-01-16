@@ -53,7 +53,7 @@ The following code parses a BED file and execute some code on each record in the
 my $file_parser = GenOO::Data::File::BED->new(
 	file => 'input_file.bed',
 );
-while (my $record = $file_parser>next_record) {
+while (my $record = $file_parser->next_record) {
 	# $record is an instance of GenOO::Data::File::BED::Record
 	print $record->name."\n"; # name
 	print $record->strand."\n"; # strand
