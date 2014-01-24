@@ -51,7 +51,7 @@ my $file_parser = GenOO::Data::File::BED->new(
 
 For example:
 ```perl
-# Having an BED entry like
+# Having a BED entry like
 # chr1    100    200    test_record    5    +
 
 # With the option disabled
@@ -113,7 +113,72 @@ my @overlapping_reads = $collection->records_overlapping_region(
     $stop    # eg. 20000000
 );
 ```
+- [FASTQ format](#fastq-format)
+    - [Parse FASTQ file](#parse-fastq-file)
+    - [Create RegionCollection from FASTQ file](#create-regioncollection-from-fastq-file)
 
+# FASTQ format
+The FASTQ file format uses four lines per sequence in order `@name`, `sequence`, `+name(optional)` and `quality`.
+For more information on the FASTQ format please see http://maq.sourceforge.net/fastq.shtml.
+
+## Parse FASTQ file
+To open a FASTQ file all you have to do is instantiate a FASTQ parser.
+```perl
+my $file_parser = GenOO::Data::File::FASTQ->new(
+    file => 'file.fastq',
+);
+```
+A parser can be transparently instantiated from a plain or from a Gzipped file provided it has the `.gz` file extension.
+```perl
+my $file_parser = GenOO::Data::File::FASTQ->new(
+    file => 'file.fastq.gz',
+);
+```
+
+When a FASTQ parser is instantiated the FASTQ records are immediatelly available.
+To loop on the records of a FASTQ file a `while` loop is sufficient.
+```perl
+while (my $record = $file_parser->next_record) {
+    # $record is an instance of GenOO::Data::File::FASTQ::Record
+    print $record->name."\n"; # name (without the @)
+    print $record->sequence."\n"; # sequence
+    print $record->quality."\n"; # quality
+    print $file_parser->records_read_count."\n"; # number of records read up to that point
+}
+```
+
+- [FASTA format](#fasta-format)
+    - [Parse FASTA file](#parse-fasta-file)
+    - [Create RegionCollection from FASTA file](#create-regioncollection-from-fasta-file)
+
+# FASTA format
+The FASTA file format uses two field per sequence in order `>name` and `sequence`. The `sequence` field can span several file lines.
+For more information on the FASTA format please see http://genetics.bwh.harvard.edu/pph/FASTA.html.
+
+## Parse FASTA file
+To open a FASTA file all you have to do is instantiate a FASTA parser.
+```perl
+my $file_parser = GenOO::Data::File::FASTA->new(
+    file => 'file.fasta',
+);
+```
+A parser can be transparently instantiated from a plain or from a Gzipped file provided it has the `.gz` file extension.
+```perl
+my $file_parser = GenOO::Data::File::FASTA->new(
+    file => 'file.fasta.gz',
+);
+```
+
+When a FASTA parser is instantiated the FASTA records are immediatelly available.
+To loop on the records of a FASTA file a `while` loop is sufficient.
+```perl
+while (my $record = $file_parser->next_record) {
+    # $record is an instance of GenOO::Data::File::FASTA::Record
+    print $record->name."\n"; # name (without the >)
+    print $record->sequence."\n"; # sequence
+    print $file_parser->records_read_count."\n"; # number of records read up to that point
+}
+```
 
 # Working with a database
 In High Throughput Sequencing it is often the case that the data need to be stored in a database instead of flat files like BED, SAM etc. For this, in GenOO we implement a pure database oriented collection engine which is named `GenOO::Data::DB::DBIC`. Currently, the implemented classes support database tables that have at least the following columns: `strand`, `rname`, `start`, `stop`, `copy_number`, `sequence`, `cigar` (the CIGAR string of the [SAM](http://samtools.sourceforge.net/SAM1.pdf) format), `mdz` (the MD:Z tag of the [SAM](http://samtools.sourceforge.net/SAM1.pdf) format), `number_of_best_hits`. We believe that this covers most uses but if not the user can extend them to support any table schema provided that it supports all columns/attributes defined in `Region`. `GenOO::Data::DB::DBIC` is based on [DBIx::Class](http://search.cpan.org/~ribasushi/DBIx-Class-0.08250/lib/DBIx/Class/Manual/DocMap.pod) which is a modern Perl module that provides an extensible and flexible object-relational mapper. DBIx::Class supports most major databases such as SQLite, MySQL, PostgreSQL and Oracle.
