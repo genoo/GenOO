@@ -1,6 +1,12 @@
 - [BED format](#bed-format)
-    - [Parse BED file](#parse-bed-file)
-    - [Create RegionCollection from BED file](#create-regioncollection-from-bed-file)
+	- [Parse BED file](#parse-bed-file)
+	- [Create RegionCollection from BED file](#create-regioncollection-from-bed-file)
+- [FASTQ format](#fastq-format)
+	- [Parse FASTQ file](#parse-fastq-file)
+- [FASTA format](#fasta-format)
+	- [Parse FASTA file](#parse-fasta-file)
+- [Working with a database](#working-with-a-database)
+	- [Create RegionCollection from a database](#create-regioncollection-from-a-database)
 
 # BED format
 The BED file format is essentially a tab delimited file with the following main columns `chromosome`, `start`, `stop`, `name`, `score`, `strand`.
