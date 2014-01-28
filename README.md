@@ -16,21 +16,21 @@ We want to keep this framework focused on the real issues found in sequencing an
 
 Installation
 --------------
-1.  Install git for your machine [git install](http://git-scm.com/downloads)
-2.  Install GenOO dependencies (listed below) from CPAN. [How to install CPAN modules](http://www.cpan.org/modules/INSTALL.html)
-3.  Clone the GenOO repository on your machine
-    `git clone https://github.com/genoo/GenOO.git`
-4.  In the beginning of your perl script write the following
-    `use lib 'path/to/genoo/clone/lib/'`
-5.  You are done! No, seriously, you are done! Happy coding!
+* **Using CPAN** - Easier
+  1. If you have cpanm installed. `cpanm GenOO`.
+  2. If you do not have cpanm. See [here](http://www.cpan.org/modules/INSTALL.html).
+* **Using Git** - Preferred so you may contribute
+  1. Install git ([directions](http://git-scm.com/downloads)).
+  2. Install GenOO dependencies (listed below) from CPAN. [How to install CPAN modules](http://www.cpan.org/modules/INSTALL.html).
+  3. Clone the GenOO repository on your machine
+     `git clone https://github.com/genoo/GenOO.git`.
+  4. To verify that everything works 
+     `cd path/to/genoo/clone/; prove -l t/*.t;`.
+  5. In the beginning of your perl script write the following
+     `use lib 'path/to/genoo/clone/lib/'`.
+  6. You are done! Happy coding!
 
-If you want to verify that everything works
-```bash
-cd path/to/genoo/clone/
-prove -l t/*.t
-```
-
-Dependencies
+Dependencies (maybe not exhaustive)
 --------------
 * Moose
 * MooseX::AbstractFactory
@@ -54,8 +54,10 @@ The core of the framework is considered stable.
 
 Copyright
 --------------
-Copyright (c) 2013 Emmanouil Maragkakis and Panagiotis Alexiou.
+Copyright (c) 2013 Emmanouil "Manolis" Maragkakis and Panagiotis Alexiou.
 
 License
 --------------
 This library is free software and may be distributed under the same terms as perl itself.
+
+This library is distributed in the hope that it will be useful, but **WITHOUT ANY WARRANTY**; without even the implied warranty of merchantability or fitness for a particular purpose.
