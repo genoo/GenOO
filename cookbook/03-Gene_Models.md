@@ -1,3 +1,13 @@
+- [Description](#description)
+- [Details](#details)
+	- [Gene](#gene)
+	- [Transcript / Isoform](#transcript--isoform)
+- [Examples](#examples)
+	- [Creating a transcript](#creating-a-transcript)
+	- [Creating a gene](#creating-a-gene)
+	- [Collection of transcripts](#collection-of-transcripts)
+	- [Collection of genes](#collection-of-genes)
+
 # Description
 Arguably, the backbone of GenOO is the `Region` role that corresponds to an area on a reference sequence. It requires other classes that consume it, to implement specific attributes such as the `strand`, `rname` (reference name), `start`, `stop` and `copy_number`. This role is consumed by several other classes within the framework and provides common grounds for code integration. Extending this approach, the `GenomicRegion` class consumes `Region` and additionally sets the constraint that the reference sequence has to be a particular chromosome. The `GenomicRegion` serves as the base for the representation of advanced genomic elements such as the genes, gene transcripts, 5'UTRs, non-coding RNAs and others.
 
