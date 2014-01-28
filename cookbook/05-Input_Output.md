@@ -320,4 +320,6 @@ my $collection_from_mysql = GenOO::RegionCollection::Factory->create('DBIC', {
 })->read_collection;
 ```
 
+For more information read chapter 07-Plugins_And_Extensions.
+
 
