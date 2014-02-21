@@ -269,6 +269,25 @@ sub filter_by_length {
 	$self->resultset($rs);
 }
 
+sub filter_by_min_length {
+	my ($self, $min_length) = @_;
+	
+	my $rs = $self->resultset->search(
+		\['(stop - start + 1) >= (?+0)', [dummy => $min_length]]
+	);
+	$self->resultset($rs);
+}
+
+sub filter_by_max_length {
+	my ($self, $max_length) = @_;
+	
+	my $rs = $self->resultset->search(
+		\['(stop - start + 1) <= (?+0)', [dummy => $max_length]]
+	);
+	$self->resultset($rs);
+}
+
+
 #######################################################################
 #########################   Private methods  ##########################
 #######################################################################
