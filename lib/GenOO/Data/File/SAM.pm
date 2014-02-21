@@ -42,6 +42,7 @@ use Modern::Perl;
 use autodie;
 use Moose;
 use namespace::autoclean;
+use IO::Zlib;
 
 
 #######################################################################
@@ -73,8 +74,10 @@ has 'records_class' => (
 ########################   Private attributes   #######################
 #######################################################################
 has '_filehandle' => (
-	is        => 'rw',
-	init_arg  => undef
+	is        => 'ro',
+	builder   => '_open_filehandle',
+	init_arg  => undef,
+	lazy      => 1,
 );
 
 has '_is_eof_reached' => (
@@ -118,7 +121,6 @@ sub BUILD {
 	my $self = shift;
 	
 	eval "require ".$self->records_class;
-	$self->_init_filehandle;
 	$self->_parse_header_section;
 }
 
@@ -192,22 +194,22 @@ sub _parse_record_line {
 	return $self->records_class->new(fields => \@fields);
 }
 
-sub _init_filehandle {
+sub _open_filehandle {
 	my ($self) = @_;
 	
 	my $read_mode;
+	my $HANDLE;
 	if (!defined $self->file) {
-		$read_mode = '<-';
+		open ($HANDLE, '<-', $self->file);
 	}
 	elsif ($self->file =~ /\.gz$/) {
-		$read_mode = '<:gzip';
+		$HANDLE = IO::Zlib->new($self->file, 'rb') or die "Cannot open file ".$self->file."\n";
 	}
 	else {
-		$read_mode = '<';
+		open ($HANDLE, '<', $self->file);
 	}
-	open (my $HANDLE, $read_mode, $self->file);
 	
-	$self->_filehandle($HANDLE);
+	return $HANDLE;
 }
 
 

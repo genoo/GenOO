@@ -46,7 +46,7 @@ package GenOO::TranscriptCollection::Factory::GTF;
 
 use Moose;
 use namespace::autoclean;
-use FileHandle;
+use IO::Zlib;
 
 use GenOO::RegionCollection::Factory;
 use GenOO::Transcript;
@@ -80,8 +80,13 @@ sub _read_gtf_with_transcripts {
 	my %transcript_splice_starts;
 	my %transcript_splice_stops;
 	
-	my $read_mode = ($file !~ /\.gz$/) ? '<' : '<:gzip';
-	my $FH = FileHandle->new($file, $read_mode) or die "Cannot open file \"$file\". $!";
+	my $FH;
+	if ($file =~ /\.gz$/) {
+		$FH = IO::Zlib->new($file, 'rb') or die "Cannot open file $file\n";
+	}
+	else {
+		open ($FH, '<', $file);
+	}
 	
 	while (my $line = $FH->getline){
 		chomp($line);
