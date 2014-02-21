@@ -57,7 +57,7 @@ use GenOO::Gene;
 has 'annotation_hash'       => (
 	isa      => 'HashRef', 
 	is       => 'ro', 
-	required => 0
+	required => 1
 );
 has 'transcript_collection' => (
 	isa      => 'GenOO::RegionCollection',
@@ -111,11 +111,6 @@ sub _make_list_of_genes {
 	
 	return @outgenes;
 }
-
-# sub _make_namehash_from_transcript_collection {
-# 	
-# 
-# }
 
 sub _merge {
 	my ($regions_ref, $params) = @_;
