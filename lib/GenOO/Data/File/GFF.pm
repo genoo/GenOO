@@ -194,7 +194,7 @@ sub _parse_record_line {
 	my @attributes = split(/;\s*/,$attributes_string);
 	my %attributes_hash;
 	foreach my $attribute (@attributes) {
-		$attribute =~ /(.+)="(.+)"/;
+		$attribute =~ /(.+)[=|\s]"(.+)"/;
 		$attributes_hash{$1} = $2;
 	}
 	
