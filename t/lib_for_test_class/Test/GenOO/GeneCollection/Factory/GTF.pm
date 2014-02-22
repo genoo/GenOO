@@ -61,7 +61,7 @@ sub gene_has_transcript : Test(1) {
 	
 	my $collection = $self->obj(0)->read_collection;
 	my @genes = $collection->all_records;
-	is $genes[0]->transcripts->[0]->id, 'uc007agp.1', "... and it contains the correct number of records";
+	isa_ok $genes[0]->transcripts->[0], 'GenOO::Transcript', "... and it contains the correct number of records";
 }
 
 #######################################################################
