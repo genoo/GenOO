@@ -6,7 +6,7 @@ GenOO::GeneCollection::Factory::FromTranscriptCollection - Factory for creating 
 
 =head1 SYNOPSIS
 
-    # Creates GenOO::RegionCollection object from a Transcript Collection and a hash 
+    # Creates GenOO::GeneCollection object from a Transcript Collection and a hash 
 
     # Preferably use it through the generic GenOO::GeneCollection::Factory
     my $factory = GenOO::GeneCollection::Factory->create(
@@ -20,10 +20,10 @@ GenOO::GeneCollection::Factory::FromTranscriptCollection - Factory for creating 
 =head1 DESCRIPTION
 
     An instance of this class is a concrete factory for the creation of a 
-    L<GenOO::RegionCollection> object from a Transcript Collection (also a L<GenOO::RegionCollection> object)
+    L<GenOO::GeneCollection> object from a Transcript Collection
     and a hash that has transcript names as keys and gene names as values. 
     It offers the method "read_collection" (as the consumed role requires) which returns the actual
-    L<GenOO::RegionCollection> object in the form of L<GenOO::RegionCollection::Type::DoubleHashArray>.
+    L<GenOO::GeneCollection> object in the form of L<GenOO::RegionCollection::Type::DoubleHashArray>.
     The latter is the implementation of the L<GenOO::RegionCollection> class based on the complex
     data structure L<GenOO::Data::Structure::DoubleHashArray>.
 
@@ -38,7 +38,7 @@ GenOO::GeneCollection::Factory::FromTranscriptCollection - Factory for creating 
         }
     );
     
-    # Return the actual GenOO::RegionCollection object
+    # Return the actual GenOO::GeneCollection object
     my $collection = $factory_implementation->read_collection;
     print ref($collection) # GenOO::RegionCollection::Type::DoubleHashArray
 
