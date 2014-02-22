@@ -2,23 +2,21 @@
 
 =head1 NAME
 
-GenOO::RegionCollection::Factory::GTF - Factory for creating a GeneCollection with transcripts from a GTF file
+GenOO::GeneCollection::Factory::GTF - Factory to create GeneCollection from a GTF file
 
 =head1 SYNOPSIS
 
-    # Creates GenOO::TranscriptnCollection containing transcripts from a GTF file 
+Creates GenOO::GeneCollection containing genes from a GTF file 
+Preferably use it through the generic GenOO::GeneCollection::Factory
 
-    # Preferably use it through the generic GenOO::GeneCollection::Factory
-    my $factory = GenOO::GeneCollection::Factory->new('GTF',
-        {
-            file => 'sample.gtf'
-        }
-    );
+    my $factory = GenOO::GeneCollection::Factory->new('GTF',{
+        file => 'sample.gtf'
+    });
 
 =head1 DESCRIPTION
 
     An instance of this class is a concrete factory for the creation of a 
-    L<GenOO::GeneCollection> containing transcripts from a GTF file. It offers the method 
+    L<GenOO::GeneCollection> containing genes from a GTF file. It offers the method 
     "read_collection" (as the consumed role requires) which returns the actual
     L<GenOO::GeneCollection> object in the form of 
     L<GenOO::RegionCollection::Type::DoubleHashArray>. The latter is the implementation
@@ -28,15 +26,13 @@ GenOO::RegionCollection::Factory::GTF - Factory for creating a GeneCollection wi
 =head1 EXAMPLES
 
     # Create a concrete factory
-    my $factory_implementation = GenOO::GeneCollection::Factory->new('GTF',
-        {
-            file => 'sample.gtf'
-        }
-    );
+    my $factory_implementation = GenOO::GeneCollection::Factory->new('GTF',{
+        file => 'sample.gtf'
+    });
     
-    # Return the actual GenOO::RegionCollection object
+    # Return the actual GenOO::GeneCollection object
     my $collection = $factory_implementation->read_collection;
-    print ref($collection) # GenOO::RegionCollection::Type::DoubleHashArray
+    print ref($collection) # GenOO::GeneCollection::Type::DoubleHashArray
 
 =cut
 
@@ -67,8 +63,8 @@ use GenOO::Data::File::GFF;
 #######################   Interface attributes   ######################
 #######################################################################
 has 'file' => (
-	is => 'Str', 
-	is => 'ro'
+	isa => 'Str', 
+	is  => 'ro'
 );
 
 

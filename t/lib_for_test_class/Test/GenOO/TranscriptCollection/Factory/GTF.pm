@@ -46,7 +46,7 @@ sub file : Test(2) {
 	is $self->obj(0)->file, 't/sample_data/sample.transcripts.gtf.gz', "... and returns the correct value";
 }
 
-sub read_collection : Test(3) {
+sub read_collection : Test(5) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'read_collection';
@@ -54,6 +54,10 @@ sub read_collection : Test(3) {
 	my $collection = $self->obj(0)->read_collection;
 	does_ok($collection, 'GenOO::RegionCollection', "... and the returned object does the GenOO::RegionCollection role");
 	is $collection->records_count, 70, "... and it contains the correct number of records";
+	
+	$collection = $self->obj(1)->read_collection;
+	does_ok($collection, 'GenOO::RegionCollection', "... and the returned object does the GenOO::RegionCollection role");
+	is $collection->records_count, 58, "... and it contains the correct number of records";
 }
 
 #######################################################################
@@ -68,6 +72,10 @@ sub test_objects {
 	
 	push @test_objects, $test_class->class->new(
 		file => 't/sample_data/sample.transcripts.gtf.gz'
+	);
+	
+	push @test_objects, $test_class->class->new(
+		file => 't/sample_data/sample.transcripts.genenames.gtf.gz'
 	);
 	
 	return \@test_objects;

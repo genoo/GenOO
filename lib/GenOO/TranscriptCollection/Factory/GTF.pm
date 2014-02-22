@@ -2,18 +2,16 @@
 
 =head1 NAME
 
-GenOO::RegionCollection::Factory::GTF - Factory for creating a TranscriptCollection with transcripts from a GTF file
+GenOO::TranscriptCollection::Factory::GTF - Factory to create TranscriptCollection from a GTF file
 
 =head1 SYNOPSIS
 
-    # Creates GenOO::TranscriptnCollection containing transcripts from a GTF file 
+Creates GenOO::TranscriptCollection containing transcripts from a GTF file 
+Preferably use it through the generic GenOO::TranscriptCollection::Factory
 
-    # Preferably use it through the generic GenOO::TranscriptCollection::Factory
-    my $factory = GenOO::TranscriptCollection::Factory->new('GTF',
-        {
-            file => 'sample.gtf'
-        }
-    );
+    my $factory = GenOO::TranscriptCollection::Factory->new('GTF',{
+        file => 'sample.gtf'
+    });
 
 =head1 DESCRIPTION
 
@@ -28,15 +26,13 @@ GenOO::RegionCollection::Factory::GTF - Factory for creating a TranscriptCollect
 =head1 EXAMPLES
 
     # Create a concrete factory
-    my $factory_implementation = GenOO::TranscriptCollection::Factory->new('GTF',
-        {
-            file => 'sample.gtf'
-        }
-    );
+    my $factory_implementation = GenOO::TranscriptCollection::Factory->new('GTF',{
+        file => 'sample.gtf'
+    });
     
-    # Return the actual GenOO::RegionCollection object
+    # Return the actual GenOO::TranscriptCollection object
     my $collection = $factory_implementation->read_collection;
-    print ref($collection) # GenOO::RegionCollection::Type::DoubleHashArray
+    print ref($collection) # GenOO::TranscriptCollection::Type::DoubleHashArray
 
 =cut
 
@@ -44,16 +40,38 @@ GenOO::RegionCollection::Factory::GTF - Factory for creating a TranscriptCollect
 
 package GenOO::TranscriptCollection::Factory::GTF;
 
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
+use Modern::Perl;
+use autodie;
 use Moose;
 use namespace::autoclean;
-use IO::Zlib;
 
+
+#######################################################################
+#######################   Load GenOO modules      #####################
+#######################################################################
 use GenOO::RegionCollection::Factory;
 use GenOO::Transcript;
+use GenOO::Gene;
+use GenOO::Data::File::GFF;
 
-has 'file' => (is => 'Str', is => 'ro');
 
+#######################################################################
+#######################   Interface attributes   ######################
+#######################################################################
+has 'file' => (
+	isa => 'Str', 
+	is  => 'ro'
+);
+
+
+#######################################################################
+##########################   Consumed Roles   #########################
+#######################################################################
 with 'GenOO::RegionCollection::Factory::Requires';
+
 
 #######################################################################
 ########################   Interface Methods   ########################
@@ -63,11 +81,9 @@ sub read_collection {
 	
 	my @transcripts = $self->_read_gtf_with_transcripts($self->file);
 	
-	return GenOO::RegionCollection::Factory->create('RegionArray',
-		{
-			array => \@transcripts
-		}
-	)->read_collection;
+	return GenOO::RegionCollection::Factory->create('RegionArray', {
+		array => \@transcripts
+	})->read_collection;
 }
 
 #######################################################################
@@ -79,76 +95,60 @@ sub _read_gtf_with_transcripts {
 	my %transcripts;
 	my %transcript_splice_starts;
 	my %transcript_splice_stops;
+	my %genes;
 	
-	my $FH;
-	if ($file =~ /\.gz$/) {
-		$FH = IO::Zlib->new($file, 'rb') or die "Cannot open file $file\n";
-	}
-	else {
-		open ($FH, '<', $file);
-	}
+	my $gff = GenOO::Data::File::GFF->new(file => $file);
+
+	while (my $record = $gff->next_record){
+		my $transcript_id = $record->attribute('transcript_id') or die "transcript_id attribute must be defined\n";
 	
-	while (my $line = $FH->getline){
-		chomp($line);
-		if (($line !~ /^#/) and ($line ne '') and ($line !~ /^\s*$/)) {
-			my ($chr, $genome, $type, $start, $stop, $score, $strand, undef, $nameinfo) = split(/\t/, $line);
-			
-			if (($strand ne "+") and ($strand ne "-")){warn "Skipping transcript $nameinfo: strand $strand not accepted\n"; next;}
-			
-			$start = $start-1; #GTF is one based closed => convert to 0-based closed.
-			$stop = $stop-1;
-			$nameinfo =~ /transcript_id\s+\"(.+)\"/;
-			my $transcript_id = $1;
-			
-			
-			# Get transcript with id or create a new one. Update coordinates if required
-			my $transcript = $transcripts{$transcript_id};
-			if (not defined $transcript) {
-				$transcript = GenOO::Transcript->new(
-					id            => $transcript_id,
-					chromosome    => $chr,
-					strand        => $strand,
-					start         => $start,
-					stop          => $stop,
-					splice_starts => [$start], # will be re-written later
-					splice_stops  => [$stop], # will be re-written later
-				);
-				$transcripts{$transcript_id} = $transcript;
-				$transcript_splice_starts{$transcript_id} = [];
-				$transcript_splice_stops{$transcript_id} = [];
+		if ($record->strand == 0){
+			warn "Skipping transcript $transcript_id: strand symbol". $record->strand_symbol." not accepted\n";
+			next;
+		}
+		
+		# Get transcript with id or create a new one. Update coordinates if required
+		my $transcript = $transcripts{$transcript_id};
+		if (not defined $transcript) {
+			$transcript = GenOO::Transcript->new(
+				id            => $transcript_id,
+				chromosome    => $record->rname,
+				strand        => $record->strand,
+				start         => $record->start,
+				stop          => $record->stop,
+				splice_starts => [$record->start], # will be re-written later
+				splice_stops  => [$record->stop], # will be re-written later
+			);
+			$transcripts{$transcript_id} = $transcript;
+			$transcript_splice_starts{$transcript_id} = [];
+			$transcript_splice_stops{$transcript_id} = [];
+		}
+		else {
+			$transcript->start($record->start) if ($record->start < $transcript->start);
+			$transcript->stop($record->stop) if ($record->stop > $transcript->stop);
+		}
+		
+		if ($record->feature eq 'exon') {
+			push @{$transcript_splice_starts{$transcript_id}}, $record->start;
+			push @{$transcript_splice_stops{$transcript_id}}, $record->stop;
+		}
+		elsif ($record->feature eq 'start_codon') {
+			if ($record->strand eq '+') {
+				$transcript->coding_start($record->start);
 			}
-			else {
-				if ($start < $transcript->start) {
-					$transcript->start($start);
-				}
-				if ($stop > $transcript->stop) {
-					$transcript->stop($stop);
-				}
+			elsif ($record->strand eq '-') {
+				$transcript->coding_stop($record->stop);
 			}
-			
-			if ($type eq 'exon') {
-				push @{$transcript_splice_starts{$transcript_id}}, $start;
-				push @{$transcript_splice_stops{$transcript_id}}, $stop;
+		}
+		elsif ($record->feature eq 'stop_codon') {
+			if ($record->strand eq '+') {
+				$transcript->coding_stop($record->stop);
 			}
-			elsif ($type eq 'start_codon') {
-				if ($strand eq '+') {
-					$transcript->coding_start($start);
-				}
-				elsif ($strand eq '-') {
-					$transcript->coding_stop($stop);
-				}
-			}
-			elsif ($type eq 'stop_codon') {
-				if ($strand eq '+') {
-					$transcript->coding_stop($stop);
-				}
-				elsif ($strand eq '-') {
-					$transcript->coding_start($start);
-				}
+			elsif ($record->strand eq '-') {
+				$transcript->coding_start($record->start);
 			}
 		}
 	}
-	close $FH;
 	
 	foreach my $transcript_id (keys %transcripts) {
 		$transcripts{$transcript_id}->set_splice_starts_and_stops($transcript_splice_starts{$transcript_id}, $transcript_splice_stops{$transcript_id});
