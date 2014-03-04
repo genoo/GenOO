@@ -1,12 +1,12 @@
-package Test::GenOO::TranscriptCollection::Factory::GTF;
+package Test::GenOO::TranscriptCollection::Factory::FromGeneCollection;
 use strict;
 
 use base qw(Test::GenOO);
 use Test::Most;
 use Test::Moose;
 
-#######################################################################
-################   Startup (Runs once in the begining  ################
+######################################################################
+###############   Startup (Runs once in the begining  ################
 #######################################################################
 sub _check_loading : Test(startup => 1) {
 	my ($self) = @_;
@@ -39,23 +39,22 @@ sub _role_check : Test(1) {
 #######################################################################
 #######################   Class Interface Tests   #####################
 #######################################################################
-sub file : Test(2) {
+sub gene_collection : Test(3) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), 'file', "... test object has the 'file' attribute");
-	is $self->obj(0)->file, 't/sample_data/sample.transcripts.gtf.gz', "... and returns the correct value";
+	can_ok $self->obj(0), 'gene_collection';
+	
+	my $collection = $self->obj(0)->gene_collection;
+	does_ok($collection, 'GenOO::RegionCollection', "... and the returned object does the GenOO::RegionCollection role");
+	is $collection->records_count, 26, "... and it contains the correct number of records";
 }
 
-sub read_collection : Test(5) {
+sub read_collection : Test(3) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'read_collection';
 	
 	my $collection = $self->obj(0)->read_collection;
-	does_ok($collection, 'GenOO::RegionCollection', "... and the returned object does the GenOO::RegionCollection role");
-	is $collection->records_count, 70, "... and it contains the correct number of records";
-	
-	$collection = $self->obj(1)->read_collection;
 	does_ok($collection, 'GenOO::RegionCollection', "... and the returned object does the GenOO::RegionCollection role");
 	is $collection->records_count, 58, "... and it contains the correct number of records";
 }
@@ -67,16 +66,16 @@ sub test_objects {
 	my ($test_class) = @_;
 	
 	eval "require ".$test_class->class;
+# 	require GenOO::GeneCollection::Factory::GTF;
+	require Test::GenOO::GeneCollection::Factory::GTF;
 	
 	my @test_objects;
+	my $gene_collection_object_array = Test::GenOO::GeneCollection::Factory::GTF->test_objects();
+	my $gene_collection = $$gene_collection_object_array[0]->read_collection;
 	
-	push @test_objects, $test_class->class->new(
-		file => 't/sample_data/sample.transcripts.gtf.gz'
-	);
-	
-	push @test_objects, $test_class->class->new(
-		file => 't/sample_data/sample.transcripts.genenames.gtf.gz'
-	);
+	push @test_objects, $test_class->class->new({
+		gene_collection => $gene_collection
+	});
 	
 	return \@test_objects;
 }

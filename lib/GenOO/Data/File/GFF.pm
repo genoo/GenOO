@@ -43,6 +43,7 @@ use Modern::Perl;
 use autodie;
 use Moose;
 use namespace::autoclean;
+use IO::Zlib;
 
 
 #######################################################################
@@ -193,7 +194,7 @@ sub _parse_record_line {
 	my @attributes = split(/;\s*/,$attributes_string);
 	my %attributes_hash;
 	foreach my $attribute (@attributes) {
-		$attribute =~ /(.+)="(.+)"/;
+		$attribute =~ /(.+)[=|\s]"(.+)"/;
 		$attributes_hash{$1} = $2;
 	}
 	
@@ -259,16 +260,16 @@ sub _open_filehandle {
 	my ($self) = @_;
 	
 	my $read_mode;
+	my $HANDLE;
 	if (!defined $self->file) {
-		$read_mode = '<-';
+		open ($HANDLE, '<-', $self->file);
 	}
 	elsif ($self->file =~ /\.gz$/) {
-		$read_mode = '<:gzip';
+		$HANDLE = IO::Zlib->new($self->file, 'rb') or die "Cannot open file ".$self->file."\n";
 	}
 	else {
-		$read_mode = '<';
+		open ($HANDLE, '<', $self->file);
 	}
-	open (my $HANDLE, $read_mode, $self->file);
 	
 	return $HANDLE;
 }

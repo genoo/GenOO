@@ -182,6 +182,37 @@ sub test_filter_by_length {
 	is $test->get_testable_object(0)->records_count, 5, "filters correctly by size";
 }
 
+sub test_filter_by_min_length {
+	my ($test) = @_;
+	
+	can_ok $test->get_testable_object(0), 'filter_by_min_length';
+	
+	$test->get_testable_object(0)->filter_by_min_length(35);
+	is $test->get_testable_object(0)->records_count, 107, "filters correctly by size";
+}
+
+sub test_filter_by_max_length {
+	my ($test) = @_;
+	
+	can_ok $test->get_testable_object(0), 'filter_by_max_length';
+	
+	$test->get_testable_object(0)->filter_by_max_length(45);
+	is $test->get_testable_object(0)->records_count, 874, "filters correctly by size";
+}
+
+sub test_simple_filter {
+	my ($test) = @_;
+	
+	can_ok $test->get_testable_object(0), 'simple_filter';
+	
+	$test->get_testable_object(0)->simple_filter('alignment_length', '>=35');
+	is $test->get_testable_object(0)->records_count, 107, "filters correctly by size";
+	$test->get_testable_object(0)->simple_filter('alignment_length', '<=45');
+	is $test->get_testable_object(0)->records_count, 5, "filters correctly by size";
+	$test->get_testable_object(0)->simple_filter('rname', '==chr13');
+	is $test->get_testable_object(0)->records_count, 2, "filters correctly by size";
+}
+
 #######################################################################
 #########################   Private Methods   #########################
 #######################################################################

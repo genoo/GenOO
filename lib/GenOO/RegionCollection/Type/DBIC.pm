@@ -269,6 +269,51 @@ sub filter_by_length {
 	$self->resultset($rs);
 }
 
+sub filter_by_min_length {
+	my ($self, $min_length) = @_;
+	
+	my $rs = $self->resultset->search(
+		\['(stop - start + 1) >= (?+0)', [dummy => $min_length]]
+	);
+	$self->resultset($rs);
+}
+
+sub filter_by_max_length {
+	my ($self, $max_length) = @_;
+	
+	my $rs = $self->resultset->search(
+		\['(stop - start + 1) <= (?+0)', [dummy => $max_length]]
+	);
+	$self->resultset($rs);
+}
+
+sub simple_filter {
+	my ($self, $col_name, $filter) = @_;
+	# eg. $col_name=deletion, $filter='def'
+	#     $col_name=alignment_length, $filter='>31'
+	
+	my $filtered_rs = $self->resultset;
+	
+	if ($filter eq 'def') {
+		$filtered_rs = $filtered_rs->search({$col_name => {'!=', undef}});
+	}
+	elsif ($filter eq 'undef') {
+		$filtered_rs = $filtered_rs->search({$col_name => undef});
+	}
+	elsif ($filter =~ /^([>=!<]{1,2})(.+)$/) {
+		my $symbol = $1;
+		my $value  = $2;
+		$filtered_rs = $filtered_rs->search({$col_name => { $symbol => $value }});
+	}
+	else {
+		warn "Filter $filter does not fit the guidelines.";
+	}
+
+	
+	$self->resultset($filtered_rs);
+}
+
+
 #######################################################################
 #########################   Private methods  ##########################
 #######################################################################

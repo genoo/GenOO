@@ -2,23 +2,23 @@
 
 =head1 NAME
 
-GenOO::TranscriptCollection::Factory::GTF - Factory to create TranscriptCollection from a GTF file
+GenOO::GeneCollection::Factory::GTF - Factory to create GeneCollection from a GTF file
 
 =head1 SYNOPSIS
 
-Creates GenOO::TranscriptCollection containing transcripts from a GTF file 
-Preferably use it through the generic GenOO::TranscriptCollection::Factory
+Creates GenOO::GeneCollection containing genes from a GTF file 
+Preferably use it through the generic GenOO::GeneCollection::Factory
 
-    my $factory = GenOO::TranscriptCollection::Factory->new('GTF',{
+    my $factory = GenOO::GeneCollection::Factory->new('GTF',{
         file => 'sample.gtf'
     });
 
 =head1 DESCRIPTION
 
     An instance of this class is a concrete factory for the creation of a 
-    L<GenOO::TranscriptCollection> containing transcripts from a GTF file. It offers the method 
+    L<GenOO::GeneCollection> containing genes from a GTF file. It offers the method 
     "read_collection" (as the consumed role requires) which returns the actual
-    L<GenOO::TranscriptCollection> object in the form of 
+    L<GenOO::GeneCollection> object in the form of 
     L<GenOO::RegionCollection::Type::DoubleHashArray>. The latter is the implementation
     of the L<GenOO::RegionCollection> class based on the complex data structure
     L<GenOO::Data::Structure::DoubleHashArray>.
@@ -26,19 +26,20 @@ Preferably use it through the generic GenOO::TranscriptCollection::Factory
 =head1 EXAMPLES
 
     # Create a concrete factory
-    my $factory_implementation = GenOO::TranscriptCollection::Factory->new('GTF',{
+    my $factory_implementation = GenOO::GeneCollection::Factory->new('GTF',{
         file => 'sample.gtf'
     });
     
-    # Return the actual GenOO::TranscriptCollection object
+    # Return the actual GenOO::GeneCollection object
     my $collection = $factory_implementation->read_collection;
-    print ref($collection) # GenOO::TranscriptCollection::Type::DoubleHashArray
+    print ref($collection) # GenOO::GeneCollection::Type::DoubleHashArray
 
 =cut
 
 # Let the code begin...
 
-package GenOO::TranscriptCollection::Factory::GTF;
+package GenOO::GeneCollection::Factory::GTF;
+
 
 #######################################################################
 #######################   Load External modules   #####################
@@ -79,17 +80,17 @@ with 'GenOO::RegionCollection::Factory::Requires';
 sub read_collection {
 	my ($self) = @_;
 	
-	my @transcripts = $self->_read_gtf_with_transcripts($self->file);
+	my @genes = $self->_read_gtf($self->file);
 	
 	return GenOO::RegionCollection::Factory->create('RegionArray', {
-		array => \@transcripts
+		array => \@genes
 	})->read_collection;
 }
 
 #######################################################################
 #########################   Private methods  ##########################
 #######################################################################
-sub _read_gtf_with_transcripts {
+sub _read_gtf {
 	my ($self, $file)=@_;
 	
 	my %transcripts;
@@ -98,10 +99,12 @@ sub _read_gtf_with_transcripts {
 	my %genes;
 	
 	my $gff = GenOO::Data::File::GFF->new(file => $file);
-
-	while (my $record = $gff->next_record){
-		my $transcript_id = $record->attribute('transcript_id') or die "transcript_id attribute must be defined\n";
 	
+	while (my $record = $gff->next_record){
+
+		my $transcript_id = $record->attribute('transcript_id') or die "transcript_id attribute must be defined\n";
+		my $gene_id = $record->attribute('gene_id') or die "gene_id attribute must be defined\n";
+		
 		if ($record->strand == 0){
 			warn "Skipping transcript $transcript_id: strand symbol". $record->strand_symbol." not accepted\n";
 			next;
@@ -120,12 +123,22 @@ sub _read_gtf_with_transcripts {
 				splice_stops  => [$record->stop], # will be re-written later
 			);
 			$transcripts{$transcript_id} = $transcript;
+			if (!exists $genes{$gene_id}){
+				my $gene = GenOO::Gene->new(name => $gene_id);
+				$genes{$gene_id} = $gene;
+			}
+			$transcript->gene($genes{$gene_id});
+			$genes{$gene_id}->add_transcript($transcript);
 			$transcript_splice_starts{$transcript_id} = [];
 			$transcript_splice_stops{$transcript_id} = [];
 		}
 		else {
-			$transcript->start($record->start) if ($record->start < $transcript->start);
-			$transcript->stop($record->stop) if ($record->stop > $transcript->stop);
+			if ($record->start < $transcript->start) {
+				$transcript->start($record->start);
+			}
+			if ($record->stop > $transcript->stop) {
+				$transcript->stop($record->stop);
+			}
 		}
 		
 		if ($record->feature eq 'exon') {
@@ -154,7 +167,7 @@ sub _read_gtf_with_transcripts {
 		$transcripts{$transcript_id}->set_splice_starts_and_stops($transcript_splice_starts{$transcript_id}, $transcript_splice_stops{$transcript_id});
 	}
 	
-	return values %transcripts;
+	return values %genes;
 }
 
 1;
