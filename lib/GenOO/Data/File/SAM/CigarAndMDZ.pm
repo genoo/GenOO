@@ -96,6 +96,62 @@ sub mismatch_positions_on_query_calculated_from_mdz {
 	return @mismatch_positions;
 }
 
+sub mismatch_nt_on_query {
+	my ($self) = @_;
+	#Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA -> CIGAR: 2M1I7M6D26M
+	#            -   -
+	#Genome: AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA -> MD:Z:  3C3T1^GCTCAG26
+	
+	#returns an array containing a hash with keys {query_nt} {reference_nt} {query_pos}
+	
+	my $cigar = $self->cigar;
+	
+	# Find positions of insertions and deletions (dashes) on the query sequence
+	my @deletion_positions;
+	my @insertion_positions;
+	my $position = 0;
+	while ($cigar =~ /(\d+)([MIDNSHP=X])/g) {
+		my $count = $1;
+		my $identifier = $2;
+		
+		if ($identifier eq 'D' or $identifier eq 'N' or $identifier eq 'P' or $identifier eq 'H') {
+			push (@deletion_positions, $position + $_) for (0..$count-1)
+		}
+		elsif ($identifier eq 'I' or $identifier eq 'S') {
+			push (@insertion_positions, $position + $_) for (0..$count-1)
+		}
+		$position += $count;
+	}
+	
+	my @mismatch_positions_on_reference = $self->mismatch_positions_on_reference;
+	my @relative_mismatch_positions_on_reference = map {$_ - $self->start} @mismatch_positions_on_reference;
+	my @nts_on_reference = $self->reference_nt_for_mismatch_positions;
+	
+	my @outarray;
+	my $query_seq = $self->query_seq;
+	for (my $i = 0; $i <  @relative_mismatch_positions_on_reference; $i++){
+		my $relative_mismatch_position_on_reference = $relative_mismatch_positions_on_reference[$i];
+		my $deletion_adjustment = _how_many_are_smaller($relative_mismatch_position_on_reference, \@deletion_positions);
+		my $insertion_adjustment = _how_many_are_smaller($relative_mismatch_position_on_reference, \@insertion_positions);
+		
+		my $mismatch_position_on_query = $relative_mismatch_position_on_reference - $deletion_adjustment + $insertion_adjustment;
+		
+		if ($self->strand == -1) {
+			$mismatch_position_on_query = ($self->query_length - 1) - $mismatch_position_on_query;
+		}
+		
+		my $nt_on_query = substr($query_seq, $mismatch_position_on_query, 1);
+		
+		my $nt_on_reference = $nts_on_reference[$i];
+				
+		push @outarray, {'query_nt' => $nt_on_query, 'reference_nt' => $nt_on_reference, 'query_pos' => $mismatch_position_on_query};
+
+	}
+	
+# 	print $outarray[0]->{'query_pos'}."\n";
+	return @outarray;
+}
+
 
 #######################################################################
 #######################   Private Subroutines  ########################

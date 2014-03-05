@@ -80,4 +80,37 @@ sub mismatch_positions_on_reference_calculated_from_mdz {
 	return @mismatch_positions;
 }
 
+sub reference_nt_for_mismatch_positions {
+	my ($self) = @_;
+	#Tag:    AGTGATGGGA------GGATGTCTCGTCTGTGAGTTACAGCA -> CIGAR: 2M1I7M6D26M
+	#            -   -
+	#Genome: AG-GCTGGTAGCTCAGGGATGTCTCGTCTGTGAGTTACAGCA -> MD:Z:  3C3T1^GCTCAG26
+
+	#Returns mismatch nt from reference sequence. The mismatch nt is the real nt based on matching orientation. i.e. if the strand is -1 it will return the complement of what MD:Z says
+	
+	my @mismatch_nt;
+	my $mdz = $self->mdz;
+	
+	if ($mdz =~ /\w/) {
+		my $relative_position = 0;
+		while ($mdz ne '') {
+			if ($mdz =~ s/^(\d+)//) {
+				next;
+			}
+			elsif ($mdz =~ s/^\^([A-Z]+)//) {
+				next;
+			}
+			elsif ($mdz =~ s/^(\w)//) {
+				my $nt_on_reference = $1;
+				if ($self->strand == -1) {
+					$nt_on_reference =~ tr/ATGCatgc/TACGtacg/;
+				}
+				push @mismatch_nt, $nt_on_reference;
+			}
+		}
+	}
+	
+	return @mismatch_nt;
+}
+
 1;

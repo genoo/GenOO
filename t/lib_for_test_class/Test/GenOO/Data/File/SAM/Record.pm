@@ -348,6 +348,53 @@ sub mismatch_positions_on_reference : Test(8) {
 	is_deeply [$self->obj(7)->mismatch_positions_on_reference], [356769,356776,356784], "... and returns the correct value";
 }
 
+sub reference_nt_for_mismatch_positions : Test(8) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'reference_nt_for_mismatch_positions';
+	
+	is_deeply [$self->obj(0)->reference_nt_for_mismatch_positions], [], "... and returns the correct value";
+	is_deeply [$self->obj(1)->reference_nt_for_mismatch_positions], ['T','C'], "... and returns the correct value";
+	is_deeply [$self->obj(2)->reference_nt_for_mismatch_positions], ['G','A'], "... and returns the correct value";
+	is_deeply [$self->obj(3)->reference_nt_for_mismatch_positions], ['C','A','A','A'], "... and returns the correct value";
+	is_deeply [$self->obj(5)->reference_nt_for_mismatch_positions], ['C','A','A','A'], "... and returns the correct value";
+	is_deeply [$self->obj(6)->reference_nt_for_mismatch_positions], ['C','T','G'], "... and returns the correct value";
+	is_deeply [$self->obj(7)->reference_nt_for_mismatch_positions], ['C','T','G'], "... and returns the correct value";
+}
+
+sub mismatch_nt_on_query : Test(8) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'mismatch_nt_on_query';
+	
+	is_deeply [$self->obj(0)->mismatch_nt_on_query], [], "... and returns the correct value";
+	is_deeply [$self->obj(1)->mismatch_nt_on_query], [{'query_nt' => 'A', 'reference_nt' => 'T', 'query_pos' => '100'},{'query_nt' => 'N', 'reference_nt' => 'C', 'query_pos' => '38'}], "... and returns the correct value";
+	is_deeply [$self->obj(2)->mismatch_nt_on_query], [{'query_nt' => 'A', 'reference_nt' => 'G', 'query_pos' => '12'},{'query_nt' => 'C', 'reference_nt' => 'A', 'query_pos' => '48'}], "... and returns the correct value";
+	is_deeply [$self->obj(3)->mismatch_nt_on_query], [
+		{'query_nt' => 'A', 'reference_nt' => 'C', 'query_pos' => '73'},
+		{'query_nt' => 'G', 'reference_nt' => 'A', 'query_pos' => '86'},
+		{'query_nt' => 'C', 'reference_nt' => 'A', 'query_pos' => '98'},
+		{'query_nt' => 'C', 'reference_nt' => 'A', 'query_pos' => '100'}
+	], "... and returns the correct value";
+	is_deeply [$self->obj(5)->mismatch_nt_on_query], [
+		{'query_nt' => 'A', 'reference_nt' => 'C', 'query_pos' => '73'},
+		{'query_nt' => 'G', 'reference_nt' => 'A', 'query_pos' => '86'},
+		{'query_nt' => 'C', 'reference_nt' => 'A', 'query_pos' => '98'},
+		{'query_nt' => 'C', 'reference_nt' => 'A', 'query_pos' => '100'}
+	], "... and returns the correct value";
+	is_deeply [$self->obj(6)->mismatch_nt_on_query], [
+		{'query_nt' => 'A', 'reference_nt' => 'C', 'query_pos' => '4'},
+		{'query_nt' => 'G', 'reference_nt' => 'T', 'query_pos' => '7'},
+		{'query_nt' => 'C', 'reference_nt' => 'G', 'query_pos' => '13'}
+	], "... and returns the correct value";
+	is_deeply [$self->obj(7)->mismatch_nt_on_query], [
+		{'query_nt' => 'A', 'reference_nt' => 'C', 'query_pos' => '4'},
+		{'query_nt' => 'G', 'reference_nt' => 'T', 'query_pos' => '7'},
+		{'query_nt' => 'C', 'reference_nt' => 'G', 'query_pos' => '13'}
+	], "... and returns the correct value";
+}
+
+
 sub cigar_relative_to_query : Test(6) {
 	my ($self) = @_;
 	
@@ -434,8 +481,8 @@ sub test_objects {
 	
 	
 	# AGTGAT____GGA---GTGACTCA-C -> CIGAR: 2M1I3M4N3M3D1M1I3M1I2M1D1M  /  2=1I1=1X1=4N1=1X1=3D1=1I2=1X1I2=1D1=
-    #     -      -        -
-    # AG-GCTNNNNGTAGAGG-GAG-CAGC -> MD:Z:  3C1^NNNN1T1^GAG3G2^G1
+	#     -      -        -
+	# AG-GCTNNNNGTAGAGG-GAG-CAGC -> MD:Z:  3C1^NNNN1T1^GAG3G2^G1
 	push @test_objects, $test_class->class->new(fields => ['Test6', '0', 'chr1', '356767', '37', '2=1I1=1X1=4N1=1X1=3D1=1I2=1X1I2=1D1=', '*', '0', '0', 'AGTGATGGAGTGACTCAC', 'B>D>EEBGHGEGCGGHFC', 'NM:i:5', 'MD:Z:3C1^NNNN1T1^GAG3G2^G1']);
 	
 	push @test_objects, $test_class->class->new(fields => ['Test7', '0', 'chr1', '356767', '37', '2M1I3M4N3M3D1M1I3M1I2M1D1M', '*', '0', '0', 'AGTGATGGAGTGACTCAC', 'B>D>EEBGHGEGCGGHFC', 'NM:i:5', 'MD:Z:3C1^NNNN1T1^GAG3G2^G1']);
