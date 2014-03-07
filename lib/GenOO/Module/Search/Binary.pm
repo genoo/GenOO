@@ -19,9 +19,17 @@ GenOO::Module::Search::Binary - Module that offers methods for searching in an a
 # Let the code begin...
 
 package GenOO::Module::Search::Binary;
-use strict;
 
 
+#######################################################################
+#######################   Load External modules   #####################
+#######################################################################
+use Modern::Perl;
+
+
+#######################################################################
+#######################   Interface Functions   #######################
+#######################################################################
 =head2 binary_search_for_value_greater_or_equal
   Arg [1]    : number. The target value
   Arg [2]    : array reference. Array in which the target value is searched.
