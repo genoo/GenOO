@@ -60,6 +60,31 @@ sub read_collection : Test(5) {
 	is $collection->records_count, 58, "... and it contains the correct number of records";
 }
 
+sub check_individual_transcripts : Test(16) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'read_collection';
+	
+	my $collection = $self->obj(0)->read_collection;
+	my @transcripts = sort {$a->id cmp $b->id} $collection->all_records;
+	is $transcripts[0]->is_coding, 0, "... should be non coding";
+	is $transcripts[0]->start, 11873, "... returns correct";
+	is $transcripts[0]->stop, 14408, "... returns correct";
+	is $transcripts[0]->id, 'uc001aaa.3', "... returns correct";
+	is $transcripts[0]->strand, 1, "... returns correct";
+	is $transcripts[0]->chromosome, 'chr1', "... returns correct";
+	is $transcripts[0]->splice_starts->[0], '11873', "... returns correct";
+	is $transcripts[0]->splice_starts->[1], '12612', "... returns correct";
+	is $transcripts[0]->splice_starts->[2], '13220', "... returns correct";
+	is $transcripts[0]->splice_stops->[0], '12226', "... returns correct";
+	is $transcripts[0]->splice_stops->[1], '12720', "... returns correct";
+	is $transcripts[0]->splice_stops->[2], '14408', "... returns correct";
+
+	is $transcripts[68]->is_coding, 1, "... should be non coding";
+	is $transcripts[68]->coding_start, 897013, "... returns correct";
+	is $transcripts[68]->coding_stop, 897651, "... returns correct";
+}
+
 #######################################################################
 ###############   Class method to create test objects   ###############
 #######################################################################
