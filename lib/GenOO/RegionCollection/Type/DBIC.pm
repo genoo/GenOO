@@ -156,6 +156,17 @@ sub foreach_record_do {
 	}
 }
 
+sub foreach_record_sorted_by_location_do {
+	my ($self, $block) = @_;
+	
+	my $rs = $self->resultset->search({}, {
+		order_by => { -asc => ['strand', 'rname', 'start']},
+	});
+	while (my $record = $rs->next) {
+		last if $block->($record) eq 'break_loop'; # break the loop if the routine returns 'break_loop'
+	}
+}
+
 sub foreach_record_on_rname_do {
 	my ($self, $rname, $block) = @_;
 	
