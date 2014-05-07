@@ -109,6 +109,7 @@ sub _open_filehandle {
 		open ($HANDLE, '<-', $self->file);
 	}
 	elsif ($self->file =~ /\.gz$/) {
+		die 'Cannot open file ' . $self->file . "\n" if ! -e $self->file;
 		open($HANDLE, 'gzip -dc ' . $self->file . ' |');
 	}
 	else {
