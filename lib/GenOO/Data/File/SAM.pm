@@ -6,9 +6,9 @@ GenOO::Data::File::SAM - Object implementing methods for accessing SAM formatted
 
 =head1 SYNOPSIS
 
-    # Object that manages a sam file. 
+    # Object that manages a sam file.
 
-    # To initialize 
+    # To initialize
     my $sam_file = GenOO::Data::File::SAM->new(
         file            => undef,
     );
@@ -24,7 +24,7 @@ GenOO::Data::File::SAM - Object implementing methods for accessing SAM formatted
     my $sam_file = GenOO::Data::File::SAM->new(
           file => 't/sample_data/sample.sam.gz'
     );
-    
+
     # Read one record at a time
     my $sam_record = $sam_file->next_record();
 
@@ -42,7 +42,6 @@ use Modern::Perl;
 use autodie;
 use Moose;
 use namespace::autoclean;
-use IO::Zlib;
 
 
 #######################################################################
@@ -119,7 +118,7 @@ has '_cached_record' => (
 #######################################################################
 sub BUILD {
 	my $self = shift;
-	
+
 	eval "require ".$self->records_class;
 	$self->_parse_header_section;
 }
@@ -130,7 +129,7 @@ sub BUILD {
 #######################################################################
 sub next_record {
 	my ($self) = @_;
-	
+
 	my $record;
 	if ($self->_has_cached_record) {
 		$record = $self->_cached_record;
@@ -139,15 +138,15 @@ sub next_record {
 	else {
 		$record = $self->_next_record_from_file;
 	}
-	
+
 	$self->_inc_records_read_count if defined $record;
-	
+
 	return $record;
 }
 
 sub header {
 	my ($self) = @_;
-	
+
 	return join("\n", $self->_all_cached_header_lines);
 }
 
@@ -157,7 +156,7 @@ sub header {
 #######################################################################
 sub _parse_header_section {
 	my ($self) = @_;
-	
+
 	while (my $line = $self->_filehandle->getline) {
 		if ($line =~ /^\@/) {
 			chomp($line);
@@ -175,7 +174,7 @@ sub _parse_header_section {
 
 sub _next_record_from_file {
 	my ($self) = @_;
-	
+
 	my $line = $self->_filehandle->getline;
 	if (defined $line) {
 		return $self->_parse_record_line($line);
@@ -188,7 +187,7 @@ sub _next_record_from_file {
 
 sub _parse_record_line {
 	my ($self,$line) = @_;
-	
+
 	chomp $line;
 	my @fields = split(/\t/,$line);
 	return $self->records_class->new(fields => \@fields);
@@ -196,19 +195,19 @@ sub _parse_record_line {
 
 sub _open_filehandle {
 	my ($self) = @_;
-	
+
 	my $read_mode;
 	my $HANDLE;
 	if (!defined $self->file) {
 		open ($HANDLE, '<-', $self->file);
 	}
 	elsif ($self->file =~ /\.gz$/) {
-		$HANDLE = IO::Zlib->new($self->file, 'rb') or die "Cannot open file ".$self->file."\n";
+		open($HANDLE, 'gzip -dc ' . $self->file . ' |');
 	}
 	else {
 		open ($HANDLE, '<', $self->file);
 	}
-	
+
 	return $HANDLE;
 }
 

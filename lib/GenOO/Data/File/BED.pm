@@ -6,9 +6,9 @@ GenOO::Data::File::BED - Object implementing methods for accessing bed formatted
 
 =head1 SYNOPSIS
 
-    # Object that manages a bed file. 
+    # Object that manages a bed file.
 
-    # To initialize 
+    # To initialize
     my $bed_file = GenOO::Data::File::BED->new({
         FILE            => undef,
         EXTRA_INFO      => undef,
@@ -24,7 +24,7 @@ GenOO::Data::File::BED - Object implementing methods for accessing bed formatted
     my $bed_file = GenOO::Data::File::BED->new({
           FILE => 't/sample_data/sample.bed.gz'
     });
-    
+
     # Read one record at a time
     my $record = $bed_file->next_record();
 
@@ -42,7 +42,6 @@ use Modern::Perl;
 use autodie;
 use Moose;
 use namespace::autoclean;
-use IO::Zlib;
 
 
 #######################################################################
@@ -85,11 +84,11 @@ has '_filehandle' => (
 #######################################################################
 sub BUILD {
 	my $self = shift;
-	
+
 	$self->init_header;
 	$self->init_records_cache;
 	$self->init_records_read_count;
-	
+
 	$self->parse_header_section;
 }
 
@@ -104,7 +103,7 @@ sub records_read_count {
 
 sub next_record {
 	my ($self) = @_;
-	
+
 	my $record;
 	if ($self->record_cache_not_empty) {
 		$record = $self->next_record_from_cache;
@@ -112,7 +111,7 @@ sub next_record {
 	else {
 		$record = $self->next_record_from_file;
 	}
-	
+
 	if (defined $record) {
 		$self->increment_records_read_count;
 	}
@@ -160,7 +159,7 @@ sub increment_records_read_count {
 
 sub parse_header_section {
 	my ($self) = @_;
-	
+
 	my $filehandle = $self->_filehandle;
 	while (my $line = $filehandle->getline) {
 		if ($self->line_looks_like_header($line)) {
@@ -169,7 +168,7 @@ sub parse_header_section {
 		elsif ($self->line_looks_like_record($line)) {
 			# the while loop will read one line after header. Usually, this is the first record and unfortunately in zipped files we cannot go back
 			my $record = $self->parse_record_line($line);
-			$self->add_to_records_cache($record); 
+			$self->add_to_records_cache($record);
 			return;
 		}
 		else {
@@ -196,7 +195,7 @@ sub add_to_records_cache {
 
 sub next_record_from_file {
 	my ($self) = @_;
-	
+
 	while (my $line = $self->_filehandle->getline) {
 		if ($self->line_looks_like_record($line)) {
 			return $self->parse_record_line($line);
@@ -210,14 +209,14 @@ sub next_record_from_file {
 			}
 		}
 	}
-	
+
 	$self->set_eof_reached;
 	return undef;
 }
 
 sub next_record_from_cache {
 	my ($self) = @_;
-	
+
 	my $record = shift @{$self->{RECORDS_CACHE}};
 	if (defined $record) {
 		return $record;
@@ -229,10 +228,10 @@ sub next_record_from_cache {
 
 sub parse_record_line {
 	my ($self, $line) = @_;
-	
+
 	chomp $line;
 	my ($chr,$start,$stop_1,$name,$score,$strand,$thick_start,$thick_stop,$rgb,$block_count,$block_sizes,$block_starts) = split(/\t/,$line);
-	
+
 	my $data = {
 		rname             => $chr,
 		start             => $start,
@@ -241,7 +240,7 @@ sub parse_record_line {
 		score             => $score,
 		strand_symbol     => $strand,
 	};
-	
+
 	($data->{copy_number}       = $score) if $self->redirect_score_to_copy_number;
 	($data->{thick_start}       = $thick_start) if defined $thick_start;
 	($data->{thick_stop_1based} = $thick_stop) if defined $thick_stop;
@@ -249,7 +248,7 @@ sub parse_record_line {
 	($data->{block_count}       = $block_count) if defined $block_count;
 	($data->{block_sizes}       = [split(/,/,$block_sizes)]) if defined $block_sizes;
 	($data->{block_starts}      = [split(/,/,$block_starts)]) if defined $block_starts;
-	
+
 	return GenOO::Data::File::BED::Record->new($data);
 }
 
@@ -294,19 +293,19 @@ sub is_eof_reached {
 #######################################################################
 sub _open_filehandle {
 	my ($self) = @_;
-	
+
 	my $read_mode;
 	my $HANDLE;
 	if (!defined $self->file) {
 		open ($HANDLE, '<-', $self->file);
 	}
 	elsif ($self->file =~ /\.gz$/) {
-		$HANDLE = IO::Zlib->new($self->file, 'rb') or die "Cannot open file ".$self->file."\n";
+		open($HANDLE, 'gzip -dc ' . $self->file . ' |');
 	}
 	else {
 		open ($HANDLE, '<', $self->file);
 	}
-	
+
 	return $HANDLE;
 }
 

@@ -6,9 +6,9 @@ GenOO::Data::File::GFF - Object implementing methods for accessing GFF formatted
 
 =head1 SYNOPSIS
 
-    # Object that manages a gff file. 
+    # Object that manages a gff file.
 
-    # To initialize 
+    # To initialize
     my $gff_file = GenOO::Data::File::GFF->new(
         file            => undef,
     );
@@ -24,7 +24,7 @@ GenOO::Data::File::GFF - Object implementing methods for accessing GFF formatted
     my $gff_file = GenOO::Data::File::GFF->new(
           file => 't/sample_data/sample.gff.gz'
     );
-    
+
     # Read one record at a time
     my $record = $gff_file->next_record();
 
@@ -43,7 +43,6 @@ use Modern::Perl;
 use autodie;
 use Moose;
 use namespace::autoclean;
-use IO::Zlib;
 
 
 #######################################################################
@@ -117,7 +116,7 @@ has '_cached_records' => (
 #######################################################################
 sub BUILD {
 	my $self = shift;
-	
+
 	$self->_parse_header_section;
 }
 
@@ -126,7 +125,7 @@ sub BUILD {
 #######################################################################
 sub next_record {
 	my ($self) = @_;
-	
+
 	my $record;
 	if ($self->_has_cached_records) {
 		$record = $self->_shift_cached_record;
@@ -134,7 +133,7 @@ sub next_record {
 	else {
 		$record = $self->_next_record_from_file;
 	}
-	
+
 	if (defined $record) {
 		$self->_inc_records_read_count;
 	}
@@ -152,7 +151,7 @@ sub version {
 #######################################################################
 sub _parse_header_section {
 	my ($self) = @_;
-	
+
 	my $filehandle = $self->_filehandle;
 	while (my $line = $filehandle->getline) {
 		if ($self->_line_looks_like_header($line)) {
@@ -162,7 +161,7 @@ sub _parse_header_section {
 			# When the while reads the first line after the header section
 			# we need to process it immediatelly because in zipped files we cannot go back
 			my $record = $self->_parse_record_line($line);
-			$self->_add_record_in_cache($record); 
+			$self->_add_record_in_cache($record);
 			return;
 		}
 	}
@@ -170,7 +169,7 @@ sub _parse_header_section {
 
 sub _next_record_from_file {
 	my ($self) = @_;
-	
+
 	while (my $line = $self->_filehandle->getline) {
 		if ($self->_line_looks_like_record($line)) {
 			return $self->_parse_record_line($line);
@@ -179,14 +178,14 @@ sub _next_record_from_file {
 			die "A record was expected but line looks like a header - the header should have been parsed already. $line\n";
 		}
 	}
-	
+
 	$self->_eof_reached(1); # When you reach this point the file has finished
 	return undef;
 }
 
 sub _parse_record_line {
 	my ($self, $line) = @_;
-	
+
 	chomp $line;
 	$line =~ s/(#.+)$//;
 	my $comment_string = $1;
@@ -197,7 +196,7 @@ sub _parse_record_line {
 		$attribute =~ /(.+)[=|\s]"(.+)"/;
 		$attributes_hash{$1} = $2;
 	}
-	
+
 	return GenOO::Data::File::GFF::Record->new({
 		seqname       => $seqname,
 		source        => $source,
@@ -214,7 +213,7 @@ sub _parse_record_line {
 
 sub _recognize_and_store_header_line {
 	my ($self, $line) = @_;
-	
+
 	if ($self->_line_looks_like_version($line)) {
 		$self->_parse_line_and_store_version($line);
 	}
@@ -225,14 +224,14 @@ sub _recognize_and_store_header_line {
 
 sub _parse_line_and_store_version {
 	my ($self, $line) = @_;
-	
+
 	my $version = (split(/\s+/,$line))[1];
 	$self->_header->{VERSION} = $version;
 }
 
 sub _parse_and_store_generic_header_line {
 	my ($self, $line) = @_;
-	
+
 	my ($key, @values) = split(/\s+/,$line);
 	$self->_header->{$key} = join(' ', @values);
 }
@@ -258,19 +257,19 @@ sub _line_looks_like_version {
 #######################################################################
 sub _open_filehandle {
 	my ($self) = @_;
-	
+
 	my $read_mode;
 	my $HANDLE;
 	if (!defined $self->file) {
 		open ($HANDLE, '<-', $self->file);
 	}
 	elsif ($self->file =~ /\.gz$/) {
-		$HANDLE = IO::Zlib->new($self->file, 'rb') or die "Cannot open file ".$self->file."\n";
+		open($HANDLE, 'gzip -dc ' . $self->file . ' |');
 	}
 	else {
 		open ($HANDLE, '<', $self->file);
 	}
-	
+
 	return $HANDLE;
 }
 

@@ -6,7 +6,7 @@ GenOO::Data::File::FASTA - Object implementing methods for accessing fasta forma
 
 =head1 SYNOPSIS
 
-    # Object that manages a fasta file. 
+    # Object that manages a fasta file.
 
     # To initialize
     my $fasta_parser = GenOO::Data::File::FASTA->new(
@@ -23,10 +23,10 @@ GenOO::Data::File::FASTA - Object implementing methods for accessing fasta forma
     my $fasta_parser = GenOO::Data::File::FASTA->new(
           file => 't/sample_data/sample.fasta.gz'
     );
-    
+
     # Read one record at a time
     my $record = $fasta_parser->next_record;
-    
+
     # Get the number of records read
     my $count = $fasta_parser->records_read_count;
 
@@ -44,7 +44,6 @@ use Modern::Perl;
 use autodie;
 use Moose;
 use namespace::autoclean;
-use IO::Zlib;
 
 
 #######################################################################
@@ -101,9 +100,9 @@ has '_eof' => (
 #######################################################################
 sub next_record {
 	my ($self) = @_;
-	
+
 	return undef if ($self->_reached_eof);
-	
+
 	while (my $line = $self->_filehandle->getline) {
 		chomp $line;
 		if (_line_looks_like_record_header($line)) {
@@ -129,25 +128,25 @@ sub next_record {
 #######################################################################
 sub _open_filehandle {
 	my ($self) = @_;
-	
+
 	my $read_mode;
 	my $HANDLE;
 	if (!defined $self->file) {
 		open ($HANDLE, '<-', $self->file);
 	}
 	elsif ($self->file =~ /\.gz$/) {
-		$HANDLE = IO::Zlib->new($self->file, 'rb') or die "Cannot open file ".$self->file."\n";
+		open($HANDLE, 'gzip -dc ' . $self->file . ' |');
 	}
 	else {
 		open ($HANDLE, '<', $self->file);
 	}
-	
+
 	return $HANDLE;
 }
 
 sub _concatenate_to_stored_record_sequence {
 	my ($self) = @_;
-	
+
 	if ($self->_has_stored_record_sequence) {
 		$self->_stored_record_sequence($self->_stored_record_sequence.$_[1]);
 	}
@@ -163,7 +162,7 @@ sub _increment_records_read_count {
 
 sub _create_record {
 	my ($self) = @_;
-	
+
 	my $record = GenOO::Data::File::FASTA::Record->new(
 		header   => $self->_stored_record_header,
 		sequence => $self->_stored_record_sequence,
@@ -171,7 +170,7 @@ sub _create_record {
 	$self->_clear_stored_record_header;
 	$self->_clear_stored_record_sequence;
 	$self->_increment_records_read_count;
-	
+
 	return $record;
 }
 

@@ -6,9 +6,9 @@ GenOO::Data::File::FASTQ - Object implementing methods for accessing fastq forma
 
 =head1 SYNOPSIS
 
-    # Object that manages a fastq file. 
+    # Object that manages a fastq file.
 
-    # To initialize 
+    # To initialize
     my $file = GenOO::Data::File::FASTQ->new(
         file            => undef,
     );
@@ -36,7 +36,6 @@ use Modern::Perl;
 use autodie;
 use Moose;
 use namespace::autoclean;
-use IO::Zlib;
 
 
 #######################################################################
@@ -82,7 +81,7 @@ has '_filehandle' => (
 #######################################################################
 sub next_record {
 	my ($self) = @_;
-	
+
 	my $filehandle = $self->_filehandle;
 	while (my $line = $filehandle->getline) {
 		if ($line =~ /^\@/) {
@@ -90,7 +89,7 @@ sub next_record {
 			my $seq = $filehandle->getline; chomp($seq);
 			$filehandle->getline; #unused line
 			my $quality = $filehandle->getline; chomp($quality);
-			
+
 			$self->_inc_records_read_count;
 			return $self->_create_record($id, $seq, $quality);
 		}
@@ -103,25 +102,25 @@ sub next_record {
 #######################################################################
 sub _open_filehandle {
 	my ($self) = @_;
-	
+
 	my $read_mode;
 	my $HANDLE;
 	if (!defined $self->file) {
 		open ($HANDLE, '<-', $self->file);
 	}
 	elsif ($self->file =~ /\.gz$/) {
-		$HANDLE = IO::Zlib->new($self->file, 'rb') or die "Cannot open file ".$self->file."\n";
+		open($HANDLE, 'gzip -dc ' . $self->file . ' |');
 	}
 	else {
 		open ($HANDLE, '<', $self->file);
 	}
-	
+
 	return $HANDLE;
 }
 
 sub _create_record {
 	my ($self, $id, $seq, $quality) = @_;
-	
+
 	return GenOO::Data::File::FASTQ::Record->new(
 		name     => $id,
 		sequence => $seq,
