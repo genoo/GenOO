@@ -97,24 +97,13 @@ sub stored_record_header : Test(3) {
 	ok(!$self->obj(0)->_has_stored_record_header, "... and should predicate to false");
 }
 
-sub stored_record_sequence : Test(3) {
+sub stored_record_sequence_parts : Test(2) {
 	my ($self) = @_;
 	
-	has_attribute_ok($self->obj(0), '_stored_record_sequence');
-	is $self->obj(0)->_stored_record_sequence, undef, "... and should be undefined";
-	ok(!$self->obj(0)->_has_stored_record_sequence, "... and should predicate to false");
+	has_attribute_ok($self->obj(0), '_stored_record_sequence_parts');
+	is_deeply $self->obj(0)->_stored_record_sequence_parts, [], "... and should be undefined";
 }
 
-sub concatenate_to_stored_record_sequence : Test(3) {
-	my ($self) = @_;
-	
-	can_ok $self->obj(0), '_concatenate_to_stored_record_sequence';
-	
-	$self->obj(0)->_concatenate_to_stored_record_sequence('test');
-	is $self->obj(0)->_stored_record_sequence, 'test', "... and should return the correct value";
-	$self->obj(0)->_concatenate_to_stored_record_sequence('test');
-	is $self->obj(0)->_stored_record_sequence, 'testtest', "... and should return the correct value again";
-}
 
 #######################################################################
 ###############   Class method to create test objects   ###############

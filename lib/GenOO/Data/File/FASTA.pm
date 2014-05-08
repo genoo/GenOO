@@ -81,12 +81,18 @@ has '_stored_record_header' => (
 	init_arg  => undef,
 );
 
-has '_stored_record_sequence' => (
-	is        => 'rw',
-	clearer   => '_clear_stored_record_sequence',
-	predicate => '_has_stored_record_sequence',
-	init_arg  => undef,
-);
+has '_stored_record_sequence_parts' => (
+        traits  => ['Array'],
+        is      => 'rw',
+        isa     => 'ArrayRef[Str]',
+        default => sub { [] },
+        handles => {
+            _all_record_sequence_parts    => 'elements',
+            _add_record_sequence_part     => 'push',
+            _join_record_sequence_parts   => 'join',
+            _clear_record_sequence_parts  => 'clear',
+        },
+    );
 
 has '_eof' => (
 	is        => 'rw',
@@ -116,7 +122,7 @@ sub next_record {
 			}
 		}
 		elsif (_line_looks_like_sequence($line)) {
-			$self->_concatenate_to_stored_record_sequence($line);
+			$self->_add_record_sequence_part($line);
 		}
 	}
 	$self->_eof(1);
@@ -145,17 +151,6 @@ sub _open_filehandle {
 	return $HANDLE;
 }
 
-sub _concatenate_to_stored_record_sequence {
-	my ($self) = @_;
-
-	if ($self->_has_stored_record_sequence) {
-		$self->_stored_record_sequence($self->_stored_record_sequence.$_[1]);
-	}
-	else {
-		$self->_stored_record_sequence($_[1]);
-	}
-}
-
 sub _increment_records_read_count {
 	my ($self) = @_;
 	$self->records_read_count($self->records_read_count+1);
@@ -166,10 +161,10 @@ sub _create_record {
 
 	my $record = GenOO::Data::File::FASTA::Record->new(
 		header   => $self->_stored_record_header,
-		sequence => $self->_stored_record_sequence,
+		sequence => $self->_join_record_sequence_parts(''),
 	);
 	$self->_clear_stored_record_header;
-	$self->_clear_stored_record_sequence;
+	$self->_clear_record_sequence_parts;
 	$self->_increment_records_read_count;
 
 	return $record;
