@@ -123,12 +123,13 @@ sub _read_gtf {
 				splice_stops  => [$record->stop], # will be re-written later
 			);
 			$transcripts{$transcript_id} = $transcript;
-			if (!exists $genes{$gene_id}){
+			my $uniq_gene_id = join("",($gene_id,$record->rname,$record->strand));
+			if (!exists $genes{$uniq_gene_id}){
 				my $gene = GenOO::Gene->new(name => $gene_id);
-				$genes{$gene_id} = $gene;
+				$genes{$uniq_gene_id} = $gene;
 			}
-			$transcript->gene($genes{$gene_id});
-			$genes{$gene_id}->add_transcript($transcript);
+			$transcript->gene($genes{$uniq_gene_id});
+			$genes{$uniq_gene_id}->add_transcript($transcript);
 			$transcript_splice_starts{$transcript_id} = [];
 			$transcript_splice_stops{$transcript_id} = [];
 		}
