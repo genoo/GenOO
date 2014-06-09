@@ -126,12 +126,40 @@ sub _read_gtf {
 			my $uniq_gene_id = join("",($gene_id,$record->rname,$record->strand));
 			if (!exists $genes{$uniq_gene_id}){
 				my $gene = GenOO::Gene->new(name => $gene_id);
-				$genes{$uniq_gene_id} = $gene;
+				$genes{$uniq_gene_id}{'1'} = $gene;
+				$transcript->gene($genes{$uniq_gene_id}{'1'});
+				$genes{$uniq_gene_id}{'1'}->add_transcript($transcript);
+				$transcript_splice_starts{$transcript_id} = [];
+				$transcript_splice_stops{$transcript_id} = [];
 			}
-			$transcript->gene($genes{$uniq_gene_id});
-			$genes{$uniq_gene_id}->add_transcript($transcript);
-			$transcript_splice_starts{$transcript_id} = [];
-			$transcript_splice_stops{$transcript_id} = [];
+			else{
+				my $found = 0;
+				my $i = 0;
+				foreach my $index (keys %{$genes{$uniq_gene_id}}){
+					$i = $index;
+					my $gene = $genes{$uniq_gene_id}{$index};
+					if ($gene->contains_position($record->start,0)){
+						$found = 1;
+						$transcript->gene($genes{$uniq_gene_id}{$index});
+						$genes{$uniq_gene_id}{$index}->add_transcript($transcript);
+						$transcript_splice_starts{$transcript_id} = [];
+						$transcript_splice_stops{$transcript_id} = [];
+						last;
+					}
+				
+				}
+				if ($found == 0){
+					my $index = $i+1;
+					my $gene = GenOO::Gene->new(name => $gene_id);
+					$genes{$uniq_gene_id}{$index} = $gene;
+					$transcript->gene($genes{$uniq_gene_id}{$index});
+					$genes{$uniq_gene_id}{$index}->add_transcript($transcript);
+					$transcript_splice_starts{$transcript_id} = [];
+					$transcript_splice_stops{$transcript_id} = [];
+				}
+			}
+			
+			
 		}
 		else {
 			if ($record->start < $transcript->start) {
@@ -168,7 +196,13 @@ sub _read_gtf {
 		$transcripts{$transcript_id}->set_splice_starts_and_stops($transcript_splice_starts{$transcript_id}, $transcript_splice_stops{$transcript_id});
 	}
 	
-	return values %genes;
+	my @outgenes;
+	foreach my $name (keys %genes){
+		foreach my $index (keys %{$genes{$name}}){
+			push @outgenes, $genes{$name}{$index};
+		}
+	}
+	return @outgenes;
 }
 
 1;
