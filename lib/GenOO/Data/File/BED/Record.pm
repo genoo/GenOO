@@ -64,8 +64,44 @@ has 'thick_start'       => (isa => 'Int', is => 'ro');
 has 'thick_stop_1based' => (isa => 'Int', is => 'ro');
 has 'rgb'               => (isa => 'Str', is => 'ro');
 has 'block_count'       => (isa => 'Int', is => 'ro');
-has 'block_sizes'       => (isa => 'ArrayRef', is => 'ro');
-has 'block_starts'      => (isa => 'ArrayRef', is => 'ro');
+has 'block_sizes' => (
+	traits  => ['Array'],
+	is      => 'ro',
+	isa     => 'ArrayRef[Int]',
+	default => sub { [] },
+	handles => {
+		all_block_sizes    => 'elements',
+		add_block_size     => 'push',
+		map_block_sizes    => 'map',
+		filter_block_sizes => 'grep',
+		find_block_size    => 'first',
+		get_block_size     => 'get',
+		join_block_sizes   => 'join',
+		count_block_sizes  => 'count',
+		has_block_sizes    => 'count',
+		has_no_block_sizes => 'is_empty',
+		sorted_block_sizes => 'sort',
+	},
+);
+has 'block_starts' => (
+	traits  => ['Array'],
+	is      => 'ro',
+	isa     => 'ArrayRef[Int]',
+	default => sub { [] },
+	handles => {
+		all_block_starts    => 'elements',
+		add_block_start     => 'push',
+		map_block_starts    => 'map',
+		filter_block_starts => 'grep',
+		find_block_start    => 'first',
+		get_block_start     => 'get',
+		join_block_starts   => 'join',
+		count_block_starts  => 'count',
+		has_block_starts    => 'count',
+		has_no_block_starts => 'is_empty',
+		sorted_block_starts => 'sort',
+	},
+);
 has 'extra'             => (is => 'rw');
 has 'copy_number'       => (isa => 'Int', is => 'ro', default => 1, lazy => 1);
 
@@ -100,6 +136,27 @@ around BUILDARGS => sub {
 sub stop_1based {
 	my ($self) = @_;
 	return $self->stop + 1;
+}
+
+sub to_string {
+	my ($self) = @_;
+	
+	my @fields = (
+		$self->rname, 
+		$self->start,
+		$self->stop_1based,
+		$self->name,
+		$self->score,
+		$self->strand_symbol);
+	
+	push @fields, $self->thick_start if defined $self->thick_start;
+	push @fields, $self->thick_stop_1based if defined $self->thick_stop_1based;
+	push @fields, $self->rgb if defined $self->rgb;
+	push @fields, $self->block_count if defined $self->block_count;
+	push @fields, $self->join_block_sizes(",") if $self->has_block_sizes;
+	push @fields, $self->join_block_starts(",") if $self->has_block_starts;
+	
+	return join("\t", @fields);
 }
 
 #######################################################################
