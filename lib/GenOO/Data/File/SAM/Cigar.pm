@@ -333,6 +333,35 @@ sub cigar_relative_to_query {
 	}
 }
 
+sub aligned_areas_starts_and_stops {
+	my ($self) = @_;
+	
+	# returns the start and stop positions on the reference
+	# for all parts of the alignment that bind.
+	
+	# Read:   AGTGAT____GGA---GTGACTCA-C -> CIGAR: 2M1I3M4N3M3D1M1I3M1I2M1D1M  /  2=1I1=1X1=4N1=1X1=3D1=1I2=1X1I2=1D1=
+	#             -      -        -
+	# Genome: AG-GCTNNNNGTAGAGG-GAG-CAGC -> MD:Z:  3C1^NNNN1T1^GAG3G2^G1
+	
+	my @exon_starts;
+	my @exon_stops;
+	
+	my $pos = $self->start;
+	my $cigar = $self->cigar;
+	
+	while ($cigar =~ /(\d+)([MIDNSHP=X])/g) {
+		my ($count, $identifier) = ($1, $2);
+		if ($identifier eq 'D' or $identifier eq 'N' or $identifier eq 'P' or $identifier eq 'H') {
+			$pos += $count;
+		}
+		elsif ($identifier eq 'M' or $identifier eq '=' or $identifier eq 'X') {
+			push @exon_starts, $pos;
+			push @exon_stops, $pos+$count-1;
+			$pos += $count;
+		}
+	}
+	return (\@exon_starts, \@exon_stops);
+}
 
 #######################################################################
 #########################   Private methods  ##########################
