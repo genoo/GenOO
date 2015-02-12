@@ -201,6 +201,12 @@ sub qual { # String [!-~]+ ASCII of Phred-scaled base QUALity+33
 	return $self->fields->[10];
 }
 
+sub sequence {
+	my ($self) = @_;
+
+	return $self->seq;
+}
+
 sub query_seq {
 	my ($self) = @_;
 	
@@ -263,6 +269,17 @@ sub is_unmapped {
 	my ($self) = @_;
 	
 	if ($self->flag & 4) {
+		return 1;
+	}
+	else {
+		return 0;
+	}
+}
+
+sub is_secondary {
+	my ($self) = @_;
+	
+	if ($self->flag & 256) {
 		return 1;
 	}
 	else {

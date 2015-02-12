@@ -128,6 +128,13 @@ has 'resultset' => (
 	lazy      => 1,
 );
 
+has 'original_resultset' => (
+	is        => 'rw',
+	builder   => '_init_resultset',
+	init_arg  => undef,
+	lazy      => 1,
+);
+
 has 'longest_record' => (
 	is        => 'ro',
 	builder   => '_find_longest_record',
