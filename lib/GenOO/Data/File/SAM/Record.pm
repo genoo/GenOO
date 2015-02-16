@@ -201,6 +201,12 @@ sub qual { # String [!-~]+ ASCII of Phred-scaled base QUALity+33
 	return $self->fields->[10];
 }
 
+sub sequence {
+	my ($self) = @_;
+
+	return $self->seq;
+}
+
 sub query_seq {
 	my ($self) = @_;
 	
