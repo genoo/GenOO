@@ -126,7 +126,10 @@ sub next_record {
 		}
 	}
 	$self->_eof(1);
-	return $self->_create_record;
+	if ($self->_has_stored_record_header) {
+		return $self->_create_record;
+	}
+	return undef;
 }
 
 #######################################################################
