@@ -329,8 +329,11 @@ sub _read_tags {
 	my %tags;
 	
 	my @tags_array = @{$self->fields}[11..$self->count_fields-1];
-	foreach my $tag_var (@tags_array) { 
-		my ($tag, $tag_type, $tag_value) = split(/:/,$tag_var);
+	foreach my $tag_var (@tags_array) {
+		$tag_var =~ /([A-Za-z][A-Za-z0-9]):([AifZHB]):(.+)/;
+		my $tag = $1;
+		my $tag_type = $2;
+		my $tag_value = $3;
 		$tags{"$tag:$tag_type"} = $tag_value;
 	}
 	

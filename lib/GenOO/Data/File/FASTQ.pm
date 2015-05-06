@@ -85,10 +85,16 @@ sub next_record {
 	my $filehandle = $self->_filehandle;
 	while (my $line = $filehandle->getline) {
 		if ($line =~ /^\@/) {
-			my $id = substr($line,1); chomp($id);
-			my $seq = $filehandle->getline; chomp($seq);
+			my $id = substr($line,1); 
+			chomp($id); 
+			$id =~ s/\r//g;
+			my $seq = $filehandle->getline;
+			chomp($seq); 
+			$seq =~ s/\r//g;
 			$filehandle->getline; #unused line
-			my $quality = $filehandle->getline; chomp($quality);
+			my $quality = $filehandle->getline;
+			chomp($quality); 
+			$quality =~ s/\r//g;
 
 			$self->_inc_records_read_count;
 			return $self->_create_record($id, $seq, $quality);
