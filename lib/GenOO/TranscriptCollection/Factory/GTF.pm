@@ -133,18 +133,30 @@ sub _read_gtf_with_transcripts {
 			push @{$transcript_splice_stops{$transcript_id}}, $record->stop;
 		}
 		elsif ($record->feature eq 'start_codon') {
-			if ($record->strand == 1) {
+			if ($record->strand == 1 and 
+				(!defined $transcript->coding_start or
+				$record->start < $transcript->coding_start)) {
+
 				$transcript->coding_start($record->start);
 			}
-			elsif ($record->strand == -1) {
+			elsif ($record->strand == -1 and
+				(!defined $transcript->coding_stop or
+				$record->stop > $transcript->coding_stop)) {
+
 				$transcript->coding_stop($record->stop);
 			}
 		}
 		elsif ($record->feature eq 'stop_codon') {
-			if ($record->strand == 1) {
+			if ($record->strand == 1 and
+				(!defined $transcript->coding_stop or
+				$record->stop > $transcript->coding_stop)) {
+
 				$transcript->coding_stop($record->stop);
 			}
-			elsif ($record->strand == -1) {
+			elsif ($record->strand == -1 and
+				(!defined $transcript->coding_start or
+				$record->start < $transcript->coding_start)) {
+
 				$transcript->coding_start($record->start);
 			}
 		}
