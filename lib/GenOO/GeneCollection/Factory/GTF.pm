@@ -99,22 +99,23 @@ sub _read_gtf {
 	my %genes;
 	
 	my $gff = GenOO::Data::File::GFF->new(file => $file);
-	
-	while (my $record = $gff->next_record){
 
-		my $transcript_id = $record->attribute('transcript_id') or die "transcript_id attribute must be defined\n";
-		my $gene_id = $record->attribute('gene_id') or die "gene_id attribute must be defined\n";
-		
+	while (my $record = $gff->next_record){
+		my $tid = $record->attribute('transcript_id') 
+			or die "transcript_id attribute must be defined\n";
+		my $gid = $record->attribute('gene_id') 
+			or die "gene_id attribute must be defined\n";
+	
 		if ($record->strand == 0){
-			warn "Skipping transcript $transcript_id: strand symbol". $record->strand_symbol." not accepted\n";
+			warn "Skipping transcript $tid: strand symbol". $record->strand_symbol." not accepted\n";
 			next;
 		}
 		
 		# Get transcript with id or create a new one. Update coordinates if required
-		my $transcript = $transcripts{$transcript_id};
+		my $transcript = $transcripts{$tid};
 		if (not defined $transcript) {
 			$transcript = GenOO::Transcript->new(
-				id            => $transcript_id,
+				id            => $tid,
 				chromosome    => $record->rname,
 				strand        => $record->strand,
 				start         => $record->start,
@@ -122,87 +123,75 @@ sub _read_gtf {
 				splice_starts => [$record->start], # will be re-written later
 				splice_stops  => [$record->stop], # will be re-written later
 			);
-			$transcripts{$transcript_id} = $transcript;
-			my $uniq_gene_id = join("",($gene_id,$record->rname,$record->strand));
-			if (!exists $genes{$uniq_gene_id}){
-				my $gene = GenOO::Gene->new(name => $gene_id);
-				$genes{$uniq_gene_id}{'1'} = $gene;
-				$transcript->gene($genes{$uniq_gene_id}{'1'});
-				$genes{$uniq_gene_id}{'1'}->add_transcript($transcript);
-				$transcript_splice_starts{$transcript_id} = [];
-				$transcript_splice_stops{$transcript_id} = [];
+			$transcripts{$tid} = $transcript;
+			$transcript_splice_starts{$tid} = [];
+			$transcript_splice_stops{$tid} = [];
+			if (!exists $genes{$gid}) {
+				$genes{$gid} = [];
 			}
-			else{
-				my $found = 0;
-				my $i = 0;
-				foreach my $index (keys %{$genes{$uniq_gene_id}}){
-					$i = $index;
-					my $gene = $genes{$uniq_gene_id}{$index};
-					if ($gene->contains_position($record->start,0)){
-						$found = 1;
-						$transcript->gene($genes{$uniq_gene_id}{$index});
-						$genes{$uniq_gene_id}{$index}->add_transcript($transcript);
-						$transcript_splice_starts{$transcript_id} = [];
-						$transcript_splice_stops{$transcript_id} = [];
-						last;
-					}
-				
-				}
-				if ($found == 0){
-					my $index = $i+1;
-					my $gene = GenOO::Gene->new(name => $gene_id);
-					$genes{$uniq_gene_id}{$index} = $gene;
-					$transcript->gene($genes{$uniq_gene_id}{$index});
-					$genes{$uniq_gene_id}{$index}->add_transcript($transcript);
-					$transcript_splice_starts{$transcript_id} = [];
-					$transcript_splice_stops{$transcript_id} = [];
-				}
-			}
-			
-			
+			push @{$genes{$gid}}, $transcript;
 		}
 		else {
-			if ($record->start < $transcript->start) {
-				$transcript->start($record->start);
-			}
-			if ($record->stop > $transcript->stop) {
-				$transcript->stop($record->stop);
-			}
+			$transcript->start($record->start) if ($record->start < $transcript->start);
+			$transcript->stop($record->stop) if ($record->stop > $transcript->stop);
 		}
 		
 		if ($record->feature eq 'exon') {
-			push @{$transcript_splice_starts{$transcript_id}}, $record->start;
-			push @{$transcript_splice_stops{$transcript_id}}, $record->stop;
+			push @{$transcript_splice_starts{$tid}}, $record->start;
+			push @{$transcript_splice_stops{$tid}}, $record->stop;
 		}
 		elsif ($record->feature eq 'start_codon') {
-			if ($record->strand == 1) {
+			if ($record->strand == 1 and 
+				(!defined $transcript->coding_start or
+				$record->start < $transcript->coding_start)) {
+
 				$transcript->coding_start($record->start);
 			}
-			elsif ($record->strand == -1) {
+			elsif ($record->strand == -1 and
+				(!defined $transcript->coding_stop or
+				$record->stop > $transcript->coding_stop)) {
+
 				$transcript->coding_stop($record->stop);
 			}
 		}
 		elsif ($record->feature eq 'stop_codon') {
-			if ($record->strand == 1) {
+			if ($record->strand == 1 and
+				(!defined $transcript->coding_stop or
+				$record->stop > $transcript->coding_stop)) {
+
 				$transcript->coding_stop($record->stop);
 			}
-			elsif ($record->strand == -1) {
+			elsif ($record->strand == -1 and
+				(!defined $transcript->coding_start or
+				$record->start < $transcript->coding_start)) {
+
 				$transcript->coding_start($record->start);
 			}
 		}
 	}
 	
-	foreach my $transcript_id (keys %transcripts) {
-		$transcripts{$transcript_id}->set_splice_starts_and_stops($transcript_splice_starts{$transcript_id}, $transcript_splice_stops{$transcript_id});
+	foreach my $tid (keys %transcripts) {
+		$transcripts{$tid}->set_splice_starts_and_stops(
+			$transcript_splice_starts{$tid}, $transcript_splice_stops{$tid});
 	}
-	
-	my @outgenes;
-	foreach my $name (keys %genes){
-		foreach my $index (keys %{$genes{$name}}){
-			push @outgenes, $genes{$name}{$index};
+
+	my @genes;
+	foreach my $gid (keys %genes) {
+		my $gene;
+		my @gene_transcripts = sort {$a->start <=> $b->start} @{$genes{$gid}};
+		foreach my $tr (@gene_transcripts) {
+			if (not defined $gene or $tr->start > $gene->stop) {
+				$gene = GenOO::Gene->new(name => $gid);
+				$gene->add_transcript($tr);
+				push @genes, $gene;
+			}
+			else {
+				$gene->add_transcript($tr);
+			}
 		}
 	}
-	return @outgenes;
+
+	return @genes;
 }
 
 1;
