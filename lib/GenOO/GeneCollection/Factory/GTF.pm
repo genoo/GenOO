@@ -183,10 +183,12 @@ sub _read_gtf {
 			if (not defined $gene or $tr->start > $gene->stop) {
 				$gene = GenOO::Gene->new(name => $gid);
 				$gene->add_transcript($tr);
+				$tr->gene($gene);
 				push @genes, $gene;
 			}
 			else {
 				$gene->add_transcript($tr);
+				$tr->gene($gene);
 			}
 		}
 	}
