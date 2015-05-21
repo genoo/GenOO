@@ -184,31 +184,33 @@ sub is_not_empty : Test(2) {
 	is $self->obj(0)->is_not_empty, 1, "... and should return the correct value";
 }
 
-sub foreach_overlapping_record_do  : Test(2) {
+sub foreach_contained_record_do  : Test(2) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'foreach_overlapping_record_do';
+	can_ok $self->obj(0), 'foreach_contained_record_do';
 	
 	my $count = 0;
-	$self->obj(0)->foreach_overlapping_record_do(1,'chr1', 2, 5, 
-		sub {
-			$count++;
-		}
-	);
+	$self->obj(0)->foreach_contained_record_do(1,'chr1', 2, 10, sub {
+		$count++;
+	});
 	
-	is $count, 3, "... and should return the correct number of records";
+	is $count, 2, "... and should return the correct number of records";
 }
 
-sub records_overlapping_region  : Test(3) {
+sub records_contained_in_region  : Test(3) {
 	my ($self) = @_;
 	
-	can_ok $self->obj(0), 'records_overlapping_region';
+	can_ok $self->obj(0), 'records_contained_in_region';
 	
-	my @result = map{$_->id} $self->obj(0)->records_overlapping_region(1,'chr1', 2, 5);
-	is_deeply [@result], ['chr1:1-10:1','chr1:2-10:1','chr1:3-10:1'], "... and should return the correct records";
+	my @result = map{$_->location} $self->obj(0)->records_contained_in_region(
+		1, 'chr1', 2, 10);
+	is_deeply [@result], ['chr1:2-10:1', 'chr1:3-10:1'],
+		"... and should return the correct records";
 	
-	@result = map{$_->id} $self->obj(0)->records_overlapping_region(-1,'chr4', 36, 40);
-	is_deeply [@result], ['chr4:32-40:-1','chr4:33-40:-1'], "... and should return the correct records";
+	@result = map{$_->id} $self->obj(0)->records_contained_in_region(
+		-1, 'chr4', 32, 40);
+	is_deeply [@result], ['chr4:32-40:-1', 'chr4:33-40:-1'],
+		"... and should return the correct records";
 }
 
 sub records_ref_for_strand_and_rname : Test(2) {

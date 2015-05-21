@@ -370,7 +370,7 @@ sub foreach_overlapping_record_do {
 	my ($self, @args) = @_;
 	
 	warn 'Deprecated use of "foreach_overlapping_record_do".'.
-	     'Probably "foreach_contained_record_do" does what you want.';
+	     'Using "foreach_contained_record_do" instead.';
 	$self->foreach_contained_record_do(@args);
 }
 
@@ -378,7 +378,7 @@ sub records_overlapping_region {
 	my ($self, @args) = @_;
 	
 	warn 'Deprecated use of "records_overlapping_region".'.
-	     'Probably "records_contained_in_region" does what you want.';
+	     'Using "records_contained_in_region" instead.';
 	$self->records_contained_in_region(@args);
 }
 

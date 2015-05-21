@@ -6,9 +6,9 @@ GenOO::RegionCollection::Type::DoubleHashArray - Object for a collection of GenO
 
 =head1 SYNOPSIS
 
-    # Object that manages a collection of GenOO::Region objects. 
+    # Object that manages a collection of GenOO::Region objects.
 
-    # To initialize 
+    # To initialize
     my $locus_collection = GenOO::RegionCollection::DoubleHashArray->new({
         name          => undef,
         species       => undef,
@@ -19,17 +19,19 @@ GenOO::RegionCollection::Type::DoubleHashArray - Object for a collection of GenO
 
 =head1 DESCRIPTION
 
-    The primary data structure of this object is a 2D hash whose primary key is the strand 
-    and its secondary key is the reference sequence name. Each such pair of keys correspond to an
-    array reference which stores objects of the class L<GenOO::Region> sorted by start position.
+	The primary data structure of this object is a 2D hash whose primary key
+	is the strand and its secondary key is the reference sequence name. Each
+	such pair of keys correspond to an array reference which stores objects of
+	the class L<GenOO::Region> sorted by start position.
 
 =head1 EXAMPLES
 
-    # Print records in FASTA format
-    $locus_collection->print("FASTA",'STDOUT',"/data1/data/UCSC/hg19/chromosomes/");
-    
-    # ditto
-    $locus_collection->print_in_fasta_format('STDOUT',"/data1/data/UCSC/hg19/chromosomes/");
+    # Get the records contained in a specific region
+    my @recs = $region_collection->records_contained_in_region(
+		1, 'chr3', 127726308, 127792250);
+
+    # Get the longest record
+    my $longest_record = $region_collection->longest_record;
 
 =cut
 
@@ -112,12 +114,12 @@ sub add_record {
 
 sub all_records {
 	my ($self) = @_;
-	
+
 	my @all_records;
 	$self->foreach_record_do(sub {
 		push @all_records, $_[0];
 	});
-	
+
 	return wantarray ? @all_records : \@all_records;
 }
 
@@ -166,14 +168,115 @@ sub is_not_empty {
 	return $self->_container->is_not_empty;
 }
 
-sub foreach_overlapping_record_do {
+sub foreach_contained_record_do {
 	my ($self, $strand, $chr, $start, $stop, $block) = @_;
-	
+
 	$self->_container->sort_entries;
-	
+
 	# Get a reference on the array containing the records of the specified strand and rname
 	my $records_ref = $self->_records_ref_for_strand_and_rname($strand, $chr) or return ();
-	
+
+	# Get index of record whose start is closest but greater than the start of the region.
+	my $index = GenOO::Module::Search::Binary->binary_search_for_value_greater_or_equal(
+		$start, $records_ref, sub {return $_[0]->start});
+	return 0 if !defined $index;
+
+	# Scan records downstream of index for overlaps
+	while ($index < @$records_ref) {
+		my $record = $records_ref->[$index];
+		if ($record->stop <= $stop) {
+			my $return = $block->($record);
+			last if defined $return and $return eq 'break_loop';
+		}
+		last if $record->start > $stop; # no chance to find overlap after this
+		$index++;
+	}
+}
+
+sub records_contained_in_region {
+	my ($self, $strand, $chr, $start, $stop) = @_;
+
+	my @records;
+	$self->foreach_contained_record_do($strand, $chr, $start, $stop, sub {
+		push @records, $_[0];
+	});
+
+	return @records;
+}
+
+sub total_copy_number {
+	my ($self, $block) = @_;
+
+	my $total_copy_number = 0;
+	$self->foreach_record_do( sub {$total_copy_number += $_[0]->copy_number} );
+
+	return $total_copy_number;
+}
+
+sub total_copy_number_for_records_contained_in_region {
+	my ($self, $strand, $rname, $start, $stop) = @_;
+
+	my $total_copy_number = 0;
+	$self->foreach_contained_record_do($strand, $rname, $start, $stop, sub {
+			$total_copy_number += $_[0]->copy_number
+	});
+
+	return $total_copy_number;
+}
+
+#######################################################################
+#########################   Private methods  ##########################
+#######################################################################
+sub _build_container {
+	return GenOO::Data::Structure::DoubleHashArray->new(
+		sorting_code_block => sub {return $_[0]->start <=> $_[1]->start}
+	);
+}
+
+sub _find_longest_record {
+	my ($self) = @_;
+
+	my $longest_record;
+	my $longest_record_length = 0;
+	$self->foreach_record_do(
+		sub {
+			my ($record) = @_;
+
+			if ($record->length > $longest_record_length) {
+				$longest_record_length = $record->length;
+				$longest_record = $record;
+			}
+		}
+	);
+
+	return $longest_record;
+}
+
+sub _records_ref_for_strand_and_rname {
+	my ($self, $strand, $chr) = @_;
+	return $self->_container->entries_ref_for_keys($strand, $chr);
+}
+
+sub _reset {
+	my ($self) = @_;
+	$self->_clear_longest_record;
+}
+
+
+#######################################################################
+#######################   Deprecated methods  #########################
+#######################################################################
+sub foreach_overlapping_record_do {
+	my ($self, $strand, $chr, $start, $stop, $block) = @_;
+
+	warn 'Deprecated use of "foreach_overlapping_record_do".'.
+		'Probably "foreach_contained_record_do" does what you want.';
+
+	$self->_container->sort_entries;
+
+	# Get a reference on the array containing the records of the specified strand and rname
+	my $records_ref = $self->_records_ref_for_strand_and_rname($strand, $chr) or return ();
+
 	# Find the closest but greater value to a target value. Target value is defined such that
 	# any records with smaller values are impossible to overlap with the requested region
 	# This allows us to search only from that point onwards for overlap
@@ -184,7 +287,7 @@ sub foreach_overlapping_record_do {
 			return $_[0]->start
 		}
 	);
-	
+
 	# If a value close and greater than the target value exists scan downstream for overlaps
 	if (defined $index) {
 		while ($index < @$records_ref) {
@@ -204,77 +307,19 @@ sub foreach_overlapping_record_do {
 
 sub records_overlapping_region {
 	my ($self, $strand, $chr, $start, $stop) = @_;
-	
+
+	warn 'Deprecated use of "records_overlapping_region".'.
+		'Probably "records_contained_in_region" does what you want.';
+
 	my @overlapping_records;
-	$self->foreach_overlapping_record_do($strand, $chr, $start, $stop, 
-		sub {
-			my ($record) = @_;
-			push @overlapping_records, $record;
-		}
-	);
-	
+	$self->foreach_overlapping_record_do($strand, $chr, $start, $stop, sub {
+		push @overlapping_records, $_[0];
+	});
+
 	return @overlapping_records;
 }
 
-sub total_copy_number {
-	my ($self, $block) = @_;
-	
-	my $total_copy_number = 0;
-	$self->foreach_record_do( sub {$total_copy_number += $_[0]->copy_number} );
-	
-	return $total_copy_number;
-}
-
-sub total_copy_number_for_records_contained_in_region {
-	my ($self, $strand, $rname, $start, $stop) = @_;
-	
-	my $total_copy_number = 0;
-	$self->foreach_overlapping_record_do( $strand, $rname, $start, $stop, sub {$total_copy_number += $_[0]->copy_number} );
-	
-	return $total_copy_number;
-}
-
-#######################################################################
-#########################   Private methods  ##########################
-#######################################################################
-sub _build_container {
-	return GenOO::Data::Structure::DoubleHashArray->new(
-		sorting_code_block => sub {return $_[0]->start <=> $_[1]->start}
-	);
-}
-
-sub _find_longest_record {
-	my ($self) = @_;
-	
-	my $longest_record;
-	my $longest_record_length = 0;
-	$self->foreach_record_do(
-		sub {
-			my ($record) = @_;
-			
-			if ($record->length > $longest_record_length) {
-				$longest_record_length = $record->length;
-				$longest_record = $record;
-			}
-		}
-	);
-	
-	return $longest_record;
-}
-
-sub _records_ref_for_strand_and_rname {
-	my ($self, $strand, $chr) = @_;
-	return $self->_container->entries_ref_for_keys($strand, $chr);
-}
-
-sub _reset {
-	my ($self) = @_;
-	$self->_clear_longest_record;
-}
 
 
-#######################################################################
-############################   Finalize   #############################
-#######################################################################
 __PACKAGE__->meta->make_immutable;
 1;
