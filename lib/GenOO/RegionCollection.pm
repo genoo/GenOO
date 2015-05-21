@@ -38,8 +38,8 @@ requires qw (
 	rnames_for_all_strands
 	is_empty
 	is_not_empty
-	foreach_overlapping_record_do
-	records_overlapping_region
+	foreach_contained_record_do
+	records_contained_in_region
 );
 
 #######################################################################
