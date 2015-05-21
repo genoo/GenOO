@@ -185,8 +185,10 @@ sub foreach_contained_record_do {
 	while ($index < @$records_ref) {
 		my $record = $records_ref->[$index];
 		if ($record->stop <= $stop) {
-			last if $block->($record) eq 'break_loop';
+			my $return = $block->($record);
+			last if defined $return and $return eq 'break_loop';
 		}
+		last if $record->start > $stop; # no chance to find overlap after this
 		$index++;
 	}
 }
