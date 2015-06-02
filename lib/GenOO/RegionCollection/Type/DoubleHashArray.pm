@@ -269,8 +269,8 @@ sub _reset {
 sub foreach_overlapping_record_do {
 	my ($self, $strand, $chr, $start, $stop, $block) = @_;
 
-	warn 'Deprecated use of "foreach_overlapping_record_do".'.
-		'Probably "foreach_contained_record_do" does what you want.';
+	warn 'Deprecated use of "foreach_overlapping_record_do". '.
+		'Use "foreach_contained_record_do" instead.' . "\n";
 
 	$self->_container->sort_entries;
 
@@ -308,8 +308,8 @@ sub foreach_overlapping_record_do {
 sub records_overlapping_region {
 	my ($self, $strand, $chr, $start, $stop) = @_;
 
-	warn 'Deprecated use of "records_overlapping_region".'.
-		'Probably "records_contained_in_region" does what you want.';
+	warn 'Deprecated use of "records_overlapping_region". '.
+		'Use "records_contained_in_region" instead.' . "\n";
 
 	my @overlapping_records;
 	$self->foreach_overlapping_record_do($strand, $chr, $start, $stop, sub {
