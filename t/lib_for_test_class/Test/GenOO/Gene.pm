@@ -161,6 +161,19 @@ sub exonic_regions : Test(8) {
 	is $exonic_regions[2]->stop, 29225448, "... and returns the correct value";
 }
 
+sub intronic_regions : Test(6) {
+	my ($self) = @_;
+	
+	can_ok $self->obj(0), 'intronic_regions';
+	
+	my @intronic_regions = @{$self->obj(0)->intronic_regions};
+	is @intronic_regions, 2, "... and returns the correct value";
+	is $intronic_regions[0]->start, 29222608, "... and returns the correct value";
+	is $intronic_regions[0]->stop, 29222624, "... and returns the correct value";
+	is $intronic_regions[1]->start, 29222810, "... and returns the correct value";
+	is $intronic_regions[1]->stop, 29224648, "... and returns the correct value";
+}
+
 sub exonic_length : Test(2) {
 	my ($self) = @_;
 	

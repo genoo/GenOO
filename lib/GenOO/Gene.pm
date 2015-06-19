@@ -139,6 +139,18 @@ has 'exonic_regions' => (
 	lazy    => 1
 );
 
+has 'intronic_regions' => (
+	traits  => ['Array'],
+	is      => 'ro',
+	builder => '_build_intronic_regions',
+	clearer => '_clear_intronic_regions',
+	handles => {
+		all_intronic_regions    => 'elements',
+		intronic_regions_count  => 'count',
+	},
+	lazy    => 1
+);
+
 has 'utr5_exonic_regions' => (
 	traits  => ['Array'],
 	is      => 'ro',
@@ -416,6 +428,26 @@ sub _build_exonic_regions {
 	return $self->_merge_exons(\@all_exons);
 }
 
+sub _build_intronic_regions {
+	my ($self) = @_;
+	
+	my @intronic_regions;
+	my @e_regions = sort {$a->start <=> $b->start} $self->all_exonic_regions;
+
+	return () if @e_regions < 2;
+
+	for (my $i = 0; $i < @e_regions-1; $i++) {
+		push @intronic_regions, GenOO::GenomicRegion->new(
+			strand      => $self->strand,
+			chromosome  => $self->chromosome,
+			start       => $e_regions[$i]->stop + 1,
+			stop        => $e_regions[$i+1]->start - 1,
+		);
+	}
+	
+	return \@intronic_regions;
+}
+
 sub _build_utr5_exonic_regions {
 	my ($self) = @_;
 	
@@ -468,7 +500,9 @@ sub _merge_exons {
 	my @exonic_regions;
 	foreach my $exon (@sorted_exons) {
 		my $merge_region = $exonic_regions[-1];
-		if (defined $merge_region and $merge_region->overlaps($exon)) {
+		if (defined $merge_region and 
+			$merge_region->overlaps_with_offset($exon, 1, 1)) {
+
 			$merge_region->stop($exon->stop) if $exon->stop > $merge_region->stop;
 		}
 		else {
