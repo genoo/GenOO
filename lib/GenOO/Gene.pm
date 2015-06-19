@@ -307,6 +307,17 @@ sub exonic_length {
 	return $exonic_length;
 }
 
+sub intronic_length {
+	my ($self) = @_;
+	
+	my $intronic_length = 0;
+	foreach my $region ($self->all_intronic_regions) {
+		$intronic_length += $region->length
+	}
+	
+	return $intronic_length;
+}
+
 sub utr5_exonic_length {
 	my ($self) = @_;
 	
