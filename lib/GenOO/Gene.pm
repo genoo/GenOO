@@ -445,7 +445,7 @@ sub _build_intronic_regions {
 	my @intronic_regions;
 	my @e_regions = sort {$a->start <=> $b->start} $self->all_exonic_regions;
 
-	return () if @e_regions < 2;
+	return [] if @e_regions < 2;
 
 	for (my $i = 0; $i < @e_regions-1; $i++) {
 		push @intronic_regions, GenOO::GenomicRegion->new(
@@ -537,6 +537,7 @@ sub _reset {
 	$self->_clear_start;
 	$self->_clear_stop;
 	$self->_clear_exonic_regions;
+	$self->_clear_intronic_regions;
 	$self->_clear_utr5_exonic_regions;
 	$self->_clear_cds_exonic_regions;
 	$self->_clear_utr3_exonic_regions;
