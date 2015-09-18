@@ -6,7 +6,7 @@ GenOO::GeneCollection::Factory::GTF - Factory to create GeneCollection from a GT
 
 =head1 SYNOPSIS
 
-Creates GenOO::GeneCollection containing genes from a GTF file 
+Creates GenOO::GeneCollection containing genes from a GTF file
 Preferably use it through the generic GenOO::GeneCollection::Factory
 
     my $factory = GenOO::GeneCollection::Factory->new('GTF',{
@@ -15,13 +15,14 @@ Preferably use it through the generic GenOO::GeneCollection::Factory
 
 =head1 DESCRIPTION
 
-    An instance of this class is a concrete factory for the creation of a 
-    L<GenOO::GeneCollection> containing genes from a GTF file. It offers the method 
-    "read_collection" (as the consumed role requires) which returns the actual
-    L<GenOO::GeneCollection> object in the form of 
-    L<GenOO::RegionCollection::Type::DoubleHashArray>. The latter is the implementation
-    of the L<GenOO::RegionCollection> class based on the complex data structure
-    L<GenOO::Data::Structure::DoubleHashArray>.
+	# An instance of this class is a concrete factory for the creation of a
+	# L<GenOO::GeneCollection> containing genes from a GTF file. It offers the
+	# method "read_collection" (as the consumed role requires) which returns
+	# the actual L<GenOO::GeneCollection> object in the form of
+	# L<GenOO::RegionCollection::Type::DoubleHashArray>. The latter is the
+	# implementation
+	# of the L<GenOO::RegionCollection> class based on the complex data
+	# structure L<GenOO::Data::Structure::DoubleHashArray>.
 
 =head1 EXAMPLES
 
@@ -29,7 +30,7 @@ Preferably use it through the generic GenOO::GeneCollection::Factory
     my $factory_implementation = GenOO::GeneCollection::Factory->new('GTF',{
         file => 'sample.gtf'
     });
-    
+
     # Return the actual GenOO::GeneCollection object
     my $collection = $factory_implementation->read_collection;
     print ref($collection) # GenOO::GeneCollection::Type::DoubleHashArray
@@ -79,11 +80,11 @@ with 'GenOO::RegionCollection::Factory::Requires';
 #######################################################################
 sub read_collection {
 	my ($self) = @_;
-	
-	my @genes = $self->_read_gtf($self->file);
-	
+
+	my $genes = $self->_read_gtf($self->file);
+
 	return GenOO::RegionCollection::Factory->create('RegionArray', {
-		array => \@genes
+		array => $genes
 	})->read_collection;
 }
 
@@ -92,25 +93,24 @@ sub read_collection {
 #######################################################################
 sub _read_gtf {
 	my ($self, $file)=@_;
-	
+
 	my %transcripts;
 	my %transcript_splice_starts;
 	my %transcript_splice_stops;
 	my %genes;
-	
+
 	my $gff = GenOO::Data::File::GFF->new(file => $file);
 
 	while (my $record = $gff->next_record){
-		my $tid = $record->attribute('transcript_id') 
+		my $tid = $record->attribute('transcript_id')
 			or die "transcript_id attribute must be defined\n";
-		my $gid = $record->attribute('gene_id') 
+		my $gid = $record->attribute('gene_id')
 			or die "gene_id attribute must be defined\n";
-	
+
 		if ($record->strand == 0){
-			warn "Skipping transcript $tid: strand symbol". $record->strand_symbol." not accepted\n";
 			next;
 		}
-		
+
 		# Get transcript with id or create a new one. Update coordinates if required
 		my $transcript = $transcripts{$tid};
 		if (not defined $transcript) {
@@ -135,13 +135,13 @@ sub _read_gtf {
 			$transcript->start($record->start) if ($record->start < $transcript->start);
 			$transcript->stop($record->stop) if ($record->stop > $transcript->stop);
 		}
-		
+
 		if ($record->feature eq 'exon') {
 			push @{$transcript_splice_starts{$tid}}, $record->start;
 			push @{$transcript_splice_stops{$tid}}, $record->stop;
 		}
 		elsif ($record->feature eq 'start_codon') {
-			if ($record->strand == 1 and 
+			if ($record->strand == 1 and
 				(!defined $transcript->coding_start or
 				$record->start < $transcript->coding_start)) {
 
@@ -169,31 +169,31 @@ sub _read_gtf {
 			}
 		}
 	}
-	
+
 	foreach my $tid (keys %transcripts) {
 		$transcripts{$tid}->set_splice_starts_and_stops(
 			$transcript_splice_starts{$tid}, $transcript_splice_stops{$tid});
 	}
 
 	my @genes;
-	foreach my $gid (keys %genes) {
-		my $gene;
+	GENE: foreach my $gid (keys %genes) {
+		my $gene = GenOO::Gene->new(name => $gid);
 		my @gene_transcripts = sort {$a->start <=> $b->start} @{$genes{$gid}};
-		foreach my $tr (@gene_transcripts) {
-			if (not defined $gene or $tr->start > $gene->stop) {
-				$gene = GenOO::Gene->new(name => $gid);
-				$gene->add_transcript($tr);
-				$tr->gene($gene);
-				push @genes, $gene;
+		my $tr = shift @gene_transcripts;
+		$gene->add_transcript($tr);
+		$tr->gene($gene);
+		foreach $tr (@gene_transcripts) {
+			# if transcrpt doesn't overlap previous ones then skip the gene.
+			if (!$gene->overlaps($tr)) {
+				next GENE;
 			}
-			else {
-				$gene->add_transcript($tr);
-				$tr->gene($gene);
-			}
+			$gene->add_transcript($tr);
+			$tr->gene($gene);
 		}
+		push @genes, $gene;
 	}
 
-	return @genes;
+	return \@genes;
 }
 
 1;
