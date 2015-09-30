@@ -4,3 +4,14 @@ perl:
   - "5.18"
   - "5.16"
   - "5.14"
+  - "dev"
+  - "blead"
+matrix:
+  include:
+    - perl: 5.18
+      env: COVERAGE=1   # enables coverage+coveralls reporting
+  allow_failures:
+    - perl: blead       # ignore failures for blead perl
+sudo: false             # faster builds as long as you don't need sudo access
+before_install:
+  - eval $(curl https://travis-perl.github.io/init) --auto
