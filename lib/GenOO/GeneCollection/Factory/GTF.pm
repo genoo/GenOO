@@ -101,6 +101,7 @@ sub _read_gtf {
 	my $gff = GenOO::Data::File::GFF->new(file => $file);
 
 	while (my $record = $gff->next_record){
+		next unless (($record->feature eq 'exon') or ($record->feature eq 'start_codon') or ($record->feature eq 'stop_codon'));
 		my $tid = $record->attribute('transcript_id') 
 			or die "transcript_id attribute must be defined\n";
 		my $gid = $record->attribute('gene_id') 
