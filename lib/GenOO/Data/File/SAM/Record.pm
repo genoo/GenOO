@@ -287,6 +287,23 @@ sub is_secondary {
 	}
 }
 
+sub add_tag {
+	my ($self, $tag, $value) = @_;
+
+	my $t = $self->tag($tag);
+	if (defined $t) {
+		die "tag $tag already exists in \"" . $self->to_string . "\"\n";
+	}
+	$self->add_field("$tag:$value");
+	$self->tags->{$tag} = $value;
+}
+
+sub set_flag {
+	my ($self, $value) = @_;
+	
+	$self->fields->[1] = $value;
+}
+
 
 #######################################################################
 #########################   Private methods  ##########################

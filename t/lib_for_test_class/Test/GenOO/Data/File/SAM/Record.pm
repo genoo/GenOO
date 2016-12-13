@@ -38,11 +38,13 @@ sub qname : Test(2) {
 	is $self->obj(0)->qname, 'HWI-EAS235_25:1:1:4282:1093', "... and returns the correct value";
 }
 
-sub flag : Test(2) {
+sub flag : Test(3) {
 	my ($self) = @_;
 	
 	can_ok $self->obj(0), 'flag';
 	is $self->obj(0)->flag, 16, "... and returns the correct value";
+	$self->obj(0)->set_flag(4);
+	is $self->obj(0)->flag, 4, "... and returns the correct value";
 }
 
 sub rname : Test(2) {
@@ -454,6 +456,15 @@ sub mid_position : Test(9) {
 	is $self->obj(5)->mid_position, 22985493, "... and returns the correct value";
 	is $self->obj(6)->mid_position, 356780.5, "... and returns the correct value";
 	is $self->obj(7)->mid_position, 356780.5, "... and returns the correct value";
+}
+
+sub add_tag : Test(2) {
+	my ($self) = @_;
+
+	can_ok $self->obj(0), 'add_tag';
+	$self->obj(0)->add_tag('XD:Z', "a_tag");
+
+	is $self->obj(0)->tag('XD:Z'), "a_tag", "... and returns the correct value";
 }
 
 
